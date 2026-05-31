@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/app.analytics'
 import { Route as ApiPublicCronSchedulerTickRouteImport } from './routes/api/public/cron/scheduler-tick'
+import { Route as ApiPublicOauthCallbackProviderRouteImport } from './routes/api/public/oauth/callback/$provider'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -105,6 +106,12 @@ const ApiPublicCronSchedulerTickRoute =
     path: '/api/public/cron/scheduler-tick',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicOauthCallbackProviderRoute =
+  ApiPublicOauthCallbackProviderRouteImport.update({
+    id: '/api/public/oauth/callback/$provider',
+    path: '/api/public/oauth/callback/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
+  '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -136,6 +144,7 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
+  '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
+  '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/'
     | '/api/public/cron/scheduler-tick'
+    | '/api/public/oauth/callback/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app'
     | '/api/public/cron/scheduler-tick'
+    | '/api/public/oauth/callback/$provider'
   id:
     | '__root__'
     | '/'
@@ -204,6 +216,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/settings'
     | '/_authenticated/app/'
     | '/api/public/cron/scheduler-tick'
+    | '/api/public/oauth/callback/$provider'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,6 +225,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   ApiPublicCronSchedulerTickRoute: typeof ApiPublicCronSchedulerTickRoute
+  ApiPublicOauthCallbackProviderRoute: typeof ApiPublicOauthCallbackProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -321,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronSchedulerTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/oauth/callback/$provider': {
+      id: '/api/public/oauth/callback/$provider'
+      path: '/api/public/oauth/callback/$provider'
+      fullPath: '/api/public/oauth/callback/$provider'
+      preLoaderRoute: typeof ApiPublicOauthCallbackProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -369,7 +390,18 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   ApiPublicCronSchedulerTickRoute: ApiPublicCronSchedulerTickRoute,
+  ApiPublicOauthCallbackProviderRoute: ApiPublicOauthCallbackProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
