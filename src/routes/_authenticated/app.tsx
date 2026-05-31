@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/app")({
   component: AppShell,
 });
 
-const NAV = [
+const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/app/brands", label: "Brands", icon: Palette },
   { to: "/app/channels", label: "Channels", icon: Radio },
@@ -24,7 +24,7 @@ const NAV = [
   { to: "/app/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/app/brain", label: "Brain", icon: Brain },
   { to: "/app/missions", label: "Missions", icon: Target },
-] as const;
+];
 
 function AppShell() {
   const navigate = useNavigate();
