@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/public/oauth/callback/$provider")({
               {
                 workspace_id: payload.workspaceId,
                 brand_id: payload.brandId ?? null,
-                platform: provider.platform,
+                platform: provider.platform as "facebook" | "instagram" | "linkedin" | "tiktok" | "youtube",
                 external_id: tokens.externalAccountId ?? `oauth_${Date.now()}`,
                 handle: tokens.externalHandle ?? null,
                 status: "connected",
