@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Brain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · Digital OS" }] }),
@@ -12,6 +14,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,48 +39,51 @@ function LoginPage() {
 
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) toast.error("Google sign-in failed");
+    if (result.error) toast.error(t("auth.googleFailed"));
   }
 
   return (
     <div className="grid min-h-screen place-items-center px-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card/60 p-8 shadow-elevated backdrop-blur">
-        <Link to="/" className="mb-6 flex items-center gap-2">
-          <div className="grid size-9 place-items-center rounded-xl bg-gradient-brand shadow-glow">
-            <Brain className="size-5 text-primary-foreground" />
-          </div>
-          <span className="font-semibold tracking-tight">Digital OS</span>
-        </Link>
-        <h1 className="text-2xl font-semibold">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Sign in to your operating system.</p>
+        <div className="mb-6 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="grid size-9 place-items-center rounded-xl bg-gradient-brand shadow-glow">
+              <Brain className="size-5 text-primary-foreground" />
+            </div>
+            <span className="font-semibold tracking-tight">Digital OS</span>
+          </Link>
+          <LanguageSwitcher compact />
+        </div>
+        <h1 className="text-2xl font-semibold">{t("auth.loginTitle")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("auth.loginSubtitle")}</p>
 
         <button onClick={handleGoogle} className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium transition hover:bg-secondary">
-          <GoogleIcon /> Continue with Google
+          <GoogleIcon /> {t("common.continueWithGoogle")}
         </button>
 
         <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
+          <div className="h-px flex-1 bg-border" /> {t("common.or")} <div className="h-px flex-1 bg-border" />
         </div>
 
         <form onSubmit={handleEmail} className="space-y-3">
           <div>
-            <label className="text-xs text-muted-foreground">Email</label>
+            <label className="text-xs text-muted-foreground">{t("common.email")}</label>
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40" />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">Password</label>
+            <label className="text-xs text-muted-foreground">{t("common.password")}</label>
             <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40" />
           </div>
           <button disabled={loading} className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:opacity-90 disabled:opacity-50">
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? t("auth.signingIn") : t("common.signIn")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          No account?{" "}
-          <Link to="/signup" className="text-primary hover:underline">Create one</Link>
+          {t("auth.noAccount")}{" "}
+          <Link to="/signup" className="text-primary hover:underline">{t("auth.createOne")}</Link>
         </p>
       </div>
     </div>
