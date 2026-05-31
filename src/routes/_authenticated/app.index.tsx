@@ -26,47 +26,47 @@ function Dashboard() {
 
   const recommendMut = useMutation({
     mutationFn: () => recommend({ data: { workspaceId: wsId! } }),
-    onSuccess: (r) => { toast.success(`Brain generated ${r.generated} recommendations`); q.refetch(); },
+    onSuccess: (r) => { toast.success(t("dashboard.brainGenerated", { count: r.generated })); q.refetch(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (!wsId || q.isLoading) return <div className="text-muted-foreground">Loading...</div>;
+  if (!wsId || q.isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
   const d = q.data!;
 
   return (
     <div className="space-y-8">
       <header className="flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Command Center</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Your digital operation, at a glance.</p>
+          <h1 className="text-3xl font-semibold tracking-tight">{t("dashboard.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
         </div>
         <button
           onClick={() => recommendMut.mutate()}
           disabled={recommendMut.isPending}
           className="inline-flex items-center gap-2 rounded-md bg-brain px-4 py-2 text-sm font-medium text-brain-foreground shadow-glow transition hover:opacity-90 disabled:opacity-50"
         >
-          <Sparkles className="size-4" /> {recommendMut.isPending ? "Thinking..." : "Run Brain"}
+          <Sparkles className="size-4" /> {recommendMut.isPending ? t("dashboard.thinking") : t("dashboard.runBrain")}
         </button>
       </header>
 
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard icon={Palette} label="Brands" value={d.counts.brands} to="/app/brands" />
-        <StatCard icon={Radio} label="Channels" value={`${d.counts.channelsConnected}/${d.counts.channels}`} hint="connected" to="/app/channels" />
-        <StatCard icon={FileText} label="Content" value={d.counts.content} to="/app/content" />
-        <StatCard icon={Calendar} label="Upcoming" value={d.upcomingJobs.length} to="/app/scheduler" />
+        <StatCard icon={Palette} label={t("dashboard.stats.brands")} value={d.counts.brands} to="/app/brands" />
+        <StatCard icon={Radio} label={t("dashboard.stats.channels")} value={`${d.counts.channelsConnected}/${d.counts.channels}`} hint={t("dashboard.stats.connected")} to="/app/channels" />
+        <StatCard icon={FileText} label={t("dashboard.stats.content")} value={d.counts.content} to="/app/content" />
+        <StatCard icon={Calendar} label={t("dashboard.stats.upcoming")} value={d.upcomingJobs.length} to="/app/scheduler" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <Panel title="Brain · Recommendations" icon={Brain} action={<Link to="/app/brain" className="text-xs text-primary hover:underline">View all</Link>}>
+        <Panel title={t("dashboard.panels.recommendations")} icon={Brain} action={<Link to="/app/brain" className="text-xs text-primary hover:underline">{t("common.viewAll")}</Link>}>
           {d.recommendations.length === 0 ? (
-            <Empty text="No recommendations yet. Click Run Brain to generate." />
+            <Empty text={t("dashboard.panels.noRecs")} />
           ) : (
             <ul className="space-y-2">
               {d.recommendations.map((r: any) => (
                 <li key={r.id} className="rounded-lg border border-border bg-background/40 p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{r.title}</span>
-                    <span className="text-xs text-muted-foreground">score {Number(r.score).toFixed(2)}</span>
+                    <span className="text-xs text-muted-foreground">{t("dashboard.panels.score")} {Number(r.score).toFixed(2)}</span>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{r.rationale}</p>
                 </li>
@@ -75,8 +75,8 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Missions" icon={Target} action={<Link to="/app/missions" className="text-xs text-primary hover:underline">Manage</Link>}>
-          {d.missions.length === 0 ? <Empty text="No active missions." /> : (
+        <Panel title={t("dashboard.panels.missions")} icon={Target} action={<Link to="/app/missions" className="text-xs text-primary hover:underline">{t("common.manage")}</Link>}>
+          {d.missions.length === 0 ? <Empty text={t("dashboard.panels.noMissions")} /> : (
             <ul className="space-y-2">
               {d.missions.map((m: any) => (
                 <li key={m.id} className="flex items-center justify-between rounded-lg border border-border bg-background/40 p-3">
@@ -88,8 +88,8 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Event stream" icon={Zap}>
-          {d.events.length === 0 ? <Empty text="No events yet." /> : (
+        <Panel title={t("dashboard.panels.events")} icon={Zap}>
+          {d.events.length === 0 ? <Empty text={t("dashboard.panels.noEvents")} /> : (
             <ul className="space-y-1.5">
               {d.events.map((e: any) => (
                 <li key={e.id} className="flex items-center justify-between text-sm">
