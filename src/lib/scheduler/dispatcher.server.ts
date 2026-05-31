@@ -42,12 +42,12 @@ async function loadContext(job: SchedulerJobRow) {
     await Promise.all([
       supabaseAdmin
         .from("content")
-        .select("id, workspace_id, title, body, media_urls, type")
+        .select("id, workspace_id, title, body, media, type")
         .eq("id", job.content_id)
         .single(),
       supabaseAdmin
         .from("channels")
-        .select("id, workspace_id, platform, config")
+        .select("id, workspace_id, platform, metadata")
         .eq("id", job.channel_id)
         .single(),
     ]);
@@ -65,6 +65,13 @@ async function loadContext(job: SchedulerJobRow) {
   return { content, channel };
 }
 
+function extractMediaUrls(media: unknown): string[] {
+  if (!Array.isArray(media)) return [];
+  return media
+    .map((m) => (typeof m === "string" ? m : (m as { url?: string })?.url))
+    .filter((u): u is string => typeof u === "string");
+}
+
 async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"][number]> {
   try {
     const { content, channel } = await loadContext(job);
@@ -79,9 +86,9 @@ async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"]
       payload: {
         title: content.title,
         body: content.body,
-        media_urls: (content.media_urls as string[] | null) ?? [],
+        media_urls: extractMediaUrls(content.media),
       },
-      channelConfig: (channel.config as Record<string, unknown> | null) ?? {},
+      channelConfig: (channel.metadata as Record<string, unknown> | null) ?? {},
     });
 
     const { error } = await supabaseAdmin.rpc("complete_scheduler_job", {
