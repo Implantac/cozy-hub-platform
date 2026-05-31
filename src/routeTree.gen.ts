@@ -23,6 +23,7 @@ import { Route as AuthenticatedAppChannelsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authenticated/app.brands'
 import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/app.analytics'
+import { Route as ApiPublicCronSchedulerTickRouteImport } from './routes/api/public/cron/scheduler-tick'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -98,6 +99,12 @@ const AuthenticatedAppAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const ApiPublicCronSchedulerTickRoute =
+  ApiPublicCronSchedulerTickRouteImport.update({
+    id: '/api/public/cron/scheduler-tick',
+    path: '/api/public/cron/scheduler-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -127,6 +135,7 @@ export interface FileRoutesByTo {
   '/app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -144,6 +153,7 @@ export interface FileRoutesById {
   '/_authenticated/app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/app/scheduler'
     | '/app/settings'
     | '/app/'
+    | '/api/public/cron/scheduler-tick'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/app/scheduler'
     | '/app/settings'
     | '/app'
+    | '/api/public/cron/scheduler-tick'
   id:
     | '__root__'
     | '/'
@@ -191,6 +203,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/scheduler'
     | '/_authenticated/app/settings'
     | '/_authenticated/app/'
+    | '/api/public/cron/scheduler-tick'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -198,6 +211,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  ApiPublicCronSchedulerTickRoute: typeof ApiPublicCronSchedulerTickRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -300,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/cron/scheduler-tick': {
+      id: '/api/public/cron/scheduler-tick'
+      path: '/api/public/cron/scheduler-tick'
+      fullPath: '/api/public/cron/scheduler-tick'
+      preLoaderRoute: typeof ApiPublicCronSchedulerTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -347,7 +368,18 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  ApiPublicCronSchedulerTickRoute: ApiPublicCronSchedulerTickRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
