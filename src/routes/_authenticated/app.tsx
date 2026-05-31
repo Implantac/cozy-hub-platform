@@ -130,6 +130,7 @@ function WorkspaceSwitcher({
   onSelect: (id: string) => void;
   onCreate: (name: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="px-3">
       <details className="group rounded-lg border border-sidebar-border bg-sidebar-accent/30">
@@ -149,11 +150,11 @@ function WorkspaceSwitcher({
             </button>
           ))}
           <button onClick={async () => {
-              const name = window.prompt("New workspace name");
+              const name = window.prompt(t("workspace.newName"));
               if (name && name.trim()) await onCreate(name.trim());
             }}
             className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-primary hover:bg-sidebar-accent">
-            <Plus className="size-3.5" /> New workspace
+            <Plus className="size-3.5" /> {t("workspace.new")}
           </button>
         </div>
       </details>
