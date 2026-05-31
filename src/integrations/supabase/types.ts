@@ -51,11 +51,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "analytics_snapshots_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "v_channel_health"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "analytics_snapshots_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "content"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_snapshots_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
           },
           {
             foreignKeyName: "analytics_snapshots_workspace_id_fkey"
@@ -108,6 +122,13 @@ export type Database = {
             foreignKeyName: "audit_logs_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "audit_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
@@ -142,6 +163,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "brain_memories_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
           {
             foreignKeyName: "brain_memories_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -196,6 +224,13 @@ export type Database = {
             foreignKeyName: "brain_recommendations_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "brain_recommendations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
@@ -239,6 +274,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "brands_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
           {
             foreignKeyName: "brands_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -298,6 +340,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "brands"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channels_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
           },
           {
             foreignKeyName: "channels_workspace_id_fkey"
@@ -366,6 +415,13 @@ export type Database = {
             foreignKeyName: "content_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "content_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
@@ -410,6 +466,13 @@ export type Database = {
             foreignKeyName: "content_templates_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "content_templates_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
@@ -441,6 +504,13 @@ export type Database = {
           workspace_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "domain_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
           {
             foreignKeyName: "domain_events_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -479,6 +549,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "integrations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
           {
             foreignKeyName: "integrations_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -536,6 +613,13 @@ export type Database = {
             foreignKeyName: "missions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "missions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
@@ -579,8 +663,15 @@ export type Database = {
           {
             foreignKeyName: "oauth_tokens_channel_id_fkey"
             columns: ["channel_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oauth_tokens_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: true
+            referencedRelation: "v_channel_health"
             referencedColumns: ["id"]
           },
         ]
@@ -676,11 +767,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "scheduler_jobs_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "v_channel_health"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "scheduler_jobs_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "content"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduler_jobs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
           },
           {
             foreignKeyName: "scheduler_jobs_workspace_id_fkey"
@@ -714,6 +819,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
           {
             foreignKeyName: "workspace_members_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -758,12 +870,209 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_channel_health: {
+        Row: {
+          brand_id: string | null
+          connected_at: string | null
+          handle: string | null
+          id: string | null
+          last_synced_at: string | null
+          platform: Database["public"]["Enums"]["social_platform"] | null
+          status: Database["public"]["Enums"]["channel_status"] | null
+          token_valid: boolean | null
+          workspace_id: string | null
+        }
+        Insert: {
+          brand_id?: string | null
+          connected_at?: string | null
+          handle?: string | null
+          id?: string | null
+          last_synced_at?: string | null
+          platform?: Database["public"]["Enums"]["social_platform"] | null
+          status?: Database["public"]["Enums"]["channel_status"] | null
+          token_valid?: never
+          workspace_id?: string | null
+        }
+        Update: {
+          brand_id?: string | null
+          connected_at?: string | null
+          handle?: string | null
+          id?: string | null
+          last_synced_at?: string | null
+          platform?: Database["public"]["Enums"]["social_platform"] | null
+          status?: Database["public"]["Enums"]["channel_status"] | null
+          token_valid?: never
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channels_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channels_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "channels_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_workspace_overview: {
+        Row: {
+          brands_count: number | null
+          channels_connected: number | null
+          channels_count: number | null
+          content_count: number | null
+          jobs_pending: number | null
+          missions_open: number | null
+          name: string | null
+          plan: Database["public"]["Enums"]["workspace_plan"] | null
+          workspace_id: string | null
+        }
+        Insert: {
+          brands_count?: never
+          channels_connected?: never
+          channels_count?: never
+          content_count?: never
+          jobs_pending?: never
+          missions_open?: never
+          name?: string | null
+          plan?: Database["public"]["Enums"]["workspace_plan"] | null
+          workspace_id?: string | null
+        }
+        Update: {
+          brands_count?: never
+          channels_connected?: never
+          channels_count?: never
+          content_count?: never
+          jobs_pending?: never
+          missions_open?: never
+          name?: string | null
+          plan?: Database["public"]["Enums"]["workspace_plan"] | null
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      claim_scheduler_jobs: {
+        Args: { _limit?: number; _lock_seconds?: number }
+        Returns: {
+          attempts: number
+          channel_id: string
+          content_id: string
+          created_at: string
+          external_post_id: string | null
+          id: string
+          last_error: string | null
+          locked_until: string | null
+          max_attempts: number
+          run_at: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["job_status"]
+          updated_at: string
+          workspace_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "scheduler_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      complete_scheduler_job: {
+        Args: { _external_post_id: string; _job_id: string }
+        Returns: {
+          attempts: number
+          channel_id: string
+          content_id: string
+          created_at: string
+          external_post_id: string | null
+          id: string
+          last_error: string | null
+          locked_until: string | null
+          max_attempts: number
+          run_at: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["job_status"]
+          updated_at: string
+          workspace_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "scheduler_jobs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_workspace_role: {
         Args: { _workspace_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      enqueue_publication: {
+        Args: {
+          _channel_ids: string[]
+          _content_id: string
+          _scheduled_at: string
+        }
+        Returns: {
+          attempts: number
+          channel_id: string
+          content_id: string
+          created_at: string
+          external_post_id: string | null
+          id: string
+          last_error: string | null
+          locked_until: string | null
+          max_attempts: number
+          run_at: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["job_status"]
+          updated_at: string
+          workspace_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "scheduler_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      fail_scheduler_job: {
+        Args: { _error: string; _job_id: string }
+        Returns: {
+          attempts: number
+          channel_id: string
+          content_id: string
+          created_at: string
+          external_post_id: string | null
+          id: string
+          last_error: string | null
+          locked_until: string | null
+          max_attempts: number
+          run_at: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["job_status"]
+          updated_at: string
+          workspace_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "scheduler_jobs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       has_workspace_role: {
         Args: {
@@ -776,6 +1085,43 @@ export type Database = {
       is_workspace_member: {
         Args: { _user_id?: string; _workspace_id: string }
         Returns: boolean
+      }
+      record_analytics_snapshot: {
+        Args: {
+          _channel_id: string
+          _content_id: string
+          _metrics: Json
+          _workspace_id: string
+        }
+        Returns: {
+          captured_at: string
+          channel_id: string | null
+          content_id: string | null
+          created_at: string
+          id: string
+          metrics: Json
+          workspace_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "analytics_snapshots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      search_brain_memories: {
+        Args: { _limit?: number; _query: string; _workspace_id: string }
+        Returns: {
+          content: string
+          id: string
+          kind: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      seed_default_templates: {
+        Args: { _workspace_id: string }
+        Returns: undefined
       }
     }
     Enums: {
