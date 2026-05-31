@@ -1,0 +1,97 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "booting": "Inicializando Digital OS...",
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "getStarted": "Começar",
+    "createAccount": "Criar conta",
+    "or": "ou",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome",
+    "continueWithGoogle": "Continuar com Google",
+    "noWorkspace": "Nenhum workspace disponível.",
+    "tryAgain": "Tentar novamente",
+    "goHome": "Ir para o início",
+    "viewAll": "Ver tudo",
+    "manage": "Gerenciar",
+    "language": "Idioma"
+  },
+  "landing": {
+    "badge": "Cérebro Cognitivo Nativo · pgvector · multi-tenant",
+    "title1": "O sistema operacional para sua",
+    "titleHighlight": "presença digital",
+    "subtitle": "Conecte cada canal, agende cada post, monitore cada sinal — e deixe um Cérebro Cognitivo Nativo transformar tudo em recomendações e missões.",
+    "startFree": "Começar grátis",
+    "features": {
+      "multichannel": { "title": "Multi-canal", "desc": "Instagram, Facebook, YouTube, TikTok, LinkedIn — unificados." },
+      "scheduler": { "title": "Agendador", "desc": "Planeje, agende e publique em todos os canais com filas e DLQ." },
+      "analytics": { "title": "Analytics", "desc": "Métricas em tempo real e séries históricas por canal e marca." },
+      "brain": { "title": "Brain (IA)", "desc": "Recomendações, missões e memória vetorial com RAG." },
+      "missions": { "title": "Missões", "desc": "Kanban de execução com SLA, donos e prazos." },
+      "tenant": { "title": "Multi-tenant", "desc": "Workspaces isolados com RLS, RBAC e auditoria." }
+    }
+  },
+  "auth": {
+    "loginTitle": "Bem-vindo de volta",
+    "loginSubtitle": "Entre no seu sistema operacional.",
+    "signupTitle": "Crie seu workspace",
+    "signupSubtitle": "Inicie sua operação digital AI-native em 60 segundos.",
+    "signingIn": "Entrando...",
+    "creating": "Criando...",
+    "noAccount": "Não tem conta?",
+    "createOne": "Crie uma",
+    "alreadyOnboard": "Já está a bordo?",
+    "accountCreated": "Conta criada. Bem-vindo ao Digital OS.",
+    "googleFailed": "Falha no login com Google"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "brands": "Marcas",
+    "channels": "Canais",
+    "content": "Conteúdo",
+    "scheduler": "Agendador",
+    "analytics": "Analytics",
+    "brain": "Brain",
+    "missions": "Missões",
+    "settings": "Configurações"
+  },
+  "workspace": {
+    "new": "Novo workspace",
+    "newName": "Nome do novo workspace",
+    "created": "Workspace criado",
+    "mine": "Meu workspace"
+  },
+  "dashboard": {
+    "title": "Centro de Comando",
+    "subtitle": "Sua operação digital, em um relance.",
+    "runBrain": "Executar Brain",
+    "thinking": "Pensando...",
+    "brainGenerated": "Brain gerou {{count}} recomendações",
+    "stats": {
+      "brands": "Marcas",
+      "channels": "Canais",
+      "connected": "conectados",
+      "content": "Conteúdo",
+      "upcoming": "Próximos"
+    },
+    "panels": {
+      "recommendations": "Brain · Recomendações",
+      "missions": "Missões",
+      "events": "Fluxo de eventos",
+      "pipeline": "Pipeline de conteúdo",
+      "score": "score",
+      "noRecs": "Nenhuma recomendação ainda. Clique em Executar Brain para gerar.",
+      "noMissions": "Nenhuma missão ativa.",
+      "noEvents": "Nenhum evento ainda.",
+      "noContent": "Nenhum conteúdo ainda."
+    }
+  },
+  "errors": {
+    "interrupted": "Algo interrompeu o Digital OS",
+    "unknown": "Erro desconhecido",
+    "notFoundTitle": "Página não encontrada",
+    "notFoundDesc": "Esta rota não existe no seu Digital OS."
+  }
+}

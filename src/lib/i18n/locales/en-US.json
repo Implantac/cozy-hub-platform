@@ -1,0 +1,97 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "booting": "Booting Digital OS...",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "getStarted": "Get started",
+    "createAccount": "Create account",
+    "or": "or",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "continueWithGoogle": "Continue with Google",
+    "noWorkspace": "No workspace available.",
+    "tryAgain": "Try again",
+    "goHome": "Go home",
+    "viewAll": "View all",
+    "manage": "Manage",
+    "language": "Language"
+  },
+  "landing": {
+    "badge": "Native Cognitive Brain · pgvector · multi-tenant",
+    "title1": "The operating system for your",
+    "titleHighlight": "digital presence",
+    "subtitle": "Connect every channel, schedule every post, monitor every signal — and let a Native Cognitive Brain turn it into recommendations and missions.",
+    "startFree": "Start free",
+    "features": {
+      "multichannel": { "title": "Multi-channel", "desc": "Instagram, Facebook, YouTube, TikTok, LinkedIn — unified." },
+      "scheduler": { "title": "Scheduler", "desc": "Plan, schedule and publish across all channels with queues and DLQ." },
+      "analytics": { "title": "Analytics", "desc": "Real-time metrics and historical series per channel and brand." },
+      "brain": { "title": "Brain (AI)", "desc": "Recommendations, missions and vector memory with RAG." },
+      "missions": { "title": "Missions", "desc": "Execution kanban with SLAs, owners and deadlines." },
+      "tenant": { "title": "Multi-tenant", "desc": "Isolated workspaces with RLS, RBAC and auditing." }
+    }
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your operating system.",
+    "signupTitle": "Create your workspace",
+    "signupSubtitle": "Boot your AI-native digital operation in 60 seconds.",
+    "signingIn": "Signing in...",
+    "creating": "Creating...",
+    "noAccount": "No account?",
+    "createOne": "Create one",
+    "alreadyOnboard": "Already on board?",
+    "accountCreated": "Account created. Welcome to Digital OS.",
+    "googleFailed": "Google sign-in failed"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "brands": "Brands",
+    "channels": "Channels",
+    "content": "Content",
+    "scheduler": "Scheduler",
+    "analytics": "Analytics",
+    "brain": "Brain",
+    "missions": "Missions",
+    "settings": "Settings"
+  },
+  "workspace": {
+    "new": "New workspace",
+    "newName": "New workspace name",
+    "created": "Workspace created",
+    "mine": "My workspace"
+  },
+  "dashboard": {
+    "title": "Command Center",
+    "subtitle": "Your digital operation, at a glance.",
+    "runBrain": "Run Brain",
+    "thinking": "Thinking...",
+    "brainGenerated": "Brain generated {{count}} recommendations",
+    "stats": {
+      "brands": "Brands",
+      "channels": "Channels",
+      "connected": "connected",
+      "content": "Content",
+      "upcoming": "Upcoming"
+    },
+    "panels": {
+      "recommendations": "Brain · Recommendations",
+      "missions": "Missions",
+      "events": "Event stream",
+      "pipeline": "Content pipeline",
+      "score": "score",
+      "noRecs": "No recommendations yet. Click Run Brain to generate.",
+      "noMissions": "No active missions.",
+      "noEvents": "No events yet.",
+      "noContent": "No content yet."
+    }
+  },
+  "errors": {
+    "interrupted": "Something interrupted Digital OS",
+    "unknown": "Unknown error",
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "This route doesn't exist in your Digital OS."
+  }
+}
