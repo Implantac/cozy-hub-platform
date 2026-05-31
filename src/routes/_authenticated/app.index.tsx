@@ -101,8 +101,8 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Content pipeline" icon={FileText}>
-          {Object.keys(d.contentByStatus).length === 0 ? <Empty text="No content yet." /> : (
+        <Panel title={t("dashboard.panels.pipeline")} icon={FileText}>
+          {Object.keys(d.contentByStatus).length === 0 ? <Empty text={t("dashboard.panels.noContent")} /> : (
             <div className="space-y-2">
               {Object.entries(d.contentByStatus).map(([k, v]) => (
                 <div key={k} className="flex items-center justify-between text-sm">
