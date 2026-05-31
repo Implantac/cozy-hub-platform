@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard, Palette, Radio, FileText, Calendar, BarChart3,
   Brain, Target, Settings, LogOut, ChevronDown, Plus,
@@ -9,27 +10,29 @@ import {
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { signOut, useAuth } from "@/lib/auth/use-auth";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppShell,
 });
 
-const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/brands", label: "Brands", icon: Palette },
-  { to: "/app/channels", label: "Channels", icon: Radio },
-  { to: "/app/content", label: "Content", icon: FileText },
-  { to: "/app/scheduler", label: "Scheduler", icon: Calendar },
-  { to: "/app/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/app/brain", label: "Brain", icon: Brain },
-  { to: "/app/missions", label: "Missions", icon: Target },
+const NAV: Array<{ to: string; labelKey: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
+  { to: "/app", labelKey: "nav.dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/app/brands", labelKey: "nav.brands", icon: Palette },
+  { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
+  { to: "/app/content", labelKey: "nav.content", icon: FileText },
+  { to: "/app/scheduler", labelKey: "nav.scheduler", icon: Calendar },
+  { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
+  { to: "/app/brain", labelKey: "nav.brain", icon: Brain },
+  { to: "/app/missions", labelKey: "nav.missions", icon: Target },
 ];
 
 function AppShell() {
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const auth = useAuth();
+  const { t } = useTranslation();
 
   const fetchWs = useServerFn(listMyWorkspaces);
   const fetchProfile = useServerFn(getMyProfile);
@@ -50,15 +53,15 @@ function AppShell() {
   // Auto-onboarding: no workspace -> create one
   useEffect(() => {
     if (wsQuery.isSuccess && workspaces.length === 0 && auth.user) {
-      const name = (auth.user.user_metadata?.full_name as string) ?? "My workspace";
-      createWs({ data: { name: `${name}'s Workspace` } })
-        .then((ws) => { setCurrentWsId(ws.id); wsQuery.refetch(); toast.success("Workspace created"); })
+      const name = (auth.user.user_metadata?.full_name as string) ?? t("workspace.mine");
+      createWs({ data: { name: `${name}` } })
+        .then((ws) => { setCurrentWsId(ws.id); wsQuery.refetch(); toast.success(t("workspace.created")); })
         .catch((e) => toast.error(e.message));
     }
-  }, [wsQuery.isSuccess, workspaces.length, auth.user, createWs, setCurrentWsId, wsQuery]);
+  }, [wsQuery.isSuccess, workspaces.length, auth.user, createWs, setCurrentWsId, wsQuery, t]);
 
   if (auth.loading || wsQuery.isLoading) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Booting Digital OS...</div>;
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.booting")}</div>;
   }
 
   return (
@@ -77,7 +80,7 @@ function AppShell() {
           onSelect={async (id) => { setCurrentWsId(id); await setDefaultWs({ data: { workspaceId: id } }); }}
           onCreate={async (name) => {
             const ws = await createWs({ data: { name } });
-            setCurrentWsId(ws.id); await wsQuery.refetch(); toast.success("Workspace created");
+            setCurrentWsId(ws.id); await wsQuery.refetch(); toast.success(t("workspace.created"));
           }}
         />
 
@@ -90,28 +93,29 @@ function AppShell() {
                   active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                 }`}>
                 <item.icon className="size-4" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
         </nav>
 
-        <div className="border-t border-sidebar-border p-3">
+        <div className="space-y-0.5 border-t border-sidebar-border p-3">
+          <LanguageSwitcher />
           <Link to="/app/settings" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground">
-            <Settings className="size-4" /> Settings
+            <Settings className="size-4" /> {t("nav.settings")}
           </Link>
           <button
             onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
           >
-            <LogOut className="size-4" /> Sign out
+            <LogOut className="size-4" /> {t("common.signOut")}
           </button>
         </div>
       </aside>
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl px-8 py-8">
-          {currentWs ? <Outlet /> : <div className="text-muted-foreground">No workspace available.</div>}
+          {currentWs ? <Outlet /> : <div className="text-muted-foreground">{t("common.noWorkspace")}</div>}
         </div>
       </main>
     </div>
@@ -126,6 +130,7 @@ function WorkspaceSwitcher({
   onSelect: (id: string) => void;
   onCreate: (name: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="px-3">
       <details className="group rounded-lg border border-sidebar-border bg-sidebar-accent/30">
@@ -145,11 +150,11 @@ function WorkspaceSwitcher({
             </button>
           ))}
           <button onClick={async () => {
-              const name = window.prompt("New workspace name");
+              const name = window.prompt(t("workspace.newName"));
               if (name && name.trim()) await onCreate(name.trim());
             }}
             className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-primary hover:bg-sidebar-accent">
-            <Plus className="size-3.5" /> New workspace
+            <Plus className="size-3.5" /> {t("workspace.new")}
           </button>
         </div>
       </details>
