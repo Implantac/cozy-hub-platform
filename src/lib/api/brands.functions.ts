@@ -30,8 +30,8 @@ export const createBrand = createServerFn({ method: "POST" })
       workspace_id: data.workspaceId,
       name: data.name,
       description: data.description ?? null,
-      voice: data.voice ?? {},
-      palette: data.palette ?? {},
+      voice: (data.voice ?? {}) as never,
+      palette: (data.palette ?? {}) as never,
       created_by: userId,
     }).select().single();
     if (error) throw new Error(error.message);

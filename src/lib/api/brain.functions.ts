@@ -111,7 +111,7 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
       await supabase.from("brain_recommendations").insert(
         recs.map((r) => ({
           workspace_id: ws, kind: r.kind, title: r.title, rationale: r.rationale,
-          payload: r.payload, score: r.score, status: "open" as const,
+          payload: r.payload as never, score: r.score, status: "open" as const,
         }))
       );
 
