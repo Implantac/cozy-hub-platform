@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { Brain, Sparkles, Radio, Palette, FileText, Calendar, Target, Zap } from "lucide-react";
 import { getDashboard } from "@/lib/api/dashboard.functions";
 import { runBrainRecommend } from "@/lib/api/brain.functions";
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 });
 
 function Dashboard() {
+  const { t } = useTranslation();
   const [wsId] = useCurrentWorkspaceId();
   const fetch = useServerFn(getDashboard);
   const recommend = useServerFn(runBrainRecommend);
