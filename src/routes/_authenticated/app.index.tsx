@@ -34,6 +34,10 @@ function GPSDashboard() {
   const listRecs = useServerFn(CoachService.listRecommendations);
   const getHealth = useServerFn(HealthService.getLatestHealth);
   const listOpps = useServerFn(OpportunitiesService.listOpportunities);
+  const getBlueprint = useServerFn(BuilderService.getBlueprint);
+  const listCompetitors = useServerFn(BuilderService.listCompetitors);
+  const listSkills = useServerFn(BrainEvolutionService.listSkillAssessments);
+  const getTimeline = useServerFn(BrainEvolutionService.getLongTermTimeline);
 
   const overview = useQuery({
     queryKey: ["dashboard", wsId],
