@@ -21,8 +21,17 @@ export interface SupabaseLikeResult<T> {
   error: SupabaseLikeError | null;
 }
 
-/** Throws `new Error(error.message)` when `error` is non-null. No-op otherwise. */
-export function throwIfError(error: SupabaseLikeError | null): void {
+/**
+ * Throws `new Error(error.message)` when `error` is non-null. No-op otherwise.
+ *
+ * Declared as an assertion so TypeScript narrows the discriminated union
+ * returned by Supabase (`{ data: T, error: null } | { data: null, error }`)
+ * to the success branch on the lines that follow — matching the narrowing
+ * the inline `if (error) throw …` pattern provided.
+ */
+export function throwIfError(
+  error: SupabaseLikeError | null,
+): asserts error is null {
   if (error) throw new Error(error.message);
 }
 
