@@ -66,7 +66,8 @@ function CoachPage() {
     },
   );
   const act = useWorkspaceMutation(
-    (v: { id: string; action: "dismiss" | "complete" }) => update({ data: v }),
+    (v: { id: string; action: "dismiss" | "complete" }) =>
+      update({ data: { ...v, workspaceId: wsId! } }),
     { invalidate: coachKey },
   );
 

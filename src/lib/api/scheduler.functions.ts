@@ -77,17 +77,32 @@ export const cancelSchedulerJob = createServerFn({ method: "POST" })
   });
 
 /**
- * Admin/manual tick — runs the dispatcher on demand.
- * Useful from the dashboard ("Run now") or during local debugging.
- * Still respects RLS via membership check on the source rows.
+ * Manual tick — runs the dispatcher on demand.
+ * Gated to workspace owners/admins to avoid letting any signed-in user
+ * trigger publication of jobs they don't own.
+ *
+ * NOTE: the dispatcher itself currently claims globally via service-role
+ * RPCs; this guard restricts the *trigger* surface to privileged callers.
  */
 export const runSchedulerTickManual = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
+      workspaceId: z.string().uuid(),
       limit: z.number().int().min(1).max(50).default(10),
     }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: member, error } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", data.workspaceId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    throwIfError(error);
+    if (!member || !["owner", "admin"].includes(member.role)) {
+      throw new Error("forbidden: only workspace owners/admins can run the dispatcher");
+    }
     return runSchedulerTick({ limit: data.limit });
   });

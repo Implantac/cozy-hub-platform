@@ -79,7 +79,7 @@ function SchedulerPage() {
   );
 
   const tickMut = useWorkspaceMutation(
-    () => tick({ data: { limit: 10 } }),
+    () => tick({ data: { workspaceId: q.wsId!, limit: 10 } }),
     {
       invalidate: invalidateKey,
       successMessage: (r) => `Dispatcher ran · ${(r as { processed?: number }).processed ?? 0} processed`,
