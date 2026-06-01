@@ -19,3 +19,4 @@ export * as HealthService from "./health.service";
 export * as LearningService from "./learning.service";
 export * as BrainCoreService from "./brain-core.service";
 export * as DecisionOSService from "./decision-os.service";
+export * as TrustOSService from "./trust-os.service";
