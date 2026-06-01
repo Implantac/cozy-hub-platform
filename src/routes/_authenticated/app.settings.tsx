@@ -41,19 +41,28 @@ function SettingsPage() {
               Members ({q.data.members.length})
             </h3>
             <ul className="space-y-1.5">
-              {q.data.members.map((m) => (
-                <li
-                  key={m.user_id}
-                  className="flex items-center justify-between text-sm"
-                >
-                  <span>
-                    {m.profile?.display_name ?? m.user_id.slice(0, 8)}
-                  </span>
-                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs capitalize">
-                    {m.role}
-                  </span>
-                </li>
-              ))}
+              {q.data.members.map((m) => {
+                // Supabase's generated type can't infer the joined profile
+                // relation here, so we narrow at the consumption site.
+                const member = m as unknown as {
+                  user_id: string;
+                  role: string;
+                  profile?: { display_name?: string | null } | null;
+                };
+                return (
+                  <li
+                    key={member.user_id}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <span>
+                      {member.profile?.display_name ?? member.user_id.slice(0, 8)}
+                    </span>
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs capitalize">
+                      {member.role}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
