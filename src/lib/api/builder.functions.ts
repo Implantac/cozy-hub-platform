@@ -188,5 +188,6 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
       payload: { field, preview: value.slice(0, 160) },
       sentiment: "positive",
     });
+    await invalidateBrainCache(supabase, workspaceId);
     return row;
   });
