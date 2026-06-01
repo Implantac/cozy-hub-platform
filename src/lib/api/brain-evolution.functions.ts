@@ -419,7 +419,7 @@ export const createDueDiligenceReport = createServerFn({ method: "POST" })
 /* ============================================================
  * Brain-2C — Council of AI Advisors (rule-based v1)
  * ============================================================ */
-const ADVISORS = ["marketing", "financial", "operations", "growth", "branding", "legal"] as const;
+const ADVISORS = ["marketing", "financial", "strategy", "content", "business"] as const;
 type Advisor = (typeof ADVISORS)[number];
 
 function adviseHeuristic(advisor: Advisor, topic: string): {
@@ -443,36 +443,28 @@ function adviseHeuristic(advisor: Advisor, topic: string): {
         "Separe receita recorrente de pontual — só recorrente sustenta operação.",
       ],
     },
-    operations: {
-      lens: "tempo, processo, gargalo, repetibilidade",
+    strategy: {
+      lens: "direção, alavanca de longo prazo, foco vs. dispersão",
+      tips: [
+        "Escolha 1 métrica norte para o próximo trimestre.",
+        "Diga não para 5 oportunidades antes de dizer sim para 1.",
+        "Defina onde NÃO competir — clareza estratégica é subtração.",
+      ],
+    },
+    content: {
+      lens: "narrativa, formato, cadência, ressonância com a audiência",
+      tips: [
+        "Encontre 3 dores reais e crie 1 conteúdo por dor — não invente temas.",
+        "Reuse seu melhor post em 3 formatos antes de criar algo novo.",
+        "Consistência semanal vale mais que rajadas geniais esporádicas.",
+      ],
+    },
+    business: {
+      lens: "modelo, operação, repetibilidade, escalabilidade",
       tips: [
         "Documente os 3 processos que você repete toda semana.",
         "Identifique o gargalo: capacidade, decisão, ou execução?",
-        "Pense em qual tarefa custa caro fazer e barato delegar.",
-      ],
-    },
-    growth: {
-      lens: "experimentação, métrica norte, alavanca de crescimento",
-      tips: [
-        "Escolha 1 métrica norte para o próximo trimestre.",
-        "Rode no máximo 2 experimentos simultâneos.",
-        "Para cada canal, defina CAC máximo aceitável antes de testar.",
-      ],
-    },
-    branding: {
-      lens: "identidade, consistência, percepção, voz",
-      tips: [
-        "Sua marca é a soma de 100 toques — consistência > criatividade.",
-        "Tenha 3 cores, 2 fontes, 1 voz. Mais que isso confunde.",
-        "Pergunte para 5 clientes: 'em uma frase, o que somos pra você?'",
-      ],
-    },
-    legal: {
-      lens: "contratos, propriedade intelectual, responsabilidade, conformidade",
-      tips: [
-        "Contrato simples > acordo verbal — sempre.",
-        "Não use depoimentos sem autorização escrita.",
-        "Registre marca/domínio antes de campanhas grandes.",
+        "Antes de escalar, valide que 10 clientes querem comprar de novo.",
       ],
     },
   };
