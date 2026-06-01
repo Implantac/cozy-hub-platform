@@ -1,83 +1,38 @@
-## USE OS — The Operating System for Digital Growth
+# USE OS — Revisão antes de continuar
 
-This is a very large, multi-phase build. The existing project already has significant USE OS scaffolding: workspaces, brands, channels, content, scheduler, brain, missions, analytics, auth, RLS, server functions, and Portuguese routes under `/app/*`. To avoid a 4-hour single-shot rebuild that risks breaking the working app, I propose **incremental delivery in phases**, starting with the highest-impact foundation pieces.
+Antes de avançar com Fase 2/3, quero alinhar o que **já foi entregue** na Fase 1 e o que **falta** para chegar ao nível "Linear + Notion + Stripe + Vercel + Canva + Perplexity + Superhuman" descrito.
 
----
+## ✅ Já entregue (Fase 1)
 
-### What already exists (verified from prior turns)
+- **i18n nativo** com 16 idiomas, RTL para árabe, persistência em `localStorage`, fallback en-US, switcher com bandeiras
+- **Service Layer** (`src/lib/services/`) abstraindo Supabase — pronto para troca futura por Python/FastAPI sem tocar UI
+- **Command Center** (`/app`) com KPI grid, atividade, recomendações AI, publicações, missões, system health, Framer Motion
+- **Design tokens premium** (indigo/violeta, gradientes, shadow-elegant/glow, easings)
+- **Hardening de segurança** (OAuth, RLS, membership, SECURITY DEFINER)
+- **Multi-workspace + RBAC** (owner/admin/manager/editor/member/viewer) já funcionando no backend
+- **Auth completo** (login, register, reset, guards) + usuário owner Claudinei criado
 
-- ✅ Auth (login/signup/Google OAuth), `_authenticated` guard, profiles, onboarding
-- ✅ Multi-tenant workspaces + `workspace_members` with RBAC (owner/admin/editor/viewer)
-- ✅ Domain modules: brands, channels, content, scheduler, missions, brain, analytics, settings
-- ✅ Server functions with `requireSupabaseAuth` + `assertWorkspaceMember` (defense in depth)
-- ✅ RLS policies, OAuth flow, cron endpoint, audit logs, domain events
-- ✅ Tailwind + shadcn/ui, dark mode tokens in `src/styles.css`
-- ✅ pt-BR strings (hardcoded in components)
+## 🎯 Proposta de Fase 2 (próximo turno) — Shell Premium
 
-### What's missing / needs upgrade for "USE OS" vision
+1. **Sidebar premium colapsável** com grupos (Operação / Conteúdo / Inteligência / Configurações), ícones lucide, workspace switcher no topo, busca global (⌘K), badge de notificações
+2. **Topbar premium** com breadcrumb dinâmico, command palette, theme switcher, language switcher, perfil
+3. **Onboarding wizard** (4 passos: workspace → marca → canal → primeira missão) com progress, animações, skip
+4. **Notification center** (drawer lateral) lendo `domain_events` em realtime
+5. **Settings overhaul** (perfil, workspace, equipe/convites, billing placeholder, segurança, idioma/tema)
+6. **Empty/loading/error states** padronizados em todos módulos
 
-1. **i18n architecture** — currently hardcoded pt-BR. Need full i18next setup with 16 languages + RTL.
-2. **Premium Command Center dashboard** — current dashboard is basic; needs KPI grid, activity feed, AI insights, alerts, mission progress, realtime.
-3. **Premium design identity** — needs unique "USE OS" brand tokens (gradient system, elevation, motion presets), polished sidebar/topbar, language switcher.
-4. **Framer Motion micro-interactions** — page transitions, card hover, nav transitions.
-5. **Onboarding wizard** — guided multi-step workspace/brand/channel setup.
-6. **Service-layer abstraction** — currently server fns call Supabase directly; need a thin interface boundary so future Python/FastAPI backend can plug in.
+## 🎨 Proposta de Fase 3 — Polish por módulo
 
----
+- Redesign premium de cada rota (Brands, Channels, Content, Scheduler, Brain, Missions, Analytics) com cards, tabelas avançadas, filtros, bulk actions
+- Page transitions consistentes
+- QA RTL completo
+- Microinterações em formulários e CTAs
+- Charts premium em Analytics (Recharts com tokens do design system)
 
-### Phased delivery
+## ❓ Antes de eu continuar, confirma:
 
-I'll ship this in **3 phases**, each independently shippable. This message covers **Phase 1** — request the next phase when ready.
+1. **Sigo direto com Fase 2 completa** (shell + onboarding + notificações + settings) num único turno grande, ou
+2. **Quebra em pedaços menores** (ex.: só sidebar+topbar agora, onboarding depois), ou
+3. **Pula direto pro polish dos módulos** (Fase 3) porque o shell atual já está OK pra você?
 
-### Phase 1 — Foundation (this turn)
-
-**Scope:** i18n + design identity + Command Center + language switcher. ~10–12 files, no DB changes.
-
-1. **i18n architecture**
-   - Install `i18next`, `react-i18next`, `i18next-browser-languagedetector`.
-   - Create `src/config/i18n.ts` with namespace-based loader.
-   - Create `src/locales/{pt-BR,en,es,fr,de,it,ja,zh-CN,ko,ru,ar,hi,tr,nl,pl,sv}/common.json` with shared keys (nav, actions, states, dashboard).
-   - Full translations for **pt-BR** and **en** (default + fallback). Other 14 languages get a minimal seed (nav + common actions) — expandable later without architectural change. RTL flag for `ar`.
-   - Wire `I18nProvider` in `__root.tsx`, persist choice in `localStorage` + `profiles.locale`.
-
-2. **USE OS design identity**
-   - Update `src/styles.css` with USE OS brand tokens: deep indigo/violet primary with electric accent, refined neutrals, gradient-primary, gradient-subtle, shadow-elegant, shadow-glow, motion easings.
-   - Add Framer Motion page transition wrapper.
-
-3. **Premium Command Center** (`/app` index dashboard)
-   - KPI grid (4 cards: published, scheduled, engagement, AI score)
-   - Activity feed (from `domain_events`)
-   - AI recommendations panel (from `brain_recommendations`)
-   - Upcoming publications (from `scheduler_jobs`)
-   - Mission progress (from `missions`)
-   - System health strip
-   - All wired to existing server functions; realtime subscriptions on `domain_events`.
-
-4. **Language switcher UI** in topbar + settings.
-
-5. **Service-layer boundary**: introduce `src/lib/services/` with typed interfaces (`ContentService`, `SchedulerService`, etc.) that today wrap server fns and tomorrow can swap to a Python backend without component changes.
-
-### Phase 2 (next turn, on request)
-
-- Premium onboarding wizard (workspace → brand → channels → first mission)
-- Polished sidebar/topbar with animations, workspace switcher refresh
-- Notifications center
-- Settings overhaul (team management, role assignment UI, locale, theme persistence)
-
-### Phase 3 (next turn, on request)
-
-- Per-module premium UI passes (content editor, scheduler calendar, analytics charts, brain center)
-- Page transitions across all routes
-- Empty states / loading states / error states polish per route
-- RTL QA pass
-
----
-
-### Technical notes
-
-- **No DB migrations in Phase 1** — schema already supports everything needed.
-- **No breaking changes** — additive only. Existing routes keep working.
-- **Service layer** is a thin re-export wrapper, zero runtime cost, future-proofs for backend swap.
-- **i18n seed strategy**: pt-BR + en full, others stub with English fallback. Real translations are a content task, not architecture.
-
-Confirm to proceed with **Phase 1**, or tell me to reorder/reduce scope.
+Também: quer que eu **traduza completamente** os 14 idiomas restantes agora (hoje só pt-BR e en-US têm strings completas; os outros usam fallback inglês), ou deixa pra depois quando o produto estiver estável?
