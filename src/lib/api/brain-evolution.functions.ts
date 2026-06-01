@@ -604,7 +604,7 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
     for (const x of experiments) {
       const b = bucket(x.created_at);
       b.experiments_count++;
-      if (x.status === "completed" && x.metric_result != null && x.metric_target != null && Number(x.metric_result) >= Number(x.metric_target) && b.wins.length < 5) {
+      if (x.status === "succeeded" && x.metric_result != null && x.metric_target != null && Number(x.metric_result) >= Number(x.metric_target) && b.wins.length < 5) {
         b.wins.push(`Experimento: ${x.title}`);
       }
     }
@@ -647,7 +647,7 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
     // Overall mentor synthesis
     const totalEvents = events.length;
     const totalDecisions = decisions.length;
-    const completedExp = experiments.filter((x) => x.status === "completed").length;
+    const completedExp = experiments.filter((x) => x.status === "succeeded").length;
     const firstScore = list.find((b) => b.score_avg != null)?.score_avg ?? null;
     const lastScore = [...list].reverse().find((b) => b.score_avg != null)?.score_avg ?? null;
     const trajectory = firstScore != null && lastScore != null ? lastScore - firstScore : null;
