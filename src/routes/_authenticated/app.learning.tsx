@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { GraduationCap, Check } from "lucide-react";
+import { toast } from "sonner";
 import { LearningService } from "@/lib/services";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { motion } from "framer-motion";
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_authenticated/app/learning")({
 });
 
 function LearningPage() {
+  const qc = useQueryClient();
   const listPaths = useServerFn(LearningService.listLearningPaths);
   const listProgress = useServerFn(LearningService.listMyProgress);
   const toggle = useServerFn(LearningService.toggleMilestone);
@@ -19,7 +21,8 @@ function LearningPage() {
   const progress = useQuery({ queryKey: ["learning-progress"], queryFn: () => listProgress() });
   const mut = useMutation({
     mutationFn: (v: { pathId: string; milestoneId: string }) => toggle({ data: v }),
-    onSuccess: () => progress.refetch(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["learning-progress"] }),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const progressMap = new Map((progress.data ?? []).map((p: any) => [p.path_id, p]));
