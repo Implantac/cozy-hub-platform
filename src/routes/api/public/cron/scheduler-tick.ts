@@ -12,15 +12,19 @@ export const Route = createFileRoute("/api/public/cron/scheduler-tick")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const provided = request.headers.get("x-cron-secret");
-        const expected = process.env.CRON_SECRET;
-        if (!expected) {
-          return new Response(
-            JSON.stringify({ error: "CRON_SECRET not configured" }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
-        }
-        if (!provided || provided !== expected) {
+        // Accept either x-cron-secret (CRON_SECRET) or apikey (Supabase anon key).
+        const providedSecret = request.headers.get("x-cron-secret");
+        const providedApiKey = request.headers.get("apikey");
+        const expectedSecret = process.env.CRON_SECRET;
+        const expectedApiKey =
+          process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
+
+        const secretOk =
+          !!expectedSecret && !!providedSecret && providedSecret === expectedSecret;
+        const apiKeyOk =
+          !!expectedApiKey && !!providedApiKey && providedApiKey === expectedApiKey;
+
+        if (!secretOk && !apiKeyOk) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
