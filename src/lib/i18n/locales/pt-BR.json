@@ -55,7 +55,49 @@
     "analytics": "Analytics",
     "brain": "Brain",
     "missions": "Missões",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "group": {
+      "overview": "Visão geral",
+      "operation": "Operação",
+      "content": "Conteúdo",
+      "intelligence": "Inteligência",
+      "settings": "Configurações"
+    }
+  },
+  "palette": {
+    "placeholder": "Buscar páginas, ações...",
+    "empty": "Nada encontrado.",
+    "navigate": "Navegar",
+    "actions": "Ações"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "empty": "Nenhuma atividade ainda."
+  },
+  "onboarding": {
+    "skip": "Pular",
+    "next": "Continuar",
+    "finish": "Concluir",
+    "done": "Bem-vindo a bordo!",
+    "s1": { "title": "Bem-vindo ao USE OS", "desc": "Seu sistema operacional para crescimento digital." },
+    "s2": { "title": "Seu perfil", "desc": "Como devemos te chamar?", "label": "Nome de exibição" },
+    "s3": { "title": "Primeira marca", "desc": "Crie sua primeira marca para começar.", "label": "Nome da marca" },
+    "s4": { "title": "Pronto!", "desc": "Tudo configurado. Vamos operar.", "body": "Pronto para conectar canais, criar conteúdo e deixar o Brain trabalhar pra você." },
+    "welcome": {
+      "line1": "Workspace ativo:",
+      "line2": "Em 3 passos rápidos você estará operando como um Diretor Digital."
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Perfil, workspace e equipe.",
+    "save": "Salvar alterações",
+    "saved": "Salvo",
+    "plan": "plano",
+    "tabs": { "profile": "Perfil", "workspace": "Workspace", "team": "Equipe", "appearance": "Idioma" },
+    "profile": { "title": "Seu perfil", "displayName": "Nome de exibição" },
+    "team": { "title": "Membros" },
+    "appearance": { "title": "Idioma da interface" }
   },
   "workspace": {
     "new": "Novo workspace",
