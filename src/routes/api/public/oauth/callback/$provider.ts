@@ -93,9 +93,10 @@ export const Route = createFileRoute("/api/public/oauth/callback/$provider")({
 
           return redirectBack(url.origin, `oauth_connected=${provider.platform}`);
         } catch (err) {
+          // Log full detail server-side only — never embed in a client redirect.
           const msg = err instanceof Error ? err.message : String(err);
           console.error("[oauth/callback] error:", msg);
-          return redirectBack(url.origin, `oauth_error=${encodeURIComponent(msg)}`);
+          return redirectBack(url.origin, "oauth_error=connection_failed");
         }
       },
     },
