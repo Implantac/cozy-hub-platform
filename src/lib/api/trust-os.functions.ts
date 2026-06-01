@@ -7,51 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-const LOVABLE_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash-preview";
-
-async function callAITool<T>(args: {
-  system: string;
-  user: string;
-  toolName: string;
-  toolDescription: string;
-  parameters: Record<string, unknown>;
-}): Promise<{ data: T; model: string }> {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY ausente. Configure em Settings → Workspace.");
-  const body = {
-    model: MODEL,
-    messages: [
-      { role: "system", content: args.system },
-      { role: "user", content: args.user },
-    ],
-    tools: [{
-      type: "function",
-      function: {
-        name: args.toolName,
-        description: args.toolDescription,
-        parameters: args.parameters,
-      },
-    }],
-    tool_choice: { type: "function", function: { name: args.toolName } },
-  };
-  const res = await fetch(LOVABLE_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    if (res.status === 429) throw new Error("Limite de requisições da IA excedido. Tente novamente em instantes.");
-    if (res.status === 402) throw new Error("Créditos da IA esgotados. Adicione em Settings → Workspace → Usage.");
-    const txt = await res.text();
-    throw new Error(`Falha na IA Gateway (${res.status}): ${txt.slice(0, 200)}`);
-  }
-  const json = await res.json() as { choices?: Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }> };
-  const call = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-  if (!call) throw new Error("Resposta da IA sem tool call estruturado.");
-  return { data: JSON.parse(call) as T, model: MODEL };
-}
+import { callAITool } from "./_ai-gateway.server";
 
 /* ============================================================
  * Trust Analyzer
