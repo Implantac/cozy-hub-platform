@@ -142,6 +142,7 @@ export const upsertSkillAssessment = createServerFn({ method: "POST" })
       payload: { area: data.area, from: prevScore, to: data.score, delta },
       sentiment,
     });
+    await invalidateBrainCache(supabase, data.workspaceId);
     return row;
   });
 
