@@ -87,6 +87,7 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
       payload: { threat: payload.threat, trend: payload.trend, handle: rest.handle ?? null },
       sentiment: payload.threat === "high" ? "negative" : "neutral",
     });
+    await invalidateBrainCache(supabase, workspaceId);
     return row;
   });
 
