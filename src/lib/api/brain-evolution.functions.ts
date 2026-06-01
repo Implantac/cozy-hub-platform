@@ -303,6 +303,7 @@ export const createDecision = createServerFn({ method: "POST" })
 export const markDecisionExecuted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
     id: z.string().uuid(),
     outcome_score: z.number().int().min(0).max(100).optional(),
     outcome_note: z.string().max(500).optional(),
@@ -318,6 +319,7 @@ export const markDecisionExecuted = createServerFn({ method: "POST" })
         outcome: data.outcome_note ? { note: data.outcome_note } : {},
       })
       .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId)
       .select()
       .single();
     throwIfError(error);
