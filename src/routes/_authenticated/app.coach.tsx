@@ -1,12 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Lightbulb, AlertTriangle, Sparkles, Target, Check, X, Wand2 } from "lucide-react";
 import { CoachService } from "@/lib/services";
-import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/coach")({
   component: CoachPage,
@@ -20,21 +18,24 @@ const KIND_META: Record<string, { icon: React.ElementType; color: string; label:
 };
 
 function CoachPage() {
-  const [wsId] = useCurrentWorkspaceId();
   const list = useServerFn(CoachService.listRecommendations);
   const generate = useServerFn(CoachService.generateRecommendations);
   const update = useServerFn(CoachService.updateRecommendation);
 
-  const q = useQuery({ queryKey: ["coach", wsId], queryFn: () => list({ data: { workspaceId: wsId! }}), enabled: !!wsId });
-  const gen = useMutation({
-    mutationFn: () => generate({ data: { workspaceId: wsId! }}),
-    onSuccess: (r: any) => { toast.success(`${r.generated} recomendações geradas`); q.refetch(); },
-    onError: (e: Error) => toast.error(e.message),
-  });
-  const act = useMutation({
-    mutationFn: (v: { id: string; action: "dismiss"|"complete" }) => update({ data: v }),
-    onSuccess: () => q.refetch(),
-  });
+  const q = useWorkspaceQuery(
+    (wsId) => ["coach", wsId],
+    ({ workspaceId }) => list({ data: { workspaceId } }),
+  );
+  const wsId = q.wsId;
+  const coachKey = wsId ? ["coach", wsId] : ["coach"];
+  const gen = useWorkspaceMutation(
+    () => generate({ data: { workspaceId: wsId! } }),
+    { invalidate: coachKey, successMessage: (r: any) => `${r.generated} recomendações geradas` },
+  );
+  const act = useWorkspaceMutation(
+    (v: { id: string; action: "dismiss" | "complete" }) => update({ data: v }),
+    { invalidate: coachKey },
+  );
 
   return (
     <PageTransition>
