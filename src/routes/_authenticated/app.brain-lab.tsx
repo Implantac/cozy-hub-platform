@@ -683,14 +683,14 @@ function TimelinePanel() {
   );
 
   if (!tlQ.wsId) {
-    return <EmptyState icon={History} title="Sem workspace" description="Selecione um workspace para ver a linha do tempo." />;
+    return <EmptyState text="Selecione um workspace para ver a linha do tempo." />;
   }
   if (tlQ.isLoading) {
     return <div className="text-sm text-muted-foreground">Construindo narrativa…</div>;
   }
   const data = tlQ.data;
   if (!data || data.periods.length === 0) {
-    return <EmptyState icon={History} title="Histórico ainda raso" description="Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua trajetória trimestre a trimestre." />;
+    return <EmptyState text="Histórico ainda raso. Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua trajetória trimestre a trimestre." />;
   }
 
   const trajectory = data.mentor.trajectory_delta;
