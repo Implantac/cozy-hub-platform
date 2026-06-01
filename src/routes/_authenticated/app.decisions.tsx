@@ -56,7 +56,6 @@ function DecisionOSPage() {
  * Business Validator
  * ============================================================ */
 function BusinessValidatorTab() {
-  const [wsId] = useCurrentWorkspaceId();
   const [idea, setIdea] = useState("");
   const [model, setModel] = useState("");
   const [audience, setAudience] = useState("");
@@ -64,14 +63,14 @@ function BusinessValidatorTab() {
   const validateFn = useServerFn(DecisionOSService.validateBusinessIdea);
   const listFn = useServerFn(DecisionOSService.listBusinessValidations);
 
-  const list = useQuery({
-    queryKey: ["business-validations", wsId],
-    queryFn: () => listFn({ data: { workspaceId: wsId! } }),
-    enabled: !!wsId,
-  });
+  const list = useWorkspaceQuery(
+    (wsId) => ["business-validations", wsId],
+    ({ workspaceId }) => listFn({ data: { workspaceId } }),
+  );
+  const wsId = list.wsId;
 
-  const validate = useMutation({
-    mutationFn: () =>
+  const validate = useWorkspaceMutation(
+    () =>
       validateFn({
         data: {
           workspaceId: wsId!,
@@ -80,13 +79,12 @@ function BusinessValidatorTab() {
           target_audience: audience || undefined,
         },
       }),
-    onSuccess: () => {
-      toast.success("Validação concluída");
-      setIdea(""); setModel(""); setAudience("");
-      list.refetch();
+    {
+      invalidate: wsId ? ["business-validations", wsId] : ["business-validations"],
+      successMessage: "Validação concluída",
+      onSuccess: () => { setIdea(""); setModel(""); setAudience(""); },
     },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  );
 
   return (
     <div className="space-y-6">
