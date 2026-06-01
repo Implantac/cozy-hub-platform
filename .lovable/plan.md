@@ -1,65 +1,83 @@
+## USE OS — The Operating System for Digital Growth
 
-## Diagnóstico (achados principais)
+This is a very large, multi-phase build. The existing project already has significant USE OS scaffolding: workspaces, brands, channels, content, scheduler, brain, missions, analytics, auth, RLS, server functions, and Portuguese routes under `/app/*`. To avoid a 4-hour single-shot rebuild that risks breaking the working app, I propose **incremental delivery in phases**, starting with the highest-impact foundation pieces.
 
-Base atual: ~4.7k LOC, 99 arquivos. Estrutura geral boa (TanStack Start, server fns, RLS, separação `lib/api` vs `lib/<domain>.server`). Problemas concretos encontrados:
+---
 
-1. **Violação de camada**: `PageHeader` é definido em `src/routes/_authenticated/app.brands.tsx` e importado por `app.channels.tsx`, `app.missions.tsx`, etc. Componente compartilhado morando em arquivo de rota.
-2. **Boilerplate CRUD duplicado** em todas as páginas autenticadas (brands, channels, missions, content): mesmo padrão `useServerFn` + `useQuery({queryKey, queryFn, enabled: !!wsId})` + `useMutation({onSuccess: invalidate + toast, onError: toast})`.
-3. **Tipos perdidos**: várias `(b: any)`, `(c: any)`, `(m: any)` em `.map(...)` — temos `Database["public"]["Tables"][...]["Row"]` disponível.
-4. **Form/input inline**: cada rota repete `<input className="rounded-md border border-input bg-background px-3 py-2 text-sm" />` e botões idem, enquanto temos `@/components/ui/{input,button,textarea,select}` shadcn já instalados e não usados.
-5. **Imports inconsistentes**: ordem variável (externos / internos / relativos misturados), múltiplos lucide-icons em uma única linha enorme em alguns arquivos.
-6. **`channels.functions.ts` cria evento `domain_events` inline** — pequena regra de negócio dentro do server fn. OK manter, mas extrair um helper `recordDomainEvent()` reduz repetição (também usado em `enqueue_publication`).
-7. **Workspace selector**: `useCurrentWorkspaceId()` é chamado em toda rota e cada uma trata `!wsId` à sua maneira — pode virar um `WorkspaceGate` no layout `app.tsx`.
+### What already exists (verified from prior turns)
 
-## Plano de refatoração (7 passos, sem mudança funcional)
+- ✅ Auth (login/signup/Google OAuth), `_authenticated` guard, profiles, onboarding
+- ✅ Multi-tenant workspaces + `workspace_members` with RBAC (owner/admin/editor/viewer)
+- ✅ Domain modules: brands, channels, content, scheduler, missions, brain, analytics, settings
+- ✅ Server functions with `requireSupabaseAuth` + `assertWorkspaceMember` (defense in depth)
+- ✅ RLS policies, OAuth flow, cron endpoint, audit logs, domain events
+- ✅ Tailwind + shadcn/ui, dark mode tokens in `src/styles.css`
+- ✅ pt-BR strings (hardcoded in components)
 
-### 1. Extrair UI compartilhada para `src/components/app/`
-- `src/components/app/PageHeader.tsx` (movido de `app.brands.tsx`)
-- `src/components/app/EmptyState.tsx` (deduplicar "No X yet")
-- `src/components/app/StatusBadge.tsx` (badges de status já repetidos em channels/scheduler)
-- `src/components/app/PlatformIcon.tsx` (mapa `platform → ícone lucide`, usado em channels e scheduler)
-- Atualizar imports em todas as rotas.
+### What's missing / needs upgrade for "USE OS" vision
 
-### 2. Hooks CRUD genéricos em `src/lib/query/`
-- `useWorkspaceQuery(key, fn, opts?)` — encapsula `enabled: !!wsId` + injeta `workspaceId`.
-- `useWorkspaceMutation(fn, { invalidate, successMsg, errorMsg? })` — encapsula `invalidateQueries` + `toast.success/error`.
-- Migrar brands, channels, missions, content para usá-los. Reduz cada página em ~30 linhas e elimina pontos de erro (esquecer invalidate, mensagens inconsistentes).
+1. **i18n architecture** — currently hardcoded pt-BR. Need full i18next setup with 16 languages + RTL.
+2. **Premium Command Center dashboard** — current dashboard is basic; needs KPI grid, activity feed, AI insights, alerts, mission progress, realtime.
+3. **Premium design identity** — needs unique "USE OS" brand tokens (gradient system, elevation, motion presets), polished sidebar/topbar, language switcher.
+4. **Framer Motion micro-interactions** — page transitions, card hover, nav transitions.
+5. **Onboarding wizard** — guided multi-step workspace/brand/channel setup.
+6. **Service-layer abstraction** — currently server fns call Supabase directly; need a thin interface boundary so future Python/FastAPI backend can plug in.
 
-### 3. Substituir inputs/botões inline pelos componentes shadcn
-- Trocar `<input className="rounded-md…" />` por `<Input />`
-- Trocar `<button className="…bg-primary…">` por `<Button />` (variantes default/outline/destructive)
-- Trocar `<select>` por `<Select>` do shadcn nas páginas de criação (brands, channels, content)
-- Zero mudança visual perceptível: shadcn já usa os mesmos tokens do `styles.css`.
+---
 
-### 4. Tipar respostas das server fns
-- Exportar tipos derivados em cada `*.functions.ts`: `export type Brand = Awaited<ReturnType<typeof listBrands>>[number]` (mesmo para Channel, Mission, Content, SchedulerJob).
-- Substituir todos os `(x: any)` nas rotas pelos tipos exportados.
+### Phased delivery
 
-### 5. Helper de evento de domínio
-- `src/lib/domain/events.server.ts`: `recordDomainEvent(supabase, { workspaceId, eventType, payload })`.
-- Aplicar em `channels.functions.ts` (`ChannelRegistered`) e em outros pontos que ainda inserem inline.
+I'll ship this in **3 phases**, each independently shippable. This message covers **Phase 1** — request the next phase when ready.
 
-### 6. Padronizar imports
-- Ordem: react/externos → `@/` aliasados → relativos.
-- Quebrar imports de lucide grandes em uma única linha multi-import por arquivo.
-- Sem reformat global — só os arquivos tocados pelos passos anteriores.
+### Phase 1 — Foundation (this turn)
 
-### 7. Workspace gate no layout autenticado
-- Em `src/routes/_authenticated/app.tsx`, validar `wsId` uma vez e renderizar um skeleton se nulo, em vez de cada rota filha repetir `enabled: !!wsId`.
-- Expor `wsId` via `Route.useRouteContext()` ou um `<WorkspaceProvider>` simples.
+**Scope:** i18n + design identity + Command Center + language switcher. ~10–12 files, no DB changes.
 
-## Fora de escopo (intencional)
+1. **i18n architecture**
+   - Install `i18next`, `react-i18next`, `i18next-browser-languagedetector`.
+   - Create `src/config/i18n.ts` with namespace-based loader.
+   - Create `src/locales/{pt-BR,en,es,fr,de,it,ja,zh-CN,ko,ru,ar,hi,tr,nl,pl,sv}/common.json` with shared keys (nav, actions, states, dashboard).
+   - Full translations for **pt-BR** and **en** (default + fallback). Other 14 languages get a minimal seed (nav + common actions) — expandable later without architectural change. RTL flag for `ar`.
+   - Wire `I18nProvider` in `__root.tsx`, persist choice in `localStorage` + `profiles.locale`.
 
-- Não toco em `src/components/ui/*` (shadcn auto-gerado).
-- Não toco em `src/integrations/supabase/*` (auto-gerado).
-- Não toco em `src/lib/oauth/*` nem `src/lib/scheduler/*` — já estão bem segmentados e em produção.
-- Não troco a estrutura `lib/api/` por uma estrutura `features/` (mudança grande, ROI baixo no tamanho atual).
-- Não altero migrations, RLS, schedule cron, ou rotas públicas.
+2. **USE OS design identity**
+   - Update `src/styles.css` with USE OS brand tokens: deep indigo/violet primary with electric accent, refined neutrals, gradient-primary, gradient-subtle, shadow-elegant, shadow-glow, motion easings.
+   - Add Framer Motion page transition wrapper.
 
-## Garantias
+3. **Premium Command Center** (`/app` index dashboard)
+   - KPI grid (4 cards: published, scheduled, engagement, AI score)
+   - Activity feed (from `domain_events`)
+   - AI recommendations panel (from `brain_recommendations`)
+   - Upcoming publications (from `scheduler_jobs`)
+   - Mission progress (from `missions`)
+   - System health strip
+   - All wired to existing server functions; realtime subscriptions on `domain_events`.
 
-- Nenhuma mudança em URL, payload, schema, ou comportamento visível.
-- Cada passo é commit-friendly e revertível independentemente.
-- Tipos passam a ser mais estritos (remoção de `any`), o que o próprio build vai validar.
+4. **Language switcher UI** in topbar + settings.
 
-Confirma para eu executar os 7 passos em sequência?
+5. **Service-layer boundary**: introduce `src/lib/services/` with typed interfaces (`ContentService`, `SchedulerService`, etc.) that today wrap server fns and tomorrow can swap to a Python backend without component changes.
+
+### Phase 2 (next turn, on request)
+
+- Premium onboarding wizard (workspace → brand → channels → first mission)
+- Polished sidebar/topbar with animations, workspace switcher refresh
+- Notifications center
+- Settings overhaul (team management, role assignment UI, locale, theme persistence)
+
+### Phase 3 (next turn, on request)
+
+- Per-module premium UI passes (content editor, scheduler calendar, analytics charts, brain center)
+- Page transitions across all routes
+- Empty states / loading states / error states polish per route
+- RTL QA pass
+
+---
+
+### Technical notes
+
+- **No DB migrations in Phase 1** — schema already supports everything needed.
+- **No breaking changes** — additive only. Existing routes keep working.
+- **Service layer** is a thin re-export wrapper, zero runtime cost, future-proofs for backend swap.
+- **i18n seed strategy**: pt-BR + en full, others stub with English fallback. Real translations are a content task, not architecture.
+
+Confirm to proceed with **Phase 1**, or tell me to reorder/reduce scope.
