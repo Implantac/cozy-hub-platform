@@ -509,6 +509,66 @@ export type Database = {
           },
         ]
       }
+      business_validations: {
+        Row: {
+          ai_analysis: Json
+          business_model: string | null
+          competition_score: number
+          complexity_score: number
+          created_at: string
+          id: string
+          idea: string
+          market_demand_score: number
+          model_used: string | null
+          next_steps: Json
+          opportunity_score: number
+          risks: Json
+          strengths: Json
+          target_audience: string | null
+          user_id: string | null
+          verdict: string
+          workspace_id: string
+        }
+        Insert: {
+          ai_analysis?: Json
+          business_model?: string | null
+          competition_score?: number
+          complexity_score?: number
+          created_at?: string
+          id?: string
+          idea: string
+          market_demand_score?: number
+          model_used?: string | null
+          next_steps?: Json
+          opportunity_score?: number
+          risks?: Json
+          strengths?: Json
+          target_audience?: string | null
+          user_id?: string | null
+          verdict?: string
+          workspace_id: string
+        }
+        Update: {
+          ai_analysis?: Json
+          business_model?: string | null
+          competition_score?: number
+          complexity_score?: number
+          created_at?: string
+          id?: string
+          idea?: string
+          market_demand_score?: number
+          model_used?: string | null
+          next_steps?: Json
+          opportunity_score?: number
+          risks?: Json
+          strengths?: Json
+          target_audience?: string | null
+          user_id?: string | null
+          verdict?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       channels: {
         Row: {
           brand_id: string | null
@@ -1326,6 +1386,60 @@ export type Database = {
           locale?: string
           onboarding_completed?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      reality_checks: {
+        Row: {
+          ai_analysis: Json
+          caution_level: string
+          change_type: string
+          created_at: string
+          current_state: string
+          id: string
+          indicators_positive: Json
+          indicators_warning: Json
+          model_used: string | null
+          proposed_change: string
+          questions_to_answer: Json
+          recommendations: Json
+          summary: string | null
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          ai_analysis?: Json
+          caution_level?: string
+          change_type: string
+          created_at?: string
+          current_state: string
+          id?: string
+          indicators_positive?: Json
+          indicators_warning?: Json
+          model_used?: string | null
+          proposed_change: string
+          questions_to_answer?: Json
+          recommendations?: Json
+          summary?: string | null
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          ai_analysis?: Json
+          caution_level?: string
+          change_type?: string
+          created_at?: string
+          current_state?: string
+          id?: string
+          indicators_positive?: Json
+          indicators_warning?: Json
+          model_used?: string | null
+          proposed_change?: string
+          questions_to_answer?: Json
+          recommendations?: Json
+          summary?: string | null
+          user_id?: string | null
+          workspace_id?: string
         }
         Relationships: []
       }
