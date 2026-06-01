@@ -284,10 +284,11 @@ function SidebarBody({
         </div>
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-bold tracking-tight">USE OS</div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Digital Growth</div>
+            <div className="truncate text-sm font-bold tracking-tight text-gradient-brand">USE OS</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Digital Growth</div>
           </div>
         )}
+
         {!collapsed && onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
