@@ -33,3 +33,18 @@ export async function emitMemoryEvent(
     /* timeline writes are best-effort; ignore */
   }
 }
+
+/**
+ * Invalidate cached Brain answers for a workspace so the next ask recomputes
+ * against fresh context. Best-effort; never throws.
+ */
+export async function invalidateBrainCache(
+  supabase: SupabaseClient<any>,
+  workspaceId: string,
+): Promise<void> {
+  try {
+    await supabase.from("brain_answers").delete().eq("workspace_id", workspaceId);
+  } catch {
+    /* cache invalidation is best-effort; ignore */
+  }
+}
