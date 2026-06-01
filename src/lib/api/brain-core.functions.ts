@@ -197,3 +197,32 @@ export const brainLatestSnapshot = createServerFn({ method: "GET" })
     throwIfError(error);
     return row;
   });
+
+/**
+ * Brain-ranked opportunities — combines market data with the user's profile
+ * (preferred channels, content prefs, goals, experience) to compute a
+ * compatibility match instead of returning a generic trends list.
+ */
+export const brainOpportunities = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
+    status: z.enum(["exploding","growing","stable","saturated","declining"]).optional(),
+    limit: z.number().int().min(1).max(100).optional(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const ctx = await loadContext(supabase, data.workspaceId, userId);
+    const reports = runEngines(ctx);
+    const facts = (reports.opportunity?.facts ?? {}) as { top?: Array<{ id: string; match: number }> };
+    const matchById = new Map<string, number>();
+    for (const t of facts.top ?? []) matchById.set(t.id, t.match);
+
+    const ranked = (ctx.opportunities ?? [])
+      .map((o: any) => ({ ...o, _compatibility: matchById.get(o.id) ?? 50 }))
+      .filter((o: any) => !data.status || o.status === data.status)
+      .sort((a: any, b: any) => b._compatibility - a._compatibility)
+      .slice(0, data.limit ?? 60);
+
+    return ranked;
+  });
