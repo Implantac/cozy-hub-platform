@@ -66,6 +66,7 @@
   "dashboard": {
     "title": "Command Center",
     "subtitle": "Your digital operation, at a glance.",
+    "systemHealthy": "All systems operational",
     "runBrain": "Run Brain",
     "thinking": "Thinking...",
     "brainGenerated": "Brain generated {{count}} recommendations",
