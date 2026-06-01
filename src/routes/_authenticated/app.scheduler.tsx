@@ -60,14 +60,16 @@ function SchedulerPage() {
 
   const q = useWorkspaceQuery<SchedulerJob[]>(
     (wsId) => ["scheduler", wsId, filter],
-    ({ workspaceId }) =>
-      list({
+    async ({ workspaceId }) => {
+      const rows = await list({
         data: {
           workspaceId,
           status: filter === "all" ? undefined : filter,
           limit: 100,
         },
-      }) as Promise<SchedulerJob[]>,
+      });
+      return rows as unknown as SchedulerJob[];
+    },
   );
   const invalidateKey = q.wsId ? ["scheduler", q.wsId, filter] : ["scheduler"];
 
@@ -166,8 +168,8 @@ function SchedulerPage() {
                       </td>
                       <td className="px-4 py-3 capitalize text-muted-foreground">
                         {j.channel?.platform ?? "—"}
-                        {j.channel?.name ? (
-                          <span className="ml-1 text-xs">· {j.channel.name}</span>
+                        {j.channel?.handle ? (
+                          <span className="ml-1 text-xs">· {j.channel.handle}</span>
                         ) : null}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">

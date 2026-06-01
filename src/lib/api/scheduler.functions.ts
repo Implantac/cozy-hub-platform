@@ -42,7 +42,7 @@ export const listSchedulerJobs = createServerFn({ method: "GET" })
     const { supabase } = context;
     let q = supabase
       .from("scheduler_jobs")
-      .select("*, content:content(title,type), channel:channels(platform,name)")
+      .select("*, content:content(title,type), channel:channels(platform,handle)")
       .eq("workspace_id", data.workspaceId);
     if (data.status) q = q.eq("status", data.status);
     const { data: rows, error } = await q

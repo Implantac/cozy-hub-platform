@@ -34,5 +34,5 @@ export type Memory = Pick<
 /** Scheduler jobs are returned with joined content + channel summary. */
 export type SchedulerJob = Tables["scheduler_jobs"]["Row"] & {
   content: { title: string | null; type: string } | null;
-  channel: { platform: string; name?: string | null } | null;
+  channel: { platform: string; handle?: string | null } | null;
 };
