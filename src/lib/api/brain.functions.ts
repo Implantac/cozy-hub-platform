@@ -9,6 +9,25 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * - Recommendation feed.
  */
 
+async function assertWorkspaceMember(
+  supabase: ReturnType<typeof Object> extends never ? never : any,
+  workspaceId: string,
+  userId: string,
+  allowedRoles?: string[],
+) {
+  const { data: member, error } = await supabase
+    .from("workspace_members")
+    .select("role")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!member) throw new Error("forbidden: not a workspace member");
+  if (allowedRoles && !allowedRoles.includes(member.role)) {
+    throw new Error("forbidden: insufficient role");
+  }
+}
+
 export const listRecommendations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ workspaceId: z.string().uuid() }).parse(input))
@@ -25,13 +44,19 @@ export const updateRecommendation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
+      workspaceId: z.string().uuid(),
       id: z.string().uuid(),
       status: z.enum(["open", "applied", "dismissed", "expired"]),
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase.from("brain_recommendations").update({ status: data.status }).eq("id", data.id);
+    const { supabase, userId } = context;
+    await assertWorkspaceMember(supabase, data.workspaceId, userId, ["owner", "admin", "editor"]);
+    const { error } = await supabase
+      .from("brain_recommendations")
+      .update({ status: data.status })
+      .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -44,8 +69,13 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ workspaceId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertWorkspaceMember(supabase, data.workspaceId, userId);
     const ws = data.workspaceId;
+
+    type ChannelRow = { id: string; platform: string; status: string };
+    type ContentRow = { id: string; status: string; created_at: string };
+    type MissionRow = { id: string; status: string };
 
     const [{ data: brands }, { data: channels }, { data: content }, { data: missions }] = await Promise.all([
       supabase.from("brands").select("id").eq("workspace_id", ws),
@@ -66,7 +96,7 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
       });
     }
 
-    const platforms = new Set((channels ?? []).map((c: any) => c.platform));
+    const platforms = new Set(((channels ?? []) as ChannelRow[]).map((c) => c.platform));
     const targetPlatforms = ["instagram", "youtube", "tiktok", "linkedin"];
     for (const p of targetPlatforms) {
       if (!platforms.has(p)) {
@@ -80,7 +110,7 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
       }
     }
 
-    const drafts = (content ?? []).filter((c: any) => c.status === "draft").length;
+    const drafts = ((content ?? []) as ContentRow[]).filter((c) => c.status === "draft").length;
     if (drafts >= 3) {
       recs.push({
         kind: "ops.publish",
@@ -91,7 +121,7 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
       });
     }
 
-    const open = (missions ?? []).filter((m: any) => m.status === "pending").length;
+    const open = ((missions ?? []) as MissionRow[]).filter((m) => m.status === "pending").length;
     if (open === 0) {
       recs.push({
         kind: "growth.mission",

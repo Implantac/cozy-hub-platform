@@ -6,6 +6,11 @@ const slugify = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "workspace";
 
+type WorkspaceMembershipRow = {
+  role: string;
+  workspace: { id: string; slug: string; name: string; plan: string; created_at: string } | null;
+};
+
 export const listMyWorkspaces = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -15,7 +20,9 @@ export const listMyWorkspaces = createServerFn({ method: "GET" })
       .select("role, workspace:workspaces(id, slug, name, plan, created_at)")
       .eq("user_id", userId);
     if (error) throw new Error(error.message);
-    return (data ?? []).map((m: any) => ({ ...m.workspace, role: m.role }));
+    return ((data ?? []) as unknown as WorkspaceMembershipRow[])
+      .filter((m) => !!m.workspace)
+      .map((m) => ({ ...m.workspace!, role: m.role }));
   });
 
 export const createWorkspace = createServerFn({ method: "POST" })
@@ -58,6 +65,16 @@ export const setDefaultWorkspace = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ workspaceId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    // Reject silently-stale defaults: the user MUST be a member of the target workspace.
+    const { data: member, error: memberError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", data.workspaceId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (memberError) throw new Error(memberError.message);
+    if (!member) throw new Error("forbidden: not a member of this workspace");
+
     const { error } = await supabase.from("profiles").update({ default_workspace_id: data.workspaceId }).eq("id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };

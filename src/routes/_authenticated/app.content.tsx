@@ -58,10 +58,15 @@ function ContentPage() {
     },
   );
 
-  const changeStatus = (id: string, status: ContentStatus) =>
-    updateStatus({ data: { id, status } }).then(() =>
-      qc.invalidateQueries({ queryKey: invalidateKey }),
-    );
+  const changeStatus = (id: string, status: ContentStatus) => {
+    if (!q.wsId) return;
+    updateStatus({ data: { id, status, workspaceId: q.wsId } })
+      .then(() => qc.invalidateQueries({ queryKey: invalidateKey }))
+      .catch((e: Error) => {
+        // surface so failed status changes do not silently disappear
+        import("sonner").then(({ toast }) => toast.error(e.message));
+      });
+  };
 
   return (
     <div className="space-y-6">

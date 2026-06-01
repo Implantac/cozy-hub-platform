@@ -50,10 +50,14 @@ function MissionsPage() {
     items: (q.data ?? []).filter((m) => m.status === s),
   }));
 
-  const moveTo = (id: string, status: MissionStatus) =>
-    update({ data: { id, status } }).then(() =>
-      qc.invalidateQueries({ queryKey: invalidateKey }),
-    );
+  const moveTo = (id: string, status: MissionStatus) => {
+    if (!q.wsId) return;
+    update({ data: { id, status, workspaceId: q.wsId } })
+      .then(() => qc.invalidateQueries({ queryKey: invalidateKey }))
+      .catch((e: Error) => {
+        import("sonner").then(({ toast }) => toast.error(e.message));
+      });
+  };
 
   return (
     <div className="space-y-6">

@@ -46,7 +46,7 @@ function BrandsPage() {
   );
 
   const delMut = useWorkspaceMutation(
-    (id: string) => remove({ data: { id } }),
+    (id: string) => remove({ data: { id, workspaceId: q.wsId! } }),
     { invalidate: invalidateKey, successMessage: "Brand removed" },
   );
 
@@ -96,8 +96,11 @@ function BrandsPage() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">{b.name}</h3>
               <button
+                type="button"
+                aria-label={`Delete brand ${b.name}`}
                 onClick={() => delMut.mutate(b.id)}
-                className="text-muted-foreground hover:text-destructive"
+                disabled={!q.wsId || delMut.isPending}
+                className="text-muted-foreground hover:text-destructive disabled:opacity-50"
               >
                 <Trash2 className="size-4" />
               </button>
