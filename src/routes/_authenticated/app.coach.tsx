@@ -58,7 +58,6 @@ function CoachPage() {
     ({ workspaceId }) => timeline({ data: { workspaceId } }),
   );
 
-  const wsId = q.wsId;
   const coachKey = wsId ? ["coach", wsId] : ["coach"];
   const timelineKey = wsId ? ["coach-timeline", wsId] : ["coach-timeline"];
 
