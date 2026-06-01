@@ -32,10 +32,14 @@ const STATUS_META: Record<string, { icon: React.ElementType; color: string; labe
 function OpportunitiesPage() {
   const [wsId] = useCurrentWorkspaceId();
   const [status, setStatus] = useState<typeof STATUS[number]["id"]>(undefined);
-  const list = useServerFn(OpportunitiesService.listOpportunities);
+  const listGeneric = useServerFn(OpportunitiesService.listOpportunities);
+  const listBrain = useServerFn(BrainCoreService.brainOpportunities);
   const q = useQuery({
     queryKey: ["opps", wsId, status],
-    queryFn: () => list({ data: { workspaceId: wsId ?? undefined, status: status as any }}),
+    queryFn: () =>
+      wsId
+        ? listBrain({ data: { workspaceId: wsId, status: status as any } })
+        : listGeneric({ data: { workspaceId: undefined, status: status as any } }),
   });
 
   return (
@@ -43,11 +47,14 @@ function OpportunitiesPage() {
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
         <header>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <Radar className="size-3 text-accent"/> Opportunity Radar
+            <Brain className="size-3 text-accent"/> Opportunity Radar · ranqueado pelo USE Brain
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">Oportunidades de mercado</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Nichos emergentes, tendências e movimentos do mercado que você pode capturar.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Nichos emergentes e tendências, ordenados pela compatibilidade com o seu perfil, canais e objetivos.
+          </p>
         </header>
+
 
         <div className="flex flex-wrap gap-2">
           {STATUS.map(s => (
