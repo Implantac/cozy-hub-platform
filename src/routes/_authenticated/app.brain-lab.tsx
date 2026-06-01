@@ -478,8 +478,9 @@ function DecisionsPanel() {
                 )}
                 {d.status === "evaluated" && (
                   <button
-                    onClick={() => exec({ data: { id: d.id } }).then(() => decQ.refetch())}
-                    className="mt-2 rounded-md bg-primary/20 px-2 py-1 text-xs text-primary">
+                    onClick={() => wsId && exec({ data: { workspaceId: wsId, id: d.id } }).then(() => decQ.refetch())}
+                    disabled={!wsId}
+                    className="mt-2 rounded-md bg-primary/20 px-2 py-1 text-xs text-primary disabled:opacity-50">
                     Marcar como executada
                   </button>
                 )}
