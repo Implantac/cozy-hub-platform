@@ -29,7 +29,7 @@ export const createContent = createServerFn({ method: "POST" })
       workspaceId: z.string().uuid(),
       brandId: z.string().uuid().optional(),
       type: ContentType.default("post"),
-      title: z.string().max(200).optional(),
+      title: z.string().min(1).max(200).optional(),
       body: z.string().max(20000).optional(),
     }).parse(input)
   )
@@ -56,13 +56,18 @@ export const updateContentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
+      workspaceId: z.string().uuid(),
       id: z.string().uuid(),
       status: z.enum(["draft", "scheduled", "published", "archived"]),
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { error } = await supabase.from("content").update({ status: data.status }).eq("id", data.id);
+    const { error } = await supabase
+      .from("content")
+      .update({ status: data.status })
+      .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

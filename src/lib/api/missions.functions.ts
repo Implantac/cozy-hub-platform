@@ -45,13 +45,18 @@ export const updateMissionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
+      workspaceId: z.string().uuid(),
       id: z.string().uuid(),
       status: z.enum(["pending", "in_progress", "done", "dismissed"]),
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { error } = await supabase.from("missions").update({ status: data.status }).eq("id", data.id);
+    const { error } = await supabase
+      .from("missions")
+      .update({ status: data.status })
+      .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -55,15 +55,19 @@ export const listSchedulerJobs = createServerFn({ method: "GET" })
 export const cancelSchedulerJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({ jobId: z.string().uuid() }).parse(input),
+    z.object({
+      workspaceId: z.string().uuid(),
+      jobId: z.string().uuid(),
+    }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    // RLS + status check: only pending jobs can be canceled by workspace editors.
+    // RLS + status check: only pending jobs in the requested workspace can be canceled.
     const { data: row, error } = await supabase
       .from("scheduler_jobs")
       .update({ status: "failed", last_error: "canceled by user" })
       .eq("id", data.jobId)
+      .eq("workspace_id", data.workspaceId)
       .eq("status", "pending")
       .select()
       .single();
