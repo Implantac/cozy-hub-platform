@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "./_types";
 import {
   loadContext, runEngines, computeScores, buildSnapshot, answerQuestion, aggregateSignals, aggregateActions,
 } from "@/lib/brain/brain";
@@ -21,9 +22,9 @@ export const brainSnapshot = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabase.from("brain_snapshots").insert({
       workspace_id: snap.workspace_id,
-      snapshot: snap.snapshot as any,
-      scores: snap.scores as any,
-      signals: snap.signals as any,
+      snapshot: snap.snapshot as unknown as Json,
+      scores: snap.scores as unknown as Json,
+      signals: snap.signals as unknown as Json,
     }).select().single();
     if (error) throw new Error(error.message);
 
@@ -73,7 +74,7 @@ export const brainAsk = createServerFn({ method: "POST" })
     const expires = new Date(Date.now() + 60 * 60_000).toISOString();
     await supabase.from("brain_answers").insert({
       workspace_id: data.workspaceId, question: data.question,
-      answer: answer as any, confidence: answer.confidence, expires_at: expires,
+      answer: answer as unknown as Json, confidence: answer.confidence, expires_at: expires,
     });
     return answer;
   });
@@ -164,7 +165,7 @@ export const brainRemember = createServerFn({ method: "POST" })
     const { data: row, error } = await supabase.from("brain_memory_events").insert({
       workspace_id: data.workspaceId, user_id: userId,
       kind: data.kind, subject: data.subject,
-      payload: (data.payload ?? {}) as any, sentiment: data.sentiment ?? null,
+      payload: (data.payload ?? {}) as Json, sentiment: data.sentiment ?? null,
     }).select().single();
     if (error) throw new Error(error.message);
     return row;

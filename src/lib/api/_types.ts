@@ -7,9 +7,17 @@
  * generated `Database` types keeps a single source of truth without
  * paying that cost.
  */
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 type Tables = Database["public"]["Tables"];
+
+/** Supabase `jsonb` column type. Use for typed → jsonb casts (never `as any`). */
+export type { Json };
+
+/** Domain enum for `brain_memories.kind`. Mirrors the zod schema in brain.functions. */
+export type MemoryKind = "fact" | "preference" | "goal" | "signal" | "outcome" | "strategy";
+
+
 
 export type Brand = Tables["brands"]["Row"];
 export type Mission = Tables["missions"]["Row"];
