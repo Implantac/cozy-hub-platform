@@ -8,6 +8,7 @@ import {
   Brain, Target, Settings, LogOut, ChevronDown, Plus, Search, Sparkles,
   Compass, TrendingUp, RadarIcon, Wand2, Activity, GraduationCap, ShoppingBag,
   Lightbulb, Shield, Menu, PanelLeftClose, PanelLeftOpen, Check, FlaskConical,
+  Rocket, GitBranch, Brain as BrainIcon,
 } from "lucide-react";
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
@@ -40,7 +41,10 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
     labelKey: "nav.group.decision",
     items: [
       { to: "/app/navigator", labelKey: "nav.navigator", icon: Compass },
+      { to: "/app/journey", labelKey: "nav.journey", icon: GitBranch },
+      { to: "/app/builder", labelKey: "nav.builder", icon: Rocket },
       { to: "/app/opportunities", labelKey: "nav.opportunities", icon: RadarIcon },
+      { to: "/app/competitors", labelKey: "nav.competitors", icon: RadarIcon },
       { to: "/app/decisions", labelKey: "nav.decisions", icon: Lightbulb },
     ],
   },
