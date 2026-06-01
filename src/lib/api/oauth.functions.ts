@@ -1,9 +1,33 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getProvider, listProviders } from "@/lib/oauth/providers.server";
 import { signState } from "@/lib/oauth/state.server";
 import { deleteToken } from "@/lib/oauth/store.server";
+
+/**
+ * Build the OAuth callback URL server-side. Never trust a client-supplied
+ * redirect URI — that would rely entirely on the provider's redirect-URI
+ * allowlist for safety and widen the attack surface if the provider app
+ * is ever loosely configured.
+ *
+ * Resolution order:
+ *   1. process.env.APP_ORIGIN (recommended in production)
+ *   2. Incoming request Origin / Host header (preview + prod fallback)
+ */
+function buildCallbackUri(provider: string): string {
+  const configured = process.env.APP_ORIGIN?.replace(/\/$/, "");
+  if (configured) return `${configured}/api/public/oauth/callback/${provider}`;
+
+  const req = getRequest();
+  const url = new URL(req.url);
+  const forwardedProto = req.headers.get("x-forwarded-proto");
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const proto = forwardedProto ?? url.protocol.replace(/:$/, "");
+  const host = forwardedHost ?? req.headers.get("host") ?? url.host;
+  return `${proto}://${host}/api/public/oauth/callback/${provider}`;
+}
 
 /**
  * Returns the URL the user must visit to authorize the connection.
@@ -14,8 +38,7 @@ export const startOAuthConnect = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z.object({
       workspaceId: z.string().uuid(),
-      provider: z.string().min(2).max(40),
-      redirectUri: z.string().url(),
+      provider: z.string().min(2).max(40).regex(/^[a-z0-9_-]+$/),
       brandId: z.string().uuid().optional(),
     }).parse(input),
   )
@@ -35,14 +58,15 @@ export const startOAuthConnect = createServerFn({ method: "POST" })
     }
 
     const provider = getProvider(data.provider);
+    const redirectUri = buildCallbackUri(data.provider);
     const state = signState({
       workspaceId: data.workspaceId,
       userId,
       provider: data.provider,
       brandId: data.brandId ?? null,
-      redirectUri: data.redirectUri,
+      redirectUri,
     });
-    const url = provider.authUrl({ state, redirectUri: data.redirectUri });
+    const url = provider.authUrl({ state, redirectUri });
     return { url, state };
   });
 

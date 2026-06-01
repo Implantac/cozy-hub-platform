@@ -485,7 +485,7 @@ export type Database = {
           id: string
           payload: Json
           processed_at: string | null
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           created_at?: string
@@ -493,7 +493,7 @@ export type Database = {
           id?: string
           payload?: Json
           processed_at?: string | null
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           created_at?: string
@@ -501,7 +501,7 @@ export type Database = {
           id?: string
           payload?: Json
           processed_at?: string | null
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {

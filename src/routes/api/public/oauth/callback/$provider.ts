@@ -24,10 +24,9 @@ export const Route = createFileRoute("/api/public/oauth/callback/$provider")({
         const providerError = url.searchParams.get("error");
 
         if (providerError) {
-          return redirectBack(
-            url.origin,
-            `oauth_error=${encodeURIComponent(providerError)}`,
-          );
+          // Do NOT echo provider-supplied error text back to the browser.
+          console.warn("[oauth/callback] provider error:", providerError);
+          return redirectBack(url.origin, "oauth_error=provider_denied");
         }
         if (!code || !state) {
           return new Response("missing code or state", { status: 400 });
@@ -37,8 +36,9 @@ export const Route = createFileRoute("/api/public/oauth/callback/$provider")({
         try {
           payload = verifyState(state);
         } catch (err) {
-          const msg = err instanceof Error ? err.message : "invalid state";
-          return new Response(`state validation failed: ${msg}`, { status: 400 });
+          // Internal detail stays server-side; client gets a generic message.
+          console.warn("[oauth/callback] state verification failed:", err);
+          return new Response("state validation failed", { status: 400 });
         }
         if (payload.provider !== params.provider) {
           return new Response("provider mismatch", { status: 400 });
@@ -93,9 +93,10 @@ export const Route = createFileRoute("/api/public/oauth/callback/$provider")({
 
           return redirectBack(url.origin, `oauth_connected=${provider.platform}`);
         } catch (err) {
+          // Log full detail server-side only — never embed in a client redirect.
           const msg = err instanceof Error ? err.message : String(err);
           console.error("[oauth/callback] error:", msg);
-          return redirectBack(url.origin, `oauth_error=${encodeURIComponent(msg)}`);
+          return redirectBack(url.origin, "oauth_error=connection_failed");
         }
       },
     },
