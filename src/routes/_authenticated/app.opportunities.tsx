@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Radar, Flame, ArrowUp, Minus, AlertCircle, TrendingDown, Brain } from "lucide-react";
+import { Flame, ArrowUp, Minus, AlertCircle, TrendingDown, Brain } from "lucide-react";
 import { OpportunitiesService, BrainCoreService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { PageTransition, fadeUp, stagger, MotionCard } from "@/components/app/Motion";
