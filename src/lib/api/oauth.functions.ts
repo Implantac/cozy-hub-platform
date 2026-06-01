@@ -14,20 +14,29 @@ import { throwIfError } from "./_supabase";
  * is ever loosely configured.
  *
  * Resolution order:
- *   1. process.env.APP_ORIGIN (recommended in production)
- *   2. Incoming request Origin / Host header (preview + prod fallback)
+ *   1. process.env.APP_ORIGIN (REQUIRED in production/staging)
+ *   2. Incoming request URL origin (local dev only — forwarded proxy
+ *      headers are NOT trusted, since they can be forged when no trusted
+ *      reverse proxy strips them).
+ *
+ * If APP_ORIGIN is unset in production, we hard-fail rather than risk
+ * embedding an attacker-influenced host into the signed OAuth state.
  */
 function buildCallbackUri(provider: string): string {
   const configured = process.env.APP_ORIGIN?.replace(/\/$/, "");
   if (configured) return `${configured}/api/public/oauth/callback/${provider}`;
 
+  const env = process.env.NODE_ENV ?? "development";
+  if (env === "production") {
+    throw new Error(
+      "APP_ORIGIN must be configured in production for OAuth callbacks",
+    );
+  }
+
+  // Local dev fallback — derive from the request URL only (no forwarded headers).
   const req = getRequest();
   const url = new URL(req.url);
-  const forwardedProto = req.headers.get("x-forwarded-proto");
-  const forwardedHost = req.headers.get("x-forwarded-host");
-  const proto = forwardedProto ?? url.protocol.replace(/:$/, "");
-  const host = forwardedHost ?? req.headers.get("host") ?? url.host;
-  return `${proto}://${host}/api/public/oauth/callback/${provider}`;
+  return `${url.origin}/api/public/oauth/callback/${provider}`;
 }
 
 /**
