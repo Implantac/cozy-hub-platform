@@ -9,8 +9,9 @@ import {
   MapPin, Flag, Shield, Rocket, GitBranch,
 } from "lucide-react";
 import {
-  DashboardService, CoachService, HealthService, OpportunitiesService, BrainCoreService,
+  CoachService, HealthService, OpportunitiesService, BrainCoreService,
 } from "@/lib/services";
+import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
 import { fadeUp, stagger, MotionCard, PageTransition } from "@/components/app/Motion";
