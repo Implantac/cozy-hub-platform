@@ -149,7 +149,7 @@ function GPSDashboard() {
             );
           })}
         </motion.section>
-        </motion.header>
+
 
         {/* Top row — Score + Health summary + Goal */}
         <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
