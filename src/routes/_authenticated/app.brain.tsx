@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Brain, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageTransition } from "@/components/app/Motion";
 import {
   addMemory,
   listMemories,
@@ -80,6 +81,7 @@ function BrainPage() {
   };
 
   return (
+    <PageTransition>
     <div className="space-y-6">
       <PageHeader
         icon={Brain}
@@ -191,5 +193,6 @@ function BrainPage() {
         </div>
       </div>
     </div>
+    </PageTransition>
   );
 }
