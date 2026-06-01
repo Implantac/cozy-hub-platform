@@ -21,9 +21,9 @@ export const brainSnapshot = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabase.from("brain_snapshots").insert({
       workspace_id: snap.workspace_id,
-      snapshot: snap.snapshot,
-      scores: snap.scores,
-      signals: snap.signals,
+      snapshot: snap.snapshot as any,
+      scores: snap.scores as any,
+      signals: snap.signals as any,
     }).select().single();
     if (error) throw new Error(error.message);
 
