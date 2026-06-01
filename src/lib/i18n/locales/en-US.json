@@ -71,11 +71,16 @@
     "group": {
       "command": "Command Center",
       "overview": "Overview",
-      "growth": "Growth",
+      "gps": "Business GPS",
+      "decision": "Decision OS",
+      "trust": "Trust OS",
+      "execution": "Execution OS",
+      "growth": "Growth OS",
+      "brain": "USE Brain",
       "operation": "Operation",
       "content": "Content",
       "intelligence": "Intelligence",
-      "commerce": "Commerce",
+      "commerce": "Commerce Hub",
       "settings": "Settings"
     }
   },
