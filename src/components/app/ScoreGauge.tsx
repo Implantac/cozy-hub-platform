@@ -11,20 +11,24 @@ export function ScoreGauge({
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - v / 100);
   const tier = v >= 80 ? "Excelente" : v >= 60 ? "Bom" : v >= 40 ? "Em evolução" : v >= 20 ? "Iniciante" : "Começando";
-  const color = v >= 80 ? "hsl(var(--success))" : v >= 60 ? "hsl(var(--primary))"
-              : v >= 40 ? "hsl(var(--accent))" : v >= 20 ? "hsl(38 92% 50%)" : "hsl(var(--destructive))";
+  // Use design tokens directly (project uses oklch — NOT hsl-wrapped).
+  const colorVar = v >= 80 ? "var(--success)"
+                 : v >= 60 ? "var(--primary)"
+                 : v >= 40 ? "var(--accent)"
+                 : v >= 20 ? "var(--warning)"
+                 : "var(--destructive)";
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90 drop-shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
         <defs>
           <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="1" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.4" />
+            <stop offset="0%" stopColor={colorVar} stopOpacity="1" />
+            <stop offset="100%" stopColor={colorVar} stopOpacity="0.45" />
           </linearGradient>
         </defs>
         <circle cx={size/2} cy={size/2} r={radius}
-          stroke="hsl(var(--border))" strokeWidth={stroke} fill="none" />
+          stroke="var(--border)" strokeWidth={stroke} fill="none" />
         <motion.circle
           cx={size/2} cy={size/2} r={radius}
           stroke="url(#gauge-grad)" strokeWidth={stroke} fill="none" strokeLinecap="round"
@@ -38,11 +42,12 @@ export function ScoreGauge({
         <motion.div
           initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5, ease: EASE }}
-          className="text-5xl font-bold tracking-tight tabular-nums" style={{ color }}>
+          className="text-5xl font-bold tracking-tight tabular-nums"
+          style={{ color: colorVar }}>
           {Math.round(v)}
         </motion.div>
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
-        <div className="mt-0.5 text-xs font-medium" style={{ color }}>{tier}</div>
+        <div className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+        <div className="mt-1 text-xs font-medium" style={{ color: colorVar }}>{tier}</div>
       </div>
     </div>
   );

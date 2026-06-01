@@ -206,11 +206,11 @@ function AppShell() {
 
         {/* MAIN */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur lg:px-8">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl lg:px-8">
             <div className="flex min-w-0 items-center gap-2 text-sm">
               <button
                 onClick={() => setMobileOpen(true)}
-                className="inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:bg-card hover:text-foreground lg:hidden"
+                className="inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground lg:hidden"
                 aria-label="Open navigation"
               >
                 <Menu className="size-4" />
@@ -223,18 +223,19 @@ function AppShell() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPaletteOpen(true)}
-                className="hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-sm text-muted-foreground transition hover:bg-card hover:text-foreground sm:flex"
+                className="hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-sm text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground sm:flex"
               >
                 <Search className="size-3.5" />
                 <span>{t("palette.placeholder", "Buscar...")}</span>
-                <kbd className="ml-4 rounded border border-border bg-background px-1.5 text-[10px] font-mono">⌘K</kbd>
+                <kbd className="ml-4 rounded border border-border/80 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
               </button>
               <NotificationDrawer workspaceId={currentWs?.id} />
-              <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow">
+              <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow ring-1 ring-primary/20">
                 {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
               </div>
             </div>
           </header>
+
 
           <main className="flex-1 overflow-y-auto">
             <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
@@ -283,10 +284,11 @@ function SidebarBody({
         </div>
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-bold tracking-tight">USE OS</div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Digital Growth</div>
+            <div className="truncate text-sm font-bold tracking-tight text-gradient-brand">USE OS</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Digital Growth</div>
           </div>
         )}
+
         {!collapsed && onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
@@ -332,19 +334,22 @@ function SidebarBody({
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group flex items-center rounded-lg text-sm transition",
+                      "group relative flex items-center rounded-lg text-sm transition-all duration-200",
                       collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/15"
                         : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
-                    <item.icon className={cn("size-4 transition", active && "text-primary")} />
+                    {active && !collapsed && (
+                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand" />
+                    )}
+                    <item.icon className={cn("size-4 transition", active ? "text-primary" : "group-hover:text-foreground")} />
                     {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
-                    {!collapsed && active && <span className="size-1.5 rounded-full bg-primary" />}
                   </Link>
                 );
+
                 return collapsed ? (
                   <Tooltip key={item.to}>
                     <TooltipTrigger asChild>{link}</TooltipTrigger>
