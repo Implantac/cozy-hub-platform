@@ -353,21 +353,22 @@ function SidebarBody({
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group relative flex items-center rounded-lg text-sm transition-all duration-200",
+                      "group relative flex items-center rounded-lg text-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
                       collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/15"
-                        : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground",
+                        ? "bg-sidebar-accent/80 text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/20"
+                        : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground hover:translate-x-0.5",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
                     {active && !collapsed && (
-                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand" />
+                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand shadow-glow-sm" />
                     )}
-                    <item.icon className={cn("size-4 transition", active ? "text-primary" : "group-hover:text-foreground")} />
+                    <item.icon className={cn("size-4 transition-all duration-200", active ? "text-primary scale-110" : "group-hover:text-foreground group-hover:scale-105")} />
                     {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
                   </Link>
                 );
+
 
                 return collapsed ? (
                   <Tooltip key={item.to}>
