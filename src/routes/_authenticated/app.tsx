@@ -206,11 +206,11 @@ function AppShell() {
 
         {/* MAIN */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur lg:px-8">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl lg:px-8">
             <div className="flex min-w-0 items-center gap-2 text-sm">
               <button
                 onClick={() => setMobileOpen(true)}
-                className="inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:bg-card hover:text-foreground lg:hidden"
+                className="inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground lg:hidden"
                 aria-label="Open navigation"
               >
                 <Menu className="size-4" />
@@ -223,18 +223,19 @@ function AppShell() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPaletteOpen(true)}
-                className="hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-sm text-muted-foreground transition hover:bg-card hover:text-foreground sm:flex"
+                className="hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-sm text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground sm:flex"
               >
                 <Search className="size-3.5" />
                 <span>{t("palette.placeholder", "Buscar...")}</span>
-                <kbd className="ml-4 rounded border border-border bg-background px-1.5 text-[10px] font-mono">⌘K</kbd>
+                <kbd className="ml-4 rounded border border-border/80 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
               </button>
               <NotificationDrawer workspaceId={currentWs?.id} />
-              <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow">
+              <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow ring-1 ring-primary/20">
                 {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
               </div>
             </div>
           </header>
+
 
           <main className="flex-1 overflow-y-auto">
             <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
