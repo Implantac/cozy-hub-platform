@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { CoachService, BrainCoreService } from "@/lib/services";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { motion } from "framer-motion";
 
