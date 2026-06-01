@@ -128,26 +128,28 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
       .eq("workspace_id", workspaceId)
       .maybeSingle();
     if (existing) {
+      const patch = {
+        [field]: value,
+        updated_by: userId,
+        updated_at: new Date().toISOString(),
+      };
       const { data: row, error } = await supabase
         .from("business_blueprints")
-        .update({
-          [field]: value,
-          updated_by: userId,
-          updated_at: new Date().toISOString(),
-        } as Record<BlockField | string, unknown>)
+        .update(patch as never)
         .eq("id", existing.id)
         .select()
         .single();
       throwIfError(error);
       return row;
     }
+    const insertRow = {
+      workspace_id: workspaceId,
+      updated_by: userId,
+      [field]: value,
+    };
     const { data: row, error } = await supabase
       .from("business_blueprints")
-      .insert({
-        workspace_id: workspaceId,
-        updated_by: userId,
-        [field]: value,
-      } as Record<string, unknown>)
+      .insert(insertRow as never)
       .select()
       .single();
     throwIfError(error);
