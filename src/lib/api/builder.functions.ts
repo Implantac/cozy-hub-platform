@@ -5,6 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError } from "./_supabase";
+import { emitMemoryEvent } from "./_memory";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -62,6 +63,15 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
         .select()
         .single();
       throwIfError(error);
+      if (payload.threat === "high") {
+        await emitMemoryEvent(supabase, {
+          workspaceId, userId,
+          kind: "signal",
+          subject: `Concorrente "${rest.name}" marcado como alta ameaça`,
+          payload: { competitorId: id, trend: payload.trend, gap: rest.gap ?? null },
+          sentiment: "negative",
+        });
+      }
       return row;
     }
     const { data: row, error } = await supabase
@@ -70,6 +80,13 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
       .select()
       .single();
     throwIfError(error);
+    await emitMemoryEvent(supabase, {
+      workspaceId, userId,
+      kind: "signal",
+      subject: `Novo concorrente no radar: ${rest.name}`,
+      payload: { threat: payload.threat, trend: payload.trend, handle: rest.handle ?? null },
+      sentiment: payload.threat === "high" ? "negative" : "neutral",
+    });
     return row;
   });
 
@@ -140,6 +157,13 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
         .select()
         .single();
       throwIfError(error);
+      await emitMemoryEvent(supabase, {
+        workspaceId, userId,
+        kind: "decision",
+        subject: `Blueprint atualizado: ${field}`,
+        payload: { field, preview: value.slice(0, 160) },
+        sentiment: "positive",
+      });
       return row;
     }
     const insertRow = {
@@ -153,5 +177,12 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
       .select()
       .single();
     throwIfError(error);
+    await emitMemoryEvent(supabase, {
+      workspaceId, userId,
+      kind: "decision",
+      subject: `Blueprint iniciado pelo bloco: ${field}`,
+      payload: { field, preview: value.slice(0, 160) },
+      sentiment: "positive",
+    });
     return row;
   });
