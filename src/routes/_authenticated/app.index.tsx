@@ -13,6 +13,7 @@ import {
 } from "@/lib/services";
 import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { toast } from "sonner";
 import { fadeUp, stagger, MotionCard, PageTransition } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function GPSDashboard() {
   const [wsId] = useCurrentWorkspaceId();
+  useBrainRealtime(wsId);
   const fetchOverview = useServerFn(getDashboard);
   const brainAskAll = useServerFn(BrainCoreService.brainAskAll);
   const brainSnapshot = useServerFn(BrainCoreService.brainSnapshot);

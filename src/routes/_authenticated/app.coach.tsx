@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { CoachService, BrainCoreService } from "@/lib/services";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { motion } from "framer-motion";
 
@@ -44,6 +46,8 @@ function CoachPage() {
   const brainRecommend = useServerFn(BrainCoreService.brainRecommend);
   const update = useServerFn(CoachService.updateRecommendation);
   const timeline = useServerFn(BrainCoreService.brainTimeline);
+  const [wsId] = useCurrentWorkspaceId();
+  useBrainRealtime(wsId);
 
   const q = useWorkspaceQuery(
     (wsId) => ["coach", wsId],
@@ -54,7 +58,6 @@ function CoachPage() {
     ({ workspaceId }) => timeline({ data: { workspaceId } }),
   );
 
-  const wsId = q.wsId;
   const coachKey = wsId ? ["coach", wsId] : ["coach"];
   const timelineKey = wsId ? ["coach-timeline", wsId] : ["coach-timeline"];
 
