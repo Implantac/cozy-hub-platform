@@ -7,6 +7,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callAITool } from "./_ai-gateway.server";
+import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -97,7 +98,7 @@ export const validateBusinessIdea = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -111,7 +112,7 @@ export const listBusinessValidations = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -204,7 +205,7 @@ export const runRealityCheck = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -218,6 +219,6 @@ export const listRealityChecks = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });

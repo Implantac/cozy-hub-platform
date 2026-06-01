@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 async function assertMember(supabase: any, workspaceId: string, userId: string) {
   const { data } = await supabase
@@ -25,7 +26,7 @@ export const listRecentEvents = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 30);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -41,7 +42,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("profiles").update(data).eq("id", userId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });
 
@@ -50,6 +51,6 @@ export const completeOnboarding = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", userId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });

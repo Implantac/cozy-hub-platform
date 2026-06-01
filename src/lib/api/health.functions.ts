@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -85,7 +86,7 @@ export const computeHealth = createServerFn({ method: "POST" })
         strengths: c.strengths, weaknesses: c.weaknesses,
       })),
     ).select();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 

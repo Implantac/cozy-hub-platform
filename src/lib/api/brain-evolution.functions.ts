@@ -8,6 +8,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -38,7 +39,7 @@ export const getDigitalTwin = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .eq("user_id", userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -63,7 +64,7 @@ export const upsertDigitalTwin = createServerFn({ method: "POST" })
         .eq("id", existing.id)
         .select()
         .single();
-      if (error) throw new Error(error.message);
+      throwIfError(error);
       return row;
     }
 
@@ -72,7 +73,7 @@ export const upsertDigitalTwin = createServerFn({ method: "POST" })
       .insert({ workspace_id: workspaceId, user_id: userId, ...rest })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -95,7 +96,7 @@ export const listSkillAssessments = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .eq("user_id", userId)
       .order("assessed_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -121,7 +122,7 @@ export const upsertSkillAssessment = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -139,7 +140,7 @@ export const listExperiments = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -171,7 +172,7 @@ export const createExperiment = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -202,7 +203,7 @@ export const updateExperimentStatus = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -220,7 +221,7 @@ export const listDecisions = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -285,7 +286,7 @@ export const createDecision = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
 
     // Remember as memory event
     await supabase.from("brain_memory_events").insert({
@@ -317,7 +318,7 @@ export const markDecisionExecuted = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -385,7 +386,7 @@ export const listDueDiligenceReports = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(30);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -412,7 +413,7 @@ export const createDueDiligenceReport = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -557,7 +558,7 @@ export const askCouncil = createServerFn({ method: "POST" })
       .from("council_opinions")
       .insert(results)
       .select();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return inserted ?? [];
   });
 
@@ -573,7 +574,7 @@ export const listCouncilOpinions = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(60);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 

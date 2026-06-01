@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError, unwrap } from "./_supabase";
 
 const PlatformSchema = z.enum(["instagram", "facebook", "youtube", "tiktok", "linkedin"]);
 
@@ -14,7 +15,7 @@ export const listChannels = createServerFn({ method: "GET" })
       .select("*, brand:brands(name)")
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -30,14 +31,13 @@ export const createChannel = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: row, error } = await supabase.from("channels").insert({
+    const row = unwrap(await supabase.from("channels").insert({
       workspace_id: data.workspaceId,
       brand_id: data.brandId ?? null,
       platform: data.platform,
       handle: data.handle,
       status: "disconnected",
-    }).select().single();
-    if (error) throw new Error(error.message);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "ChannelRegistered",
       payload: { channel_id: row.id, platform: row.platform },
@@ -60,6 +60,6 @@ export const deleteChannel = createServerFn({ method: "POST" })
       .delete()
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });

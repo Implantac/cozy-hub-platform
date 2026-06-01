@@ -9,6 +9,7 @@ import type { Json } from "./_types";
 import {
   loadContext, runEngines, computeScores, buildSnapshot, answerQuestion, aggregateSignals, aggregateActions,
 } from "@/lib/brain/brain";
+import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -26,7 +27,7 @@ export const brainSnapshot = createServerFn({ method: "POST" })
       scores: snap.scores as unknown as Json,
       signals: snap.signals as unknown as Json,
     }).select().single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
 
     // Mirror score into digital_scores for back-compat with Score module
     await supabase.from("digital_scores").insert({
@@ -138,7 +139,7 @@ export const brainRecommend = createServerFn({ method: "POST" })
       .eq("workspace_id", data.workspaceId).is("dismissed_at", null).is("completed_at", null);
 
     const { data: rows, error } = await supabase.from("coach_recommendations").insert(recs).select();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
 
     // Remember that we generated insights
     await supabase.from("brain_memory_events").insert({
@@ -167,7 +168,7 @@ export const brainRemember = createServerFn({ method: "POST" })
       kind: data.kind, subject: data.subject,
       payload: (data.payload ?? {}) as Json, sentiment: data.sentiment ?? null,
     }).select().single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -180,7 +181,7 @@ export const brainTimeline = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase.from("brain_memory_events")
       .select("*").eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false }).limit(100);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -193,6 +194,6 @@ export const brainLatestSnapshot = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase.from("brain_snapshots")
       .select("*").eq("workspace_id", data.workspaceId)
       .order("computed_at", { ascending: false }).limit(1).maybeSingle();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { runSchedulerTick } from "@/lib/scheduler/dispatcher.server";
+import { throwIfError } from "./_supabase";
 
 /**
  * Enqueue a content for publication on one or more channels.
@@ -23,7 +24,7 @@ export const enqueuePublication = createServerFn({ method: "POST" })
       _channel_ids: data.channelIds,
       _scheduled_at: data.scheduledAt,
     });
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return jobs ?? [];
   });
 
@@ -48,7 +49,7 @@ export const listSchedulerJobs = createServerFn({ method: "GET" })
     const { data: rows, error } = await q
       .order("scheduled_at", { ascending: false })
       .limit(data.limit);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -71,7 +72,7 @@ export const cancelSchedulerJob = createServerFn({ method: "POST" })
       .eq("status", "pending")
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 

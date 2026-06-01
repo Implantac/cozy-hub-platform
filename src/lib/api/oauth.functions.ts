@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getProvider, listProviders } from "@/lib/oauth/providers.server";
 import { signState } from "@/lib/oauth/state.server";
 import { deleteToken } from "@/lib/oauth/store.server";
+import { throwIfError } from "./_supabase";
 
 /**
  * Build the OAuth callback URL server-side. Never trust a client-supplied
@@ -52,7 +53,7 @@ export const startOAuthConnect = createServerFn({ method: "POST" })
       .eq("workspace_id", data.workspaceId)
       .eq("user_id", userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     if (!member || !["owner", "admin", "editor"].includes(member.role)) {
       throw new Error("forbidden: insufficient role to connect channels");
     }
@@ -90,7 +91,7 @@ export const disconnectChannel = createServerFn({ method: "POST" })
       .eq("id", data.channelId)
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     await deleteToken(data.channelId);
     return row;
   });

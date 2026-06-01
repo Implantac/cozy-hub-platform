@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 const profileInput = z.object({
   experience_level: z.enum(["beginner", "intermediate", "advanced"]),
@@ -44,7 +45,7 @@ export const getDigitalProfile = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("user_profile_digital").select("*").eq("user_id", userId).maybeSingle();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return data;
   });
 
@@ -70,7 +71,7 @@ export const saveDigitalProfile = createServerFn({ method: "POST" })
     };
     const { data: row, error } = await supabase
       .from("user_profile_digital").upsert(payload, { onConflict: "user_id" }).select().single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", userId);
     return row;
   });

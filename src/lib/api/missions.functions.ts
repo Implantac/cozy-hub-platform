@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError, unwrap } from "./_supabase";
 
 export const listMissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -10,7 +11,7 @@ export const listMissions = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("missions").select("*").eq("workspace_id", data.workspaceId)
       .order("status").order("priority", { ascending: false });
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -26,14 +27,13 @@ export const createMission = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.from("missions").insert({
+    const row = unwrap(await supabase.from("missions").insert({
       workspace_id: data.workspaceId,
       title: data.title,
       description: data.description ?? null,
       priority: data.priority,
       created_by: userId,
-    }).select().single();
-    if (error) throw new Error(error.message);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "MissionAssigned",
       payload: { mission_id: row.id, title: row.title },
@@ -57,6 +57,6 @@ export const updateMissionStatus = createServerFn({ method: "POST" })
       .update({ status: data.status })
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });

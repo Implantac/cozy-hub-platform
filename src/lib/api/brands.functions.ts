@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError, unwrap } from "./_supabase";
 
 export const listBrands = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -9,7 +10,7 @@ export const listBrands = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data: rows, error } = await supabase
       .from("brands").select("*").eq("workspace_id", data.workspaceId).order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -26,15 +27,14 @@ export const createBrand = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.from("brands").insert({
+    const row = unwrap(await supabase.from("brands").insert({
       workspace_id: data.workspaceId,
       name: data.name,
       description: data.description ?? null,
       voice: (data.voice ?? {}) as never,
       palette: (data.palette ?? {}) as never,
       created_by: userId,
-    }).select().single();
-    if (error) throw new Error(error.message);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "BrandCreated",
       payload: { brand_id: row.id, name: row.name },
@@ -57,6 +57,6 @@ export const deleteBrand = createServerFn({ method: "POST" })
       .delete()
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });
