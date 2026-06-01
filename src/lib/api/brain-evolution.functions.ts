@@ -548,12 +548,13 @@ export const askCouncil = createServerFn({ method: "POST" })
             model_used: r.model,
           };
         } catch (e) {
+          console.error("[council] advisor failed", { advisor, error: e });
           return {
             workspace_id: data.workspaceId,
             advisor,
             topic: data.topic,
             summary: `Falha ao consultar conselheiro ${advisor}.`,
-            analysis: e instanceof Error ? e.message : "Erro desconhecido.",
+            analysis: "Conselheiro indisponível no momento. Tente novamente em instantes.",
             recommendations: [] as never,
             confidence: 0,
             model_used: "error",
