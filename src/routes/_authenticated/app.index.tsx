@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import {
   CoachService, HealthService, OpportunitiesService, BrainCoreService,
+  BuilderService, BrainEvolutionService,
 } from "@/lib/services";
 import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
@@ -33,6 +34,10 @@ function GPSDashboard() {
   const listRecs = useServerFn(CoachService.listRecommendations);
   const getHealth = useServerFn(HealthService.getLatestHealth);
   const listOpps = useServerFn(OpportunitiesService.listOpportunities);
+  const getBlueprint = useServerFn(BuilderService.getBlueprint);
+  const listCompetitors = useServerFn(BuilderService.listCompetitors);
+  const listSkills = useServerFn(BrainEvolutionService.listSkillAssessments);
+  const getTimeline = useServerFn(BrainEvolutionService.getLongTermTimeline);
 
   const overview = useQuery({
     queryKey: ["dashboard", wsId],
@@ -57,6 +62,26 @@ function GPSDashboard() {
   const opps = useQuery({
     queryKey: ["opps-preview", wsId],
     queryFn: () => listOpps({ data: { workspaceId: wsId! } }),
+    enabled: !!wsId,
+  });
+  const blueprint = useQuery({
+    queryKey: ["blueprint-mini", wsId],
+    queryFn: () => getBlueprint({ data: { workspaceId: wsId! } }) as Promise<Record<string, string | null> | null>,
+    enabled: !!wsId,
+  });
+  const competitors = useQuery({
+    queryKey: ["competitors-mini", wsId],
+    queryFn: () => listCompetitors({ data: { workspaceId: wsId! } }) as Promise<any[]>,
+    enabled: !!wsId,
+  });
+  const skills = useQuery({
+    queryKey: ["skills-mini", wsId],
+    queryFn: () => listSkills({ data: { workspaceId: wsId! } }) as Promise<any[]>,
+    enabled: !!wsId,
+  });
+  const journey = useQuery({
+    queryKey: ["journey-mini", wsId],
+    queryFn: () => getTimeline({ data: { workspaceId: wsId! } }) as Promise<any>,
     enabled: !!wsId,
   });
 
@@ -326,6 +351,50 @@ function GPSDashboard() {
             )}
           </Panel>
         </section>
+
+        {/* Manifesto · 4 OS layers · status compacto */}
+        <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {(() => {
+            const bp = blueprint.data ?? {};
+            const bpFields = ["problem","audience","promise","differentiator","offer","price","channels","content_pillars","funnel","metric"];
+            const bpFilled = bpFields.filter((f) => ((bp[f] ?? "") as string).trim().length > 0).length;
+            const bpPct = Math.round((bpFilled / bpFields.length) * 100);
+
+            const comps = competitors.data ?? [];
+            const compHigh = comps.filter((c: any) => c.threat === "high").length;
+
+            const sk = skills.data ?? [];
+            const skMastered = sk.filter((s: any) => (s.level ?? s.score ?? 0) >= 80).length;
+            const skAvg = sk.length > 0 ? Math.round(sk.reduce((a: number, s: any) => a + (s.level ?? s.score ?? 0), 0) / sk.length) : 0;
+
+            const periods = journey.data?.periods ?? [];
+            const current = [...periods].reverse().find((p: any) => p.events_count > 0 || p.decisions_count > 0) ?? periods[periods.length - 1];
+
+            const cards = [
+              { to: "/app/builder",     icon: Rocket,   label: "Modelo de negócio", value: `${bpFilled}/10`,            hint: `${bpPct}% completo`,                  pct: bpPct },
+              { to: "/app/journey",     icon: Compass,  label: "Sua jornada",        value: current?.key ?? "—",          hint: current ? `${current.events_count} eventos` : "comece a registrar", pct: null },
+              { to: "/app/competitors", icon: Shield,   label: "Radar competitivo",  value: String(comps.length),         hint: compHigh > 0 ? `${compHigh} alta ameaça` : "sem ameaças altas", pct: null },
+              { to: "/app/skill-map",   icon: Brain,    label: "Skill Map",          value: `${skMastered} domínios`,     hint: sk.length > 0 ? `média ${skAvg}` : "calibre suas skills", pct: skAvg || null },
+            ];
+            return cards.map((c) => (
+              <motion.div key={c.to} variants={fadeUp}>
+                <Link to={c.to} className="group block rounded-2xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40 hover:shadow-soft">
+                  <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5"><c.icon className="size-3 text-accent" /> {c.label}</span>
+                    <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />
+                  </div>
+                  <div className="mt-2 text-xl font-semibold tabular-nums">{c.value}</div>
+                  <div className="text-[11px] text-muted-foreground">{c.hint}</div>
+                  {c.pct !== null && (
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary">
+                      <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${c.pct}%` }} />
+                    </div>
+                  )}
+                </Link>
+              </motion.div>
+            ));
+          })()}
+        </motion.section>
 
         {/* KPI footer */}
         <motion.section variants={stagger} className="grid grid-cols-2 gap-3 md:grid-cols-4">
