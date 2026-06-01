@@ -134,6 +134,36 @@ export type Database = {
           },
         ]
       }
+      brain_answers: {
+        Row: {
+          answer: Json
+          computed_at: string
+          confidence: number
+          expires_at: string | null
+          id: string
+          question: Database["public"]["Enums"]["brain_question"]
+          workspace_id: string
+        }
+        Insert: {
+          answer?: Json
+          computed_at?: string
+          confidence?: number
+          expires_at?: string | null
+          id?: string
+          question: Database["public"]["Enums"]["brain_question"]
+          workspace_id: string
+        }
+        Update: {
+          answer?: Json
+          computed_at?: string
+          confidence?: number
+          expires_at?: string | null
+          id?: string
+          question?: Database["public"]["Enums"]["brain_question"]
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       brain_memories: {
         Row: {
           content: string
@@ -178,6 +208,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      brain_memory_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["brain_event_kind"]
+          payload: Json
+          sentiment: string | null
+          subject: string
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["brain_event_kind"]
+          payload?: Json
+          sentiment?: string | null
+          subject: string
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["brain_event_kind"]
+          payload?: Json
+          sentiment?: string | null
+          subject?: string
+          user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
       }
       brain_recommendations: {
         Row: {
@@ -235,6 +298,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      brain_snapshots: {
+        Row: {
+          computed_at: string
+          id: string
+          scores: Json
+          signals: Json
+          snapshot: Json
+          workspace_id: string
+        }
+        Insert: {
+          computed_at?: string
+          id?: string
+          scores?: Json
+          signals?: Json
+          snapshot?: Json
+          workspace_id: string
+        }
+        Update: {
+          computed_at?: string
+          id?: string
+          scores?: Json
+          signals?: Json
+          snapshot?: Json
+          workspace_id?: string
+        }
+        Relationships: []
       }
       brands: {
         Row: {
@@ -1428,6 +1518,12 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"
+      brain_event_kind:
+        | "decision"
+        | "result"
+        | "pivot"
+        | "signal"
+        | "reflection"
       brain_memory_kind:
         | "fact"
         | "preference"
@@ -1435,6 +1531,12 @@ export type Database = {
         | "signal"
         | "outcome"
         | "strategy"
+      brain_question:
+        | "where_am_i"
+        | "where_to_go"
+        | "whats_blocking"
+        | "next_action"
+        | "should_pivot"
       business_path:
         | "local_business"
         | "content_creator"
@@ -1616,6 +1718,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "editor", "viewer"],
+      brain_event_kind: ["decision", "result", "pivot", "signal", "reflection"],
       brain_memory_kind: [
         "fact",
         "preference",
@@ -1623,6 +1726,13 @@ export const Constants = {
         "signal",
         "outcome",
         "strategy",
+      ],
+      brain_question: [
+        "where_am_i",
+        "where_to_go",
+        "whats_blocking",
+        "next_action",
+        "should_pivot",
       ],
       business_path: [
         "local_business",

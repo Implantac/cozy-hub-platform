@@ -6,10 +6,10 @@ import {
   Brain, Sparkles, Radio, Palette, FileText, Calendar,
   Target, Zap, TrendingUp, Activity, ArrowUpRight, Compass,
   AlertTriangle, Lightbulb, CheckCircle2, Flame, Heart,
+  MapPin, Flag, Shield, Rocket, GitBranch,
 } from "lucide-react";
 import {
-  DashboardService, ScoreService, CoachService,
-  HealthService, OpportunitiesService,
+  DashboardService, CoachService, HealthService, OpportunitiesService, BrainCoreService,
 } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
@@ -24,10 +24,10 @@ export const Route = createFileRoute("/_authenticated/app/")({
 function GPSDashboard() {
   const [wsId] = useCurrentWorkspaceId();
   const fetchOverview = useServerFn(DashboardService.fetchOverview as any);
-  const getScore = useServerFn(ScoreService.getLatestScore);
-  const computeScore = useServerFn(ScoreService.computeDigitalScore);
+  const brainAskAll = useServerFn(BrainCoreService.brainAskAll);
+  const brainSnapshot = useServerFn(BrainCoreService.brainSnapshot);
+  const brainRecommend = useServerFn(BrainCoreService.brainRecommend);
   const listRecs = useServerFn(CoachService.listRecommendations);
-  const generateRecs = useServerFn(CoachService.generateRecommendations);
   const getHealth = useServerFn(HealthService.getLatestHealth);
   const listOpps = useServerFn(OpportunitiesService.listOpportunities);
 
@@ -36,9 +36,9 @@ function GPSDashboard() {
     queryFn: () => (fetchOverview as any)({ data: { workspaceId: wsId! } }),
     enabled: !!wsId, refetchInterval: 30_000,
   });
-  const score = useQuery({
-    queryKey: ["score", wsId],
-    queryFn: () => getScore({ data: { workspaceId: wsId! } }),
+  const brain = useQuery({
+    queryKey: ["brain-all", wsId],
+    queryFn: () => brainAskAll({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
   });
   const recs = useQuery({
@@ -59,14 +59,12 @@ function GPSDashboard() {
 
   const refreshAll = useMutation({
     mutationFn: async () => {
-      await Promise.all([
-        computeScore({ data: { workspaceId: wsId! } }),
-        generateRecs({ data: { workspaceId: wsId! } }),
-      ]);
+      await brainSnapshot({ data: { workspaceId: wsId! } });
+      await brainRecommend({ data: { workspaceId: wsId! } });
     },
     onSuccess: () => {
-      toast.success("GPS atualizado");
-      score.refetch(); recs.refetch(); overview.refetch();
+      toast.success("USE Brain atualizado");
+      brain.refetch(); recs.refetch(); overview.refetch();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -83,7 +81,7 @@ function GPSDashboard() {
   }
 
   const d = overview.data!;
-  const s = score.data;
+  const s = brain.data?.scores as any;
   const topRecs = (recs.data ?? []).slice(0, 4);
   const trending = (opps.data ?? []).filter((o: any) => o.status === "exploding" || o.status === "growing").slice(0, 3);
   const healthAvg = health.data && health.data.length > 0
@@ -101,9 +99,9 @@ function GPSDashboard() {
               <Compass className="size-3 text-accent" />
               Business GPS · cockpit operacional
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight">Para onde seu negócio vai hoje?</h1>
+            <h1 className="text-4xl font-semibold tracking-tight">USE Brain</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Score, saúde, oportunidades e próximos passos — tudo em um lugar.
+              O cérebro do seu negócio digital — sempre respondendo as 5 perguntas que importam.
             </p>
           </div>
           <button
@@ -111,9 +109,46 @@ function GPSDashboard() {
             disabled={refreshAll.isPending}
             className="group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
           >
-            <Sparkles className={`size-4 transition group-hover:rotate-12 ${refreshAll.isPending ? "animate-pulse" : ""}`} />
-            {refreshAll.isPending ? "Atualizando GPS..." : "Atualizar GPS"}
+            <Brain className={`size-4 transition group-hover:rotate-12 ${refreshAll.isPending ? "animate-pulse" : ""}`} />
+            {refreshAll.isPending ? "Pensando..." : "Pensar de novo"}
           </button>
+        </motion.header>
+
+        {/* Five Questions — the soul of USE Brain */}
+        <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {[
+            { q: "where_am_i", icon: MapPin, label: "Onde estou?" },
+            { q: "where_to_go", icon: Flag, label: "Onde quero chegar?" },
+            { q: "whats_blocking", icon: Shield, label: "O que me impede?" },
+            { q: "next_action", icon: Rocket, label: "Próxima ação" },
+            { q: "should_pivot", icon: GitBranch, label: "Devo mudar?" },
+          ].map((card) => {
+            const a = (brain.data?.answers ?? []).find((x: any) => x.question === card.q);
+            const Icon = card.icon;
+            return (
+              <motion.div key={card.q} variants={fadeUp}
+                className="relative overflow-hidden rounded-2xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <Icon className="size-3 text-accent" /> {card.label}
+                </div>
+                <div className="mt-2 text-sm font-semibold leading-snug">
+                  {a?.headline ?? (brain.isLoading ? "Analisando..." : "—")}
+                </div>
+                {a?.body && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{a.body}</p>}
+                {a?.cta && (
+                  <Link to={a.cta.href} className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
+                    {a.cta.label} <ArrowUpRight className="size-3" />
+                  </Link>
+                )}
+                {typeof a?.confidence === "number" && (
+                  <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-secondary">
+                    <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${Math.round(a.confidence * 100)}%` }} />
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </motion.section>
         </motion.header>
 
         {/* Top row — Score + Health summary + Goal */}
