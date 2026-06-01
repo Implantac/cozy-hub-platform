@@ -55,7 +55,49 @@
     "analytics": "Analytics",
     "brain": "Brain",
     "missions": "Missions",
-    "settings": "Settings"
+    "settings": "Settings",
+    "group": {
+      "overview": "Overview",
+      "operation": "Operation",
+      "content": "Content",
+      "intelligence": "Intelligence",
+      "settings": "Settings"
+    }
+  },
+  "palette": {
+    "placeholder": "Search pages, actions...",
+    "empty": "Nothing found.",
+    "navigate": "Navigate",
+    "actions": "Actions"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No activity yet."
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Continue",
+    "finish": "Finish",
+    "done": "Welcome aboard!",
+    "s1": { "title": "Welcome to USE OS", "desc": "Your operating system for digital growth." },
+    "s2": { "title": "Your profile", "desc": "What should we call you?", "label": "Display name" },
+    "s3": { "title": "First brand", "desc": "Create your first brand to get started.", "label": "Brand name" },
+    "s4": { "title": "Ready!", "desc": "All set. Let's operate.", "body": "You're ready to connect channels, create content and let the Brain work for you." },
+    "welcome": {
+      "line1": "Active workspace:",
+      "line2": "In 3 quick steps you'll be operating like a Digital Director."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Profile, workspace and team.",
+    "save": "Save changes",
+    "saved": "Saved",
+    "plan": "plan",
+    "tabs": { "profile": "Profile", "workspace": "Workspace", "team": "Team", "appearance": "Language" },
+    "profile": { "title": "Your profile", "displayName": "Display name" },
+    "team": { "title": "Members" },
+    "appearance": { "title": "Interface language" }
   },
   "workspace": {
     "new": "New workspace",
