@@ -1,14 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Shield, ShieldAlert, ShieldCheck, ShoppingCart, Loader2, AlertTriangle,
   CheckCircle2, XCircle, History, Sparkles, ExternalLink,
 } from "lucide-react";
-import { toast } from "sonner";
 import { TrustOSService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useWorkspaceQuery, useWorkspaceMutation } from "@/lib/query/use-workspace-query";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -126,8 +125,8 @@ function TrustAnalyzerTab() {
   const [observations, setObservations] = useState("");
 
   const run = useServerFn(TrustOSService.runTrustAnalyzer);
-  const mutation = useMutation({
-    mutationFn: async () => run({
+  const mutation = useWorkspaceMutation(
+    () => run({
       data: {
         workspaceId: workspaceId!,
         target_name,
@@ -136,9 +135,8 @@ function TrustAnalyzerTab() {
         observations,
       },
     }),
-    onError: (e: Error) => toast.error(e.message),
-    onSuccess: () => toast.success("Análise de confiança concluída."),
-  });
+    { successMessage: "Análise de confiança concluída." },
+  );
 
   const result = mutation.data;
   const checks = (result?.checks ?? {}) as {
@@ -233,8 +231,8 @@ function BeforeYouBuyTab() {
   const [notes, setNotes] = useState("");
 
   const run = useServerFn(TrustOSService.runBeforeYouBuy);
-  const mutation = useMutation({
-    mutationFn: async () => run({
+  const mutation = useWorkspaceMutation(
+    () => run({
       data: {
         workspaceId: workspaceId!,
         product_name, seller, price_brl, promise,
@@ -242,9 +240,8 @@ function BeforeYouBuyTab() {
         notes: notes || undefined,
       },
     }),
-    onError: (e: Error) => toast.error(e.message),
-    onSuccess: () => toast.success("Avaliação concluída."),
-  });
+    { successMessage: "Avaliação concluída." },
+  );
 
   const result = mutation.data;
   const checks = (result?.checks ?? {}) as {
@@ -393,13 +390,11 @@ function ResultPanel({
  * History
  * ============================================================ */
 function HistoryTab() {
-  const [workspaceId] = useCurrentWorkspaceId(null);
   const list = useServerFn(TrustOSService.listTrustReports);
-  const q = useQuery({
-    queryKey: ["trust-reports", workspaceId],
-    queryFn: () => list({ data: { workspaceId: workspaceId! } }),
-    enabled: !!workspaceId,
-  });
+  const q = useWorkspaceQuery(
+    (wsId) => ["trust-reports", wsId],
+    ({ workspaceId }) => list({ data: { workspaceId } }),
+  );
 
   if (q.isLoading) return <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Carregando...</div>;
   const rows = q.data ?? [];
@@ -407,7 +402,7 @@ function HistoryTab() {
 
   return (
     <div className="space-y-3">
-      {rows.map((r) => {
+      {rows.map((r: any) => {
         const tone = trustVerdictTone(r.verdict);
         const isBuy = r.target_type === "before_you_buy";
         const isTrust = r.target_type?.startsWith("trust:");
