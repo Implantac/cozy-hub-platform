@@ -522,3 +522,157 @@ export const listCouncilOpinions = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+/* ============================================================
+ * Brain-2E — Long-term Mentor (Timeline)
+ * Aggregates brain_memory_events + brain_snapshots by quarter
+ * to build a narrative of progress, patterns, and lessons.
+ * ============================================================ */
+type TimelinePeriod = {
+  key: string; // e.g. "2026-Q2"
+  year: number;
+  quarter: number;
+  starts_at: string;
+  ends_at: string;
+  events_count: number;
+  decisions_count: number;
+  experiments_count: number;
+  wins: string[];
+  setbacks: string[];
+  score_avg: number | null;
+  highlights: string[];
+  narrative: string;
+};
+
+function quarterOf(d: Date): { year: number; q: number; key: string } {
+  const y = d.getUTCFullYear();
+  const q = Math.floor(d.getUTCMonth() / 3) + 1;
+  return { year: y, q, key: `${y}-Q${q}` };
+}
+
+export const getLongTermTimeline = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => wsInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const ws = data.workspaceId;
+
+    const [eventsRes, decisionsRes, experimentsRes, snapshotsRes] = await Promise.all([
+      supabase.from("brain_memory_events").select("*").eq("workspace_id", ws).order("created_at", { ascending: true }).limit(1000),
+      supabase.from("brain_decisions").select("*").eq("workspace_id", ws).order("created_at", { ascending: true }).limit(500),
+      supabase.from("brain_experiments").select("*").eq("workspace_id", ws).order("created_at", { ascending: true }).limit(500),
+      supabase.from("brain_snapshots").select("*").eq("workspace_id", ws).order("computed_at", { ascending: true }).limit(500),
+    ]);
+
+    const events = eventsRes.data ?? [];
+    const decisions = decisionsRes.data ?? [];
+    const experiments = experimentsRes.data ?? [];
+    const snapshots = snapshotsRes.data ?? [];
+
+    const buckets = new Map<string, TimelinePeriod>();
+    const bucket = (dateStr: string) => {
+      const d = new Date(dateStr);
+      const { year, q, key } = quarterOf(d);
+      let b = buckets.get(key);
+      if (!b) {
+        const starts = new Date(Date.UTC(year, (q - 1) * 3, 1));
+        const ends = new Date(Date.UTC(year, q * 3, 0, 23, 59, 59));
+        b = {
+          key, year, quarter: q,
+          starts_at: starts.toISOString(), ends_at: ends.toISOString(),
+          events_count: 0, decisions_count: 0, experiments_count: 0,
+          wins: [], setbacks: [], score_avg: null,
+          highlights: [], narrative: "",
+        };
+        buckets.set(key, b);
+      }
+      return b;
+    };
+
+    for (const e of events) {
+      const b = bucket(e.created_at);
+      b.events_count++;
+      if (e.sentiment === "positive" && b.wins.length < 5) b.wins.push(e.subject);
+      if (e.sentiment === "negative" && b.setbacks.length < 5) b.setbacks.push(e.subject);
+    }
+    for (const d of decisions) {
+      const b = bucket(d.created_at);
+      b.decisions_count++;
+      if ((d.outcome_score ?? 0) >= 70 && b.wins.length < 5) b.wins.push(`Decisão: ${d.title}`);
+      if ((d.outcome_score ?? 100) < 30 && b.setbacks.length < 5) b.setbacks.push(`Decisão: ${d.title}`);
+    }
+    for (const x of experiments) {
+      const b = bucket(x.created_at);
+      b.experiments_count++;
+      if (x.status === "completed" && x.metric_result != null && x.metric_target != null && Number(x.metric_result) >= Number(x.metric_target) && b.wins.length < 5) {
+        b.wins.push(`Experimento: ${x.title}`);
+      }
+    }
+    const scoresByBucket = new Map<string, number[]>();
+    for (const s of snapshots) {
+      const b = bucket(s.computed_at);
+      const scores = (s.scores ?? {}) as Record<string, number>;
+      const vals = Object.values(scores).filter((v) => typeof v === "number");
+      if (vals.length) {
+        const avg = vals.reduce((a, c) => a + c, 0) / vals.length;
+        const arr = scoresByBucket.get(b.key) ?? [];
+        arr.push(avg);
+        scoresByBucket.set(b.key, arr);
+      }
+    }
+    for (const [key, arr] of scoresByBucket.entries()) {
+      const b = buckets.get(key);
+      if (b) b.score_avg = arr.reduce((a, c) => a + c, 0) / arr.length;
+    }
+
+    const list = Array.from(buckets.values()).sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    for (let i = 0; i < list.length; i++) {
+      const b = list[i];
+      const prev = i > 0 ? list[i - 1] : null;
+      const delta = prev && prev.score_avg != null && b.score_avg != null ? b.score_avg - prev.score_avg : null;
+      const dir = delta == null ? "estável" : delta > 5 ? "evolução clara" : delta < -5 ? "retração" : "platô";
+      const parts: string[] = [];
+      parts.push(`${b.key}: ${b.events_count} eventos, ${b.decisions_count} decisões, ${b.experiments_count} experimentos.`);
+      if (b.score_avg != null) parts.push(`Score médio ${b.score_avg.toFixed(1)} (${dir}).`);
+      if (b.wins.length) parts.push(`Vitórias: ${b.wins.slice(0, 3).join("; ")}.`);
+      if (b.setbacks.length) parts.push(`Tropeços: ${b.setbacks.slice(0, 3).join("; ")}.`);
+      if (!b.wins.length && !b.setbacks.length && b.events_count === 0) parts.push("Período silencioso — pouca atividade registrada.");
+      b.narrative = parts.join(" ");
+      if (b.wins.length >= 3) b.highlights.push("Trimestre de alta execução");
+      if (b.setbacks.length >= 3) b.highlights.push("Trimestre de fricção");
+      if (delta != null && delta > 10) b.highlights.push("Salto de maturidade");
+      if (delta != null && delta < -10) b.highlights.push("Alerta: regressão");
+    }
+
+    // Overall mentor synthesis
+    const totalEvents = events.length;
+    const totalDecisions = decisions.length;
+    const completedExp = experiments.filter((x) => x.status === "completed").length;
+    const firstScore = list.find((b) => b.score_avg != null)?.score_avg ?? null;
+    const lastScore = [...list].reverse().find((b) => b.score_avg != null)?.score_avg ?? null;
+    const trajectory = firstScore != null && lastScore != null ? lastScore - firstScore : null;
+
+    const mentorSummary = {
+      periods_tracked: list.length,
+      total_events: totalEvents,
+      total_decisions: totalDecisions,
+      completed_experiments: completedExp,
+      trajectory_delta: trajectory,
+      verdict: trajectory == null
+        ? "Ainda não tenho histórico suficiente para julgar trajetória — siga registrando."
+        : trajectory > 10
+          ? "Trajetória ascendente. Você está construindo composto — mantenha o ritmo e documente o que funciona."
+          : trajectory < -10
+            ? "Trajetória descendente. Pause, revise os últimos 3 períodos e identifique o que mudou."
+            : "Trajetória estável. Para evoluir, aumente a taxa de experimentos ou ataque um gargalo identificado.",
+      patterns: [] as string[],
+    };
+    const winsAll = list.flatMap((b) => b.wins);
+    const setbacksAll = list.flatMap((b) => b.setbacks);
+    if (winsAll.length > setbacksAll.length * 2) mentorSummary.patterns.push("Padrão de execução positiva consistente.");
+    if (setbacksAll.length > winsAll.length * 2) mentorSummary.patterns.push("Padrão de fricção recorrente — investigue causa raiz.");
+    if (completedExp >= 5) mentorSummary.patterns.push("Cultura experimental instalada.");
+    if (totalDecisions >= 10 && completedExp < 3) mentorSummary.patterns.push("Muitas decisões, poucos testes — risco de viés.");
+
+    return { periods: list, mentor: mentorSummary };
+  });
