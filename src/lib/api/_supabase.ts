@@ -35,8 +35,13 @@ export function throwIfError(
   if (error) throw new Error(error.message);
 }
 
-/** Same as `throwIfError`, but returns the `data` payload of a result tuple. */
-export function unwrap<T>(result: SupabaseLikeResult<T>): T {
+/**
+ * Same as `throwIfError`, but returns the `data` payload of a result tuple.
+ * Also asserts data is non-null so callers get a `NonNullable<T>` directly —
+ * matches the practical contract of `.single()` (success ⇒ row exists).
+ */
+export function unwrap<T>(result: SupabaseLikeResult<T>): NonNullable<T> {
   if (result.error) throw new Error(result.error.message);
-  return result.data;
+  if (result.data == null) throw new Error("Supabase returned no data");
+  return result.data as NonNullable<T>;
 }
