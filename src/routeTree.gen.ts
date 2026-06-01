@@ -28,6 +28,7 @@ import { Route as AuthenticatedAppCommerceRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/app.coach'
 import { Route as AuthenticatedAppChannelsRouteImport } from './routes/_authenticated/app.channels'
 import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authenticated/app.brands'
+import { Route as AuthenticatedAppBrainLabRouteImport } from './routes/_authenticated/app.brain-lab'
 import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/app.analytics'
 import { Route as ApiPublicCronSchedulerTickRouteImport } from './routes/api/public/cron/scheduler-tick'
@@ -135,6 +136,12 @@ const AuthenticatedAppBrandsRoute = AuthenticatedAppBrandsRouteImport.update({
   path: '/brands',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppBrainLabRoute =
+  AuthenticatedAppBrainLabRouteImport.update({
+    id: '/brain-lab',
+    path: '/brain-lab',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppBrainRoute = AuthenticatedAppBrainRouteImport.update({
   id: '/brain',
   path: '/brain',
@@ -166,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/app/brain': typeof AuthenticatedAppBrainRoute
+  '/app/brain-lab': typeof AuthenticatedAppBrainLabRoute
   '/app/brands': typeof AuthenticatedAppBrandsRoute
   '/app/channels': typeof AuthenticatedAppChannelsRoute
   '/app/coach': typeof AuthenticatedAppCoachRoute
@@ -189,6 +197,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/app/brain': typeof AuthenticatedAppBrainRoute
+  '/app/brain-lab': typeof AuthenticatedAppBrainLabRoute
   '/app/brands': typeof AuthenticatedAppBrandsRoute
   '/app/channels': typeof AuthenticatedAppChannelsRoute
   '/app/coach': typeof AuthenticatedAppCoachRoute
@@ -215,6 +224,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/_authenticated/app/brain': typeof AuthenticatedAppBrainRoute
+  '/_authenticated/app/brain-lab': typeof AuthenticatedAppBrainLabRoute
   '/_authenticated/app/brands': typeof AuthenticatedAppBrandsRoute
   '/_authenticated/app/channels': typeof AuthenticatedAppChannelsRoute
   '/_authenticated/app/coach': typeof AuthenticatedAppCoachRoute
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/analytics'
     | '/app/brain'
+    | '/app/brain-lab'
     | '/app/brands'
     | '/app/channels'
     | '/app/coach'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/analytics'
     | '/app/brain'
+    | '/app/brain-lab'
     | '/app/brands'
     | '/app/channels'
     | '/app/coach'
@@ -289,6 +301,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/app/analytics'
     | '/_authenticated/app/brain'
+    | '/_authenticated/app/brain-lab'
     | '/_authenticated/app/brands'
     | '/_authenticated/app/channels'
     | '/_authenticated/app/coach'
@@ -451,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBrandsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/brain-lab': {
+      id: '/_authenticated/app/brain-lab'
+      path: '/brain-lab'
+      fullPath: '/app/brain-lab'
+      preLoaderRoute: typeof AuthenticatedAppBrainLabRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/brain': {
       id: '/_authenticated/app/brain'
       path: '/brain'
@@ -485,6 +505,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAnalyticsRoute: typeof AuthenticatedAppAnalyticsRoute
   AuthenticatedAppBrainRoute: typeof AuthenticatedAppBrainRoute
+  AuthenticatedAppBrainLabRoute: typeof AuthenticatedAppBrainLabRoute
   AuthenticatedAppBrandsRoute: typeof AuthenticatedAppBrandsRoute
   AuthenticatedAppChannelsRoute: typeof AuthenticatedAppChannelsRoute
   AuthenticatedAppCoachRoute: typeof AuthenticatedAppCoachRoute
@@ -504,6 +525,7 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAnalyticsRoute: AuthenticatedAppAnalyticsRoute,
   AuthenticatedAppBrainRoute: AuthenticatedAppBrainRoute,
+  AuthenticatedAppBrainLabRoute: AuthenticatedAppBrainLabRoute,
   AuthenticatedAppBrandsRoute: AuthenticatedAppBrandsRoute,
   AuthenticatedAppChannelsRoute: AuthenticatedAppChannelsRoute,
   AuthenticatedAppCoachRoute: AuthenticatedAppCoachRoute,
