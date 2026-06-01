@@ -33,7 +33,8 @@ export const listRecommendations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ workspaceId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertWorkspaceMember(supabase, data.workspaceId, userId);
     const { data: rows, error } = await supabase
       .from("brain_recommendations").select("*").eq("workspace_id", data.workspaceId)
       .order("score", { ascending: false }).limit(50);
