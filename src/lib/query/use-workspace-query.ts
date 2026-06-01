@@ -33,11 +33,11 @@ export function useWorkspaceQuery<TData>(
   return { ...query, wsId };
 }
 
-interface WorkspaceMutationOptions<TVars, TData> {
+interface WorkspaceMutationOptions<TData> {
   invalidate?: QueryKey | QueryKey[];
   successMessage?: string | ((data: TData) => string);
   errorMessage?: string;
-  onSuccess?: UseMutationOptions<TData, Error, TVars>["onSuccess"];
+  onSuccess?: (data: TData) => void;
 }
 
 /**
@@ -48,17 +48,18 @@ interface WorkspaceMutationOptions<TVars, TData> {
  */
 export function useWorkspaceMutation<TVars, TData>(
   fn: (vars: TVars) => Promise<TData>,
-  opts: WorkspaceMutationOptions<TVars, TData> = {},
+  opts: WorkspaceMutationOptions<TData> = {},
 ) {
   const qc = useQueryClient();
   return useMutation<TData, Error, TVars>({
     mutationFn: fn,
-    onSuccess: (data, vars, ctx) => {
-      const keys = Array.isArray(opts.invalidate?.[0])
-        ? (opts.invalidate as QueryKey[])
-        : opts.invalidate
-        ? [opts.invalidate as QueryKey]
-        : [];
+    onSuccess: (data) => {
+      const raw = opts.invalidate;
+      const keys: QueryKey[] = !raw
+        ? []
+        : Array.isArray(raw) && Array.isArray(raw[0])
+        ? (raw as QueryKey[])
+        : [raw as QueryKey];
       keys.forEach((key) => qc.invalidateQueries({ queryKey: key }));
 
       if (opts.successMessage) {
@@ -68,7 +69,7 @@ export function useWorkspaceMutation<TVars, TData>(
         toast.success(msg);
       }
 
-      opts.onSuccess?.(data, vars, ctx);
+      opts.onSuccess?.(data);
     },
     onError: (err) => {
       toast.error(opts.errorMessage ?? err.message);
