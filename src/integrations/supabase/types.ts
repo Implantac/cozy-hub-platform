@@ -509,6 +509,60 @@ export type Database = {
           },
         ]
       }
+      business_blueprints: {
+        Row: {
+          audience: string | null
+          channels: string | null
+          content_pillars: string | null
+          created_at: string
+          differentiator: string | null
+          funnel: string | null
+          id: string
+          metric: string | null
+          offer: string | null
+          price: string | null
+          problem: string | null
+          promise: string | null
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          audience?: string | null
+          channels?: string | null
+          content_pillars?: string | null
+          created_at?: string
+          differentiator?: string | null
+          funnel?: string | null
+          id?: string
+          metric?: string | null
+          offer?: string | null
+          price?: string | null
+          problem?: string | null
+          promise?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          audience?: string | null
+          channels?: string | null
+          content_pillars?: string | null
+          created_at?: string
+          differentiator?: string | null
+          funnel?: string | null
+          id?: string
+          metric?: string | null
+          offer?: string | null
+          price?: string | null
+          problem?: string | null
+          promise?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       business_validations: {
         Row: {
           ai_analysis: Json
@@ -680,6 +734,63 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      competitors: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          engagement: number
+          followers: number
+          gap: string | null
+          handle: string | null
+          id: string
+          name: string
+          positioning: string | null
+          recent_move: string | null
+          tags: string[]
+          threat: Database["public"]["Enums"]["competitor_threat"]
+          trend: Database["public"]["Enums"]["competitor_trend"]
+          updated_at: string
+          url: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          engagement?: number
+          followers?: number
+          gap?: string | null
+          handle?: string | null
+          id?: string
+          name: string
+          positioning?: string | null
+          recent_move?: string | null
+          tags?: string[]
+          threat?: Database["public"]["Enums"]["competitor_threat"]
+          trend?: Database["public"]["Enums"]["competitor_trend"]
+          updated_at?: string
+          url?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          engagement?: number
+          followers?: number
+          gap?: string | null
+          handle?: string | null
+          id?: string
+          name?: string
+          positioning?: string | null
+          recent_move?: string | null
+          tags?: string[]
+          threat?: Database["public"]["Enums"]["competitor_threat"]
+          trend?: Database["public"]["Enums"]["competitor_trend"]
+          updated_at?: string
+          url?: string | null
           workspace_id?: string
         }
         Relationships: []
@@ -1984,6 +2095,8 @@ export type Database = {
       channel_status: "disconnected" | "connected" | "expired" | "error"
       coach_kind: "insight" | "warning" | "suggestion" | "next_action"
       coach_severity: "info" | "low" | "medium" | "high" | "critical"
+      competitor_threat: "high" | "medium" | "low"
+      competitor_trend: "up" | "down" | "flat"
       content_status:
         | "draft"
         | "scheduled"
@@ -2223,6 +2336,8 @@ export const Constants = {
       channel_status: ["disconnected", "connected", "expired", "error"],
       coach_kind: ["insight", "warning", "suggestion", "next_action"],
       coach_severity: ["info", "low", "medium", "high", "critical"],
+      competitor_threat: ["high", "medium", "low"],
+      competitor_trend: ["up", "down", "flat"],
       content_status: [
         "draft",
         "scheduled",
