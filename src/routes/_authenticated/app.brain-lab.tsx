@@ -677,12 +677,12 @@ function CouncilPanel() {
 /* ---------------- Timeline / Long-term Mentor ---------------- */
 function TimelinePanel() {
   const fetchTimeline = useServerFn(getLongTermTimeline);
-  const tlQ = useWorkspaceQuery({
-    key: "brain-timeline",
-    fetcher: (workspaceId) => fetchTimeline({ data: { workspaceId } }),
-  });
+  const tlQ = useWorkspaceQuery<Awaited<ReturnType<typeof fetchTimeline>>>(
+    (ws) => ["brain-timeline", ws],
+    ({ workspaceId }) => fetchTimeline({ data: { workspaceId } }),
+  );
 
-  if (!tlQ.workspaceId) {
+  if (!tlQ.wsId) {
     return <EmptyState icon={History} title="Sem workspace" description="Selecione um workspace para ver a linha do tempo." />;
   }
   if (tlQ.isLoading) {
