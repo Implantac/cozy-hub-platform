@@ -6,6 +6,7 @@ import { Link2, Plus, Radio, Trash2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageTransition } from "@/components/app/Motion";
 import {
   PLATFORMS,
   getPlatformIcon,
@@ -97,6 +98,7 @@ function ChannelsPage() {
   );
 
   return (
+    <PageTransition>
     <div className="space-y-6">
       <PageHeader
         icon={Radio}
@@ -242,5 +244,6 @@ function ChannelsPage() {
         {q.data?.length === 0 && <EmptyState text="No channels yet." />}
       </div>
     </div>
+    </PageTransition>
   );
 }

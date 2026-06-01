@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Plus, Target } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageTransition } from "@/components/app/Motion";
 import {
   createMission,
   listMissions,
@@ -60,6 +61,7 @@ function MissionsPage() {
   };
 
   return (
+    <PageTransition>
     <div className="space-y-6">
       <PageHeader
         icon={Target}
@@ -122,5 +124,6 @@ function MissionsPage() {
         ))}
       </div>
     </div>
+    </PageTransition>
   );
 }

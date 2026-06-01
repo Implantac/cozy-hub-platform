@@ -5,6 +5,7 @@ import { useState } from "react";
 import { FileText, Plus } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageTransition } from "@/components/app/Motion";
 import {
   createContent,
   listContent,
@@ -69,6 +70,7 @@ function ContentPage() {
   };
 
   return (
+    <PageTransition>
     <div className="space-y-6">
       <PageHeader
         icon={FileText}
@@ -134,5 +136,6 @@ function ContentPage() {
         {q.data?.length === 0 && <EmptyState text="No content yet." />}
       </div>
     </div>
+    </PageTransition>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Palette, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageTransition } from "@/components/app/Motion";
 import {
   useWorkspaceMutation,
   useWorkspaceQuery,
@@ -51,7 +52,8 @@ function BrandsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <PageHeader
         icon={Palette}
         title="Brands"
@@ -112,6 +114,7 @@ function BrandsPage() {
         ))}
         {q.data?.length === 0 && <EmptyState text="No brands yet." />}
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 }
