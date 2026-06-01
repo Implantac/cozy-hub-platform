@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 export const listOpportunities = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -15,6 +16,6 @@ export const listOpportunities = createServerFn({ method: "GET" })
     else q = q.is("workspace_id", null);
     if (data.status) q = q.eq("status", data.status);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });

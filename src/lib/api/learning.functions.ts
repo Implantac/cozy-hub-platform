@@ -1,13 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 export const listLearningPaths = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
     const { data, error } = await supabase.from("learning_paths").select("*").order("difficulty");
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return data ?? [];
   });
 
@@ -17,7 +18,7 @@ export const listMyProgress = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase.from("learning_path_progress")
       .select("*").eq("user_id", userId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return data ?? [];
   });
 
@@ -50,6 +51,6 @@ export const toggleMilestone = createServerFn({ method: "POST" })
     };
     const { data: row, error } = await supabase.from("learning_path_progress")
       .upsert(payload, { onConflict: "user_id,path_id" }).select().single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });

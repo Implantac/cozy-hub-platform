@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 /**
  * Aggregated analytics overview for a workspace.
@@ -26,7 +27,7 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       .order("captured_at", { ascending: true })
       .limit(1000);
 
-    if (error) throw new Error(error.message);
+    throwIfError(error);
 
     const daily = new Map<string, { date: string; impressions: number; engagement: number; reach: number }>();
     const byPlatform = new Map<string, { platform: string; impressions: number; engagement: number }>();

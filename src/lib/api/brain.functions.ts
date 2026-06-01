@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 /**
  * Native Cognitive Brain — Phase 1
@@ -22,7 +23,7 @@ async function assertWorkspaceMember(
     .eq("workspace_id", workspaceId)
     .eq("user_id", userId)
     .maybeSingle();
-  if (error) throw new Error(error.message);
+  throwIfError(error);
   if (!member) throw new Error("forbidden: not a workspace member");
   if (allowedRoles && !allowedRoles.includes(member.role)) {
     throw new Error("forbidden: insufficient role");
@@ -38,7 +39,7 @@ export const listRecommendations = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("brain_recommendations").select("*").eq("workspace_id", data.workspaceId)
       .order("score", { ascending: false }).limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -59,7 +60,7 @@ export const updateRecommendation = createServerFn({ method: "POST" })
       .update({ status: data.status })
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });
 
@@ -166,7 +167,7 @@ export const listMemories = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("brain_memories").select("id, kind, content, metadata, created_at")
       .eq("workspace_id", data.workspaceId).order("created_at", { ascending: false }).limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -185,6 +186,6 @@ export const addMemory = createServerFn({ method: "POST" })
     const { data: row, error } = await supabase.from("brain_memories").insert({
       workspace_id: data.workspaceId, kind: data.kind, content: data.content,
     }).select("id, kind, content, metadata, created_at").single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });

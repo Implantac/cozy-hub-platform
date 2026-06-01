@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -15,7 +16,7 @@ export const listRecommendations = createServerFn({ method: "GET" })
       .is("dismissed_at", null).is("completed_at", null)
       .order("severity", { ascending: false }).order("created_at", { ascending: false })
       .limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -96,7 +97,7 @@ export const generateRecommendations = createServerFn({ method: "POST" })
     const { data: rows, error } = await supabase.from("coach_recommendations").insert(
       recs.map((r) => ({ ...r, workspace_id: ws })),
     ).select();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { generated: rows?.length ?? 0, recommendations: rows ?? [] };
   });
 
@@ -112,6 +113,6 @@ export const updateRecommendation = createServerFn({ method: "POST" })
       ? { dismissed_at: new Date().toISOString() }
       : { completed_at: new Date().toISOString() };
     const { error } = await supabase.from("coach_recommendations").update(patch).eq("id", data.id);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });

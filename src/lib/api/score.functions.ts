@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -86,7 +87,7 @@ export const computeDigitalScore = createServerFn({ method: "POST" })
       workspace_id: ws, overall, presence, branding, content: contentScore,
       consistency, growth, channel_setup, breakdown,
     }).select().single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -98,6 +99,6 @@ export const getLatestScore = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("digital_scores").select("*").eq("workspace_id", data.workspaceId)
       .order("computed_at", { ascending: false }).limit(1).maybeSingle();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });

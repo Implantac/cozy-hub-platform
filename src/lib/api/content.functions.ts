@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfError } from "./_supabase";
 
 const ContentType = z.enum(["post", "reel", "story", "short", "video", "article", "carousel"]);
 const ContentStatus = z.enum(["draft", "scheduled", "publishing", "published", "failed", "archived"]);
@@ -19,7 +20,7 @@ export const listContent = createServerFn({ method: "GET" })
     let q = supabase.from("content").select("*, brand:brands(name)").eq("workspace_id", data.workspaceId);
     if (data.status) q = q.eq("status", data.status);
     const { data: rows, error } = await q.order("created_at", { ascending: false }).limit(data.limit);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
 
@@ -45,7 +46,7 @@ export const createContent = createServerFn({ method: "POST" })
       status: "draft",
       created_by: userId,
     }).select().single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "ContentCreated",
       payload: { content_id: row.id, type: row.type },
@@ -69,7 +70,7 @@ export const updateContentStatus = createServerFn({ method: "POST" })
       .update({ status: data.status })
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true };
   });
 
@@ -90,7 +91,7 @@ export const bulkUpdateContentStatus = createServerFn({ method: "POST" })
       .update({ status: data.status })
       .in("id", data.ids)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true, count: data.ids.length };
   });
 
@@ -110,6 +111,6 @@ export const bulkDeleteContent = createServerFn({ method: "POST" })
       .delete()
       .in("id", data.ids)
       .eq("workspace_id", data.workspaceId);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return { ok: true, count: data.ids.length };
   });

@@ -8,6 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callAITool } from "./_ai-gateway.server";
+import { throwIfError } from "./_supabase";
 
 /* ============================================================
  * Trust Analyzer
@@ -92,7 +93,7 @@ Produza análise de confiança estruturada.`;
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -196,7 +197,7 @@ Produza avaliação estruturada "antes de comprar".`;
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return row;
   });
 
@@ -214,6 +215,6 @@ export const listTrustReports = createServerFn({ method: "GET" })
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (error) throw new Error(error.message);
+    throwIfError(error);
     return rows ?? [];
   });
