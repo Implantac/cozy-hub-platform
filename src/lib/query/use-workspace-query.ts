@@ -3,7 +3,6 @@ import {
   useQuery,
   useQueryClient,
   type QueryKey,
-  type UseMutationOptions,
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
