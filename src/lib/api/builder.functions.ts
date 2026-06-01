@@ -105,6 +105,7 @@ export const deleteCompetitor = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
     throwIfError(error);
+    await invalidateBrainCache(supabase, data.workspaceId);
     return { ok: true };
   });
 
