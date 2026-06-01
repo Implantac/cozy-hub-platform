@@ -161,7 +161,8 @@ export const listMemories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ workspaceId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertWorkspaceMember(supabase, data.workspaceId, userId);
     const { data: rows, error } = await supabase
       .from("brain_memories").select("id, kind, content, metadata, created_at")
       .eq("workspace_id", data.workspaceId).order("created_at", { ascending: false }).limit(50);
@@ -179,7 +180,8 @@ export const addMemory = createServerFn({ method: "POST" })
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertWorkspaceMember(supabase, data.workspaceId, userId, ["owner", "admin", "editor"]);
     const { data: row, error } = await supabase.from("brain_memories").insert({
       workspace_id: data.workspaceId, kind: data.kind, content: data.content,
     }).select("id, kind, content, metadata, created_at").single();
