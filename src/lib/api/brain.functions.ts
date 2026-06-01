@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -10,7 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 
 async function assertWorkspaceMember(
-  supabase: ReturnType<typeof Object> extends never ? never : any,
+  supabase: SupabaseClient,
   workspaceId: string,
   userId: string,
   allowedRoles?: string[],
