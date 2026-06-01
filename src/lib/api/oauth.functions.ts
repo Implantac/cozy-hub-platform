@@ -20,7 +20,7 @@ function buildCallbackUri(provider: string): string {
   const configured = process.env.APP_ORIGIN?.replace(/\/$/, "");
   if (configured) return `${configured}/api/public/oauth/callback/${provider}`;
 
-  const req = getWebRequest();
+  const req = getRequest();
   const url = new URL(req.url);
   const forwardedProto = req.headers.get("x-forwarded-proto");
   const forwardedHost = req.headers.get("x-forwarded-host");
