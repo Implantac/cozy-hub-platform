@@ -741,7 +741,7 @@ function CouncilPanel() {
   const list = useServerFn(listCouncilOpinions);
   const opQ = useWorkspaceQuery<CouncilOpinion[]>(
     (ws) => ["council", ws],
-    ({ workspaceId }) => list({ data: { workspaceId } }),
+    ({ workspaceId }) => list({ data: { workspaceId } }) as unknown as Promise<CouncilOpinion[]>,
   );
   const wsId = opQ.wsId;
 
