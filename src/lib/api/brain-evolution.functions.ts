@@ -198,7 +198,7 @@ export const updateExperimentStatus = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabase
       .from("brain_experiments")
-      .update(patch)
+      .update(patch as never)
       .eq("id", data.id)
       .select()
       .single();
