@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Palette, Radio, FileText, Calendar, BarChart3,
   Brain, Target, Settings, LogOut, ChevronDown, Plus, Search, Sparkles,
   Compass, TrendingUp, RadarIcon, Wand2, Activity, GraduationCap, ShoppingBag,
+  Lightbulb,
 } from "lucide-react";
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
