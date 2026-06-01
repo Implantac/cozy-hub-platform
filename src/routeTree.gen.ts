@@ -23,6 +23,7 @@ import { Route as AuthenticatedAppNavigatorRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppMissionsRouteImport } from './routes/_authenticated/app.missions'
 import { Route as AuthenticatedAppLearningRouteImport } from './routes/_authenticated/app.learning'
 import { Route as AuthenticatedAppHealthRouteImport } from './routes/_authenticated/app.health'
+import { Route as AuthenticatedAppDecisionsRouteImport } from './routes/_authenticated/app.decisions'
 import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
 import { Route as AuthenticatedAppCommerceRouteImport } from './routes/_authenticated/app.commerce'
 import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/app.coach'
@@ -109,6 +110,12 @@ const AuthenticatedAppHealthRoute = AuthenticatedAppHealthRouteImport.update({
   path: '/health',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppDecisionsRoute =
+  AuthenticatedAppDecisionsRouteImport.update({
+    id: '/decisions',
+    path: '/decisions',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppContentRoute = AuthenticatedAppContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/app/coach': typeof AuthenticatedAppCoachRoute
   '/app/commerce': typeof AuthenticatedAppCommerceRoute
   '/app/content': typeof AuthenticatedAppContentRoute
+  '/app/decisions': typeof AuthenticatedAppDecisionsRoute
   '/app/health': typeof AuthenticatedAppHealthRoute
   '/app/learning': typeof AuthenticatedAppLearningRoute
   '/app/missions': typeof AuthenticatedAppMissionsRoute
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/app/coach': typeof AuthenticatedAppCoachRoute
   '/app/commerce': typeof AuthenticatedAppCommerceRoute
   '/app/content': typeof AuthenticatedAppContentRoute
+  '/app/decisions': typeof AuthenticatedAppDecisionsRoute
   '/app/health': typeof AuthenticatedAppHealthRoute
   '/app/learning': typeof AuthenticatedAppLearningRoute
   '/app/missions': typeof AuthenticatedAppMissionsRoute
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/app/coach': typeof AuthenticatedAppCoachRoute
   '/_authenticated/app/commerce': typeof AuthenticatedAppCommerceRoute
   '/_authenticated/app/content': typeof AuthenticatedAppContentRoute
+  '/_authenticated/app/decisions': typeof AuthenticatedAppDecisionsRoute
   '/_authenticated/app/health': typeof AuthenticatedAppHealthRoute
   '/_authenticated/app/learning': typeof AuthenticatedAppLearningRoute
   '/_authenticated/app/missions': typeof AuthenticatedAppMissionsRoute
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/app/coach'
     | '/app/commerce'
     | '/app/content'
+    | '/app/decisions'
     | '/app/health'
     | '/app/learning'
     | '/app/missions'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/app/coach'
     | '/app/commerce'
     | '/app/content'
+    | '/app/decisions'
     | '/app/health'
     | '/app/learning'
     | '/app/missions'
@@ -307,6 +319,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/coach'
     | '/_authenticated/app/commerce'
     | '/_authenticated/app/content'
+    | '/_authenticated/app/decisions'
     | '/_authenticated/app/health'
     | '/_authenticated/app/learning'
     | '/_authenticated/app/missions'
@@ -429,6 +442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppHealthRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/decisions': {
+      id: '/_authenticated/app/decisions'
+      path: '/decisions'
+      fullPath: '/app/decisions'
+      preLoaderRoute: typeof AuthenticatedAppDecisionsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/content': {
       id: '/_authenticated/app/content'
       path: '/content'
@@ -511,6 +531,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCoachRoute: typeof AuthenticatedAppCoachRoute
   AuthenticatedAppCommerceRoute: typeof AuthenticatedAppCommerceRoute
   AuthenticatedAppContentRoute: typeof AuthenticatedAppContentRoute
+  AuthenticatedAppDecisionsRoute: typeof AuthenticatedAppDecisionsRoute
   AuthenticatedAppHealthRoute: typeof AuthenticatedAppHealthRoute
   AuthenticatedAppLearningRoute: typeof AuthenticatedAppLearningRoute
   AuthenticatedAppMissionsRoute: typeof AuthenticatedAppMissionsRoute
@@ -531,6 +552,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCoachRoute: AuthenticatedAppCoachRoute,
   AuthenticatedAppCommerceRoute: AuthenticatedAppCommerceRoute,
   AuthenticatedAppContentRoute: AuthenticatedAppContentRoute,
+  AuthenticatedAppDecisionsRoute: AuthenticatedAppDecisionsRoute,
   AuthenticatedAppHealthRoute: AuthenticatedAppHealthRoute,
   AuthenticatedAppLearningRoute: AuthenticatedAppLearningRoute,
   AuthenticatedAppMissionsRoute: AuthenticatedAppMissionsRoute,
