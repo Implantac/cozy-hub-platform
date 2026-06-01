@@ -76,6 +76,7 @@ function BrainLabPage() {
         {tab === "decisions" && <DecisionsPanel />}
         {tab === "anti_scam" && <AntiScamPanel />}
         {tab === "council" && <CouncilPanel />}
+        {tab === "timeline" && <TimelinePanel />}
       </div>
     </PageTransition>
   );
