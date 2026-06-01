@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard, Palette, Radio, FileText, Calendar, BarChart3,
   Brain, Target, Settings, LogOut, ChevronDown, Plus, Search, Sparkles,
+  Compass, TrendingUp, RadarIcon, Wand2, Activity, GraduationCap, ShoppingBag,
 } from "lucide-react";
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
@@ -24,19 +25,27 @@ type NavItem = { to: string; labelKey: string; icon: typeof LayoutDashboard; exa
 
 const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
   {
-    labelKey: "nav.group.overview",
-    items: [{ to: "/app", labelKey: "nav.dashboard", icon: LayoutDashboard, exact: true }],
+    labelKey: "nav.group.command",
+    items: [
+      { to: "/app", labelKey: "nav.dashboard", icon: LayoutDashboard, exact: true },
+      { to: "/app/score", labelKey: "nav.score", icon: TrendingUp },
+      { to: "/app/health", labelKey: "nav.health", icon: Activity },
+    ],
+  },
+  {
+    labelKey: "nav.group.growth",
+    items: [
+      { to: "/app/navigator", labelKey: "nav.navigator", icon: Compass },
+      { to: "/app/opportunities", labelKey: "nav.opportunities", icon: RadarIcon },
+      { to: "/app/coach", labelKey: "nav.coach", icon: Wand2 },
+      { to: "/app/learning", labelKey: "nav.learning", icon: GraduationCap },
+    ],
   },
   {
     labelKey: "nav.group.operation",
     items: [
       { to: "/app/brands", labelKey: "nav.brands", icon: Palette },
       { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
-    ],
-  },
-  {
-    labelKey: "nav.group.content",
-    items: [
       { to: "/app/content", labelKey: "nav.content", icon: FileText },
       { to: "/app/scheduler", labelKey: "nav.scheduler", icon: Calendar },
     ],
@@ -48,6 +57,10 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
       { to: "/app/missions", labelKey: "nav.missions", icon: Target },
       { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
     ],
+  },
+  {
+    labelKey: "nav.group.commerce",
+    items: [{ to: "/app/commerce", labelKey: "nav.commerce", icon: ShoppingBag }],
   },
 ];
 
