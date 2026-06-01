@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
@@ -104,14 +104,15 @@ function AppShell() {
     if (!currentWsId && currentWs?.id) setCurrentWsId(currentWs.id);
   }, [currentWsId, currentWs?.id, setCurrentWsId]);
 
-  // Auto-onboarding: no workspace -> create one
+  // Auto-onboarding: no workspace -> create one (guarded against duplicate firing)
+  const bootstrappingRef = useRef(false);
   useEffect(() => {
-    if (wsQuery.isSuccess && workspaces.length === 0 && auth.user) {
-      const name = (auth.user.user_metadata?.full_name as string) ?? t("workspace.mine");
-      createWs({ data: { name: `${name}` } })
-        .then((ws) => { setCurrentWsId(ws.id); wsQuery.refetch(); toast.success(t("workspace.created")); })
-        .catch((e) => toast.error(e.message));
-    }
+    if (!wsQuery.isSuccess || workspaces.length !== 0 || !auth.user || bootstrappingRef.current) return;
+    bootstrappingRef.current = true;
+    const name = (auth.user.user_metadata?.full_name as string) ?? t("workspace.mine");
+    createWs({ data: { name: `${name}` } })
+      .then((ws) => { setCurrentWsId(ws.id); wsQuery.refetch(); toast.success(t("workspace.created")); })
+      .catch((e) => { bootstrappingRef.current = false; toast.error(e.message); });
   }, [wsQuery.isSuccess, workspaces.length, auth.user, createWs, setCurrentWsId, wsQuery, t]);
 
   if (auth.loading || wsQuery.isLoading) {
