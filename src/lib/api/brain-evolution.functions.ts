@@ -9,7 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError } from "./_supabase";
-import { emitMemoryEvent } from "./_memory";
+import { emitMemoryEvent, invalidateBrainCache } from "./_memory";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
