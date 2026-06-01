@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppTrustRouteImport } from './routes/_authenticated/app.trust'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppScoreRouteImport } from './routes/_authenticated/app.score'
 import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/app.scheduler'
@@ -62,6 +63,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTrustRoute = AuthenticatedAppTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppSettingsRoute =
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/app/score': typeof AuthenticatedAppScoreRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/trust': typeof AuthenticatedAppTrustRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
   '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/app/score': typeof AuthenticatedAppScoreRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/trust': typeof AuthenticatedAppTrustRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
   '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/_authenticated/app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/_authenticated/app/score': typeof AuthenticatedAppScoreRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/app/trust': typeof AuthenticatedAppTrustRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
   '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/app/scheduler'
     | '/app/score'
     | '/app/settings'
+    | '/app/trust'
     | '/app/'
     | '/api/public/cron/scheduler-tick'
     | '/api/public/oauth/callback/$provider'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/app/scheduler'
     | '/app/score'
     | '/app/settings'
+    | '/app/trust'
     | '/app'
     | '/api/public/cron/scheduler-tick'
     | '/api/public/oauth/callback/$provider'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/scheduler'
     | '/_authenticated/app/score'
     | '/_authenticated/app/settings'
+    | '/_authenticated/app/trust'
     | '/_authenticated/app/'
     | '/api/public/cron/scheduler-tick'
     | '/api/public/oauth/callback/$provider'
@@ -384,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/trust': {
+      id: '/_authenticated/app/trust'
+      path: '/trust'
+      fullPath: '/app/trust'
+      preLoaderRoute: typeof AuthenticatedAppTrustRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/settings': {
@@ -540,6 +559,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
   AuthenticatedAppScoreRoute: typeof AuthenticatedAppScoreRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppTrustRoute: typeof AuthenticatedAppTrustRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
@@ -561,6 +581,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
   AuthenticatedAppScoreRoute: AuthenticatedAppScoreRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppTrustRoute: AuthenticatedAppTrustRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
