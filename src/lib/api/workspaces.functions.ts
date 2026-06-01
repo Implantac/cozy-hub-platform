@@ -37,12 +37,11 @@ export const createWorkspace = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const slug = data.slug ?? `${slugify(data.name)}-${Math.random().toString(36).slice(2, 6)}`;
-    const { data: ws, error } = await supabase
+    const ws = unwrap(await supabase
       .from("workspaces")
       .insert({ name: data.name, slug, owner_id: userId })
       .select()
-      .single();
-    throwIfError(error);
+      .single());
 
     await supabase.from("profiles").update({ default_workspace_id: ws.id, onboarding_completed: true }).eq("id", userId);
     await supabase.from("audit_logs").insert({

@@ -31,14 +31,13 @@ export const createChannel = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: row, error } = await supabase.from("channels").insert({
+    const row = unwrap(await supabase.from("channels").insert({
       workspace_id: data.workspaceId,
       brand_id: data.brandId ?? null,
       platform: data.platform,
       handle: data.handle,
       status: "disconnected",
-    }).select().single();
-    throwIfError(error);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "ChannelRegistered",
       payload: { channel_id: row.id, platform: row.platform },

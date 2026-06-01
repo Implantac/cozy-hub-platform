@@ -27,15 +27,14 @@ export const createBrand = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.from("brands").insert({
+    const row = unwrap(await supabase.from("brands").insert({
       workspace_id: data.workspaceId,
       name: data.name,
       description: data.description ?? null,
       voice: (data.voice ?? {}) as never,
       palette: (data.palette ?? {}) as never,
       created_by: userId,
-    }).select().single();
-    throwIfError(error);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "BrandCreated",
       payload: { brand_id: row.id, name: row.name },

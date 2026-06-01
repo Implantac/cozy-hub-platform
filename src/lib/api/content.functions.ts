@@ -37,7 +37,7 @@ export const createContent = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.from("content").insert({
+    const row = unwrap(await supabase.from("content").insert({
       workspace_id: data.workspaceId,
       brand_id: data.brandId ?? null,
       type: data.type,
@@ -45,8 +45,7 @@ export const createContent = createServerFn({ method: "POST" })
       body: data.body ?? null,
       status: "draft",
       created_by: userId,
-    }).select().single();
-    throwIfError(error);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "ContentCreated",
       payload: { content_id: row.id, type: row.type },

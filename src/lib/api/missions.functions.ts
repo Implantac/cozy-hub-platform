@@ -27,14 +27,13 @@ export const createMission = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.from("missions").insert({
+    const row = unwrap(await supabase.from("missions").insert({
       workspace_id: data.workspaceId,
       title: data.title,
       description: data.description ?? null,
       priority: data.priority,
       created_by: userId,
-    }).select().single();
-    throwIfError(error);
+    }).select().single());
     await supabase.from("domain_events").insert({
       workspace_id: data.workspaceId, event_type: "MissionAssigned",
       payload: { mission_id: row.id, title: row.title },
