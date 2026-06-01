@@ -87,9 +87,10 @@ function ChannelsPage() {
 
   const connectMut = useWorkspaceMutation(
     async (providerId: string) => {
-      const redirectUri = `${window.location.origin}/api/public/oauth/callback/${providerId}`;
+      // redirectUri is built server-side from APP_ORIGIN / request headers —
+      // never send it from the client (prevents redirect-URI tampering).
       return connect({
-        data: { workspaceId: q.wsId!, provider: providerId, redirectUri },
+        data: { workspaceId: q.wsId!, provider: providerId },
       });
     },
     { onSuccess: (res) => { window.location.href = res.url; } },
