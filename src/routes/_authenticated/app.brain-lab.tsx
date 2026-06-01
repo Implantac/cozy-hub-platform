@@ -31,7 +31,7 @@ type SkillArea = (typeof SKILL_AREAS)[number];
 const ADVISORS = ["marketing", "financial", "strategy", "content", "business"] as const;
 type Advisor = (typeof ADVISORS)[number];
 
-type Tab = "twin" | "skills" | "experiments" | "decisions" | "anti_scam" | "council";
+type Tab = "twin" | "skills" | "experiments" | "decisions" | "anti_scam" | "council" | "timeline";
 
 function BrainLabPage() {
   const [tab, setTab] = useState<Tab>("twin");
