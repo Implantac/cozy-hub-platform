@@ -6,6 +6,7 @@ import {
   CheckCircle2, XCircle, History, Sparkles, ExternalLink,
 } from "lucide-react";
 import { TrustOSService } from "@/lib/services";
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useWorkspaceQuery, useWorkspaceMutation } from "@/lib/query/use-workspace-query";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
