@@ -244,6 +244,9 @@ function AppShell() {
                 <span>{t("palette.placeholder", "Buscar...")}</span>
                 <kbd className="ml-4 rounded border border-border/80 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
               </button>
+              <div className="hidden sm:block">
+                <LanguageSwitcher compact />
+              </div>
               <NotificationDrawer workspaceId={currentWs?.id} />
               <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow ring-1 ring-primary/20">
                 {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
