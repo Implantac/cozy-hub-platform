@@ -104,15 +104,32 @@ export const generateRecommendations = createServerFn({ method: "POST" })
 export const updateRecommendation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
     id: z.string().uuid(),
     action: z.enum(["dismiss", "complete"]),
   }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+
+    // Defence-in-depth: assert caller is a member of the workspace
+    // owning this recommendation before mutating it.
+    const { data: member, error: memberError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", data.workspaceId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    throwIfError(memberError);
+    if (!member) throw new Error("forbidden: not a workspace member");
+
     const patch = data.action === "dismiss"
       ? { dismissed_at: new Date().toISOString() }
       : { completed_at: new Date().toISOString() };
-    const { error } = await supabase.from("coach_recommendations").update(patch).eq("id", data.id);
+    const { error } = await supabase
+      .from("coach_recommendations")
+      .update(patch)
+      .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId);
     throwIfError(error);
     return { ok: true };
   });
