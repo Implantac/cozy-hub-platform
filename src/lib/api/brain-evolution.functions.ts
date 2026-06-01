@@ -495,7 +495,7 @@ export const askCouncil = createServerFn({ method: "POST" })
         topic: data.topic,
         summary: r.summary,
         analysis: r.analysis,
-        recommendations: r.recommendations as unknown as Record<string, unknown>,
+        recommendations: r.recommendations as never,
         confidence: r.confidence,
         model_used: "rule-based-v1",
       };
