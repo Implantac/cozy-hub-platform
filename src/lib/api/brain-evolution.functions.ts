@@ -179,6 +179,7 @@ export const createExperiment = createServerFn({ method: "POST" })
 export const updateExperimentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
     id: z.string().uuid(),
     status: z.enum(["proposed", "running", "completed", "abandoned"]),
     metric_result: z.number().optional(),
@@ -201,6 +202,7 @@ export const updateExperimentStatus = createServerFn({ method: "POST" })
       .from("brain_experiments")
       .update(patch as never)
       .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId)
       .select()
       .single();
     throwIfError(error);
@@ -301,6 +303,7 @@ export const createDecision = createServerFn({ method: "POST" })
 export const markDecisionExecuted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
     id: z.string().uuid(),
     outcome_score: z.number().int().min(0).max(100).optional(),
     outcome_note: z.string().max(500).optional(),
@@ -316,6 +319,7 @@ export const markDecisionExecuted = createServerFn({ method: "POST" })
         outcome: data.outcome_note ? { note: data.outcome_note } : {},
       })
       .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId)
       .select()
       .single();
     throwIfError(error);
@@ -494,15 +498,19 @@ async function adviseWithAI(
   });
 
   if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    console.error("[council] AI gateway error", { advisor, status: res.status, body: txt.slice(0, 500) });
     if (res.status === 429) throw new Error("Limite de requisições da IA excedido. Tente novamente em instantes.");
-    if (res.status === 402) throw new Error("Créditos da IA esgotados. Adicione em Settings → Workspace → Usage.");
-    const txt = await res.text();
-    throw new Error(`Falha na IA Gateway (${res.status}): ${txt.slice(0, 200)}`);
+    if (res.status === 402) throw new Error("Créditos da IA esgotados. Contate o administrador do workspace.");
+    throw new Error("Serviço de IA indisponível. Tente novamente em instantes.");
   }
 
   const json = await res.json() as { choices?: Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }> };
   const call = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-  if (!call) throw new Error("Resposta da IA sem tool call estruturado.");
+  if (!call) {
+    console.error("[council] AI response missing tool call", { advisor });
+    throw new Error("Resposta da IA inválida. Tente novamente em instantes.");
+  }
   const parsed = JSON.parse(call) as { summary: string; analysis: string; recommendations: string[]; confidence: number };
   return { ...parsed, model: "google/gemini-3-flash-preview" };
 }
@@ -540,12 +548,13 @@ export const askCouncil = createServerFn({ method: "POST" })
             model_used: r.model,
           };
         } catch (e) {
+          console.error("[council] advisor failed", { advisor, error: e });
           return {
             workspace_id: data.workspaceId,
             advisor,
             topic: data.topic,
             summary: `Falha ao consultar conselheiro ${advisor}.`,
-            analysis: e instanceof Error ? e.message : "Erro desconhecido.",
+            analysis: "Conselheiro indisponível no momento. Tente novamente em instantes.",
             recommendations: [] as never,
             confidence: 0,
             model_used: "error",
