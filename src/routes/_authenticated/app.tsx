@@ -29,7 +29,7 @@ type NavItem = { to: string; labelKey: string; icon: typeof LayoutDashboard; exa
 
 const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
   {
-    labelKey: "nav.group.command",
+    labelKey: "nav.group.gps",
     items: [
       { to: "/app", labelKey: "nav.dashboard", icon: LayoutDashboard, exact: true },
       { to: "/app/score", labelKey: "nav.score", icon: TrendingUp },
@@ -37,18 +37,21 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
     ],
   },
   {
-    labelKey: "nav.group.growth",
+    labelKey: "nav.group.decision",
     items: [
       { to: "/app/navigator", labelKey: "nav.navigator", icon: Compass },
       { to: "/app/opportunities", labelKey: "nav.opportunities", icon: RadarIcon },
       { to: "/app/decisions", labelKey: "nav.decisions", icon: Lightbulb },
-      { to: "/app/trust", labelKey: "nav.trust", icon: Shield },
-      { to: "/app/coach", labelKey: "nav.coach", icon: Wand2 },
-      { to: "/app/learning", labelKey: "nav.learning", icon: GraduationCap },
     ],
   },
   {
-    labelKey: "nav.group.operation",
+    labelKey: "nav.group.trust",
+    items: [
+      { to: "/app/trust", labelKey: "nav.trust", icon: Shield },
+    ],
+  },
+  {
+    labelKey: "nav.group.execution",
     items: [
       { to: "/app/brands", labelKey: "nav.brands", icon: Palette },
       { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
@@ -57,12 +60,19 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
     ],
   },
   {
-    labelKey: "nav.group.intelligence",
+    labelKey: "nav.group.growth",
+    items: [
+      { to: "/app/coach", labelKey: "nav.coach", icon: Wand2 },
+      { to: "/app/missions", labelKey: "nav.missions", icon: Target },
+      { to: "/app/learning", labelKey: "nav.learning", icon: GraduationCap },
+      { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    labelKey: "nav.group.brain",
     items: [
       { to: "/app/brain", labelKey: "nav.brain", icon: Brain, exact: true },
       { to: "/app/brain-lab", labelKey: "nav.brain_lab", icon: FlaskConical },
-      { to: "/app/missions", labelKey: "nav.missions", icon: Target },
-      { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
     ],
   },
   {
