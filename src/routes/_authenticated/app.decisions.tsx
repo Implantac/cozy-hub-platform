@@ -1,14 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Lightbulb, AlertTriangle, Loader2, Sparkles, TrendingUp, Shield,
   CheckCircle2, XCircle, AlertCircle, ArrowRight, Target,
 } from "lucide-react";
-import { toast } from "sonner";
 import { DecisionOSService } from "@/lib/services";
-import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,7 +56,6 @@ function DecisionOSPage() {
  * Business Validator
  * ============================================================ */
 function BusinessValidatorTab() {
-  const [wsId] = useCurrentWorkspaceId();
   const [idea, setIdea] = useState("");
   const [model, setModel] = useState("");
   const [audience, setAudience] = useState("");
@@ -66,14 +63,14 @@ function BusinessValidatorTab() {
   const validateFn = useServerFn(DecisionOSService.validateBusinessIdea);
   const listFn = useServerFn(DecisionOSService.listBusinessValidations);
 
-  const list = useQuery({
-    queryKey: ["business-validations", wsId],
-    queryFn: () => listFn({ data: { workspaceId: wsId! } }),
-    enabled: !!wsId,
-  });
+  const list = useWorkspaceQuery(
+    (wsId) => ["business-validations", wsId],
+    ({ workspaceId }) => listFn({ data: { workspaceId } }),
+  );
+  const wsId = list.wsId;
 
-  const validate = useMutation({
-    mutationFn: () =>
+  const validate = useWorkspaceMutation(
+    () =>
       validateFn({
         data: {
           workspaceId: wsId!,
@@ -82,13 +79,12 @@ function BusinessValidatorTab() {
           target_audience: audience || undefined,
         },
       }),
-    onSuccess: () => {
-      toast.success("Validação concluída");
-      setIdea(""); setModel(""); setAudience("");
-      list.refetch();
+    {
+      invalidate: wsId ? ["business-validations", wsId] : ["business-validations"],
+      successMessage: "Validação concluída",
+      onSuccess: () => { setIdea(""); setModel(""); setAudience(""); },
     },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  );
 
   return (
     <div className="space-y-6">
@@ -235,7 +231,6 @@ function ListBlock({ icon: Icon, title, tone, items }: { icon: any; title: strin
  * Reality Check
  * ============================================================ */
 function RealityCheckTab() {
-  const [wsId] = useCurrentWorkspaceId();
   const [changeType, setChangeType] = useState<string>("pivot");
   const [currentState, setCurrentState] = useState("");
   const [proposed, setProposed] = useState("");
@@ -243,14 +238,14 @@ function RealityCheckTab() {
   const runFn = useServerFn(DecisionOSService.runRealityCheck);
   const listFn = useServerFn(DecisionOSService.listRealityChecks);
 
-  const list = useQuery({
-    queryKey: ["reality-checks", wsId],
-    queryFn: () => listFn({ data: { workspaceId: wsId! } }),
-    enabled: !!wsId,
-  });
+  const list = useWorkspaceQuery(
+    (wsId) => ["reality-checks", wsId],
+    ({ workspaceId }) => listFn({ data: { workspaceId } }),
+  );
+  const wsId = list.wsId;
 
-  const run = useMutation({
-    mutationFn: () =>
+  const run = useWorkspaceMutation(
+    () =>
       runFn({
         data: {
           workspaceId: wsId!,
@@ -259,13 +254,12 @@ function RealityCheckTab() {
           proposed_change: proposed,
         },
       }),
-    onSuccess: () => {
-      toast.success("Reality check concluído");
-      setCurrentState(""); setProposed("");
-      list.refetch();
+    {
+      invalidate: wsId ? ["reality-checks", wsId] : ["reality-checks"],
+      successMessage: "Reality check concluído",
+      onSuccess: () => { setCurrentState(""); setProposed(""); },
     },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  );
 
   return (
     <div className="space-y-6">
