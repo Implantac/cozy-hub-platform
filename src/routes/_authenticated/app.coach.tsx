@@ -46,6 +46,8 @@ function CoachPage() {
   const brainRecommend = useServerFn(BrainCoreService.brainRecommend);
   const update = useServerFn(CoachService.updateRecommendation);
   const timeline = useServerFn(BrainCoreService.brainTimeline);
+  const [wsId] = useCurrentWorkspaceId();
+  useBrainRealtime(wsId);
 
   const q = useWorkspaceQuery(
     (wsId) => ["coach", wsId],
