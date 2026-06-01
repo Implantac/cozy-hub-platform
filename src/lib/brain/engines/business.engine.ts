@@ -50,8 +50,26 @@ export function analyzeBusiness(ctx: BrainContext): EngineReport {
   };
   const priority = path ? (priorityByPath[path] ?? []) : [];
 
+  // Business Blueprint (Manifesto Builder) — 10 strategic blocks
+  const BP_FIELDS = ["problem","audience","promise","differentiator","offer","price","channels","content_pillars","funnel","metric"] as const;
+  const bp = ctx.blueprint;
+  const bpFilled = bp ? BP_FIELDS.filter((f) => (bp as any)[f] && String((bp as any)[f]).trim().length > 0).length : 0;
+  const bpPct = Math.round((bpFilled / BP_FIELDS.length) * 100);
+  if (!bp || bpFilled === 0) {
+    signals.push({ engine: "business", kind: "negative", severity: "high", weight: 0.85,
+      message: "Modelo de negócio vazio — sem promessa, oferta ou métrica definidas." });
+    actions.push({ engine: "business", score: 88, title: "Preencher Business Blueprint",
+      rationale: "Os 10 blocos do Builder definem promessa, oferta e funil.", href: "/app/builder" });
+  } else if (bpFilled < 6) {
+    signals.push({ engine: "business", kind: "negative", severity: "medium", weight: 0.55,
+      message: `Blueprint só ${bpPct}% completo — decisões ficam sem âncora.` });
+    actions.push({ engine: "business", score: 70, title: "Completar Business Blueprint",
+      rationale: `Faltam ${BP_FIELDS.length - bpFilled} bloco(s) para fechar o modelo.`, href: "/app/builder" });
+  }
+
   return {
     signals, actions,
-    facts: { stage, brands: brands.length, channels: channels.length, connected, priority },
+    facts: { stage, brands: brands.length, channels: channels.length, connected, priority,
+      blueprintCompletion: bpPct, blueprintFilled: bpFilled },
   };
 }

@@ -39,6 +39,30 @@ export function analyzeUser(ctx: BrainContext): EngineReport {
     });
   }
 
+  // Skill Map signals
+  const skills = ctx.skills ?? [];
+  const masteredDomains = skills.filter((s) => (s.score ?? 0) >= 70).length;
+  const avgSkill = skills.length
+    ? Math.round(skills.reduce((sum, s) => sum + (s.score ?? 0), 0) / skills.length)
+    : 0;
+  const weakAreas = skills.filter((s) => (s.score ?? 0) < 40).map((s) => s.area);
+  if (skills.length === 0) {
+    signals.push({
+      engine: "user", kind: "neutral", severity: "low", weight: 0.4,
+      message: "Skill Map vazio — Brain não sabe seus pontos fortes nem gaps.",
+    });
+    actions.push({
+      engine: "user", score: 65, title: "Mapear habilidades no Skill Map",
+      rationale: "Sem mapa de habilidades, recomendações ignoram seus gaps reais.",
+      href: "/app/skill-map",
+    });
+  } else if (weakAreas.length >= 3) {
+    signals.push({
+      engine: "user", kind: "negative", severity: "medium", weight: 0.55,
+      message: `${weakAreas.length} áreas com nível baixo — priorize aprendizado em ${weakAreas.slice(0, 2).join(", ")}.`,
+    });
+  }
+
   return {
     signals, actions,
     facts: {
@@ -50,6 +74,9 @@ export function analyzeUser(ctx: BrainContext): EngineReport {
       path: p.business_path,
       goals: p.goals ?? [],
       preferredChannels: p.preferred_channels ?? [],
+      masteredDomains,
+      avgSkill,
+      weakAreas,
     },
   };
 }

@@ -46,6 +46,9 @@ export interface BrainContext {
   analytics: any[];
   opportunities: any[];
   memory: any[];                  // brain_memory_events (recent)
+  blueprint: any | null;          // business_blueprints (10 blocks)
+  competitors: any[];             // competitors radar
+  skills: any[];                  // skill_assessments (per user)
   // Engine reports filled during analyze()
   reports?: Record<string, EngineReport>;
 }

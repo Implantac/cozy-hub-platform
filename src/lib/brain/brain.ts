@@ -31,7 +31,7 @@ const ENGINES = {
 export async function loadContext(
   supabase: SupabaseClient<any>, workspaceId: string, userId: string,
 ): Promise<BrainContext> {
-  const [profileRes, wsRes, brandsRes, channelsRes, contentRes, jobsRes, analyticsRes, oppsRes, memRes] =
+  const [profileRes, wsRes, brandsRes, channelsRes, contentRes, jobsRes, analyticsRes, oppsRes, memRes, bpRes, compRes, skillsRes] =
     await Promise.all([
       supabase.from("user_profile_digital").select("*").eq("user_id", userId).maybeSingle(),
       supabase.from("workspaces").select("*").eq("id", workspaceId).maybeSingle(),
@@ -44,6 +44,9 @@ export async function loadContext(
       supabase.from("opportunities").select("*").or(`workspace_id.is.null,workspace_id.eq.${workspaceId}`).limit(50),
       supabase.from("brain_memory_events").select("*").eq("workspace_id", workspaceId)
         .order("created_at", { ascending: false }).limit(100),
+      supabase.from("business_blueprints").select("*").eq("workspace_id", workspaceId).maybeSingle(),
+      supabase.from("competitors").select("*").eq("workspace_id", workspaceId).limit(100),
+      supabase.from("skill_assessments").select("*").eq("workspace_id", workspaceId).eq("user_id", userId),
     ]);
 
   return {
@@ -57,6 +60,9 @@ export async function loadContext(
     analytics: analyticsRes.data ?? [],
     opportunities: oppsRes.data ?? [],
     memory: memRes.data ?? [],
+    blueprint: bpRes.data ?? null,
+    competitors: compRes.data ?? [],
+    skills: skillsRes.data ?? [],
   };
 }
 
