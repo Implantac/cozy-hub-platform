@@ -197,3 +197,54 @@ export const brainLatestSnapshot = createServerFn({ method: "GET" })
     throwIfError(error);
     return row;
   });
+
+/**
+ * Brain-ranked opportunities — combines market data with the user's profile
+ * (preferred channels, content prefs, goals, experience) to compute a
+ * compatibility match instead of returning a generic trends list.
+ */
+export const brainOpportunities = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
+    status: z.enum(["exploding","growing","stable","saturated","declining"]).optional(),
+    limit: z.number().int().min(1).max(100).optional(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const ctx = await loadContext(supabase, data.workspaceId, userId);
+
+    const profile = ctx.profile as any;
+    const userTags: string[] = [
+      ...(profile?.preferred_channels ?? []),
+      ...(profile?.content_preferences ?? []),
+      ...(profile?.goals ?? []),
+      profile?.business_path,
+    ].filter(Boolean).map((s: string) => String(s).toLowerCase());
+    const difficultyPenalty: Record<string, number> = { low: 0, medium: 10, high: 25 };
+    const userTolerance =
+      profile?.experience_level === "advanced" ? 30
+      : profile?.experience_level === "intermediate" ? 15 : 0;
+
+    const scored = (ctx.opportunities ?? []).map((o: any) => {
+      let s = 50;
+      if (o.status === "exploding") s += 25;
+      else if (o.status === "growing") s += 15;
+      else if (o.status === "saturated") s -= 15;
+      else if (o.status === "declining") s -= 30;
+      if (o.growth_potential === "high") s += 15;
+      if (o.competition === "low") s += 10;
+      if (o.competition === "high") s -= 10;
+      s -= Math.max(0, (difficultyPenalty[o.difficulty] ?? 10) - userTolerance);
+      const tags: string[] = (o.tags ?? []).map((t: string) => String(t).toLowerCase());
+      s += tags.filter((t) => userTags.includes(t)).length * 8;
+      return { ...o, _compatibility: Math.max(0, Math.min(100, s)) };
+    });
+
+    const ranked = scored
+      .filter((o: any) => !data.status || o.status === data.status)
+      .sort((a: any, b: any) => b._compatibility - a._compatibility)
+      .slice(0, data.limit ?? 60);
+
+    return ranked;
+  });
