@@ -179,6 +179,7 @@ export const createExperiment = createServerFn({ method: "POST" })
 export const updateExperimentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
+    workspaceId: z.string().uuid(),
     id: z.string().uuid(),
     status: z.enum(["proposed", "running", "completed", "abandoned"]),
     metric_result: z.number().optional(),
@@ -201,6 +202,7 @@ export const updateExperimentStatus = createServerFn({ method: "POST" })
       .from("brain_experiments")
       .update(patch as never)
       .eq("id", data.id)
+      .eq("workspace_id", data.workspaceId)
       .select()
       .single();
     throwIfError(error);
