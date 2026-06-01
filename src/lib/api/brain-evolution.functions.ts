@@ -498,15 +498,19 @@ async function adviseWithAI(
   });
 
   if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    console.error("[council] AI gateway error", { advisor, status: res.status, body: txt.slice(0, 500) });
     if (res.status === 429) throw new Error("Limite de requisições da IA excedido. Tente novamente em instantes.");
-    if (res.status === 402) throw new Error("Créditos da IA esgotados. Adicione em Settings → Workspace → Usage.");
-    const txt = await res.text();
-    throw new Error(`Falha na IA Gateway (${res.status}): ${txt.slice(0, 200)}`);
+    if (res.status === 402) throw new Error("Créditos da IA esgotados. Contate o administrador do workspace.");
+    throw new Error("Serviço de IA indisponível. Tente novamente em instantes.");
   }
 
   const json = await res.json() as { choices?: Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }> };
   const call = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-  if (!call) throw new Error("Resposta da IA sem tool call estruturado.");
+  if (!call) {
+    console.error("[council] AI response missing tool call", { advisor });
+    throw new Error("Resposta da IA inválida. Tente novamente em instantes.");
+  }
   const parsed = JSON.parse(call) as { summary: string; analysis: string; recommendations: string[]; confidence: number };
   return { ...parsed, model: "google/gemini-3-flash-preview" };
 }
