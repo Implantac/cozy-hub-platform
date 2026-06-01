@@ -73,7 +73,7 @@ export const brainAsk = createServerFn({ method: "POST" })
     const expires = new Date(Date.now() + 60 * 60_000).toISOString();
     await supabase.from("brain_answers").insert({
       workspace_id: data.workspaceId, question: data.question,
-      answer, confidence: answer.confidence, expires_at: expires,
+      answer: answer as any, confidence: answer.confidence, expires_at: expires,
     });
     return answer;
   });
