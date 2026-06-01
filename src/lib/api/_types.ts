@@ -11,6 +11,23 @@ import type { Database } from "@/integrations/supabase/types";
 
 type Tables = Database["public"]["Tables"];
 
+/** Supabase `jsonb` column type — use for typed → jsonb casts (never `as any`). */
+export type Json = Database["public"]["Tables"][keyof Database["public"]["Tables"]] extends {
+  Row: infer R;
+}
+  ? R extends Record<string, unknown>
+    ? R[keyof R] extends infer V
+      ? V
+      : never
+    : never
+  : never;
+// Simpler & canonical: re-export the generated Json alias directly.
+export type { Json as JsonValue } from "@/integrations/supabase/types";
+
+/** Domain enum for `brain_memories.kind`. Mirrors the zod schema in brain.functions. */
+export type MemoryKind = "fact" | "preference" | "goal" | "signal" | "outcome" | "strategy";
+
+
 export type Brand = Tables["brands"]["Row"];
 export type Mission = Tables["missions"]["Row"];
 export type Recommendation = Tables["brain_recommendations"]["Row"];
