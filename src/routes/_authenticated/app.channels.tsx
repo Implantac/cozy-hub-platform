@@ -76,7 +76,7 @@ function ChannelsPage() {
   );
 
   const delMut = useWorkspaceMutation(
-    (id: string) => remove({ data: { id } }),
+    (id: string) => remove({ data: { id, workspaceId: q.wsId! } }),
     { invalidate: invalidateKey },
   );
 
@@ -192,8 +192,11 @@ function ChannelsPage() {
                   </div>
                 </div>
                 <button
+                  type="button"
+                  aria-label={`Delete ${c.platform} channel`}
                   onClick={() => delMut.mutate(c.id)}
-                  className="text-muted-foreground hover:text-destructive"
+                  disabled={!q.wsId || delMut.isPending}
+                  className="text-muted-foreground hover:text-destructive disabled:opacity-50"
                   title="Delete channel"
                 >
                   <Trash2 className="size-4" />

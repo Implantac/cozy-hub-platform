@@ -70,10 +70,14 @@ function BrainPage() {
     },
   );
 
-  const setRecStatus = (id: string, status: RecStatus) =>
-    updateRec({ data: { id, status } }).then(() =>
-      qc.invalidateQueries({ queryKey: recsKey }),
-    );
+  const setRecStatus = (id: string, status: RecStatus) => {
+    if (!wsId) return;
+    updateRec({ data: { id, status, workspaceId: wsId } })
+      .then(() => qc.invalidateQueries({ queryKey: recsKey }))
+      .catch((e: Error) => {
+        import("sonner").then(({ toast }) => toast.error(e.message));
+      });
+  };
 
   return (
     <div className="space-y-6">
