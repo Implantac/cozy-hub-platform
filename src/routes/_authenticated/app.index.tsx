@@ -81,7 +81,7 @@ function GPSDashboard() {
   }
 
   const d = overview.data!;
-  const s = score.data;
+  const s = brain.data?.scores as any;
   const topRecs = (recs.data ?? []).slice(0, 4);
   const trending = (opps.data ?? []).filter((o: any) => o.status === "exploding" || o.status === "growing").slice(0, 3);
   const healthAvg = health.data && health.data.length > 0
