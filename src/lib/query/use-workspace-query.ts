@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
   type QueryKey,
+  type UseMutationResult,
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -39,16 +40,31 @@ interface WorkspaceMutationOptions<TData> {
   onSuccess?: (data: TData) => void;
 }
 
+function isQueryKeyArray(value: QueryKey | QueryKey[]): value is QueryKey[] {
+  return Array.isArray(value) && Array.isArray(value[0]);
+}
+
 /**
  * Reusable wrapper for workspace mutations.
  *
  * Handles the common pattern of `invalidateQueries` + `toast.success/error`
  * so individual screens don't redeclare it.
+ *
+ * Two overloads exist so screens can pass either a zero-argument mutation
+ * function (`() => Promise<T>`) or a typed one (`(v: V) => Promise<T>`).
  */
+export function useWorkspaceMutation<TData>(
+  fn: () => Promise<TData>,
+  opts?: WorkspaceMutationOptions<TData>,
+): UseMutationResult<TData, Error, void>;
+export function useWorkspaceMutation<TVars, TData>(
+  fn: (vars: TVars) => Promise<TData>,
+  opts?: WorkspaceMutationOptions<TData>,
+): UseMutationResult<TData, Error, TVars>;
 export function useWorkspaceMutation<TVars, TData>(
   fn: (vars: TVars) => Promise<TData>,
   opts: WorkspaceMutationOptions<TData> = {},
-) {
+): UseMutationResult<TData, Error, TVars> {
   const qc = useQueryClient();
   return useMutation<TData, Error, TVars>({
     mutationFn: fn,
@@ -56,15 +72,16 @@ export function useWorkspaceMutation<TVars, TData>(
       const raw = opts.invalidate;
       const keys: QueryKey[] = !raw
         ? []
-        : Array.isArray(raw) && Array.isArray(raw[0])
-        ? (raw as QueryKey[])
-        : [raw as QueryKey];
+        : isQueryKeyArray(raw)
+        ? raw
+        : [raw];
       keys.forEach((key) => qc.invalidateQueries({ queryKey: key }));
 
       if (opts.successMessage) {
-        const msg = typeof opts.successMessage === "function"
-          ? opts.successMessage(data)
-          : opts.successMessage;
+        const msg =
+          typeof opts.successMessage === "function"
+            ? opts.successMessage(data)
+            : opts.successMessage;
         toast.success(msg);
       }
 

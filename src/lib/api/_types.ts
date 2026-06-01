@@ -1,32 +1,38 @@
 /**
- * Centralized type aliases derived from server function return shapes.
+ * Centralized type aliases derived directly from the Supabase generated schema.
  *
- * Importing these in UI code keeps components in sync with the actual
- * server contracts and eliminates `any` at the call sites.
+ * We intentionally avoid `Awaited<ReturnType<serverFn>>` because the
+ * server-function wrappers produced by `createServerFn` expose opaque
+ * return types — extracting them yields `never`. Pulling from the
+ * generated `Database` types keeps a single source of truth without
+ * paying that cost.
  */
-import type { listBrands } from "./brands.functions";
-import type { listChannels } from "./channels.functions";
-import type { listContent } from "./content.functions";
-import type { listMissions } from "./missions.functions";
-import type { listSchedulerJobs } from "./scheduler.functions";
-import type {
-  listMemories,
-  listRecommendations,
-} from "./brain.functions";
-import type { getDashboard } from "./dashboard.functions";
+import type { Database } from "@/integrations/supabase/types";
 
-type Unwrap<T> = T extends Promise<infer U> ? U : T;
-type ListItem<F> = F extends (...args: unknown[]) => unknown
-  ? Unwrap<ReturnType<F>> extends Array<infer I>
-    ? I
-    : never
-  : never;
+type Tables = Database["public"]["Tables"];
 
-export type Brand = ListItem<typeof listBrands>;
-export type Channel = ListItem<typeof listChannels>;
-export type Content = ListItem<typeof listContent>;
-export type Mission = ListItem<typeof listMissions>;
-export type SchedulerJob = ListItem<typeof listSchedulerJobs>;
-export type Recommendation = ListItem<typeof listRecommendations>;
-export type Memory = ListItem<typeof listMemories>;
-export type Dashboard = Unwrap<ReturnType<typeof getDashboard>>;
+export type Brand = Tables["brands"]["Row"];
+export type Mission = Tables["missions"]["Row"];
+export type Recommendation = Tables["brain_recommendations"]["Row"];
+
+/** Channel rows are returned with a joined brand name. */
+export type Channel = Tables["channels"]["Row"] & {
+  brand: { name: string } | null;
+};
+
+/** Content rows are returned with a joined brand name. */
+export type Content = Tables["content"]["Row"] & {
+  brand: { name: string } | null;
+};
+
+/** The memory listing endpoint returns a projected subset of the row. */
+export type Memory = Pick<
+  Tables["brain_memories"]["Row"],
+  "id" | "kind" | "content" | "metadata" | "created_at"
+>;
+
+/** Scheduler jobs are returned with joined content + channel summary. */
+export type SchedulerJob = Tables["scheduler_jobs"]["Row"] & {
+  content: { title: string | null; type: string } | null;
+  channel: { platform: string; name?: string | null } | null;
+};
