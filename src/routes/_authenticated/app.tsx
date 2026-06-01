@@ -382,7 +382,6 @@ function SidebarBody({
 
       {/* FOOTER */}
       <div className={cn("space-y-0.5 border-t border-sidebar-border p-3", collapsed && "px-2")}>
-        {!collapsed && <LanguageSwitcher />}
 
         {collapsed ? (
           <Tooltip>
