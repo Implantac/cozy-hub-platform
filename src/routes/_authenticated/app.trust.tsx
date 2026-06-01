@@ -201,7 +201,7 @@ function TrustAnalyzerTab() {
       <Card className="p-5">
         <h3 className="mb-4 text-base font-semibold">Resultado</h3>
         {!result ? (
-          <EmptyState icon={Shield} title="Sem análise ainda" description="Preencha o formulário e rode a IA." />
+          <EmptyState text="Sem análise ainda. Preencha o formulário e rode a IA." />
         ) : (
           <ResultPanel
             risk_score={result.risk_score}
@@ -314,7 +314,7 @@ function BeforeYouBuyTab() {
       <Card className="p-5">
         <h3 className="mb-4 text-base font-semibold">Veredito</h3>
         {!result ? (
-          <EmptyState icon={ShoppingCart} title="Sem avaliação ainda" description="Descreva a compra e rode a IA antes de pagar." />
+          <EmptyState text="Sem avaliação ainda. Descreva a compra e rode a IA antes de pagar." />
         ) : (
           <ResultPanel
             risk_score={result.risk_score}
@@ -403,7 +403,7 @@ function HistoryTab() {
 
   if (q.isLoading) return <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Carregando...</div>;
   const rows = q.data ?? [];
-  if (rows.length === 0) return <EmptyState icon={History} title="Sem análises" description="Rode uma análise no Trust Analyzer ou Before You Buy." />;
+  if (rows.length === 0) return <EmptyState text="Sem análises. Rode no Trust Analyzer ou Before You Buy." />;
 
   return (
     <div className="space-y-3">
