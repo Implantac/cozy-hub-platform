@@ -408,7 +408,7 @@ export const createDueDiligenceReport = createServerFn({ method: "POST" })
         target_name: data.target_name, target_type: data.target_type,
         raw_input: data.raw_input, source_url: data.source_url,
         risk_score: result.risk_score, verdict: result.verdict,
-        checks: result.checks, summary: result.summary,
+        checks: result.checks as never, summary: result.summary,
       })
       .select()
       .single();
