@@ -1,88 +1,69 @@
+/**
+ * Health module — façade over USE Brain.
+ * Derives 5 health categories from the Brain snapshot scores + signals.
+ */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { buildSnapshot } from "@/lib/brain/brain";
 import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
-
 type Category = "marketing"|"content"|"brand"|"channel"|"growth";
 
 export const computeHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => wsInput.parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const ws = data.workspaceId;
-    const [brands, channels, content, jobs] = await Promise.all([
-      supabase.from("brands").select("id, voice, palette, logo_url").eq("workspace_id", ws),
-      supabase.from("channels").select("id, status").eq("workspace_id", ws),
-      supabase.from("content").select("id, created_at, status").eq("workspace_id", ws),
-      supabase.from("scheduler_jobs").select("id, status").eq("workspace_id", ws),
-    ]);
+    const { supabase, userId } = context;
+    const snap = await buildSnapshot(supabase, data.workspaceId, userId);
+    const s = snap.scores;
+    const negatives = snap.signals.filter((x) => x.kind === "negative");
+    const positives = snap.signals.filter((x) => x.kind === "positive");
 
-    const brandRows = brands.data ?? [];
-    const chRows = channels.data ?? [];
-    const ctRows = content.data ?? [];
-    const jbRows = jobs.data ?? [];
-    const cutoff = Date.now() - 30 * 86400_000;
-    const recent = ctRows.filter((c: any) => new Date(c.created_at).getTime() > cutoff).length;
-    const connected = chRows.filter((c: any) => c.status === "connected").length;
-    const succ = jbRows.filter((j: any) => j.status === "succeeded").length;
+    const byEngine = (engine: string, kind: "neg" | "pos") =>
+      (kind === "neg" ? negatives : positives)
+        .filter((sig) => sig.engine === engine)
+        .map((sig) => sig.message);
 
     const cards: Array<{
       category: Category; score: number; strengths: string[]; weaknesses: string[];
     }> = [
       {
         category: "marketing",
-        score: Math.min(100, (chRows.length * 15) + (ctRows.length * 4)),
-        strengths: [
-          chRows.length >= 2 ? "Presença multicanal" : "",
-          ctRows.length >= 10 ? "Volume de conteúdo saudável" : "",
-        ].filter(Boolean),
-        weaknesses: [
-          chRows.length < 2 ? "Apenas 1 canal ativo" : "",
-          ctRows.length < 5 ? "Volume baixo de conteúdo" : "",
-        ].filter(Boolean),
+        score: Math.round((s.presence + s.channel_setup) / 2),
+        strengths: byEngine("business", "pos"),
+        weaknesses: byEngine("business", "neg"),
       },
       {
         category: "content",
-        score: Math.min(100, ctRows.length * 6 + recent * 8),
-        strengths: [recent >= 8 ? "Postando consistentemente" : ""].filter(Boolean),
-        weaknesses: [recent < 4 ? "Frequência baixa nos últimos 30 dias" : ""].filter(Boolean),
+        score: Math.round((s.content + s.consistency) / 2),
+        strengths: byEngine("growth", "pos"),
+        weaknesses: byEngine("growth", "neg"),
       },
       {
         category: "brand",
-        score: brandRows.length === 0 ? 0 : Math.round(
-          brandRows.reduce((s, b: any) => {
-            return s + (b.voice && Object.keys(b.voice).length ? 35 : 0)
-                    + (b.palette && Object.keys(b.palette).length ? 35 : 0)
-                    + (b.logo_url ? 30 : 0);
-          }, 0) / brandRows.length,
-        ),
-        strengths: brandRows.length > 0 ? ["Marca cadastrada"] : [],
-        weaknesses: [
-          brandRows.length === 0 ? "Nenhuma marca cadastrada" : "",
-          brandRows.length > 0 && !brandRows.some((b: any) => b.logo_url) ? "Marca sem logo" : "",
-        ].filter(Boolean),
+        score: s.branding,
+        strengths: s.branding >= 70 ? ["Identidade visual sólida"] : [],
+        weaknesses: s.branding < 40 ? ["Marca incompleta (voz, paleta ou logo)"] : [],
       },
       {
         category: "channel",
-        score: chRows.length === 0 ? 0 : Math.round((connected / chRows.length) * 100),
-        strengths: connected === chRows.length && chRows.length > 0 ? ["Todos os canais conectados"] : [],
-        weaknesses: chRows.length - connected > 0 ? [`${chRows.length - connected} canal(is) desconectado(s)`] : [],
+        score: s.channel_setup,
+        strengths: s.channel_setup === 100 ? ["Todos os canais conectados"] : [],
+        weaknesses: s.channel_setup < 60 ? ["Há canais desconectados"] : [],
       },
       {
         category: "growth",
-        score: jbRows.length === 0 ? 20 : Math.round((succ / jbRows.length) * 100),
-        strengths: succ > 5 ? ["Publicações automatizadas funcionando"] : [],
-        weaknesses: jbRows.length === 0 ? ["Nenhuma publicação agendada"] : [],
+        score: s.growth,
+        strengths: s.growth >= 70 ? ["Publicações automatizadas funcionando"] : [],
+        weaknesses: s.growth < 30 ? ["Baixa taxa de sucesso nas publicações"] : [],
       },
     ];
 
-    // Replace by inserting fresh rows (history is preserved by computed_at)
     const { data: rows, error } = await supabase.from("health_metrics").insert(
       cards.map((c) => ({
-        workspace_id: ws, category: c.category, score: c.score,
+        workspace_id: data.workspaceId, category: c.category, score: c.score,
         strengths: c.strengths, weaknesses: c.weaknesses,
       })),
     ).select();
