@@ -38,6 +38,7 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
     items: [
       { to: "/app/navigator", labelKey: "nav.navigator", icon: Compass },
       { to: "/app/opportunities", labelKey: "nav.opportunities", icon: RadarIcon },
+      { to: "/app/decisions", labelKey: "nav.decisions", icon: Lightbulb },
       { to: "/app/coach", labelKey: "nav.coach", icon: Wand2 },
       { to: "/app/learning", labelKey: "nav.learning", icon: GraduationCap },
     ],
