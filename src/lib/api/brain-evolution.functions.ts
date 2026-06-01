@@ -113,6 +113,13 @@ export const upsertSkillAssessment = createServerFn({ method: "POST" })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { data: prev } = await supabase
+      .from("skill_assessments")
+      .select("score")
+      .eq("user_id", userId)
+      .eq("workspace_id", data.workspaceId)
+      .eq("area", data.area)
+      .maybeSingle();
     const { data: row, error } = await supabase
       .from("skill_assessments")
       .insert({
@@ -124,6 +131,17 @@ export const upsertSkillAssessment = createServerFn({ method: "POST" })
       .select()
       .single();
     throwIfError(error);
+    const prevScore = (prev as { score?: number } | null)?.score ?? 0;
+    const delta = data.score - prevScore;
+    const kind = delta >= 15 ? "result" : "reflection";
+    const sentiment = delta >= 10 ? "positive" : delta <= -10 ? "negative" : "neutral";
+    await emitMemoryEvent(supabase, {
+      workspaceId: data.workspaceId, userId,
+      kind,
+      subject: `Skill "${data.area}": ${prevScore} → ${data.score}`,
+      payload: { area: data.area, from: prevScore, to: data.score, delta },
+      sentiment,
+    });
     return row;
   });
 
