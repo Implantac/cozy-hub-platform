@@ -164,7 +164,7 @@ export const brainRemember = createServerFn({ method: "POST" })
     const { data: row, error } = await supabase.from("brain_memory_events").insert({
       workspace_id: data.workspaceId, user_id: userId,
       kind: data.kind, subject: data.subject,
-      payload: data.payload ?? {}, sentiment: data.sentiment ?? null,
+      payload: (data.payload ?? {}) as any, sentiment: data.sentiment ?? null,
     }).select().single();
     if (error) throw new Error(error.message);
     return row;
