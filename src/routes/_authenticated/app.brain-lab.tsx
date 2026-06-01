@@ -53,6 +53,7 @@ function BrainLabPage() {
             ["decisions", "Decisões", Scale],
             ["anti_scam", "Anti-Golpe", ShieldAlert],
             ["council", "Conselho IA", Users2],
+            ["timeline", "Mentor LP", History],
           ] as const).map(([key, label, Icon]) => (
             <button
               key={key}
