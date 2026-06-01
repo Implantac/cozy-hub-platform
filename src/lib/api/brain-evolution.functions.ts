@@ -80,8 +80,8 @@ export const upsertDigitalTwin = createServerFn({ method: "POST" })
  * Brain-2A — Skill Map
  * ============================================================ */
 const SKILL_AREAS = [
-  "copy", "design", "video", "sales", "branding",
-  "analytics", "ads", "seo", "community", "ops",
+  "copy", "content", "product", "sales", "branding",
+  "analytics", "automation", "prospecting", "community", "strategy",
 ] as const;
 
 export const listSkillAssessments = createServerFn({ method: "GET" })
