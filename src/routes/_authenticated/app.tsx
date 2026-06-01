@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Palette, Radio, FileText, Calendar, BarChart3,
   Brain, Target, Settings, LogOut, ChevronDown, Plus, Search, Sparkles,
   Compass, TrendingUp, RadarIcon, Wand2, Activity, GraduationCap, ShoppingBag,
+  Lightbulb,
 } from "lucide-react";
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
@@ -37,6 +38,7 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
     items: [
       { to: "/app/navigator", labelKey: "nav.navigator", icon: Compass },
       { to: "/app/opportunities", labelKey: "nav.opportunities", icon: RadarIcon },
+      { to: "/app/decisions", labelKey: "nav.decisions", icon: Lightbulb },
       { to: "/app/coach", labelKey: "nav.coach", icon: Wand2 },
       { to: "/app/learning", labelKey: "nav.learning", icon: GraduationCap },
     ],
