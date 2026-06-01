@@ -221,46 +221,47 @@ function AppShell() {
 
         {/* MAIN */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl lg:px-8">
-            <div className="flex min-w-0 items-center gap-2 text-sm">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border/50 bg-background/75 px-4 backdrop-blur-xl backdrop-saturate-150 lg:px-8">
+            <div className="flex min-w-0 items-center gap-2.5 text-sm">
               <button
                 onClick={() => setMobileOpen(true)}
-                className="inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground lg:hidden"
+                className="press inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground lg:hidden"
                 aria-label="Open navigation"
               >
                 <Menu className="size-4" />
               </button>
-              <span className="hidden text-muted-foreground sm:inline">{crumb.group}</span>
-              <span className="hidden text-muted-foreground/40 sm:inline">/</span>
+              <span className="hidden text-muted-foreground/80 sm:inline">{crumb.group}</span>
+              <span className="hidden text-muted-foreground/30 sm:inline">/</span>
               <span className="truncate font-medium text-foreground">{crumb.page}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPaletteOpen(true)}
-                className="hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-sm text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground sm:flex"
+                className="press hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 text-sm text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground hover:shadow-glow-sm sm:flex"
               >
                 <Search className="size-3.5" />
-                <span>{t("palette.placeholder", "Buscar...")}</span>
-                <kbd className="ml-4 rounded border border-border/80 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
+                <span className="text-xs">{t("palette.placeholder", "Buscar...")}</span>
+                <kbd className="ml-6 rounded border border-border/70 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
               </button>
               <div className="hidden sm:block">
                 <LanguageSwitcher compact />
               </div>
               <NotificationDrawer workspaceId={currentWs?.id} />
-              <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow ring-1 ring-primary/20">
+              <button className="press grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary/20 transition hover:shadow-glow">
                 {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
-              </div>
+              </button>
             </div>
           </header>
 
 
           <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+            <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 animate-rise-in">
               {currentWs ? <Outlet /> : <div className="text-muted-foreground">{t("common.noWorkspace")}</div>}
             </div>
           </main>
         </div>
+
 
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
         {needsOnboarding && currentWs && (
@@ -352,21 +353,22 @@ function SidebarBody({
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group relative flex items-center rounded-lg text-sm transition-all duration-200",
+                      "group relative flex items-center rounded-lg text-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
                       collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/15"
-                        : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground",
+                        ? "bg-sidebar-accent/80 text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/20"
+                        : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground hover:translate-x-0.5",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
                     {active && !collapsed && (
-                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand" />
+                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand shadow-glow-sm" />
                     )}
-                    <item.icon className={cn("size-4 transition", active ? "text-primary" : "group-hover:text-foreground")} />
+                    <item.icon className={cn("size-4 transition-all duration-200", active ? "text-primary scale-110" : "group-hover:text-foreground group-hover:scale-105")} />
                     {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
                   </Link>
                 );
+
 
                 return collapsed ? (
                   <Tooltip key={item.to}>
