@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { throwIfError } from "./_supabase";
+import { throwIfError, unwrap } from "./_supabase";
 
 export const listMissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
