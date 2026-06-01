@@ -164,6 +164,135 @@ export type Database = {
         }
         Relationships: []
       }
+      brain_decisions: {
+        Row: {
+          category: string
+          cost_estimate: number | null
+          created_at: string
+          decided_at: string | null
+          description: string | null
+          evaluation: Json
+          executed_at: string | null
+          expected_benefit: string | null
+          id: string
+          outcome: Json
+          outcome_score: number | null
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["decision_status"]
+          title: string
+          updated_at: string
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          category: string
+          cost_estimate?: number | null
+          created_at?: string
+          decided_at?: string | null
+          description?: string | null
+          evaluation?: Json
+          executed_at?: string | null
+          expected_benefit?: string | null
+          id?: string
+          outcome?: Json
+          outcome_score?: number | null
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["decision_status"]
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          cost_estimate?: number | null
+          created_at?: string
+          decided_at?: string | null
+          description?: string | null
+          evaluation?: Json
+          executed_at?: string | null
+          expected_benefit?: string | null
+          id?: string
+          outcome?: Json
+          outcome_score?: number | null
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["decision_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      brain_experiments: {
+        Row: {
+          area: Database["public"]["Enums"]["skill_area"] | null
+          created_at: string
+          duration_days: number | null
+          effort_level: string | null
+          ends_at: string | null
+          hypothesis: string
+          id: string
+          insights: string | null
+          metric_baseline: number | null
+          metric_name: string | null
+          metric_result: number | null
+          metric_target: number | null
+          notes: string | null
+          outcome: Json
+          starts_at: string | null
+          status: Database["public"]["Enums"]["experiment_status"]
+          title: string
+          updated_at: string
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          area?: Database["public"]["Enums"]["skill_area"] | null
+          created_at?: string
+          duration_days?: number | null
+          effort_level?: string | null
+          ends_at?: string | null
+          hypothesis: string
+          id?: string
+          insights?: string | null
+          metric_baseline?: number | null
+          metric_name?: string | null
+          metric_result?: number | null
+          metric_target?: number | null
+          notes?: string | null
+          outcome?: Json
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["experiment_status"]
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          area?: Database["public"]["Enums"]["skill_area"] | null
+          created_at?: string
+          duration_days?: number | null
+          effort_level?: string | null
+          ends_at?: string | null
+          hypothesis?: string
+          id?: string
+          insights?: string | null
+          metric_baseline?: number | null
+          metric_name?: string | null
+          metric_result?: number | null
+          metric_target?: number | null
+          notes?: string | null
+          outcome?: Json
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["experiment_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       brain_memories: {
         Row: {
           content: string
@@ -616,6 +745,48 @@ export type Database = {
           },
         ]
       }
+      council_opinions: {
+        Row: {
+          advisor: Database["public"]["Enums"]["advisor_role"]
+          analysis: string | null
+          confidence: number
+          created_at: string
+          id: string
+          inputs_hash: string | null
+          model_used: string | null
+          recommendations: Json
+          summary: string
+          topic: string
+          workspace_id: string
+        }
+        Insert: {
+          advisor: Database["public"]["Enums"]["advisor_role"]
+          analysis?: string | null
+          confidence?: number
+          created_at?: string
+          id?: string
+          inputs_hash?: string | null
+          model_used?: string | null
+          recommendations?: Json
+          summary: string
+          topic: string
+          workspace_id: string
+        }
+        Update: {
+          advisor?: Database["public"]["Enums"]["advisor_role"]
+          analysis?: string | null
+          confidence?: number
+          created_at?: string
+          id?: string
+          inputs_hash?: string | null
+          model_used?: string | null
+          recommendations?: Json
+          summary?: string
+          topic?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       digital_scores: {
         Row: {
           branding: number
@@ -654,6 +825,66 @@ export type Database = {
           id?: string
           overall?: number
           presence?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      digital_twins: {
+        Row: {
+          audience_type: string | null
+          avoided_formats: string[] | null
+          best_channel: string | null
+          created_at: string
+          daily_hours: number | null
+          id: string
+          inferred: Json
+          monetization_model: string | null
+          observations: Json
+          pain_points: string[] | null
+          preferred_formats: string[] | null
+          strengths: string[] | null
+          updated_at: string
+          user_id: string
+          version: number
+          work_style: string | null
+          workspace_id: string
+        }
+        Insert: {
+          audience_type?: string | null
+          avoided_formats?: string[] | null
+          best_channel?: string | null
+          created_at?: string
+          daily_hours?: number | null
+          id?: string
+          inferred?: Json
+          monetization_model?: string | null
+          observations?: Json
+          pain_points?: string[] | null
+          preferred_formats?: string[] | null
+          strengths?: string[] | null
+          updated_at?: string
+          user_id: string
+          version?: number
+          work_style?: string | null
+          workspace_id: string
+        }
+        Update: {
+          audience_type?: string | null
+          avoided_formats?: string[] | null
+          best_channel?: string | null
+          created_at?: string
+          daily_hours?: number | null
+          id?: string
+          inferred?: Json
+          monetization_model?: string | null
+          observations?: Json
+          pain_points?: string[] | null
+          preferred_formats?: string[] | null
+          strengths?: string[] | null
+          updated_at?: string
+          user_id?: string
+          version?: number
+          work_style?: string | null
           workspace_id?: string
         }
         Relationships: []
@@ -699,6 +930,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      due_diligence_reports: {
+        Row: {
+          checks: Json
+          created_at: string
+          id: string
+          raw_input: string | null
+          risk_score: number
+          source_url: string | null
+          summary: string | null
+          target_name: string
+          target_type: string
+          user_id: string | null
+          verdict: string
+          workspace_id: string
+        }
+        Insert: {
+          checks?: Json
+          created_at?: string
+          id?: string
+          raw_input?: string | null
+          risk_score?: number
+          source_url?: string | null
+          summary?: string | null
+          target_name: string
+          target_type: string
+          user_id?: string | null
+          verdict?: string
+          workspace_id: string
+        }
+        Update: {
+          checks?: Json
+          created_at?: string
+          id?: string
+          raw_input?: string | null
+          risk_score?: number
+          source_url?: string | null
+          summary?: string | null
+          target_name?: string
+          target_type?: string
+          user_id?: string | null
+          verdict?: string
+          workspace_id?: string
+        }
+        Relationships: []
       }
       health_metrics: {
         Row: {
@@ -1140,6 +1416,45 @@ export type Database = {
           },
         ]
       }
+      skill_assessments: {
+        Row: {
+          area: Database["public"]["Enums"]["skill_area"]
+          assessed_at: string
+          confidence: number
+          evidence: Json
+          id: string
+          notes: string | null
+          score: number
+          source: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          area: Database["public"]["Enums"]["skill_area"]
+          assessed_at?: string
+          confidence?: number
+          evidence?: Json
+          id?: string
+          notes?: string | null
+          score?: number
+          source?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          area?: Database["public"]["Enums"]["skill_area"]
+          assessed_at?: string
+          confidence?: number
+          evidence?: Json
+          id?: string
+          notes?: string | null
+          score?: number
+          source?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       user_profile_digital: {
         Row: {
           business_path: Database["public"]["Enums"]["business_path"] | null
@@ -1517,6 +1832,12 @@ export type Database = {
       }
     }
     Enums: {
+      advisor_role:
+        | "marketing"
+        | "content"
+        | "business"
+        | "financial"
+        | "strategy"
       app_role: "owner" | "admin" | "editor" | "viewer"
       brain_event_kind:
         | "decision"
@@ -1564,8 +1885,31 @@ export type Database = {
         | "video"
         | "article"
         | "carousel"
+      decision_status:
+        | "draft"
+        | "evaluated"
+        | "approved"
+        | "rejected"
+        | "executed"
+        | "reverted"
       experience_level: "beginner" | "intermediate" | "advanced"
-      health_category: "marketing" | "content" | "brand" | "channel" | "growth"
+      experiment_status:
+        | "proposed"
+        | "active"
+        | "succeeded"
+        | "neutral"
+        | "failed"
+        | "cancelled"
+      health_category:
+        | "marketing"
+        | "content"
+        | "brand"
+        | "channel"
+        | "growth"
+        | "sales"
+        | "positioning"
+        | "operations"
+        | "learning"
       job_status:
         | "pending"
         | "processing"
@@ -1583,6 +1927,17 @@ export type Database = {
         | "saturated"
         | "declining"
       recommendation_status: "open" | "applied" | "dismissed" | "expired"
+      skill_area:
+        | "content"
+        | "copy"
+        | "sales"
+        | "prospecting"
+        | "branding"
+        | "automation"
+        | "analytics"
+        | "strategy"
+        | "community"
+        | "product"
       social_platform:
         | "instagram"
         | "facebook"
@@ -1717,6 +2072,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      advisor_role: [
+        "marketing",
+        "content",
+        "business",
+        "financial",
+        "strategy",
+      ],
       app_role: ["owner", "admin", "editor", "viewer"],
       brain_event_kind: ["decision", "result", "pivot", "signal", "reflection"],
       brain_memory_kind: [
@@ -1764,8 +2126,34 @@ export const Constants = {
         "article",
         "carousel",
       ],
+      decision_status: [
+        "draft",
+        "evaluated",
+        "approved",
+        "rejected",
+        "executed",
+        "reverted",
+      ],
       experience_level: ["beginner", "intermediate", "advanced"],
-      health_category: ["marketing", "content", "brand", "channel", "growth"],
+      experiment_status: [
+        "proposed",
+        "active",
+        "succeeded",
+        "neutral",
+        "failed",
+        "cancelled",
+      ],
+      health_category: [
+        "marketing",
+        "content",
+        "brand",
+        "channel",
+        "growth",
+        "sales",
+        "positioning",
+        "operations",
+        "learning",
+      ],
       job_status: [
         "pending",
         "processing",
@@ -1785,6 +2173,18 @@ export const Constants = {
         "declining",
       ],
       recommendation_status: ["open", "applied", "dismissed", "expired"],
+      skill_area: [
+        "content",
+        "copy",
+        "sales",
+        "prospecting",
+        "branding",
+        "automation",
+        "analytics",
+        "strategy",
+        "community",
+        "product",
+      ],
       social_platform: [
         "instagram",
         "facebook",
