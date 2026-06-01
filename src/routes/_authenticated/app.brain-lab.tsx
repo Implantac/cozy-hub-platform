@@ -309,7 +309,8 @@ function ExperimentsPanel() {
   );
 
   const setStatus = (id: string, status: "running" | "completed" | "abandoned") => {
-    update({ data: { id, status } }).then(() => expQ.refetch());
+    if (!wsId) return;
+    update({ data: { workspaceId: wsId, id, status } }).then(() => expQ.refetch());
   };
 
   return (
