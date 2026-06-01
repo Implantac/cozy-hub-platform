@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function GPSDashboard() {
   const [wsId] = useCurrentWorkspaceId();
-  const fetchOverview = useServerFn(DashboardService.fetchOverview as any);
+  const fetchOverview = useServerFn(getDashboard);
   const brainAskAll = useServerFn(BrainCoreService.brainAskAll);
   const brainSnapshot = useServerFn(BrainCoreService.brainSnapshot);
   const brainRecommend = useServerFn(BrainCoreService.brainRecommend);
