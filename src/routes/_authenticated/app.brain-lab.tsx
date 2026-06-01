@@ -14,6 +14,7 @@ import {
   listDecisions, createDecision, markDecisionExecuted,
   listDueDiligenceReports, createDueDiligenceReport,
   askCouncil, listCouncilOpinions,
+  getLongTermTimeline,
 } from "@/lib/api/brain-evolution.functions";
 import { useWorkspaceQuery, useWorkspaceMutation } from "@/lib/query/use-workspace-query";
 
