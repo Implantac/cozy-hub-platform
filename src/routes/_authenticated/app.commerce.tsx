@@ -1,0 +1,58 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { ShoppingBag, Package, Globe, Truck, CheckCircle, Lock } from "lucide-react";
+import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { motion } from "framer-motion";
+
+export const Route = createFileRoute("/_authenticated/app/commerce")({
+  component: CommercePage,
+});
+
+const SECTIONS = [
+  { icon: Package, title: "Fornecedores", desc: "Catálogo curado de fornecedores nacionais e internacionais.", status: "soon" },
+  { icon: Truck, title: "Dropshipping", desc: "Integração com providers de dropshipping com fulfillment automatizado.", status: "soon" },
+  { icon: Globe, title: "Marketplaces", desc: "Publique e gerencie estoque em múltiplos marketplaces.", status: "soon" },
+  { icon: CheckCircle, title: "Validação de Produto", desc: "Pesquisa de demanda, análise de competição e previsão de margem.", status: "soon" },
+];
+
+function CommercePage() {
+  return (
+    <PageTransition>
+      <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
+        <header>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+            <ShoppingBag className="size-3 text-accent"/> Commerce Hub
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight">Comércio digital</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Infraestrutura para você vender produtos físicos e digitais em escala.</p>
+        </header>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {SECTIONS.map(s => (
+            <motion.div key={s.title} variants={fadeUp}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+              <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/15 to-transparent blur-2xl"/>
+              <div className="relative flex items-start gap-4">
+                <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
+                  <s.icon className="size-5 text-primary-foreground"/>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium">{s.title}</h3>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <Lock className="size-2.5"/> Em breve
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center">
+          <p className="text-sm text-muted-foreground">A arquitetura do Commerce Hub está pronta. Os módulos serão liberados conforme as integrações forem ativadas.</p>
+        </div>
+      </motion.div>
+    </PageTransition>
+  );
+}

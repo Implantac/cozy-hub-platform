@@ -16,9 +16,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppScoreRouteImport } from './routes/_authenticated/app.score'
 import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/app.scheduler'
+import { Route as AuthenticatedAppOpportunitiesRouteImport } from './routes/_authenticated/app.opportunities'
+import { Route as AuthenticatedAppNavigatorRouteImport } from './routes/_authenticated/app.navigator'
 import { Route as AuthenticatedAppMissionsRouteImport } from './routes/_authenticated/app.missions'
+import { Route as AuthenticatedAppLearningRouteImport } from './routes/_authenticated/app.learning'
+import { Route as AuthenticatedAppHealthRouteImport } from './routes/_authenticated/app.health'
 import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
+import { Route as AuthenticatedAppCommerceRouteImport } from './routes/_authenticated/app.commerce'
+import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/app.coach'
 import { Route as AuthenticatedAppChannelsRouteImport } from './routes/_authenticated/app.channels'
 import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authenticated/app.brands'
 import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
@@ -61,10 +68,27 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppScoreRoute = AuthenticatedAppScoreRouteImport.update({
+  id: '/score',
+  path: '/score',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppSchedulerRoute =
   AuthenticatedAppSchedulerRouteImport.update({
     id: '/scheduler',
     path: '/scheduler',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppOpportunitiesRoute =
+  AuthenticatedAppOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppNavigatorRoute =
+  AuthenticatedAppNavigatorRouteImport.update({
+    id: '/navigator',
+    path: '/navigator',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppMissionsRoute =
@@ -73,9 +97,31 @@ const AuthenticatedAppMissionsRoute =
     path: '/missions',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppLearningRoute =
+  AuthenticatedAppLearningRouteImport.update({
+    id: '/learning',
+    path: '/learning',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppHealthRoute = AuthenticatedAppHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppContentRoute = AuthenticatedAppContentRouteImport.update({
   id: '/content',
   path: '/content',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCommerceRoute =
+  AuthenticatedAppCommerceRouteImport.update({
+    id: '/commerce',
+    path: '/commerce',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppChannelsRoute =
@@ -122,9 +168,16 @@ export interface FileRoutesByFullPath {
   '/app/brain': typeof AuthenticatedAppBrainRoute
   '/app/brands': typeof AuthenticatedAppBrandsRoute
   '/app/channels': typeof AuthenticatedAppChannelsRoute
+  '/app/coach': typeof AuthenticatedAppCoachRoute
+  '/app/commerce': typeof AuthenticatedAppCommerceRoute
   '/app/content': typeof AuthenticatedAppContentRoute
+  '/app/health': typeof AuthenticatedAppHealthRoute
+  '/app/learning': typeof AuthenticatedAppLearningRoute
   '/app/missions': typeof AuthenticatedAppMissionsRoute
+  '/app/navigator': typeof AuthenticatedAppNavigatorRoute
+  '/app/opportunities': typeof AuthenticatedAppOpportunitiesRoute
   '/app/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/app/score': typeof AuthenticatedAppScoreRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
@@ -138,9 +191,16 @@ export interface FileRoutesByTo {
   '/app/brain': typeof AuthenticatedAppBrainRoute
   '/app/brands': typeof AuthenticatedAppBrandsRoute
   '/app/channels': typeof AuthenticatedAppChannelsRoute
+  '/app/coach': typeof AuthenticatedAppCoachRoute
+  '/app/commerce': typeof AuthenticatedAppCommerceRoute
   '/app/content': typeof AuthenticatedAppContentRoute
+  '/app/health': typeof AuthenticatedAppHealthRoute
+  '/app/learning': typeof AuthenticatedAppLearningRoute
   '/app/missions': typeof AuthenticatedAppMissionsRoute
+  '/app/navigator': typeof AuthenticatedAppNavigatorRoute
+  '/app/opportunities': typeof AuthenticatedAppOpportunitiesRoute
   '/app/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/app/score': typeof AuthenticatedAppScoreRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
@@ -157,9 +217,16 @@ export interface FileRoutesById {
   '/_authenticated/app/brain': typeof AuthenticatedAppBrainRoute
   '/_authenticated/app/brands': typeof AuthenticatedAppBrandsRoute
   '/_authenticated/app/channels': typeof AuthenticatedAppChannelsRoute
+  '/_authenticated/app/coach': typeof AuthenticatedAppCoachRoute
+  '/_authenticated/app/commerce': typeof AuthenticatedAppCommerceRoute
   '/_authenticated/app/content': typeof AuthenticatedAppContentRoute
+  '/_authenticated/app/health': typeof AuthenticatedAppHealthRoute
+  '/_authenticated/app/learning': typeof AuthenticatedAppLearningRoute
   '/_authenticated/app/missions': typeof AuthenticatedAppMissionsRoute
+  '/_authenticated/app/navigator': typeof AuthenticatedAppNavigatorRoute
+  '/_authenticated/app/opportunities': typeof AuthenticatedAppOpportunitiesRoute
   '/_authenticated/app/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/_authenticated/app/score': typeof AuthenticatedAppScoreRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
@@ -176,9 +243,16 @@ export interface FileRouteTypes {
     | '/app/brain'
     | '/app/brands'
     | '/app/channels'
+    | '/app/coach'
+    | '/app/commerce'
     | '/app/content'
+    | '/app/health'
+    | '/app/learning'
     | '/app/missions'
+    | '/app/navigator'
+    | '/app/opportunities'
     | '/app/scheduler'
+    | '/app/score'
     | '/app/settings'
     | '/app/'
     | '/api/public/cron/scheduler-tick'
@@ -192,9 +266,16 @@ export interface FileRouteTypes {
     | '/app/brain'
     | '/app/brands'
     | '/app/channels'
+    | '/app/coach'
+    | '/app/commerce'
     | '/app/content'
+    | '/app/health'
+    | '/app/learning'
     | '/app/missions'
+    | '/app/navigator'
+    | '/app/opportunities'
     | '/app/scheduler'
+    | '/app/score'
     | '/app/settings'
     | '/app'
     | '/api/public/cron/scheduler-tick'
@@ -210,9 +291,16 @@ export interface FileRouteTypes {
     | '/_authenticated/app/brain'
     | '/_authenticated/app/brands'
     | '/_authenticated/app/channels'
+    | '/_authenticated/app/coach'
+    | '/_authenticated/app/commerce'
     | '/_authenticated/app/content'
+    | '/_authenticated/app/health'
+    | '/_authenticated/app/learning'
     | '/_authenticated/app/missions'
+    | '/_authenticated/app/navigator'
+    | '/_authenticated/app/opportunities'
     | '/_authenticated/app/scheduler'
+    | '/_authenticated/app/score'
     | '/_authenticated/app/settings'
     | '/_authenticated/app/'
     | '/api/public/cron/scheduler-tick'
@@ -279,11 +367,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/score': {
+      id: '/_authenticated/app/score'
+      path: '/score'
+      fullPath: '/app/score'
+      preLoaderRoute: typeof AuthenticatedAppScoreRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/scheduler': {
       id: '/_authenticated/app/scheduler'
       path: '/scheduler'
       fullPath: '/app/scheduler'
       preLoaderRoute: typeof AuthenticatedAppSchedulerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/opportunities': {
+      id: '/_authenticated/app/opportunities'
+      path: '/opportunities'
+      fullPath: '/app/opportunities'
+      preLoaderRoute: typeof AuthenticatedAppOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/navigator': {
+      id: '/_authenticated/app/navigator'
+      path: '/navigator'
+      fullPath: '/app/navigator'
+      preLoaderRoute: typeof AuthenticatedAppNavigatorRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/missions': {
@@ -293,11 +402,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppMissionsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/learning': {
+      id: '/_authenticated/app/learning'
+      path: '/learning'
+      fullPath: '/app/learning'
+      preLoaderRoute: typeof AuthenticatedAppLearningRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/health': {
+      id: '/_authenticated/app/health'
+      path: '/health'
+      fullPath: '/app/health'
+      preLoaderRoute: typeof AuthenticatedAppHealthRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/content': {
       id: '/_authenticated/app/content'
       path: '/content'
       fullPath: '/app/content'
       preLoaderRoute: typeof AuthenticatedAppContentRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/commerce': {
+      id: '/_authenticated/app/commerce'
+      path: '/commerce'
+      fullPath: '/app/commerce'
+      preLoaderRoute: typeof AuthenticatedAppCommerceRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/coach': {
+      id: '/_authenticated/app/coach'
+      path: '/coach'
+      fullPath: '/app/coach'
+      preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/channels': {
@@ -350,9 +487,16 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppBrainRoute: typeof AuthenticatedAppBrainRoute
   AuthenticatedAppBrandsRoute: typeof AuthenticatedAppBrandsRoute
   AuthenticatedAppChannelsRoute: typeof AuthenticatedAppChannelsRoute
+  AuthenticatedAppCoachRoute: typeof AuthenticatedAppCoachRoute
+  AuthenticatedAppCommerceRoute: typeof AuthenticatedAppCommerceRoute
   AuthenticatedAppContentRoute: typeof AuthenticatedAppContentRoute
+  AuthenticatedAppHealthRoute: typeof AuthenticatedAppHealthRoute
+  AuthenticatedAppLearningRoute: typeof AuthenticatedAppLearningRoute
   AuthenticatedAppMissionsRoute: typeof AuthenticatedAppMissionsRoute
+  AuthenticatedAppNavigatorRoute: typeof AuthenticatedAppNavigatorRoute
+  AuthenticatedAppOpportunitiesRoute: typeof AuthenticatedAppOpportunitiesRoute
   AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
+  AuthenticatedAppScoreRoute: typeof AuthenticatedAppScoreRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
@@ -362,9 +506,16 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppBrainRoute: AuthenticatedAppBrainRoute,
   AuthenticatedAppBrandsRoute: AuthenticatedAppBrandsRoute,
   AuthenticatedAppChannelsRoute: AuthenticatedAppChannelsRoute,
+  AuthenticatedAppCoachRoute: AuthenticatedAppCoachRoute,
+  AuthenticatedAppCommerceRoute: AuthenticatedAppCommerceRoute,
   AuthenticatedAppContentRoute: AuthenticatedAppContentRoute,
+  AuthenticatedAppHealthRoute: AuthenticatedAppHealthRoute,
+  AuthenticatedAppLearningRoute: AuthenticatedAppLearningRoute,
   AuthenticatedAppMissionsRoute: AuthenticatedAppMissionsRoute,
+  AuthenticatedAppNavigatorRoute: AuthenticatedAppNavigatorRoute,
+  AuthenticatedAppOpportunitiesRoute: AuthenticatedAppOpportunitiesRoute,
   AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
+  AuthenticatedAppScoreRoute: AuthenticatedAppScoreRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
@@ -395,13 +546,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

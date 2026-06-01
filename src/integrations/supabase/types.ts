@@ -357,6 +357,54 @@ export type Database = {
           },
         ]
       }
+      coach_recommendations: {
+        Row: {
+          body: string | null
+          completed_at: string | null
+          created_at: string
+          cta: Json
+          dismissed_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["coach_kind"]
+          score: number
+          severity: Database["public"]["Enums"]["coach_severity"]
+          title: string
+          updated_at: string
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          body?: string | null
+          completed_at?: string | null
+          created_at?: string
+          cta?: Json
+          dismissed_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["coach_kind"]
+          score?: number
+          severity?: Database["public"]["Enums"]["coach_severity"]
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          body?: string | null
+          completed_at?: string | null
+          created_at?: string
+          cta?: Json
+          dismissed_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["coach_kind"]
+          score?: number
+          severity?: Database["public"]["Enums"]["coach_severity"]
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       content: {
         Row: {
           ai_generated: boolean
@@ -478,6 +526,48 @@ export type Database = {
           },
         ]
       }
+      digital_scores: {
+        Row: {
+          branding: number
+          breakdown: Json
+          channel_setup: number
+          computed_at: string
+          consistency: number
+          content: number
+          growth: number
+          id: string
+          overall: number
+          presence: number
+          workspace_id: string
+        }
+        Insert: {
+          branding?: number
+          breakdown?: Json
+          channel_setup?: number
+          computed_at?: string
+          consistency?: number
+          content?: number
+          growth?: number
+          id?: string
+          overall?: number
+          presence?: number
+          workspace_id: string
+        }
+        Update: {
+          branding?: number
+          breakdown?: Json
+          channel_setup?: number
+          computed_at?: string
+          consistency?: number
+          content?: number
+          growth?: number
+          id?: string
+          overall?: number
+          presence?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       domain_events: {
         Row: {
           created_at: string
@@ -519,6 +609,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      health_metrics: {
+        Row: {
+          category: Database["public"]["Enums"]["health_category"]
+          computed_at: string
+          details: Json
+          id: string
+          score: number
+          strengths: string[]
+          weaknesses: string[]
+          workspace_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["health_category"]
+          computed_at?: string
+          details?: Json
+          id?: string
+          score?: number
+          strengths?: string[]
+          weaknesses?: string[]
+          workspace_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["health_category"]
+          computed_at?: string
+          details?: Json
+          id?: string
+          score?: number
+          strengths?: string[]
+          weaknesses?: string[]
+          workspace_id?: string
+        }
+        Relationships: []
       }
       integrations: {
         Row: {
@@ -564,6 +687,89 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      learning_path_progress: {
+        Row: {
+          completed_at: string | null
+          completed_milestones: string[]
+          id: string
+          path_id: string
+          progress_pct: number
+          started_at: string
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_milestones?: string[]
+          id?: string
+          path_id: string
+          progress_pct?: number
+          started_at?: string
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          completed_milestones?: string[]
+          id?: string
+          path_id?: string
+          progress_pct?: number
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_progress_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          difficulty: Database["public"]["Enums"]["experience_level"]
+          estimated_hours: number
+          id: string
+          milestones: Json
+          recommended_for: Database["public"]["Enums"]["business_path"][]
+          slug: string
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["experience_level"]
+          estimated_hours?: number
+          id?: string
+          milestones?: Json
+          recommended_for?: Database["public"]["Enums"]["business_path"][]
+          slug: string
+          title: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["experience_level"]
+          estimated_hours?: number
+          id?: string
+          milestones?: Json
+          recommended_for?: Database["public"]["Enums"]["business_path"][]
+          slug?: string
+          title?: string
+        }
+        Relationships: []
       }
       missions: {
         Row: {
@@ -675,6 +881,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      opportunities: {
+        Row: {
+          actions: Json
+          competition: Database["public"]["Enums"]["opportunity_level"]
+          created_at: string
+          description: string | null
+          difficulty: Database["public"]["Enums"]["opportunity_level"]
+          expires_at: string | null
+          growth_potential: Database["public"]["Enums"]["opportunity_level"]
+          id: string
+          niche: string | null
+          status: Database["public"]["Enums"]["opportunity_status"]
+          tags: string[]
+          title: string
+          workspace_id: string | null
+        }
+        Insert: {
+          actions?: Json
+          competition?: Database["public"]["Enums"]["opportunity_level"]
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["opportunity_level"]
+          expires_at?: string | null
+          growth_potential?: Database["public"]["Enums"]["opportunity_level"]
+          id?: string
+          niche?: string | null
+          status?: Database["public"]["Enums"]["opportunity_status"]
+          tags?: string[]
+          title: string
+          workspace_id?: string | null
+        }
+        Update: {
+          actions?: Json
+          competition?: Database["public"]["Enums"]["opportunity_level"]
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["opportunity_level"]
+          expires_at?: string | null
+          growth_potential?: Database["public"]["Enums"]["opportunity_level"]
+          id?: string
+          niche?: string | null
+          status?: Database["public"]["Enums"]["opportunity_status"]
+          tags?: string[]
+          title?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -795,6 +1049,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_profile_digital: {
+        Row: {
+          business_path: Database["public"]["Enums"]["business_path"] | null
+          completed_at: string | null
+          content_preferences: string[]
+          created_at: string
+          experience_level: Database["public"]["Enums"]["experience_level"]
+          goals: string[]
+          maturity_level: Database["public"]["Enums"]["maturity_level"]
+          money_budget_monthly: number
+          preferred_channels: string[]
+          recommended_actions: Json
+          time_budget_hours_week: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_path?: Database["public"]["Enums"]["business_path"] | null
+          completed_at?: string | null
+          content_preferences?: string[]
+          created_at?: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          goals?: string[]
+          maturity_level?: Database["public"]["Enums"]["maturity_level"]
+          money_budget_monthly?: number
+          preferred_channels?: string[]
+          recommended_actions?: Json
+          time_budget_hours_week?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_path?: Database["public"]["Enums"]["business_path"] | null
+          completed_at?: string | null
+          content_preferences?: string[]
+          created_at?: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
+          goals?: string[]
+          maturity_level?: Database["public"]["Enums"]["maturity_level"]
+          money_budget_monthly?: number
+          preferred_channels?: string[]
+          recommended_actions?: Json
+          time_budget_hours_week?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       workspace_members: {
         Row: {
@@ -1133,7 +1435,18 @@ export type Database = {
         | "signal"
         | "outcome"
         | "strategy"
+      business_path:
+        | "local_business"
+        | "content_creator"
+        | "affiliate"
+        | "digital_services"
+        | "saas_builder"
+        | "agency"
+        | "freelancer"
+        | "ecommerce"
       channel_status: "disconnected" | "connected" | "expired" | "error"
+      coach_kind: "insight" | "warning" | "suggestion" | "next_action"
+      coach_severity: "info" | "low" | "medium" | "high" | "critical"
       content_status:
         | "draft"
         | "scheduled"
@@ -1149,6 +1462,8 @@ export type Database = {
         | "video"
         | "article"
         | "carousel"
+      experience_level: "beginner" | "intermediate" | "advanced"
+      health_category: "marketing" | "content" | "brand" | "channel" | "growth"
       job_status:
         | "pending"
         | "processing"
@@ -1156,7 +1471,15 @@ export type Database = {
         | "failed"
         | "dead_letter"
         | "cancelled"
+      maturity_level: "seed" | "sprout" | "growth" | "established" | "scaling"
       mission_status: "pending" | "in_progress" | "done" | "dismissed"
+      opportunity_level: "low" | "medium" | "high"
+      opportunity_status:
+        | "exploding"
+        | "growing"
+        | "stable"
+        | "saturated"
+        | "declining"
       recommendation_status: "open" | "applied" | "dismissed" | "expired"
       social_platform:
         | "instagram"
@@ -1301,7 +1624,19 @@ export const Constants = {
         "outcome",
         "strategy",
       ],
+      business_path: [
+        "local_business",
+        "content_creator",
+        "affiliate",
+        "digital_services",
+        "saas_builder",
+        "agency",
+        "freelancer",
+        "ecommerce",
+      ],
       channel_status: ["disconnected", "connected", "expired", "error"],
+      coach_kind: ["insight", "warning", "suggestion", "next_action"],
+      coach_severity: ["info", "low", "medium", "high", "critical"],
       content_status: [
         "draft",
         "scheduled",
@@ -1319,6 +1654,8 @@ export const Constants = {
         "article",
         "carousel",
       ],
+      experience_level: ["beginner", "intermediate", "advanced"],
+      health_category: ["marketing", "content", "brand", "channel", "growth"],
       job_status: [
         "pending",
         "processing",
@@ -1327,7 +1664,16 @@ export const Constants = {
         "dead_letter",
         "cancelled",
       ],
+      maturity_level: ["seed", "sprout", "growth", "established", "scaling"],
       mission_status: ["pending", "in_progress", "done", "dismissed"],
+      opportunity_level: ["low", "medium", "high"],
+      opportunity_status: [
+        "exploding",
+        "growing",
+        "stable",
+        "saturated",
+        "declining",
+      ],
       recommendation_status: ["open", "applied", "dismissed", "expired"],
       social_platform: [
         "instagram",

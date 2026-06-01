@@ -1,22 +1,7 @@
 /**
  * USE OS — Service Layer
- * ----------------------------------------------------------------------
- * Thin abstraction over data fetching. Today every service forwards to
- * a TanStack server function backed by Supabase. Tomorrow these same
- * symbols can be swapped for HTTP calls to an external Python / FastAPI
- * "AI Brain" backend with NO changes required in components.
- *
- *   Component  ──►  Service interface  ──►  Server fn  ──►  Supabase
- *                                       │
- *                                       └──►  (future) HTTP client ──► FastAPI
- *
- * Rules:
- *   - Components import from `@/lib/services/...`, never from `*.functions`.
- *   - Service modules MUST keep stable input / output contracts.
- *   - Backend swap = replace the function body only.
- * ----------------------------------------------------------------------
+ * Single import surface for every domain. Swap backend by editing one file.
  */
-
 export * as DashboardService from "./dashboard.service";
 export * as ContentService from "./content.service";
 export * as SchedulerService from "./scheduler.service";
@@ -26,3 +11,9 @@ export * as ChannelsService from "./channels.service";
 export * as MissionsService from "./missions.service";
 export * as AnalyticsService from "./analytics.service";
 export * as WorkspaceService from "./workspace.service";
+export * as NavigatorService from "./navigator.service";
+export * as ScoreService from "./score.service";
+export * as OpportunitiesService from "./opportunities.service";
+export * as CoachService from "./coach.service";
+export * as HealthService from "./health.service";
+export * as LearningService from "./learning.service";
