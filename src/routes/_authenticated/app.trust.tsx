@@ -390,13 +390,11 @@ function ResultPanel({
  * History
  * ============================================================ */
 function HistoryTab() {
-  const [workspaceId] = useCurrentWorkspaceId(null);
   const list = useServerFn(TrustOSService.listTrustReports);
-  const q = useQuery({
-    queryKey: ["trust-reports", workspaceId],
-    queryFn: () => list({ data: { workspaceId: workspaceId! } }),
-    enabled: !!workspaceId,
-  });
+  const q = useWorkspaceQuery(
+    (wsId) => ["trust-reports", wsId],
+    ({ workspaceId }) => list({ data: { workspaceId } }),
+  );
 
   if (q.isLoading) return <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Carregando...</div>;
   const rows = q.data ?? [];
@@ -404,7 +402,7 @@ function HistoryTab() {
 
   return (
     <div className="space-y-3">
-      {rows.map((r) => {
+      {rows.map((r: any) => {
         const tone = trustVerdictTone(r.verdict);
         const isBuy = r.target_type === "before_you_buy";
         const isTrust = r.target_type?.startsWith("trust:");
