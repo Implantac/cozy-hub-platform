@@ -13,6 +13,7 @@ import {
 } from "@/lib/services";
 import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { toast } from "sonner";
 import { fadeUp, stagger, MotionCard, PageTransition } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
