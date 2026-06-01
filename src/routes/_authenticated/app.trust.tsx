@@ -231,8 +231,8 @@ function BeforeYouBuyTab() {
   const [notes, setNotes] = useState("");
 
   const run = useServerFn(TrustOSService.runBeforeYouBuy);
-  const mutation = useMutation({
-    mutationFn: async () => run({
+  const mutation = useWorkspaceMutation(
+    () => run({
       data: {
         workspaceId: workspaceId!,
         product_name, seller, price_brl, promise,
@@ -240,9 +240,8 @@ function BeforeYouBuyTab() {
         notes: notes || undefined,
       },
     }),
-    onError: (e: Error) => toast.error(e.message),
-    onSuccess: () => toast.success("Avaliação concluída."),
-  });
+    { successMessage: "Avaliação concluída." },
+  );
 
   const result = mutation.data;
   const checks = (result?.checks ?? {}) as {
