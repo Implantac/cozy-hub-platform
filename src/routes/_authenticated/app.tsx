@@ -333,19 +333,22 @@ function SidebarBody({
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group flex items-center rounded-lg text-sm transition",
+                      "group relative flex items-center rounded-lg text-sm transition-all duration-200",
                       collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/15"
                         : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
-                    <item.icon className={cn("size-4 transition", active && "text-primary")} />
+                    {active && !collapsed && (
+                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand" />
+                    )}
+                    <item.icon className={cn("size-4 transition", active ? "text-primary" : "group-hover:text-foreground")} />
                     {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
-                    {!collapsed && active && <span className="size-1.5 rounded-full bg-primary" />}
                   </Link>
                 );
+
                 return collapsed ? (
                   <Tooltip key={item.to}>
                     <TooltipTrigger asChild>{link}</TooltipTrigger>
