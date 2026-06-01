@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import {
   CoachService, HealthService, OpportunitiesService, BrainCoreService,
+  BuilderService, BrainEvolutionService,
 } from "@/lib/services";
 import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
