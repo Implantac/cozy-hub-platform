@@ -20,14 +20,19 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
-      if (session?.user) navigate({ to: "/app", replace: true });
+    let active = true;
+    // Initial check (handles arriving at /login with a live session).
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session?.user) navigate({ to: "/app", replace: true });
     });
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/app", replace: true });
+    // React only to a real sign-in transition — never INITIAL_SESSION /
+    // TOKEN_REFRESHED, which fire on mount and would re-trigger navigation.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) navigate({ to: "/app", replace: true });
     });
-    return () => subscription.unsubscribe();
+    return () => { active = false; subscription.unsubscribe(); };
   }, [navigate]);
+
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
