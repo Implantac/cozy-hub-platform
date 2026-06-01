@@ -231,7 +231,6 @@ function ListBlock({ icon: Icon, title, tone, items }: { icon: any; title: strin
  * Reality Check
  * ============================================================ */
 function RealityCheckTab() {
-  const [wsId] = useCurrentWorkspaceId();
   const [changeType, setChangeType] = useState<string>("pivot");
   const [currentState, setCurrentState] = useState("");
   const [proposed, setProposed] = useState("");
@@ -239,14 +238,14 @@ function RealityCheckTab() {
   const runFn = useServerFn(DecisionOSService.runRealityCheck);
   const listFn = useServerFn(DecisionOSService.listRealityChecks);
 
-  const list = useQuery({
-    queryKey: ["reality-checks", wsId],
-    queryFn: () => listFn({ data: { workspaceId: wsId! } }),
-    enabled: !!wsId,
-  });
+  const list = useWorkspaceQuery(
+    (wsId) => ["reality-checks", wsId],
+    ({ workspaceId }) => listFn({ data: { workspaceId } }),
+  );
+  const wsId = list.wsId;
 
-  const run = useMutation({
-    mutationFn: () =>
+  const run = useWorkspaceMutation(
+    () =>
       runFn({
         data: {
           workspaceId: wsId!,
@@ -255,13 +254,12 @@ function RealityCheckTab() {
           proposed_change: proposed,
         },
       }),
-    onSuccess: () => {
-      toast.success("Reality check concluído");
-      setCurrentState(""); setProposed("");
-      list.refetch();
+    {
+      invalidate: wsId ? ["reality-checks", wsId] : ["reality-checks"],
+      successMessage: "Reality check concluído",
+      onSuccess: () => { setCurrentState(""); setProposed(""); },
     },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  );
 
   return (
     <div className="space-y-6">
