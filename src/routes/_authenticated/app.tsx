@@ -54,6 +54,7 @@ const NAV_GROUPS: Array<{ labelKey: string; items: NavItem[] }> = [
     labelKey: "nav.group.intelligence",
     items: [
       { to: "/app/brain", labelKey: "nav.brain", icon: Brain },
+      { to: "/app/brain-lab", labelKey: "nav.brain_lab", icon: Brain },
       { to: "/app/missions", labelKey: "nav.missions", icon: Target },
       { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
     ],
