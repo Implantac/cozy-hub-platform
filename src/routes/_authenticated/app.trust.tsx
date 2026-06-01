@@ -1,14 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Shield, ShieldAlert, ShieldCheck, ShoppingCart, Loader2, AlertTriangle,
   CheckCircle2, XCircle, History, Sparkles, ExternalLink,
 } from "lucide-react";
-import { toast } from "sonner";
 import { TrustOSService } from "@/lib/services";
-import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useWorkspaceQuery, useWorkspaceMutation } from "@/lib/query/use-workspace-query";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
