@@ -5,7 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError } from "./_supabase";
-import { emitMemoryEvent } from "./_memory";
+import { emitMemoryEvent, invalidateBrainCache } from "./_memory";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
@@ -72,6 +72,7 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
           sentiment: "negative",
         });
       }
+      await invalidateBrainCache(supabase, workspaceId);
       return row;
     }
     const { data: row, error } = await supabase
@@ -87,6 +88,7 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
       payload: { threat: payload.threat, trend: payload.trend, handle: rest.handle ?? null },
       sentiment: payload.threat === "high" ? "negative" : "neutral",
     });
+    await invalidateBrainCache(supabase, workspaceId);
     return row;
   });
 
@@ -103,6 +105,7 @@ export const deleteCompetitor = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .eq("workspace_id", data.workspaceId);
     throwIfError(error);
+    await invalidateBrainCache(supabase, data.workspaceId);
     return { ok: true };
   });
 
@@ -164,6 +167,7 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
         payload: { field, preview: value.slice(0, 160) },
         sentiment: "positive",
       });
+      await invalidateBrainCache(supabase, workspaceId);
       return row;
     }
     const insertRow = {
@@ -184,5 +188,6 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
       payload: { field, preview: value.slice(0, 160) },
       sentiment: "positive",
     });
+    await invalidateBrainCache(supabase, workspaceId);
     return row;
   });
