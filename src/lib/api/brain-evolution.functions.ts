@@ -279,8 +279,8 @@ export const createDecision = createServerFn({ method: "POST" })
         category: data.category,
         cost_estimate: data.cost_estimate ?? 0,
         expected_benefit: data.expected_benefit,
-        status: "reviewed",
-        evaluation: evaluation as unknown as Record<string, unknown>,
+        status: "evaluated",
+        evaluation: evaluation as never,
         reviewed_at: new Date().toISOString(),
       })
       .select()
