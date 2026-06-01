@@ -422,59 +422,88 @@ export const createDueDiligenceReport = createServerFn({ method: "POST" })
 const ADVISORS = ["marketing", "financial", "strategy", "content", "business"] as const;
 type Advisor = (typeof ADVISORS)[number];
 
-function adviseHeuristic(advisor: Advisor, topic: string): {
-  summary: string; analysis: string; recommendations: string[]; confidence: number;
-} {
-  const t = topic.toLowerCase();
-  const map: Record<Advisor, { lens: string; tips: string[] }> = {
-    marketing: {
-      lens: "atração de público, posicionamento, mensagem central",
-      tips: [
-        "Defina 1 promessa central antes de variar formato.",
-        "Reduza fricção do CTA principal — quanto custa pro lead dizer sim?",
-        "Audite os 3 últimos conteúdos: a mesma pessoa entenderia o que você vende?",
-      ],
-    },
-    financial: {
-      lens: "fluxo de caixa, ticket médio, margem, sustentabilidade",
-      tips: [
-        "Mapeie custo unitário antes de escalar oferta.",
-        "Tenha 3 meses de runway antes de qualquer contratação fixa.",
-        "Separe receita recorrente de pontual — só recorrente sustenta operação.",
-      ],
-    },
-    strategy: {
-      lens: "direção, alavanca de longo prazo, foco vs. dispersão",
-      tips: [
-        "Escolha 1 métrica norte para o próximo trimestre.",
-        "Diga não para 5 oportunidades antes de dizer sim para 1.",
-        "Defina onde NÃO competir — clareza estratégica é subtração.",
-      ],
-    },
-    content: {
-      lens: "narrativa, formato, cadência, ressonância com a audiência",
-      tips: [
-        "Encontre 3 dores reais e crie 1 conteúdo por dor — não invente temas.",
-        "Reuse seu melhor post em 3 formatos antes de criar algo novo.",
-        "Consistência semanal vale mais que rajadas geniais esporádicas.",
-      ],
-    },
-    business: {
-      lens: "modelo, operação, repetibilidade, escalabilidade",
-      tips: [
-        "Documente os 3 processos que você repete toda semana.",
-        "Identifique o gargalo: capacidade, decisão, ou execução?",
-        "Antes de escalar, valide que 10 clientes querem comprar de novo.",
-      ],
-    },
+const ADVISOR_LENS: Record<Advisor, string> = {
+  marketing: "atração de público, posicionamento, mensagem central, funil",
+  financial: "fluxo de caixa, ticket médio, margem, sustentabilidade, runway",
+  strategy: "direção, alavanca de longo prazo, foco vs. dispersão, tradeoffs",
+  content: "narrativa, formato, cadência, ressonância com a audiência",
+  business: "modelo, operação, repetibilidade, escalabilidade, gargalos",
+};
+
+async function adviseWithAI(
+  advisor: Advisor,
+  topic: string,
+  twin: Record<string, unknown> | null,
+): Promise<{ summary: string; analysis: string; recommendations: string[]; confidence: number; model: string }> {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) {
+    return {
+      summary: `Lente ${advisor}: ${ADVISOR_LENS[advisor]}.`,
+      analysis: `Sem chave de IA disponível; análise heurística sobre "${topic}".`,
+      recommendations: ["Configure LOVABLE_API_KEY para receber recomendações geradas por IA."],
+      confidence: 0.3,
+      model: "fallback",
+    };
+  }
+
+  const twinSummary = twin
+    ? `Perfil do usuário (Digital Twin): estilo=${twin.work_style ?? "n/d"}, horas/dia=${twin.daily_hours ?? "n/d"}, canal=${twin.best_channel ?? "n/d"}, audiência=${twin.audience_type ?? "n/d"}, modelo=${twin.monetization_model ?? "n/d"}, forças=${(twin.strengths as string[] | undefined)?.join(", ") ?? "n/d"}, dores=${(twin.pain_points as string[] | undefined)?.join(", ") ?? "n/d"}.`
+    : "Perfil do usuário ainda não preenchido.";
+
+  const system = `Você é um conselheiro de negócios digitais especializado em ${advisor}. Sua lente: ${ADVISOR_LENS[advisor]}. Responda em português do Brasil, direto, sem rodeios, sem clichês motivacionais. Foque em ações concretas e tradeoffs reais.`;
+  const userMsg = `${twinSummary}\n\nTópico para análise: "${topic}"\n\nProduza análise sob sua lente.`;
+
+  const body = {
+    model: "google/gemini-3-flash-preview",
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: userMsg },
+    ],
+    tools: [{
+      type: "function",
+      function: {
+        name: "advise",
+        description: `Estrutura da opinião do conselheiro ${advisor}.`,
+        parameters: {
+          type: "object",
+          properties: {
+            summary: { type: "string", description: "1 frase com o diagnóstico central." },
+            analysis: { type: "string", description: "2-4 parágrafos curtos com a análise sob a lente do conselheiro." },
+            recommendations: {
+              type: "array",
+              items: { type: "string" },
+              minItems: 3,
+              maxItems: 5,
+              description: "Ações concretas, priorizadas.",
+            },
+            confidence: { type: "number", minimum: 0, maximum: 1, description: "Confiança na análise." },
+          },
+          required: ["summary", "analysis", "recommendations", "confidence"],
+          additionalProperties: false,
+        },
+      },
+    }],
+    tool_choice: { type: "function", function: { name: "advise" } },
   };
-  const m = map[advisor];
-  return {
-    summary: `Análise sob lente de ${advisor}: ${m.lens}.`,
-    analysis: `Sobre "${topic}": avalio que o ponto crítico nessa lente é alinhar ${m.lens}. Sem isso, decisões adjacentes ficam frágeis.`,
-    recommendations: m.tips,
-    confidence: t.length > 20 ? 0.7 : 0.45,
-  };
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    if (res.status === 429) throw new Error("Limite de requisições da IA excedido. Tente novamente em instantes.");
+    if (res.status === 402) throw new Error("Créditos da IA esgotados. Adicione em Settings → Workspace → Usage.");
+    const txt = await res.text();
+    throw new Error(`Falha na IA Gateway (${res.status}): ${txt.slice(0, 200)}`);
+  }
+
+  const json = await res.json() as { choices?: Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }> };
+  const call = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+  if (!call) throw new Error("Resposta da IA sem tool call estruturado.");
+  const parsed = JSON.parse(call) as { summary: string; analysis: string; recommendations: string[]; confidence: number };
+  return { ...parsed, model: "google/gemini-3-flash-preview" };
 }
 
 export const askCouncil = createServerFn({ method: "POST" })
@@ -485,28 +514,53 @@ export const askCouncil = createServerFn({ method: "POST" })
     advisors: z.array(z.enum(ADVISORS)).min(1).max(6).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const list = data.advisors ?? (ADVISORS as readonly Advisor[]);
-    const rows = list.map((advisor) => {
-      const r = adviseHeuristic(advisor, data.topic);
-      return {
-        workspace_id: data.workspaceId,
-        advisor,
-        topic: data.topic,
-        summary: r.summary,
-        analysis: r.analysis,
-        recommendations: r.recommendations as never,
-        confidence: r.confidence,
-        model_used: "rule-based-v1",
-      };
-    });
+
+    const { data: twin } = await supabase
+      .from("digital_twins")
+      .select("*")
+      .eq("workspace_id", data.workspaceId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const results = await Promise.all(
+      list.map(async (advisor) => {
+        try {
+          const r = await adviseWithAI(advisor, data.topic, twin as Record<string, unknown> | null);
+          return {
+            workspace_id: data.workspaceId,
+            advisor,
+            topic: data.topic,
+            summary: r.summary,
+            analysis: r.analysis,
+            recommendations: r.recommendations as never,
+            confidence: r.confidence,
+            model_used: r.model,
+          };
+        } catch (e) {
+          return {
+            workspace_id: data.workspaceId,
+            advisor,
+            topic: data.topic,
+            summary: `Falha ao consultar conselheiro ${advisor}.`,
+            analysis: e instanceof Error ? e.message : "Erro desconhecido.",
+            recommendations: [] as never,
+            confidence: 0,
+            model_used: "error",
+          };
+        }
+      }),
+    );
+
     const { data: inserted, error } = await supabase
       .from("council_opinions")
-      .insert(rows)
+      .insert(results)
       .select();
     if (error) throw new Error(error.message);
     return inserted ?? [];
   });
+
 
 export const listCouncilOpinions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
