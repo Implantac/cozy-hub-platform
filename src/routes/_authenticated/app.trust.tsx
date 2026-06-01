@@ -118,6 +118,7 @@ function BulletList({ title, items, tone }: { title: string; items: string[]; to
  * Trust Analyzer
  * ============================================================ */
 function TrustAnalyzerTab() {
+  const [workspaceId] = useCurrentWorkspaceId(null);
   const [target_name, setTargetName] = useState("");
   const [target_type, setTargetType] = useState<"instagram" | "youtube" | "tiktok" | "website" | "course" | "supplier" | "person" | "other">("instagram");
   const [source_url, setSourceUrl] = useState("");
@@ -125,9 +126,9 @@ function TrustAnalyzerTab() {
 
   const run = useServerFn(TrustOSService.runTrustAnalyzer);
   const mutation = useWorkspaceMutation(
-    (workspaceId: string) => run({
+    () => run({
       data: {
-        workspaceId,
+        workspaceId: workspaceId!,
         target_name,
         target_type,
         source_url: source_url || undefined,
@@ -136,9 +137,6 @@ function TrustAnalyzerTab() {
     }),
     { successMessage: "Análise de confiança concluída." },
   );
-  // wsId is needed for the disabled state; use the same hook via history query trick
-  const wsProbe = useWorkspaceQuery(() => ["trust-probe"], async () => null);
-  const workspaceId = wsProbe.wsId;
 
   const result = mutation.data;
   const checks = (result?.checks ?? {}) as {
