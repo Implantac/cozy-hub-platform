@@ -6,10 +6,10 @@ import {
   Brain, Sparkles, Radio, Palette, FileText, Calendar,
   Target, Zap, TrendingUp, Activity, ArrowUpRight, Compass,
   AlertTriangle, Lightbulb, CheckCircle2, Flame, Heart,
+  MapPin, Flag, Shield, Rocket, GitBranch,
 } from "lucide-react";
 import {
-  DashboardService, ScoreService, CoachService,
-  HealthService, OpportunitiesService,
+  DashboardService, CoachService, HealthService, OpportunitiesService, BrainCoreService,
 } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
