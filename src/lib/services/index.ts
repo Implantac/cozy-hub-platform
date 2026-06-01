@@ -20,6 +20,8 @@ export * as DashboardService from "./dashboard.service";
 // --- Pass-through service namespaces -------------------------------------
 export * as AnalyticsService from "@/lib/api/analytics.functions";
 export * as BrainCoreService from "@/lib/api/brain-core.functions";
+export * as BrainEvolutionService from "@/lib/api/brain-evolution.functions";
+export * as BuilderService from "@/lib/api/builder.functions";
 export * as BrandsService from "@/lib/api/brands.functions";
 export * as ChannelsService from "@/lib/api/channels.functions";
 export * as CoachService from "@/lib/api/coach.functions";
