@@ -3,13 +3,14 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const ContentType = z.enum(["post", "reel", "story", "short", "video", "article", "carousel"]);
+const ContentStatus = z.enum(["draft", "scheduled", "publishing", "published", "failed", "archived"]);
 
 export const listContent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
       workspaceId: z.string().uuid(),
-      status: z.enum(["draft", "scheduled", "publishing", "published", "failed", "archived"]).optional(),
+      status: ContentStatus.optional(),
       limit: z.number().int().min(1).max(200).default(50),
     }).parse(input)
   )
@@ -70,4 +71,45 @@ export const updateContentStatus = createServerFn({ method: "POST" })
       .eq("workspace_id", data.workspaceId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/** Bulk update content status — used by the multi-select actions UI. */
+export const bulkUpdateContentStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({
+      workspaceId: z.string().uuid(),
+      ids: z.array(z.string().uuid()).min(1).max(200),
+      status: z.enum(["draft", "scheduled", "published", "archived"]),
+    }).parse(input)
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase
+      .from("content")
+      .update({ status: data.status })
+      .in("id", data.ids)
+      .eq("workspace_id", data.workspaceId);
+    if (error) throw new Error(error.message);
+    return { ok: true, count: data.ids.length };
+  });
+
+/** Bulk delete content. */
+export const bulkDeleteContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({
+      workspaceId: z.string().uuid(),
+      ids: z.array(z.string().uuid()).min(1).max(200),
+    }).parse(input)
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase
+      .from("content")
+      .delete()
+      .in("id", data.ids)
+      .eq("workspace_id", data.workspaceId);
+    if (error) throw new Error(error.message);
+    return { ok: true, count: data.ids.length };
   });
