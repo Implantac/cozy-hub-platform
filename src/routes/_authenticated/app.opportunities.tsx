@@ -73,12 +73,26 @@ function OpportunitiesPage() {
               <MotionCard key={o.id} className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40">
                 <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-2xl opacity-0 transition group-hover:opacity-100"/>
                 <div className="relative space-y-3">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     <div className={`inline-flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-0.5 text-xs ${meta.color}`}>
                       <Icon className="size-3"/> {meta.label}
                     </div>
-                    {o.niche && <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{o.niche}</span>}
+                    {typeof o._compatibility === "number" && (
+                      <div
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-widest ${
+                          o._compatibility >= 70
+                            ? "border-success/40 bg-success/10 text-success"
+                            : o._compatibility >= 50
+                            ? "border-primary/40 bg-primary/10 text-primary"
+                            : "border-border bg-background/40 text-muted-foreground"
+                        }`}
+                        title="Compatibilidade com seu perfil"
+                      >
+                        <Brain className="size-3"/> {o._compatibility}% match
+                      </div>
+                    )}
                   </div>
+                  {o.niche && <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{o.niche}</span>}
                   <h3 className="text-lg font-medium leading-snug">{o.title}</h3>
                   {o.description && <p className="text-sm text-muted-foreground">{o.description}</p>}
                   <div className="grid grid-cols-3 gap-2 pt-2">
