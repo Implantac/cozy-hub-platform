@@ -64,6 +64,26 @@ function GPSDashboard() {
     queryFn: () => listOpps({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
   });
+  const blueprint = useQuery({
+    queryKey: ["blueprint-mini", wsId],
+    queryFn: () => getBlueprint({ data: { workspaceId: wsId! } }) as Promise<Record<string, string | null> | null>,
+    enabled: !!wsId,
+  });
+  const competitors = useQuery({
+    queryKey: ["competitors-mini", wsId],
+    queryFn: () => listCompetitors({ data: { workspaceId: wsId! } }) as Promise<any[]>,
+    enabled: !!wsId,
+  });
+  const skills = useQuery({
+    queryKey: ["skills-mini", wsId],
+    queryFn: () => listSkills({ data: { workspaceId: wsId! } }) as Promise<any[]>,
+    enabled: !!wsId,
+  });
+  const journey = useQuery({
+    queryKey: ["journey-mini", wsId],
+    queryFn: () => getTimeline({ data: { workspaceId: wsId! } }) as Promise<any>,
+    enabled: !!wsId,
+  });
 
   const refreshAll = useMutation({
     mutationFn: async () => {
