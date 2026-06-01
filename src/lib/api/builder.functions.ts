@@ -72,6 +72,7 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
           sentiment: "negative",
         });
       }
+      await invalidateBrainCache(supabase, workspaceId);
       return row;
     }
     const { data: row, error } = await supabase
