@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
   BrainCircuit, User, BarChart3, FlaskConical, Scale, ShieldAlert, Users2, History,
+  Megaphone, DollarSign, Compass, FileText, Briefcase, Sparkles, ArrowRight, CheckCircle2,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { PageTransition } from "@/components/app/Motion";
