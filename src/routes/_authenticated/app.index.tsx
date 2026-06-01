@@ -24,10 +24,10 @@ export const Route = createFileRoute("/_authenticated/app/")({
 function GPSDashboard() {
   const [wsId] = useCurrentWorkspaceId();
   const fetchOverview = useServerFn(DashboardService.fetchOverview as any);
-  const getScore = useServerFn(ScoreService.getLatestScore);
-  const computeScore = useServerFn(ScoreService.computeDigitalScore);
+  const brainAskAll = useServerFn(BrainCoreService.brainAskAll);
+  const brainSnapshot = useServerFn(BrainCoreService.brainSnapshot);
+  const brainRecommend = useServerFn(BrainCoreService.brainRecommend);
   const listRecs = useServerFn(CoachService.listRecommendations);
-  const generateRecs = useServerFn(CoachService.generateRecommendations);
   const getHealth = useServerFn(HealthService.getLatestHealth);
   const listOpps = useServerFn(OpportunitiesService.listOpportunities);
 
@@ -36,9 +36,9 @@ function GPSDashboard() {
     queryFn: () => (fetchOverview as any)({ data: { workspaceId: wsId! } }),
     enabled: !!wsId, refetchInterval: 30_000,
   });
-  const score = useQuery({
-    queryKey: ["score", wsId],
-    queryFn: () => getScore({ data: { workspaceId: wsId! } }),
+  const brain = useQuery({
+    queryKey: ["brain-all", wsId],
+    queryFn: () => brainAskAll({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
   });
   const recs = useQuery({
@@ -59,14 +59,12 @@ function GPSDashboard() {
 
   const refreshAll = useMutation({
     mutationFn: async () => {
-      await Promise.all([
-        computeScore({ data: { workspaceId: wsId! } }),
-        generateRecs({ data: { workspaceId: wsId! } }),
-      ]);
+      await brainSnapshot({ data: { workspaceId: wsId! } });
+      await brainRecommend({ data: { workspaceId: wsId! } });
     },
     onSuccess: () => {
-      toast.success("GPS atualizado");
-      score.refetch(); recs.refetch(); overview.refetch();
+      toast.success("USE Brain atualizado");
+      brain.refetch(); recs.refetch(); overview.refetch();
     },
     onError: (e: Error) => toast.error(e.message),
   });
