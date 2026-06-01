@@ -1,13 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { TrendingUp, RefreshCw } from "lucide-react";
 import { ScoreService } from "@/lib/services";
-import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/score")({
   component: ScorePage,
@@ -23,15 +21,17 @@ const PILLARS = [
 ] as const;
 
 function ScorePage() {
-  const [wsId] = useCurrentWorkspaceId();
   const get = useServerFn(ScoreService.getLatestScore);
   const compute = useServerFn(ScoreService.computeDigitalScore);
-  const q = useQuery({ queryKey: ["score", wsId], queryFn: () => get({ data: { workspaceId: wsId! }}), enabled: !!wsId });
-  const mut = useMutation({
-    mutationFn: () => compute({ data: { workspaceId: wsId! }}),
-    onSuccess: () => { toast.success("Score recalculado"); q.refetch(); },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const q = useWorkspaceQuery(
+    (wsId) => ["score", wsId],
+    ({ workspaceId }) => get({ data: { workspaceId } }),
+  );
+  const wsId = q.wsId;
+  const mut = useWorkspaceMutation(
+    () => compute({ data: { workspaceId: wsId! } }),
+    { invalidate: wsId ? ["score", wsId] : ["score"], successMessage: "Score recalculado" },
+  );
 
   const score = q.data;
 
