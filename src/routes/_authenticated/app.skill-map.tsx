@@ -1,87 +1,87 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import {
-  Brain, CheckCircle2, Circle, Lock, Sparkles, TrendingUp, Target, BookOpen, ArrowUpRight,
+  Brain, CheckCircle2, Circle, TrendingUp, Target, Sparkles, X,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { BrainEvolutionService } from "@/lib/services";
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/skill-map")({
   component: SkillMapPage,
 });
 
-type Level = "beginner" | "intermediate" | "advanced" | "expert";
-type Status = "mastered" | "learning" | "locked" | "todo";
-
-type Skill = {
-  id: string;
-  name: string;
-  category: string;
-  level: Level;
-  status: Status;
-  progress: number;
-  why: string;
-};
-
-const SKILLS: Skill[] = [
-  { id: "branding-basics", name: "Posicionamento de marca", category: "Marca", level: "beginner", status: "mastered", progress: 100, why: "Base para tudo: clareza de quem você atende." },
-  { id: "visual-identity", name: "Identidade visual", category: "Marca", level: "beginner", status: "learning", progress: 65, why: "Reconhecimento e consistência cross-channel." },
-  { id: "content-pillars", name: "Pilares de conteúdo", category: "Conteúdo", level: "beginner", status: "mastered", progress: 100, why: "Você nunca mais fica sem ideia do que postar." },
-  { id: "hook-writing", name: "Escrita de hooks", category: "Conteúdo", level: "intermediate", status: "learning", progress: 40, why: "Multiplica alcance sem aumentar produção." },
-  { id: "shortform-video", name: "Vídeo curto", category: "Conteúdo", level: "intermediate", status: "todo", progress: 0, why: "Maior canal orgânico em 2026." },
-  { id: "funnel-design", name: "Design de funil", category: "Aquisição", level: "intermediate", status: "todo", progress: 0, why: "Transforma audiência em receita previsível." },
-  { id: "paid-ads", name: "Tráfego pago", category: "Aquisição", level: "advanced", status: "locked", progress: 0, why: "Escala receita quando o orgânico já funciona." },
-  { id: "email-automation", name: "Automação de email", category: "Retenção", level: "intermediate", status: "todo", progress: 0, why: "Receita recorrente sem depender de plataformas." },
-  { id: "analytics-reading", name: "Leitura de métricas", category: "Decisão", level: "intermediate", status: "learning", progress: 25, why: "Para de adivinhar, começa a decidir com dado." },
-  { id: "offer-design", name: "Design de oferta", category: "Vendas", level: "advanced", status: "todo", progress: 0, why: "Ticket maior sem aumentar audiência." },
-  { id: "automation-ai", name: "Automação com IA", category: "Operação", level: "advanced", status: "locked", progress: 0, why: "Multiplica sua hora de trabalho." },
-  { id: "team-systems", name: "Sistemas de equipe", category: "Escala", level: "expert", status: "locked", progress: 0, why: "Só importa quando você passa de 10k/mês." },
-];
-
-const CATEGORIES = ["Marca", "Conteúdo", "Aquisição", "Retenção", "Decisão", "Vendas", "Operação", "Escala"];
+const AREAS = [
+  { id: "copy",         label: "Copywriting",  why: "Palavras que convertem." },
+  { id: "content",      label: "Conteúdo",     why: "Conexão constante com audiência." },
+  { id: "product",      label: "Produto",      why: "Encaixe da oferta na dor real." },
+  { id: "sales",        label: "Vendas",       why: "Conversa que vira receita." },
+  { id: "branding",     label: "Marca",        why: "Reconhecimento e diferenciação." },
+  { id: "analytics",    label: "Métricas",     why: "Decidir com dado, não palpite." },
+  { id: "automation",   label: "Automação",    why: "Multiplica horas de trabalho." },
+  { id: "prospecting",  label: "Prospecção",   why: "Conseguir clientes intencionalmente." },
+  { id: "community",    label: "Comunidade",   why: "Tribo > audiência fria." },
+  { id: "strategy",     label: "Estratégia",   why: "Foco e tradeoffs claros." },
+] as const;
+type AreaId = (typeof AREAS)[number]["id"];
 
 function SkillMapPage() {
-  const [filter, setFilter] = useState<string | null>(null);
+  const [wsId] = useCurrentWorkspaceId();
+  const qc = useQueryClient();
+  const list = useServerFn(BrainEvolutionService.listSkillAssessments);
+  const upsert = useServerFn(BrainEvolutionService.upsertSkillAssessment);
 
-  const filtered = filter ? SKILLS.filter((s) => s.category === filter) : SKILLS;
-  const mastered = SKILLS.filter((s) => s.status === "mastered").length;
-  const learning = SKILLS.filter((s) => s.status === "learning").length;
-  const next = SKILLS.find((s) => s.status === "learning") ?? SKILLS.find((s) => s.status === "todo");
+  const q = useQuery({
+    queryKey: ["skills", wsId],
+    queryFn: () => list({ data: { workspaceId: wsId! } }),
+    enabled: !!wsId,
+  });
+
+  const mut = useMutation({
+    mutationFn: (p: { area: AreaId; score: number }) =>
+      upsert({ data: { workspaceId: wsId!, area: p.area, score: p.score, source: "self" } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["skills", wsId] }); toast.success("Avaliação salva"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Reduce: latest assessment per area
+  const latest = new Map<AreaId, { score: number; assessed_at: string }>();
+  for (const a of (q.data ?? []) as Array<{ area: AreaId; score: number; assessed_at: string }>) {
+    if (!latest.has(a.area)) latest.set(a.area, { score: a.score, assessed_at: a.assessed_at });
+  }
+
+  const scored = AREAS.map((a) => ({ ...a, score: latest.get(a.id)?.score ?? null }));
+  const mastered = scored.filter((s) => (s.score ?? 0) >= 80).length;
+  const learning = scored.filter((s) => s.score != null && s.score < 80 && s.score >= 30).length;
+  const next = scored.find((s) => s.score != null && s.score < 80);
 
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-              <Brain className="size-3 text-accent" /> Skill Map · capacidades do operador
-            </div>
-            <h1 className="text-4xl font-semibold tracking-tight">Suas habilidades</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              O que você já domina, o que está construindo e o que vem depois.
-            </p>
+        <motion.header variants={fadeUp}>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+            <Brain className="size-3 text-accent" /> Skill Map · capacidades do operador
           </div>
+          <h1 className="text-4xl font-semibold tracking-tight">Suas habilidades</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Avalie de 0 a 100 em cada área. O Brain usa isso pra recomendar o próximo passo.
+          </p>
         </motion.header>
 
-        {/* Stats */}
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-3">
-          <StatCard icon={CheckCircle2} label="Dominadas" value={mastered} accent="success" />
-          <StatCard icon={TrendingUp} label="Em construção" value={learning} accent="primary" />
-          <StatCard icon={Target} label="Próximo foco" value={next?.name ?? "—"} accent="accent" small />
+          <Stat label="Dominadas" value={mastered} icon={CheckCircle2} />
+          <Stat label="Em construção" value={learning} icon={TrendingUp} />
+          <Stat label="Próximo foco" value={next?.label ?? "Tudo dominado"} icon={Target} small />
         </motion.section>
 
-        {/* Filter */}
-        <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
-          <Chip active={filter === null} onClick={() => setFilter(null)}>Todas</Chip>
-          {CATEGORIES.map((c) => (
-            <Chip key={c} active={filter === c} onClick={() => setFilter(c)}>{c}</Chip>
-          ))}
-        </motion.div>
-
-        {/* Skill grid */}
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((s) => (
-            <SkillCard key={s.id} skill={s} />
+          {scored.map((s) => (
+            <SkillCard key={s.id} area={s} pending={mut.isPending}
+              onScore={(score) => mut.mutate({ area: s.id, score })} />
           ))}
         </motion.section>
       </motion.div>
@@ -89,72 +89,55 @@ function SkillMapPage() {
   );
 }
 
-function SkillCard({ skill }: { skill: Skill }) {
-  const Icon =
-    skill.status === "mastered" ? CheckCircle2
-    : skill.status === "learning" ? TrendingUp
-    : skill.status === "locked" ? Lock
-    : Circle;
-
+function SkillCard({ area, pending, onScore }: {
+  area: { id: AreaId; label: string; why: string; score: number | null };
+  pending: boolean;
+  onScore: (score: number) => void;
+}) {
+  const [draft, setDraft] = useState<number>(area.score ?? 0);
+  const score = area.score ?? draft;
+  const status = score >= 80 ? "mastered" : score >= 30 ? "learning" : "todo";
+  const Icon = status === "mastered" ? CheckCircle2 : status === "learning" ? TrendingUp : Circle;
   const tone =
-    skill.status === "mastered" ? "border-success/30 bg-success/5"
-    : skill.status === "learning" ? "border-primary/30 bg-primary/5"
-    : skill.status === "locked" ? "border-border/50 bg-card/30 opacity-60"
+    status === "mastered" ? "border-success/30 bg-success/5"
+    : status === "learning" ? "border-primary/30 bg-primary/5"
     : "border-border bg-card/60";
 
   return (
     <motion.div variants={fadeUp}
-      className={`relative overflow-hidden rounded-2xl border p-4 backdrop-blur transition hover:border-primary/40 ${tone}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <Icon className={`mt-0.5 size-4 ${
-            skill.status === "mastered" ? "text-success"
-            : skill.status === "learning" ? "text-primary"
-            : skill.status === "locked" ? "text-muted-foreground" : "text-accent"}`} />
-          <div className="min-w-0">
-            <div className="text-sm font-semibold">{skill.name}</div>
-            <div className="mt-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              {skill.category} · {skill.level}
-            </div>
-          </div>
+      className={`rounded-2xl border p-4 backdrop-blur transition hover:border-primary/40 ${tone}`}>
+      <div className="flex items-start gap-3">
+        <Icon className={`mt-0.5 size-4 ${
+          status === "mastered" ? "text-success" : status === "learning" ? "text-primary" : "text-muted-foreground"
+        }`} />
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold">{area.label}</div>
+          <p className="mt-0.5 text-xs text-muted-foreground">{area.why}</p>
         </div>
+        <span className="text-xs font-mono tabular-nums text-muted-foreground">{score}</span>
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">{skill.why}</p>
-      {skill.progress > 0 && skill.status !== "mastered" && (
-        <div className="mt-3 h-1 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${skill.progress}%` }} />
-        </div>
-      )}
-      {skill.status !== "locked" && skill.status !== "mastered" && (
-        <button className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
-          <BookOpen className="size-3" /> Estudar agora <ArrowUpRight className="size-3" />
-        </button>
-      )}
+      <input
+        type="range" min={0} max={100} step={5}
+        value={draft || (area.score ?? 0)}
+        onChange={(e) => setDraft(Number(e.target.value))}
+        onMouseUp={(e) => onScore(Number((e.target as HTMLInputElement).value))}
+        onTouchEnd={(e) => onScore(Number((e.target as HTMLInputElement).value))}
+        disabled={pending}
+        className="mt-3 w-full accent-primary"
+      />
     </motion.div>
   );
 }
 
-function StatCard({ icon: Icon, label, value, accent, small }: {
-  icon: typeof CheckCircle2; label: string; value: string | number; accent: string; small?: boolean;
+function Stat({ label, value, icon: Icon, small }: {
+  label: string; value: string | number; icon: typeof CheckCircle2; small?: boolean;
 }) {
   return (
     <motion.div variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-4 backdrop-blur">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <Icon className={`size-3 text-${accent}`} /> {label}
+        <Icon className="size-3 text-accent" /> {label}
       </div>
       <div className={`mt-2 ${small ? "text-base font-medium" : "text-3xl font-bold tabular-nums"}`}>{value}</div>
     </motion.div>
-  );
-}
-
-function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick}
-      className={`rounded-full border px-3 py-1 text-xs transition ${
-        active ? "border-primary/40 bg-primary/10 text-primary"
-        : "border-border bg-card/40 text-muted-foreground hover:border-border hover:text-foreground"
-      }`}>
-      {children}
-    </button>
   );
 }

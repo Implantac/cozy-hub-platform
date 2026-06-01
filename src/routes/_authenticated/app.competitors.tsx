@@ -1,52 +1,58 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import {
-  RadarIcon, TrendingUp, TrendingDown, Minus, Eye, AlertTriangle, Lightbulb, ArrowUpRight, Plus,
+  RadarIcon, TrendingUp, TrendingDown, Minus, Eye, Lightbulb, Plus, Trash2, X,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { BuilderService } from "@/lib/services";
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/competitors")({
   component: CompetitorRadarPage,
 });
 
-type Trend = "up" | "down" | "flat";
-type Threat = "high" | "medium" | "low";
-
 type Competitor = {
-  id: string;
-  name: string;
-  handle: string;
-  followers: number;
-  engagement: number;
-  trend: Trend;
-  threat: Threat;
-  positioning: string;
-  recentMove: string;
-  gap: string;
+  id: string; workspace_id: string;
+  name: string; handle: string | null;
+  followers: number; engagement: number;
+  trend: "up" | "down" | "flat";
+  threat: "high" | "medium" | "low";
+  positioning: string | null; recent_move: string | null; gap: string | null;
 };
 
-const COMPETITORS: Competitor[] = [
-  { id: "c1", name: "Estúdio Norte", handle: "@estudionorte", followers: 48000, engagement: 4.2, trend: "up", threat: "high",
-    positioning: "Premium minimalista, ticket alto, poucos clientes.", recentMove: "Lançou curso de R$ 1.997 com 3 cases de sucesso.", gap: "Não atende projetos abaixo de R$ 5k — espaço claro pra você." },
-  { id: "c2", name: "Marca Viva", handle: "@marcaviva.studio", followers: 22500, engagement: 6.8, trend: "up", threat: "medium",
-    positioning: "Acessível, didático, foco em pequenos negócios.", recentMove: "Começou newsletter semanal com case real.", gap: "Conteúdo bom mas oferta confusa — clareza vence." },
-  { id: "c3", name: "Branding Lab", handle: "@brandinglab", followers: 91200, engagement: 2.1, trend: "flat", threat: "medium",
-    positioning: "Volume alto, conteúdo genérico, autoridade construída.", recentMove: "Reduziu frequência de posts em 40%.", gap: "Audiência cansada — espaço pra quem traz profundidade." },
-  { id: "c4", name: "Casa Criativa", handle: "@casacriativa.co", followers: 15800, engagement: 8.4, trend: "up", threat: "high",
-    positioning: "Comunidade engajada, voz autoral forte.", recentMove: "Abriu mentoria em grupo limitada a 12 pessoas.", gap: "Foco em B2C — você pode dominar B2B sem competir direto." },
-  { id: "c5", name: "Studio Forma", handle: "@studioforma", followers: 67400, engagement: 3.0, trend: "down", threat: "low",
-    positioning: "Veterano do mercado, processo lento.", recentMove: "Sem novidades em 60 dias.", gap: "Inércia clara — janela aberta pra agilidade." },
-];
-
-const INSIGHTS = [
-  { kind: "opportunity", title: "Reels educacionais subexplorados", body: "3 dos 5 concorrentes não fazem vídeo curto educacional. Janela orgânica grande." },
-  { kind: "warning", title: "Pressão de preço no mid-market", body: "Marca Viva e Casa Criativa estão capturando o ticket de R$ 2-5k. Diferenciação urgente." },
-  { kind: "opportunity", title: "Ninguém escreve sobre processo", body: "Bastidores de cliente real é território vazio. Conteúdo de alta confiança." },
-];
-
 function CompetitorRadarPage() {
+  const [wsId] = useCurrentWorkspaceId();
+  const qc = useQueryClient();
+  const list = useServerFn(BuilderService.listCompetitors);
+  const upsert = useServerFn(BuilderService.upsertCompetitor);
+  const del = useServerFn(BuilderService.deleteCompetitor);
+
+  const q = useQuery({
+    queryKey: ["competitors", wsId],
+    queryFn: () => list({ data: { workspaceId: wsId! } }) as Promise<Competitor[]>,
+    enabled: !!wsId,
+  });
+
+  const [open, setOpen] = useState(false);
   const [view, setView] = useState<"list" | "matrix">("list");
+
+  const create = useMutation({
+    mutationFn: (data: Partial<Competitor> & { name: string }) =>
+      upsert({ data: { workspaceId: wsId!, ...data } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["competitors", wsId] }); setOpen(false); toast.success("Concorrente adicionado"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const remove = useMutation({
+    mutationFn: (id: string) => del({ data: { workspaceId: wsId!, id } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["competitors", wsId] }); toast.success("Removido"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const competitors = q.data ?? [];
 
   return (
     <PageTransition>
@@ -58,7 +64,7 @@ function CompetitorRadarPage() {
             </div>
             <h1 className="text-4xl font-semibold tracking-tight">Concorrentes</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              O que estão fazendo, o que está funcionando, onde você pode ganhar.
+              Quem está no seu radar, o que estão fazendo, onde você pode ganhar.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -72,44 +78,32 @@ function CompetitorRadarPage() {
                 Matriz
               </button>
             </div>
-            <button className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
+            <button onClick={() => setOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
               <Plus className="size-4" /> Adicionar
             </button>
           </div>
         </motion.header>
 
-        {/* Insights row */}
-        <motion.section variants={stagger} className="grid gap-3 md:grid-cols-3">
-          {INSIGHTS.map((ins, i) => (
-            <motion.div key={i} variants={fadeUp}
-              className={`rounded-2xl border p-4 backdrop-blur ${
-                ins.kind === "opportunity" ? "border-accent/30 bg-accent/5" : "border-destructive/30 bg-destructive/5"
-              }`}>
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider">
-                {ins.kind === "opportunity"
-                  ? <><Lightbulb className="size-3 text-accent" /><span className="text-accent">Oportunidade</span></>
-                  : <><AlertTriangle className="size-3 text-destructive" /><span className="text-destructive">Alerta</span></>}
-              </div>
-              <div className="mt-2 text-sm font-semibold">{ins.title}</div>
-              <p className="mt-1 text-xs text-muted-foreground">{ins.body}</p>
-            </motion.div>
-          ))}
-        </motion.section>
-
-        {/* Competitors */}
-        {view === "list" ? (
+        {q.isLoading ? (
+          <Loading />
+        ) : competitors.length === 0 ? (
+          <Empty onAdd={() => setOpen(true)} />
+        ) : view === "list" ? (
           <motion.section variants={stagger} className="space-y-3">
-            {COMPETITORS.map((c) => <CompetitorRow key={c.id} c={c} />)}
+            {competitors.map((c) => <CompetitorRow key={c.id} c={c} onRemove={() => remove.mutate(c.id)} />)}
           </motion.section>
         ) : (
-          <ThreatMatrix items={COMPETITORS} />
+          <ThreatMatrix items={competitors} />
         )}
+
+        {open && <NewCompetitorDialog onClose={() => setOpen(false)} onSave={(data) => create.mutate(data)} saving={create.isPending} />}
       </motion.div>
     </PageTransition>
   );
 }
 
-function CompetitorRow({ c }: { c: Competitor }) {
+function CompetitorRow({ c, onRemove }: { c: Competitor; onRemove: () => void }) {
   const TIcon = c.trend === "up" ? TrendingUp : c.trend === "down" ? TrendingDown : Minus;
   const tTone = c.trend === "up" ? "text-success" : c.trend === "down" ? "text-destructive" : "text-muted-foreground";
   const threatTone =
@@ -124,16 +118,16 @@ function CompetitorRow({ c }: { c: Competitor }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold">{c.name}</span>
-            <span className="text-xs text-muted-foreground">{c.handle}</span>
+            {c.handle && <span className="text-xs text-muted-foreground">{c.handle}</span>}
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">{c.positioning}</p>
+          {c.positioning && <p className="mt-1 text-xs text-muted-foreground">{c.positioning}</p>}
         </div>
         <div className="flex items-center gap-2">
           <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ${threatTone}`}>
             ameaça {c.threat}
           </span>
-          <button className="grid size-8 place-items-center rounded-lg border border-border bg-background/40 text-muted-foreground transition hover:text-foreground">
-            <Eye className="size-3.5" />
+          <button onClick={onRemove} className="grid size-8 place-items-center rounded-lg border border-border bg-background/40 text-muted-foreground transition hover:border-destructive/40 hover:text-destructive">
+            <Trash2 className="size-3.5" />
           </button>
         </div>
       </div>
@@ -148,10 +142,12 @@ function CompetitorRow({ c }: { c: Competitor }) {
         } />
       </div>
 
-      <div className="mt-4 grid gap-2 md:grid-cols-2">
-        <Block icon={Eye} label="Movimento recente" body={c.recentMove} />
-        <Block icon={Lightbulb} label="Seu gap" body={c.gap} accent />
-      </div>
+      {(c.recent_move || c.gap) && (
+        <div className="mt-4 grid gap-2 md:grid-cols-2">
+          {c.recent_move && <Block icon={Eye} label="Movimento recente" body={c.recent_move} />}
+          {c.gap && <Block icon={Lightbulb} label="Seu gap" body={c.gap} accent />}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -177,23 +173,16 @@ function Block({ icon: Icon, label, body, accent }: { icon: typeof Eye; label: s
 }
 
 function ThreatMatrix({ items }: { items: Competitor[] }) {
-  // Plot by followers (x) and engagement (y). High threat = larger dot.
-  const maxF = Math.max(...items.map((i) => i.followers));
-  const maxE = Math.max(...items.map((i) => i.engagement));
+  const maxF = Math.max(1, ...items.map((i) => i.followers));
+  const maxE = Math.max(1, ...items.map((i) => i.engagement));
   return (
     <motion.div variants={fadeUp}
       className="relative h-[420px] rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
-      <div className="absolute left-3 top-3 text-[10px] uppercase tracking-wider text-muted-foreground">
-        ↑ Engajamento
-      </div>
-      <div className="absolute bottom-3 right-3 text-[10px] uppercase tracking-wider text-muted-foreground">
-        Audiência →
-      </div>
+      <div className="absolute left-3 top-3 text-[10px] uppercase tracking-wider text-muted-foreground">↑ Engajamento</div>
+      <div className="absolute bottom-3 right-3 text-[10px] uppercase tracking-wider text-muted-foreground">Audiência →</div>
       <div className="absolute inset-12">
-        {/* axes */}
         <div className="absolute inset-x-0 bottom-0 h-px bg-border" />
         <div className="absolute inset-y-0 left-0 w-px bg-border" />
-        {/* dots */}
         {items.map((c) => {
           const x = (c.followers / maxF) * 100;
           const y = (c.engagement / maxE) * 100;
@@ -206,13 +195,90 @@ function ThreatMatrix({ items }: { items: Competitor[] }) {
               className={`absolute -translate-x-1/2 translate-y-1/2 rounded-full ring-2 transition hover:scale-110 ${tone}`}
               style={{ left: `${x}%`, bottom: `${y}%`, width: size, height: size }}
               title={c.name}>
-              <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium">
-                {c.name}
-              </span>
+              <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium">{c.name}</span>
             </div>
           );
         })}
       </div>
     </motion.div>
+  );
+}
+
+function NewCompetitorDialog({ onClose, onSave, saving }: {
+  onClose: () => void; onSave: (data: { name: string; handle?: string; followers?: number; engagement?: number; trend?: "up" | "down" | "flat"; threat?: "high" | "medium" | "low"; positioning?: string; recent_move?: string; gap?: string }) => void; saving: boolean;
+}) {
+  const [form, setForm] = useState({
+    name: "", handle: "", followers: 0, engagement: 0,
+    trend: "flat" as "up" | "down" | "flat",
+    threat: "medium" as "high" | "medium" | "low",
+    positioning: "", recent_move: "", gap: "",
+  });
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-elevated" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Novo concorrente</h3>
+          <button onClick={onClose} className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:text-foreground">
+            <X className="size-4" />
+          </button>
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); if (!form.name.trim()) return; onSave(form); }}
+          className="space-y-3">
+          <Field label="Nome *"><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Handle"><input value={form.handle} onChange={(e) => setForm({ ...form, handle: e.target.value })} placeholder="@..." className="input" /></Field>
+            <Field label="Seguidores"><input type="number" min={0} value={form.followers} onChange={(e) => setForm({ ...form, followers: Number(e.target.value) })} className="input" /></Field>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="Engajamento %"><input type="number" min={0} max={100} step={0.1} value={form.engagement} onChange={(e) => setForm({ ...form, engagement: Number(e.target.value) })} className="input" /></Field>
+            <Field label="Tendência">
+              <select value={form.trend} onChange={(e) => setForm({ ...form, trend: e.target.value as "up" | "down" | "flat" })} className="input">
+                <option value="up">Subindo</option><option value="flat">Estável</option><option value="down">Caindo</option>
+              </select>
+            </Field>
+            <Field label="Ameaça">
+              <select value={form.threat} onChange={(e) => setForm({ ...form, threat: e.target.value as "high" | "medium" | "low" })} className="input">
+                <option value="low">Baixa</option><option value="medium">Média</option><option value="high">Alta</option>
+              </select>
+            </Field>
+          </div>
+          <Field label="Posicionamento"><textarea rows={2} value={form.positioning} onChange={(e) => setForm({ ...form, positioning: e.target.value })} className="input resize-none" /></Field>
+          <Field label="Movimento recente"><textarea rows={2} value={form.recent_move} onChange={(e) => setForm({ ...form, recent_move: e.target.value })} className="input resize-none" /></Field>
+          <Field label="Seu gap"><textarea rows={2} value={form.gap} onChange={(e) => setForm({ ...form, gap: e.target.value })} className="input resize-none" /></Field>
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
+            <button type="submit" disabled={saving} className="rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60">
+              {saving ? "Salvando…" : "Salvar"}
+            </button>
+          </div>
+        </form>
+        <style>{`.input{width:100%;border-radius:.5rem;border:1px solid hsl(var(--border));background:hsl(var(--background)/.6);padding:.5rem .75rem;font-size:.875rem;outline:none}.input:focus{border-color:hsl(var(--primary)/.4);box-shadow:0 0 0 2px hsl(var(--primary)/.2)}`}</style>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[11px] uppercase tracking-wider text-muted-foreground">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function Loading() {
+  return <div className="flex h-40 items-center justify-center text-sm text-muted-foreground"><span className="size-2 animate-pulse rounded-full bg-primary mr-2" /> Carregando…</div>;
+}
+
+function Empty({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+      <RadarIcon className="mx-auto size-6 text-muted-foreground" />
+      <p className="mt-3 text-sm text-muted-foreground">Nenhum concorrente no radar ainda.</p>
+      <button onClick={onAdd} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow">
+        <Plus className="size-4" /> Adicionar o primeiro
+      </button>
+    </div>
   );
 }
