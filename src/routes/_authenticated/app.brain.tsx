@@ -245,7 +245,7 @@ function BrainPage() {
                 })}
               </ul>
             )}
-          </motion.section>
+          </SectionCard>
         </div>
       </motion.div>
     </PageTransition>
