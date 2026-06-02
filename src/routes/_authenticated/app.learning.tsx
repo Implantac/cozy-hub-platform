@@ -31,13 +31,12 @@ function LearningPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <GraduationCap className="size-3 text-accent"/> Learning Paths
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight">Trilhas guiadas de crescimento</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Jornadas com milestones claros. Avance no seu ritmo.</p>
-        </header>
+        <PageHeader
+          icon={GraduationCap}
+          eyebrow="Learning Paths"
+          title="Trilhas guiadas de crescimento"
+          subtitle="Jornadas com milestones claros. Avance no seu ritmo."
+        />
 
         <div className="grid gap-4 lg:grid-cols-2">
           {(paths.data ?? []).map((p: any) => {
