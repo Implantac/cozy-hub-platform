@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Plus, Target } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
 import {
   createMission,
