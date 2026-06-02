@@ -249,6 +249,7 @@ function AppShell() {
 
             <div className="flex items-center gap-2">
               <button
+                data-tour="search"
                 onClick={() => setPaletteOpen(true)}
                 className="press hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 text-sm text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground hover:shadow-glow-sm sm:flex"
               >
@@ -259,7 +260,21 @@ function AppShell() {
               <div className="hidden sm:block">
                 <LanguageSwitcher compact />
               </div>
-              <NotificationDrawer workspaceId={currentWs?.id} />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setTourOpen(true)}
+                    className="press hidden size-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground sm:inline-flex"
+                    aria-label={t("tour.start", "Iniciar tour")}
+                  >
+                    <HelpCircle className="size-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t("tour.start", "Iniciar tour")}</TooltipContent>
+              </Tooltip>
+              <div data-tour="notifications">
+                <NotificationDrawer workspaceId={currentWs?.id} />
+              </div>
               <button className="press grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary/20 transition hover:shadow-glow">
                 {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
               </button>
