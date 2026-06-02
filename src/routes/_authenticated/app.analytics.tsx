@@ -15,6 +15,8 @@ import {
 } from "recharts";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { StatTile } from "@/components/app/StatTile";
+import { SectionCard } from "@/components/app/SectionCard";
 import { StatGridSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
 import { Link } from "@tanstack/react-router";
@@ -44,22 +46,25 @@ function AnalyticsPage() {
       <div className="space-y-6">
         <PageHeader
           icon={BarChart3}
-          title="Analytics"
-          subtitle="Aggregated metrics, trends and channel comparison."
+          eyebrow="Analytics"
+          title="Métricas, tendências e canais"
+          subtitle="Agregue impressões, alcance e engajamento ao longo do tempo e compare canais."
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="tablist" aria-label="Período">
           {([7, 30, 90] as const).map((d) => (
             <button
               key={d}
+              role="tab"
+              aria-selected={days === d}
               onClick={() => setDays(d)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-medium transition ${
+              className={`press rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                 days === d
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-card/40 text-muted-foreground hover:text-foreground"
+                  ? "border-primary/50 bg-primary/10 text-primary shadow-glow-sm"
+                  : "border-border/70 bg-card/40 text-muted-foreground hover:border-border hover:text-foreground"
               }`}
             >
-              Last {d} days
+              Últimos {d} dias
             </button>
           ))}
         </div>
@@ -75,7 +80,7 @@ function AnalyticsPage() {
             action={
               <Link
                 to="/app/content"
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                className="press inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
                 Criar conteúdo
               </Link>
@@ -84,14 +89,13 @@ function AnalyticsPage() {
         ) : (
           <>
             <div className="grid gap-3 md:grid-cols-4">
-              <Kpi icon={Eye} label="Impressions" value={data!.totals.impressions} />
-              <Kpi icon={Heart} label="Engagement" value={data!.totals.engagement} />
-              <Kpi icon={Users} label="Reach" value={data!.totals.reach} />
-              <Kpi icon={TrendingUp} label="Snapshots" value={data!.totals.posts} />
+              <StatTile icon={Eye} label="Impressões" value={data!.totals.impressions.toLocaleString()} />
+              <StatTile icon={Heart} label="Engajamento" value={data!.totals.engagement.toLocaleString()} />
+              <StatTile icon={Users} label="Alcance" value={data!.totals.reach.toLocaleString()} />
+              <StatTile icon={TrendingUp} label="Snapshots" value={data!.totals.posts.toLocaleString()} emphasis />
             </div>
 
-            <div className="rounded-2xl border border-border bg-card/60 p-5">
-              <h3 className="mb-3 text-sm font-semibold">Engagement trend</h3>
+            <SectionCard title="Tendência de engajamento" icon={TrendingUp}>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data!.daily}>
@@ -108,23 +112,24 @@ function AnalyticsPage() {
                       contentStyle={{
                         background: "var(--card)",
                         border: "1px solid var(--border)",
-                        borderRadius: 8,
+                        borderRadius: 12,
                         fontSize: 12,
+                        boxShadow: "var(--shadow-card)",
                       }}
                     />
                     <Area
                       type="monotone"
                       dataKey="engagement"
                       stroke="var(--primary)"
+                      strokeWidth={2}
                       fill="url(#g1)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </SectionCard>
 
-            <div className="rounded-2xl border border-border bg-card/60 p-5">
-              <h3 className="mb-3 text-sm font-semibold">Impressions by platform</h3>
+            <SectionCard title="Impressões por plataforma" icon={BarChart3}>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data!.byPlatform}>
@@ -135,40 +140,19 @@ function AnalyticsPage() {
                       contentStyle={{
                         background: "var(--card)",
                         border: "1px solid var(--border)",
-                        borderRadius: 8,
+                        borderRadius: 12,
                         fontSize: 12,
+                        boxShadow: "var(--shadow-card)",
                       }}
                     />
                     <Bar dataKey="impressions" fill="var(--primary)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </SectionCard>
           </>
         )}
       </div>
     </PageTransition>
-  );
-}
-
-function Kpi({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: number;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card/60 p-5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
-        <Icon className="size-4 text-muted-foreground" />
-      </div>
-      <div className="mt-2 text-2xl font-semibold tabular-nums">
-        {value.toLocaleString()}
-      </div>
-    </div>
   );
 }
