@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
   Brain, Sparkles, Check, X, Target, Flag, Star, Compass, Plus,
 } from "lucide-react";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageTransition, stagger } from "@/components/app/Motion";
 import { EmptyState } from "@/components/app/EmptyState";
 import { PageHeader } from "@/components/app/PageHeader";
 import { SectionCard } from "@/components/app/SectionCard";
