@@ -376,12 +376,12 @@ function GPSDashboard() {
             ];
             return cards.map((c) => (
               <motion.div key={c.to} variants={fadeUp}>
-                <Link to={c.to} className="group block rounded-2xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40 hover:shadow-soft">
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-muted-foreground">
+                <Link to={c.to} className="stat-tile group block">
+                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5"><c.icon className="size-3 text-accent" /> {c.label}</span>
                     <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />
                   </div>
-                  <div className="mt-2 text-xl font-semibold tabular-nums">{c.value}</div>
+                  <div className="mt-2 text-xl font-semibold tabular-nums tracking-tight">{c.value}</div>
                   <div className="text-[11px] text-muted-foreground">{c.hint}</div>
                   {c.pct !== null && (
                     <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary">
