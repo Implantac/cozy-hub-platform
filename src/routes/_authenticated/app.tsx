@@ -356,7 +356,7 @@ function SidebarBody({
 
       {/* WORKSPACE */}
       {collapsed ? (
-        <div className="flex justify-center pb-2">
+        <div data-tour="workspace" className="flex justify-center pb-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow">
