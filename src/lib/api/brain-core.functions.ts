@@ -22,9 +22,15 @@ export const brainSnapshot = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const snap = await buildSnapshot(supabase, data.workspaceId, userId);
 
+    // Brain-3: AI contextual insights (one Gateway call, best-effort).
+    const ctxForAI = await loadContext(supabase, data.workspaceId, userId);
+    const reportsForAI = runEngines(ctxForAI);
+    const ai = await runAIInsights(ctxForAI, reportsForAI, snap.scores);
+    const enrichedSnapshot = { ...snap.snapshot, ai };
+
     const { data: row, error } = await supabase.from("brain_snapshots").insert({
       workspace_id: snap.workspace_id,
-      snapshot: snap.snapshot as unknown as Json,
+      snapshot: enrichedSnapshot as unknown as Json,
       scores: snap.scores as unknown as Json,
       signals: snap.signals as unknown as Json,
     }).select().single();
