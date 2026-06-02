@@ -389,6 +389,7 @@ function SidebarBody({
                   <Link
                     key={item.to}
                     to={item.to}
+                    data-tour={TOUR_KEYS[item.to]}
                     className={cn(
                       "group relative flex items-center rounded-lg text-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
                       collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
