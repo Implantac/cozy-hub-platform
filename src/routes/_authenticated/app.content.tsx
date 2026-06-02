@@ -6,6 +6,7 @@ import { FileText, Plus, Search, Trash2, CheckSquare, Square } from "lucide-reac
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
 import {
   bulkDeleteContent,
