@@ -135,7 +135,7 @@ function BusinessValidatorTab() {
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Validações anteriores</h3>
         {!list.data || list.data.length === 0
-          ? <EmptyState text="Nenhuma validação ainda. Comece validando uma ideia acima." variant="dashed" />
+          ? <EmptyState variant="dashed" icon={Lightbulb} title="Nenhuma validação ainda" text="Use o formulário acima para validar sua primeira ideia com IA." />
           : list.data.map((v: any) => <ValidationCard key={v.id} v={v} />)}
       </div>
     </div>
