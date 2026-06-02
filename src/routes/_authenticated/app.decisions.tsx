@@ -8,7 +8,7 @@ import {
 import { DecisionOSService } from "@/lib/services";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { PageHeader } from "@/components/app/PageHeader";
-import { SectionCard } from "@/components/app/SectionCard";
+
 import { EmptyState } from "@/components/app/EmptyState";
 import { PageTransition } from "@/components/app/Motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
