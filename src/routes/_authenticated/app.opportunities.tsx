@@ -2,11 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Flame, ArrowUp, Minus, AlertCircle, TrendingDown, Brain } from "lucide-react";
+import { Flame, ArrowUp, Minus, AlertCircle, TrendingDown, Brain, Sparkles } from "lucide-react";
 import { OpportunitiesService, BrainCoreService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
-import { PageTransition, fadeUp, stagger, MotionCard } from "@/components/app/Motion";
+import { PageTransition, stagger, MotionCard } from "@/components/app/Motion";
 import { motion } from "framer-motion";
+import { PageHeader } from "@/components/app/PageHeader";
+import { EmptyState } from "@/components/app/EmptyState";
 
 export const Route = createFileRoute("/_authenticated/app/opportunities")({
   component: OpportunitiesPage,
@@ -45,22 +47,18 @@ function OpportunitiesPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <Brain className="size-3 text-accent"/> Opportunity Radar · ranqueado pelo USE Brain
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight">Oportunidades de mercado</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Nichos emergentes e tendências, ordenados pela compatibilidade com o seu perfil, canais e objetivos.
-          </p>
-        </header>
-
+        <PageHeader
+          icon={Sparkles}
+          eyebrow="Opportunity Radar · ranqueado pelo USE Brain"
+          title="Oportunidades de mercado"
+          subtitle="Nichos emergentes e tendências, ordenados pela compatibilidade com o seu perfil, canais e objetivos."
+        />
 
         <div className="flex flex-wrap gap-2">
           {STATUS.map(s => (
             <button key={s.label} onClick={() => setStatus(s.id)}
-              className={`rounded-full border px-4 py-1.5 text-sm transition ${
-                status === s.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              className={`rounded-full border px-4 py-1.5 text-sm transition hover-lift ${
+                status === s.id ? "border-primary bg-primary text-primary-foreground shadow-glow" : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
               }`}>{s.label}</button>
           ))}
         </div>
@@ -70,7 +68,7 @@ function OpportunitiesPage() {
             const meta = STATUS_META[o.status];
             const Icon = meta.icon;
             return (
-              <MotionCard key={o.id} className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40">
+              <MotionCard key={o.id} className="section-card hover-lift group relative overflow-hidden p-5">
                 <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-2xl opacity-0 transition group-hover:opacity-100"/>
                 <div className="relative space-y-3">
                   <div className="flex items-start justify-between gap-2">
@@ -94,14 +92,14 @@ function OpportunitiesPage() {
                   </div>
                   {o.niche && <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{o.niche}</span>}
                   <h3 className="text-lg font-medium leading-snug">{o.title}</h3>
-                  {o.description && <p className="text-sm text-muted-foreground">{o.description}</p>}
+                  {o.description && <p className="text-sm leading-relaxed text-muted-foreground">{o.description}</p>}
                   <div className="grid grid-cols-3 gap-2 pt-2">
                     <Metric label="Dificuldade" value={o.difficulty}/>
                     <Metric label="Competição" value={o.competition}/>
                     <Metric label="Potencial" value={o.growth_potential}/>
                   </div>
                   {Array.isArray(o.actions) && o.actions.length > 0 && (
-                    <ul className="space-y-1 border-t border-border pt-3">
+                    <ul className="space-y-1 border-t border-border/60 pt-3">
                       {o.actions.map((a: any, i: number) => (
                         <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="size-1 rounded-full bg-primary"/> {a.label}
@@ -116,9 +114,11 @@ function OpportunitiesPage() {
         </motion.div>
 
         {q.data && q.data.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border bg-card/30 py-12 text-center text-sm text-muted-foreground">
-            Nenhuma oportunidade nesse filtro.
-          </div>
+          <EmptyState
+            icon={Sparkles}
+            title="Nenhuma oportunidade nesse filtro"
+            text="Ajuste o filtro acima para explorar outros nichos e tendências."
+          />
         )}
       </motion.div>
     </PageTransition>

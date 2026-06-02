@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { ListSkeleton } from "@/components/app/Skeletons";
+import { PageHeader } from "@/components/app/PageHeader";
+import { EmptyState } from "@/components/app/EmptyState";
 import { BuilderService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
@@ -58,33 +60,30 @@ function CompetitorRadarPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-              <RadarIcon className="size-3 text-accent" /> Radar · inteligência competitiva
-            </div>
-            <h1 className="text-4xl font-semibold tracking-tight">Concorrentes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Quem está no seu radar, o que estão fazendo, onde você pode ganhar.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-lg border border-border bg-card/60 p-0.5">
-              <button onClick={() => setView("list")}
-                className={`rounded-md px-3 py-1.5 text-xs transition ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                Lista
+        <PageHeader
+          icon={RadarIcon}
+          eyebrow="Radar · inteligência competitiva"
+          title="Concorrentes"
+          subtitle="Quem está no seu radar, o que estão fazendo, onde você pode ganhar."
+          action={
+            <>
+              <div className="inline-flex rounded-lg border border-border bg-card/60 p-0.5">
+                <button onClick={() => setView("list")}
+                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                  Lista
+                </button>
+                <button onClick={() => setView("matrix")}
+                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "matrix" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                  Matriz
+                </button>
+              </div>
+              <button onClick={() => setOpen(true)}
+                className="hover-lift inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
+                <Plus className="size-4" /> Adicionar
               </button>
-              <button onClick={() => setView("matrix")}
-                className={`rounded-md px-3 py-1.5 text-xs transition ${view === "matrix" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                Matriz
-              </button>
-            </div>
-            <button onClick={() => setOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
-              <Plus className="size-4" /> Adicionar
-            </button>
-          </div>
-        </motion.header>
+            </>
+          }
+        />
 
         {q.isLoading ? (
           <Loading />
@@ -114,7 +113,7 @@ function CompetitorRow({ c, onRemove }: { c: Competitor; onRemove: () => void })
 
   return (
     <motion.div variants={fadeUp}
-      className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40">
+      className="section-card hover-lift p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -178,7 +177,7 @@ function ThreatMatrix({ items }: { items: Competitor[] }) {
   const maxE = Math.max(1, ...items.map((i) => i.engagement));
   return (
     <motion.div variants={fadeUp}
-      className="relative h-[420px] rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+      className="section-card relative h-[420px] p-6">
       <div className="absolute left-3 top-3 text-[10px] uppercase tracking-wider text-muted-foreground">↑ Engajamento</div>
       <div className="absolute bottom-3 right-3 text-[10px] uppercase tracking-wider text-muted-foreground">Audiência →</div>
       <div className="absolute inset-12">
@@ -274,12 +273,16 @@ function Loading() {
 
 function Empty({ onAdd }: { onAdd: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-      <RadarIcon className="mx-auto size-6 text-muted-foreground" />
-      <p className="mt-3 text-sm text-muted-foreground">Nenhum concorrente no radar ainda.</p>
-      <button onClick={onAdd} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow">
-        <Plus className="size-4" /> Adicionar o primeiro
-      </button>
-    </div>
+    <EmptyState
+      variant="card"
+      icon={RadarIcon}
+      title="Radar vazio"
+      text="Adicione concorrentes para acompanhar movimentos, gaps e oportunidades."
+      action={
+        <button onClick={onAdd} className="hover-lift inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow">
+          <Plus className="size-4" /> Adicionar o primeiro
+        </button>
+      }
+    />
   );
 }

@@ -6,8 +6,10 @@ import { motion } from "framer-motion";
 import {
   Brain, Sparkles, Check, X, Target, Flag, Star, Compass, Plus,
 } from "lucide-react";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageTransition, stagger } from "@/components/app/Motion";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageHeader } from "@/components/app/PageHeader";
+import { SectionCard } from "@/components/app/SectionCard";
 import {
   addMemory,
   listMemories,
@@ -91,35 +93,31 @@ function BrainPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-              <Brain className="size-3 text-accent" /> Cognitive layer · memória + regras
-            </div>
-            <h1 className="text-3xl font-semibold tracking-tight">USE Brain Lab</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Camada cognitiva nativa — memória, sinais e recomendações que aprendem com sua operação.
-            </p>
-          </div>
-          <button
-            onClick={() => runMut.mutate()}
-            disabled={runMut.isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
-          >
-            <Sparkles className={`size-4 ${runMut.isPending ? "animate-pulse" : ""}`} />
-            {runMut.isPending ? "Pensando..." : "Executar Brain"}
-          </button>
-        </motion.header>
+        <PageHeader
+          icon={Brain}
+          eyebrow="Cognitive layer · memória + regras"
+          title="USE Brain Lab"
+          subtitle="Camada cognitiva nativa — memória, sinais e recomendações que aprendem com sua operação."
+          action={
+            <button
+              onClick={() => runMut.mutate()}
+              disabled={runMut.isPending}
+              className="hover-lift inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
+            >
+              <Sparkles className={`size-4 ${runMut.isPending ? "animate-pulse" : ""}`} />
+              {runMut.isPending ? "Pensando..." : "Executar Brain"}
+            </button>
+          }
+        />
 
         <div className="grid gap-4 lg:grid-cols-5">
           {/* Recommendations */}
-          <motion.section variants={fadeUp} className="lg:col-span-3 rounded-2xl border border-border bg-card/60 p-5 backdrop-blur">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Sparkles className="size-4 text-accent" /> Recomendações ativas
-              </div>
-              <span className="text-xs text-muted-foreground">{recs.filter(r => r.status === "open").length} abertas</span>
-            </div>
+          <SectionCard
+            className="lg:col-span-3"
+            icon={Sparkles}
+            title="Recomendações ativas"
+            action={<span className="text-xs text-muted-foreground">{recs.filter(r => r.status === "open").length} abertas</span>}
+          >
 
             {recs.length === 0 ? (
               <EmptyState
@@ -170,13 +168,14 @@ function BrainPage() {
                 ))}
               </ul>
             )}
-          </motion.section>
+          </SectionCard>
 
           {/* Memory layer */}
-          <motion.section variants={fadeUp} className="lg:col-span-2 rounded-2xl border border-border bg-card/60 p-5 backdrop-blur">
-            <div className="mb-4 flex items-center gap-2 text-sm font-medium">
-              <Brain className="size-4 text-accent" /> Camada de memória
-            </div>
+          <SectionCard
+            className="lg:col-span-2"
+            icon={Brain}
+            title="Camada de memória"
+          >
 
             <form
               onSubmit={(e) => {
@@ -246,7 +245,7 @@ function BrainPage() {
                 })}
               </ul>
             )}
-          </motion.section>
+          </SectionCard>
         </div>
       </motion.div>
     </PageTransition>
