@@ -5,6 +5,7 @@ import { GraduationCap, Check } from "lucide-react";
 import { toast } from "sonner";
 import { LearningService } from "@/lib/services";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/learning")({
