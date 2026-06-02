@@ -147,7 +147,7 @@ function ContentPage() {
         />
 
         {/* Composer */}
-        <div className="rounded-2xl border border-border bg-card/60 p-5">
+        <div className="section-card p-5">
           <form
             onSubmit={(e) => {
               e.preventDefault();
