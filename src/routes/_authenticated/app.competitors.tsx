@@ -7,6 +7,7 @@ import {
   RadarIcon, TrendingUp, TrendingDown, Minus, Eye, Lightbulb, Plus, Trash2, X,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { BuilderService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
@@ -268,7 +269,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Loading() {
-  return <div className="flex h-40 items-center justify-center text-sm text-muted-foreground"><span className="size-2 animate-pulse rounded-full bg-primary mr-2" /> Carregando…</div>;
+  return <ListSkeleton rows={4} />;
 }
 
 function Empty({ onAdd }: { onAdd: () => void }) {

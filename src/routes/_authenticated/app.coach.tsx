@@ -9,6 +9,7 @@ import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspa
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/coach")({
@@ -161,11 +162,10 @@ function CoachPage() {
             </span>
           </div>
 
-          {tl.isLoading && (
-            <div className="rounded-2xl border border-border bg-card/40 p-6 text-sm text-muted-foreground">
-              Carregando memória...
-            </div>
-          )}
+          {tl.isLoading && <ListSkeleton rows={4} />}
+
+
+
 
           {!tl.isLoading && (tl.data ?? []).length === 0 && (
             <div className="rounded-2xl border border-dashed border-border bg-card/30 py-10 text-center text-sm text-muted-foreground">
