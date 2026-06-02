@@ -2,11 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Flame, ArrowUp, Minus, AlertCircle, TrendingDown, Brain } from "lucide-react";
+import { Flame, ArrowUp, Minus, AlertCircle, TrendingDown, Brain, Sparkles } from "lucide-react";
 import { OpportunitiesService, BrainCoreService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
-import { PageTransition, fadeUp, stagger, MotionCard } from "@/components/app/Motion";
+import { PageTransition, stagger, MotionCard } from "@/components/app/Motion";
 import { motion } from "framer-motion";
+import { PageHeader } from "@/components/app/PageHeader";
+import { EmptyState } from "@/components/app/EmptyState";
 
 export const Route = createFileRoute("/_authenticated/app/opportunities")({
   component: OpportunitiesPage,
