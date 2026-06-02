@@ -487,7 +487,7 @@ function DecisionsPanel() {
               </div>
             );
           })}
-          {(decQ.data ?? []).length === 0 && <EmptyState text="Nenhuma decisão registrada." />}
+          {(decQ.data ?? []).length === 0 && <EmptyState variant="dashed" icon={Scale} title="Nenhuma decisão registrada" text="Use o registro de decisões para documentar contexto, opções consideradas e resultado esperado." />}
         </div>
       </div>
     </div>
