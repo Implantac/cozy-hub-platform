@@ -155,7 +155,7 @@ function SchedulerPage() {
             }
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-border bg-card/60">
+          <div className="section-card overflow-hidden p-0">
             <table className="w-full text-sm">
               <thead className="border-b border-border bg-background/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
@@ -172,7 +172,7 @@ function SchedulerPage() {
                   const meta = STATUS_META[j.status as JobStatus];
                   const Icon = meta?.icon ?? Clock;
                   return (
-                    <tr key={j.id} className="hover:bg-background/40">
+                    <tr key={j.id} className="transition-colors hover:bg-background/40">
                       <td className="px-4 py-3">
                         <div className="font-medium">{j.content?.title || "Untitled"}</div>
                         <div className="text-xs text-muted-foreground">{j.content?.type ?? "—"}</div>
