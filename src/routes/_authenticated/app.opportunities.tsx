@@ -117,7 +117,7 @@ function OpportunitiesPage() {
           <EmptyState
             icon={Sparkles}
             title="Nenhuma oportunidade nesse filtro"
-            description="Ajuste o filtro acima para explorar outros nichos e tendências."
+            text="Ajuste o filtro acima para explorar outros nichos e tendências."
           />
         )}
       </motion.div>
