@@ -440,12 +440,12 @@ function KpiCard({
   icon: Icon, label, value, hint, to,
 }: { icon: LucideIcon; label: string; value: string | number; hint?: string; to?: string }) {
   const body = (
-    <MotionCard className="relative overflow-hidden rounded-xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40">
+    <MotionCard className="stat-tile group relative block">
       <div className="flex items-center justify-between">
-        <Icon className="size-4 text-accent" />
-        {to && <ArrowUpRight className="size-3 text-muted-foreground" />}
+        <Icon className="size-4 text-accent transition-colors group-hover:text-primary" />
+        {to && <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />}
       </div>
-      <div className="mt-2 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-2 text-2xl font-semibold tabular-nums tracking-tight">{value}</div>
       <div className="text-[11px] text-muted-foreground">{label}{hint ? ` · ${hint}` : ""}</div>
     </MotionCard>
   );
@@ -459,11 +459,11 @@ function Panel({
   children: React.ReactNode; className?: string;
 }) {
   return (
-    <motion.div variants={fadeUp} className={`rounded-2xl border border-border bg-card/60 p-5 backdrop-blur ${className}`}>
-      <div className="mb-4 flex items-center justify-between">
+    <motion.div variants={fadeUp} className={`section-card p-5 md:p-6 ${className}`}>
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Icon className="size-4 text-accent" />
-          {title}
+          <span className="tracking-tight">{title}</span>
         </div>
         {action}
       </div>
@@ -474,7 +474,7 @@ function Panel({
 
 function LinkAction({ to, label }: { to: string; label: string }) {
   return (
-    <Link to={to} className="inline-flex items-center gap-1 text-xs text-primary transition hover:underline">
+    <Link to={to} className="link-underline inline-flex items-center gap-1 text-xs text-primary">
       {label} <ArrowUpRight className="size-3" />
     </Link>
   );
@@ -495,7 +495,7 @@ function StatusPill({ status }: { status: string }) {
 
 function Empty({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-border/70 bg-card/20 px-4 py-6 text-center text-sm leading-relaxed text-muted-foreground">
       {text}
     </div>
   );
