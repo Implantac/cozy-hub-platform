@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingBag, Package, Globe, Truck, CheckCircle, Lock } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/commerce")({
