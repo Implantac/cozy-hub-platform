@@ -63,15 +63,12 @@ function SkillMapPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp}>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <Brain className="size-3 text-accent" /> Skill Map · capacidades do operador
-          </div>
-          <h1 className="text-4xl font-semibold tracking-tight">Suas habilidades</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Avalie de 0 a 100 em cada área. O Brain usa isso pra recomendar o próximo passo.
-          </p>
-        </motion.header>
+        <PageHeader
+          icon={Brain}
+          eyebrow="Skill Map · capacidades do operador"
+          title="Suas habilidades"
+          subtitle="Avalie de 0 a 100 em cada área. O Brain usa isso pra recomendar o próximo passo."
+        />
 
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-3">
           <Stat label="Dominadas" value={mastered} icon={CheckCircle2} />
