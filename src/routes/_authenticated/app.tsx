@@ -367,7 +367,9 @@ function SidebarBody({
           </Tooltip>
         </div>
       ) : (
-        <WorkspaceSwitcher workspaces={workspaces} current={currentWs} onSelect={onSelectWs} onCreate={onCreateWs} />
+        <div data-tour="workspace">
+          <WorkspaceSwitcher workspaces={workspaces} current={currentWs} onSelect={onSelectWs} onCreate={onCreateWs} />
+        </div>
       )}
 
       {/* NAV */}
