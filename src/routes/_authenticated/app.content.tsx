@@ -288,14 +288,41 @@ function ContentPage() {
               </div>
             );
           })}
-          {filtered.length === 0 && (
-            <EmptyState
-              text={
-                items.length === 0
-                  ? "No content yet. Create your first draft above."
-                  : "Nothing matches your filters."
-              }
-            />
+          {q.isLoading && <ListSkeleton rows={4} />}
+          {!q.isLoading && filtered.length === 0 && (
+            items.length === 0 ? (
+              <EmptyState
+                variant="card"
+                icon={FileText}
+                title="Sem conteúdo ainda"
+                text="Crie seu primeiro rascunho acima. O scheduler vai publicar nos canais conectados quando estiver pronto."
+                action={
+                  <button
+                    onClick={() => {
+                      document.querySelector<HTMLInputElement>('input[placeholder*="title"], input[placeholder*="Title"]')?.focus();
+                    }}
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                  >
+                    <Plus className="size-4" /> Criar primeiro rascunho
+                  </button>
+                }
+              />
+            ) : (
+              <EmptyState
+                variant="dashed"
+                icon={Search}
+                title="Nada encontrado"
+                text="Nenhum conteúdo bate com seus filtros atuais."
+                action={
+                  <button
+                    onClick={() => { setFilter("all"); setSearch(""); }}
+                    className="inline-flex items-center gap-2 rounded-md bg-secondary px-4 py-2 text-sm font-medium hover:bg-secondary/80"
+                  >
+                    Limpar filtros
+                  </button>
+                }
+              />
+            )
           )}
         </div>
       </div>
