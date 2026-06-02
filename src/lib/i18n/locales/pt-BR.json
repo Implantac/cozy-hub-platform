@@ -1,7 +1,7 @@
 {
   "common": {
     "loading": "Carregando...",
-    "booting": "Inicializando Digital OS...",
+    "booting": "Inicializando VELT...",
     "signIn": "Entrar",
     "signOut": "Sair",
     "getStarted": "Começar",
@@ -43,7 +43,7 @@
     "noAccount": "Não tem conta?",
     "createOne": "Crie uma",
     "alreadyOnboard": "Já está a bordo?",
-    "accountCreated": "Conta criada. Bem-vindo ao Digital OS.",
+    "accountCreated": "Conta criada. Bem-vindo ao VELT.",
     "googleFailed": "Falha no login com Google"
   },
   "nav": {
@@ -103,7 +103,7 @@
     "next": "Continuar",
     "finish": "Concluir",
     "done": "Bem-vindo a bordo!",
-    "s1": { "title": "Bem-vindo ao USE OS", "desc": "Seu sistema operacional para crescimento digital." },
+    "s1": { "title": "Bem-vindo ao VELT", "desc": "Seu sistema operacional para crescimento digital." },
     "s2": { "title": "Seu perfil", "desc": "Como devemos te chamar?", "label": "Nome de exibição" },
     "s3": { "title": "Primeira marca", "desc": "Crie sua primeira marca para começar.", "label": "Nome da marca" },
     "s4": { "title": "Pronto!", "desc": "Tudo configurado. Vamos operar.", "body": "Pronto para conectar canais, criar conteúdo e deixar o Brain trabalhar pra você." },
@@ -156,9 +156,9 @@
     }
   },
   "errors": {
-    "interrupted": "Algo interrompeu o Digital OS",
+    "interrupted": "Algo interrompeu o VELT",
     "unknown": "Erro desconhecido",
     "notFoundTitle": "Página não encontrada",
-    "notFoundDesc": "Esta rota não existe no seu Digital OS."
+    "notFoundDesc": "Esta rota não existe no seu VELT."
   }
 }

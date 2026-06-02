@@ -4,7 +4,7 @@ import ptBR from "./locales/pt-BR.json";
 import enUS from "./locales/en-US.json";
 
 /**
- * USE OS — Internationalization layer
+ * VELT — Internationalization layer
  *
  * Architecture:
  *  - pt-BR is the default and product-authoring language.

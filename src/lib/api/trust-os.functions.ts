@@ -1,5 +1,5 @@
 /**
- * USE OS — Trust OS (Phase 2)
+ * VELT — Trust OS (Phase 2)
  * Trust Analyzer: analyzes IG/YT/sites/courses/suppliers for risk signals.
  * Before You Buy: structured pre-purchase workflow with AI-driven sections.
  * Both persist to `due_diligence_reports` (extending `checks` JSON).

@@ -9,7 +9,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Digital OS — AI-native operating system for your digital presence" },
+      { title: "VELT — AI-native operating system for your digital presence" },
       { name: "description", content: "Launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn." },
     ],
   }),
@@ -55,7 +55,7 @@ function Landing() {
           <div className="grid size-9 place-items-center rounded-xl bg-gradient-brand shadow-glow">
             <Brain className="size-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">Digital OS</span>
+          <span className="text-lg font-semibold tracking-tight">VELT</span>
         </div>
         <nav className="flex items-center gap-2 text-sm">
           <div className="hidden sm:block"><LanguageSwitcher compact /></div>
@@ -189,7 +189,7 @@ function Landing() {
       </main>
 
       <footer className="border-t border-border/70 py-8 text-center text-xs text-muted-foreground">
-        Digital OS · {new Date().getFullYear()}
+        VELT · {new Date().getFullYear()}
       </footer>
     </div>
   );

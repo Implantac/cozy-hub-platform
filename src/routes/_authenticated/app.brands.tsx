@@ -98,7 +98,7 @@ function BrandsPage() {
           variant="card"
           icon={Palette}
           title="Nenhuma marca ainda"
-          text="Crie sua primeira marca para definir voz, paleta e canais. É a base da operação no USE OS."
+          text="Crie sua primeira marca para definir voz, paleta e canais. É a base da operação no VELT."
           action={
             <Button
               size="sm"

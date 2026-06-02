@@ -93,7 +93,7 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
       recs.push({
         kind: "setup.brand",
         title: "Create your first brand",
-        rationale: "A brand defines voice, palette and channels — the cornerstone of Digital OS.",
+        rationale: "A brand defines voice, palette and channels — the cornerstone of VELT.",
         score: 0.95,
         payload: { action: "create_brand" },
       });

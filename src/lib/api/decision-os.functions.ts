@@ -1,5 +1,5 @@
 /**
- * USE OS — Decision OS (Phase 1)
+ * VELT — Decision OS (Phase 1)
  * Server functions for: Business Validator + Reality Check.
  * Both use Lovable AI Gateway with structured tool calling.
  */
