@@ -68,7 +68,7 @@ function OpportunitiesPage() {
             const meta = STATUS_META[o.status];
             const Icon = meta.icon;
             return (
-              <MotionCard key={o.id} className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40">
+              <MotionCard key={o.id} className="section-card hover-lift group relative overflow-hidden p-5">
                 <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-2xl opacity-0 transition group-hover:opacity-100"/>
                 <div className="relative space-y-3">
                   <div className="flex items-start justify-between gap-2">
@@ -92,14 +92,14 @@ function OpportunitiesPage() {
                   </div>
                   {o.niche && <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{o.niche}</span>}
                   <h3 className="text-lg font-medium leading-snug">{o.title}</h3>
-                  {o.description && <p className="text-sm text-muted-foreground">{o.description}</p>}
+                  {o.description && <p className="text-sm leading-relaxed text-muted-foreground">{o.description}</p>}
                   <div className="grid grid-cols-3 gap-2 pt-2">
                     <Metric label="Dificuldade" value={o.difficulty}/>
                     <Metric label="Competição" value={o.competition}/>
                     <Metric label="Potencial" value={o.growth_potential}/>
                   </div>
                   {Array.isArray(o.actions) && o.actions.length > 0 && (
-                    <ul className="space-y-1 border-t border-border pt-3">
+                    <ul className="space-y-1 border-t border-border/60 pt-3">
                       {o.actions.map((a: any, i: number) => (
                         <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="size-1 rounded-full bg-primary"/> {a.label}
@@ -114,9 +114,11 @@ function OpportunitiesPage() {
         </motion.div>
 
         {q.data && q.data.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border bg-card/30 py-12 text-center text-sm text-muted-foreground">
-            Nenhuma oportunidade nesse filtro.
-          </div>
+          <EmptyState
+            icon={Sparkles}
+            title="Nenhuma oportunidade nesse filtro"
+            description="Ajuste o filtro acima para explorar outros nichos e tendências."
+          />
         )}
       </motion.div>
     </PageTransition>
