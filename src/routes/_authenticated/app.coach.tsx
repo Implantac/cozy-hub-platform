@@ -9,7 +9,9 @@ import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspa
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { ListSkeleton } from "@/components/app/Skeletons";
+import { EmptyState } from "@/components/app/EmptyState";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/coach")({
@@ -85,25 +87,22 @@ function CoachPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-8">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-              <Brain className="size-3 text-accent"/> USE Brain · Growth Coach
-            </div>
-            <h1 className="text-3xl font-semibold tracking-tight">Recomendações para crescer</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Insights e próximas ações personalizadas pelo Brain a partir da sua operação e da sua jornada.
-            </p>
-          </div>
-          <button
-            onClick={onGenerate}
-            disabled={gen.isPending || !wsId}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
-          >
-            <Sparkles className={`size-4 ${gen.isPending ? "animate-pulse" : ""}`}/>
-            {gen.isPending ? "Analisando..." : "Gerar recomendações"}
-          </button>
-        </header>
+        <PageHeader
+          icon={Brain}
+          eyebrow="USE Brain · Growth Coach"
+          title="Recomendações para crescer"
+          subtitle="Insights e próximas ações personalizadas pelo Brain a partir da sua operação e da sua jornada."
+          actions={
+            <button
+              onClick={onGenerate}
+              disabled={gen.isPending || !wsId}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
+            >
+              <Sparkles className={`size-4 ${gen.isPending ? "animate-pulse" : ""}`}/>
+              {gen.isPending ? "Analisando..." : "Gerar recomendações"}
+            </button>
+          }
+        />
 
         <motion.div variants={stagger} className="grid gap-3">
           {(q.data ?? []).map((r: any) => {
@@ -111,7 +110,7 @@ function CoachPage() {
             const Icon = meta.icon;
             return (
               <motion.div key={r.id} variants={fadeUp}
-                className="group flex items-start gap-4 rounded-2xl border border-border bg-card/60 p-5 backdrop-blur transition hover:border-primary/40">
+                className="section-card hover-lift group flex items-start gap-4 p-5">
                 <div className={`grid size-10 shrink-0 place-items-center rounded-xl bg-background/60 ${meta.color}`}>
                   <Icon className="size-5"/>
                 </div>
