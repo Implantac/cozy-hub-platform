@@ -17,15 +17,23 @@ type Step = {
 
 type Rect = { top: number; left: number; width: number; height: number };
 
+const TOUR_KEY = "use-os:product-tour-completed";
+
+export function hasSeenTour() {
+  if (typeof window === "undefined") return false;
+  try { return window.localStorage.getItem(TOUR_KEY) === "1"; } catch { return false; }
+}
+
+export function resetTour() {
+  try { window.localStorage.removeItem(TOUR_KEY); } catch {}
+}
+
 export function ProductTour({
   open,
   onClose,
-  onFinish,
 }: {
   open: boolean;
   onClose: () => void;
-  /** Called once when the user completes or skips the tour. Use to persist completion. */
-  onFinish?: () => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
