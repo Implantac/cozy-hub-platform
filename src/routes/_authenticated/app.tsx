@@ -364,18 +364,6 @@ function AppShell() {
 
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} onShowShortcuts={() => setShortcutsOpen(true)} />
         <KeyboardShortcuts open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
-          </header>
-
-
-          <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 animate-rise-in">
-              {currentWs ? <Outlet /> : <div className="text-muted-foreground">{t("common.noWorkspace")}</div>}
-            </div>
-          </main>
-        </div>
-
-
-        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
         {needsOnboarding && currentWs && (
           <OnboardingWizard
             open
