@@ -174,6 +174,15 @@ function AppShell() {
   const crumb = findBreadcrumb(path, t);
   const needsOnboarding = profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
 
+  // Auto-launch product tour once after onboarding is complete.
+  useEffect(() => {
+    if (!profileQuery.data?.onboarding_completed) return;
+    if (typeof window === "undefined") return;
+    if (hasSeenTour()) return;
+    const id = window.setTimeout(() => setTourOpen(true), 600);
+    return () => window.clearTimeout(id);
+  }, [profileQuery.data?.onboarding_completed]);
+
   const sidebarBody = (
     <SidebarBody
       path={path}
