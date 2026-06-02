@@ -29,7 +29,7 @@ function CommercePage() {
         <div className="grid gap-4 md:grid-cols-2">
           {SECTIONS.map(s => (
             <motion.div key={s.title} variants={fadeUp}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+              className="section-card hover-lift group relative overflow-hidden p-6">
               <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/15 to-transparent blur-2xl"/>
               <div className="relative flex items-start gap-4">
                 <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
