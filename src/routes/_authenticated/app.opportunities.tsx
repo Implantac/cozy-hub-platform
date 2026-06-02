@@ -47,22 +47,18 @@ function OpportunitiesPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <Brain className="size-3 text-accent"/> Opportunity Radar · ranqueado pelo USE Brain
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight">Oportunidades de mercado</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Nichos emergentes e tendências, ordenados pela compatibilidade com o seu perfil, canais e objetivos.
-          </p>
-        </header>
-
+        <PageHeader
+          icon={Sparkles}
+          eyebrow="Opportunity Radar · ranqueado pelo USE Brain"
+          title="Oportunidades de mercado"
+          subtitle="Nichos emergentes e tendências, ordenados pela compatibilidade com o seu perfil, canais e objetivos."
+        />
 
         <div className="flex flex-wrap gap-2">
           {STATUS.map(s => (
             <button key={s.label} onClick={() => setStatus(s.id)}
-              className={`rounded-full border px-4 py-1.5 text-sm transition ${
-                status === s.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              className={`rounded-full border px-4 py-1.5 text-sm transition hover-lift ${
+                status === s.id ? "border-primary bg-primary text-primary-foreground shadow-glow" : "border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
               }`}>{s.label}</button>
           ))}
         </div>
