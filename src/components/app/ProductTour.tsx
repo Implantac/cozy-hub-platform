@@ -139,8 +139,8 @@ export function ProductTour({
   }, [open, steps.length]);
 
   const finish = () => {
-    if (typeof window !== "undefined") window.localStorage.setItem(TOUR_KEY, "1");
     setStep(0);
+    onFinish?.();
     onClose();
   };
 
