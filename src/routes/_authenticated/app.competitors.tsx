@@ -268,7 +268,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Loading() {
-  return <div className="flex h-40 items-center justify-center text-sm text-muted-foreground"><span className="size-2 animate-pulse rounded-full bg-primary mr-2" /> Carregando…</div>;
+  return <ListSkeleton rows={4} />;
 }
 
 function Empty({ onAdd }: { onAdd: () => void }) {
