@@ -9,6 +9,7 @@ import type { Json } from "./_types";
 import {
   loadContext, runEngines, computeScores, buildSnapshot, answerQuestion, aggregateSignals, aggregateActions,
 } from "@/lib/brain/brain";
+import { runAIInsights } from "@/lib/brain/ai-insights.server";
 import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
