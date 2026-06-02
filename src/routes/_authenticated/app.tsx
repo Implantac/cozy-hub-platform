@@ -304,10 +304,6 @@ function AppShell() {
         <ProductTour
           open={tourOpen}
           onClose={() => setTourOpen(false)}
-          onFinish={() => {
-            finishTour({}).catch(() => {});
-            profileQuery.refetch();
-          }}
         />
       </div>
     </TooltipProvider>
