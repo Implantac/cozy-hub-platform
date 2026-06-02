@@ -161,11 +161,11 @@ function Mini({ label, value }: { label: string; value: string | number }) {
 
 function Empty() {
   return (
-    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-      <Activity className="mx-auto size-6 text-muted-foreground" />
-      <p className="mt-3 text-sm text-muted-foreground">
-        Sem histórico ainda. Comece registrando decisões e experimentos — a timeline se constrói sozinha.
-      </p>
-    </div>
+    <EmptyState
+      variant="dashed"
+      icon={Activity}
+      title="Sem histórico ainda"
+      text="Comece registrando decisões e experimentos — a timeline se constrói sozinha."
+    />
   );
 }
