@@ -95,9 +95,7 @@ function JourneyPage() {
 
         {/* Timeline */}
         {q.isLoading ? (
-          <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-            <span className="size-2 animate-pulse rounded-full bg-primary" /> Reconstruindo timeline…
-          </div>
+          <ListSkeleton rows={4} />
         ) : periods.length === 0 ? (
           <Empty />
         ) : (
