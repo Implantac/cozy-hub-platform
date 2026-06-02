@@ -57,7 +57,7 @@ function JourneyPage() {
 
         {/* Mentor verdict */}
         {mentor && (
-          <motion.section variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+          <motion.section variants={fadeUp} className="section-card p-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Veredicto do mentor</div>
@@ -120,7 +120,7 @@ function PeriodRow({ period: p }: { period: Period }) {
       <div className="relative z-10 grid size-8 shrink-0 place-items-center rounded-full bg-primary/15 text-primary ring-2 ring-primary/30">
         <TIcon className="size-3.5" />
       </div>
-      <div className="min-w-0 flex-1 rounded-xl border border-border bg-card/60 p-4 backdrop-blur">
+      <div className="min-w-0 flex-1 section-card hover-lift p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold">{p.key}</div>
           <div className="flex flex-wrap gap-1.5">
