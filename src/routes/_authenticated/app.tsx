@@ -121,11 +121,22 @@ function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  // Hydrate collapsed state from localStorage (client-only).
+  // Hydrate collapsed state from localStorage (client-only) + listen for palette toggle.
   useEffect(() => {
     if (typeof window === "undefined") return;
     setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === "1");
+    const onToggle = () => {
+      setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === "1");
+    };
+    const onTourStart = () => setTourOpen(true);
+    window.addEventListener("digitalos:sidebar-toggle", onToggle);
+    window.addEventListener("digitalos:tour-start", onTourStart);
+    return () => {
+      window.removeEventListener("digitalos:sidebar-toggle", onToggle);
+      window.removeEventListener("digitalos:tour-start", onTourStart);
+    };
   }, []);
   const toggleCollapsed = () => {
     setCollapsed((c) => {
@@ -134,6 +145,20 @@ function AppShell() {
       return next;
     });
   };
+
+  // Global "?" shortcut to open keyboard shortcuts dialog.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+      if (!isTyping && e.key === "?") {
+        e.preventDefault();
+        setShortcutsOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // Close mobile drawer on route change.
   useEffect(() => { setMobileOpen(false); }, [path]);
