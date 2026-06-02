@@ -116,20 +116,22 @@ function GPSDashboard() {
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
         {/* Header */}
         <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+          <div className="min-w-0">
+            <div className="eyebrow-chip mb-2">
               <Compass className="size-3 text-accent" />
               Business GPS · cockpit operacional
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight">USE Brain</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-balance text-[30px] font-semibold leading-tight tracking-tight md:text-[36px]">
+              USE Brain
+            </h1>
+            <p className="mt-1.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
               O cérebro do seu negócio digital — sempre respondendo as 5 perguntas que importam.
             </p>
           </div>
           <button
             onClick={() => refreshAll.mutate()}
             disabled={refreshAll.isPending}
-            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
+            className="press group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
           >
             <Brain className={`size-4 transition group-hover:rotate-12 ${refreshAll.isPending ? "animate-pulse" : ""}`} />
             {refreshAll.isPending ? "Pensando..." : "Pensar de novo"}
@@ -149,16 +151,16 @@ function GPSDashboard() {
             const Icon = card.icon;
             return (
               <motion.div key={card.q} variants={fadeUp}
-                className="relative overflow-hidden rounded-2xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40">
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                className="section-card hover-lift relative overflow-hidden p-4 transition hover:border-primary/40">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                   <Icon className="size-3 text-accent" /> {card.label}
                 </div>
-                <div className="mt-2 text-sm font-semibold leading-snug">
+                <div className="mt-2 text-sm font-semibold leading-snug text-balance">
                   {a?.headline ?? (brain.isLoading ? "Analisando..." : "—")}
                 </div>
-                {a?.body && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{a.body}</p>}
+                {a?.body && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{a.body}</p>}
                 {a?.cta && (
-                  <Link to={a.cta.href} className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
+                  <Link to={a.cta.href} className="link-underline mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
                     {a.cta.label} <ArrowUpRight className="size-3" />
                   </Link>
                 )}
@@ -171,6 +173,7 @@ function GPSDashboard() {
             );
           })}
         </motion.section>
+
 
 
         {/* Top row — Score + Health summary + Goal */}
