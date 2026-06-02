@@ -92,7 +92,7 @@ function CoachPage() {
           eyebrow="USE Brain · Growth Coach"
           title="Recomendações para crescer"
           subtitle="Insights e próximas ações personalizadas pelo Brain a partir da sua operação e da sua jornada."
-          actions={
+          action={
             <button
               onClick={onGenerate}
               disabled={gen.isPending || !wsId}
