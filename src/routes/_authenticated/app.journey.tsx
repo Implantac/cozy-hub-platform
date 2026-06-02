@@ -6,6 +6,7 @@ import {
   Compass, MapPin, Sparkles, TrendingUp, TrendingDown, Minus, Activity,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { BrainEvolutionService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 
@@ -94,9 +95,7 @@ function JourneyPage() {
 
         {/* Timeline */}
         {q.isLoading ? (
-          <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-            <span className="size-2 animate-pulse rounded-full bg-primary" /> Reconstruindo timeline…
-          </div>
+          <ListSkeleton rows={4} />
         ) : periods.length === 0 ? (
           <Empty />
         ) : (
