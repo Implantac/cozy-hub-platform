@@ -88,42 +88,64 @@ function MissionsPage() {
         </button>
       </form>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {byCol.map((col) => (
-          <div
-            key={col.status}
-            className="rounded-2xl border border-border bg-card/40 p-4"
-          >
-            <h3 className="mb-3 text-sm font-medium capitalize text-muted-foreground">
-              {col.status.replace("_", " ")} · {col.items.length}
-            </h3>
-            <div className="space-y-2">
-              {col.items.map((m) => (
-                <div
-                  key={m.id}
-                  className="rounded-lg border border-border bg-background/40 p-3 text-sm"
-                >
-                  <div className="font-medium">{m.title}</div>
-                  <div className="mt-2 flex gap-1 text-xs">
-                    {COLS.filter((s) => s !== m.status).map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => moveTo(m.id, s)}
-                        className="rounded-md bg-secondary px-2 py-1 capitalize hover:bg-primary hover:text-primary-foreground"
-                      >
-                        → {s.replace("_", " ")}
-                      </button>
-                    ))}
+      {q.isLoading ? (
+        <ListSkeleton rows={3} />
+      ) : q.data && q.data.length === 0 ? (
+        <EmptyState
+          variant="card"
+          icon={Target}
+          title="Nenhuma missão ativa"
+          text="Defina uma missão de 7 dias para o Brain te acompanhar. Missões criam o loop de feedback que evolui as recomendações."
+          action={
+            <button
+              onClick={() => {
+                const input = document.querySelector<HTMLInputElement>('input[placeholder="New mission..."]');
+                input?.focus();
+              }}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              <Plus className="size-4" /> Criar primeira missão
+            </button>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-3">
+          {byCol.map((col) => (
+            <div
+              key={col.status}
+              className="rounded-2xl border border-border bg-card/40 p-4"
+            >
+              <h3 className="mb-3 text-sm font-medium capitalize text-muted-foreground">
+                {col.status.replace("_", " ")} · {col.items.length}
+              </h3>
+              <div className="space-y-2">
+                {col.items.map((m) => (
+                  <div
+                    key={m.id}
+                    className="rounded-lg border border-border bg-background/40 p-3 text-sm"
+                  >
+                    <div className="font-medium">{m.title}</div>
+                    <div className="mt-2 flex gap-1 text-xs">
+                      {COLS.filter((s) => s !== m.status).map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => moveTo(m.id, s)}
+                          className="rounded-md bg-secondary px-2 py-1 capitalize hover:bg-primary hover:text-primary-foreground"
+                        >
+                          → {s.replace("_", " ")}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {col.items.length === 0 && (
-                <p className="text-xs text-muted-foreground">Empty</p>
-              )}
+                ))}
+                {col.items.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Vazio</p>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
     </PageTransition>
   );
