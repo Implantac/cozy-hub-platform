@@ -8,6 +8,7 @@ import {
 import { PageHeader } from "@/components/app/PageHeader";
 import { PageTransition } from "@/components/app/Motion";
 import { EmptyState } from "@/components/app/EmptyState";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import {
   getDigitalTwin, upsertDigitalTwin,
   listSkillAssessments, upsertSkillAssessment,
@@ -375,7 +376,7 @@ function ExperimentsPanel() {
               </div>
             </div>
           ))}
-          {(expQ.data ?? []).length === 0 && <EmptyState text="Nenhum experimento ainda." />}
+          {(expQ.data ?? []).length === 0 && <EmptyState variant="dashed" icon={FlaskConical} title="Nenhum experimento ainda" text="Crie experimentos para testar hipóteses e medir impacto antes de escalar decisões." />}
         </div>
       </div>
     </div>
@@ -487,7 +488,7 @@ function DecisionsPanel() {
               </div>
             );
           })}
-          {(decQ.data ?? []).length === 0 && <EmptyState text="Nenhuma decisão registrada." />}
+          {(decQ.data ?? []).length === 0 && <EmptyState variant="dashed" icon={Scale} title="Nenhuma decisão registrada" text="Use o registro de decisões para documentar contexto, opções consideradas e resultado esperado." />}
         </div>
       </div>
     </div>
@@ -588,7 +589,7 @@ function AntiScamPanel() {
               </div>
             );
           })}
-          {(repQ.data ?? []).length === 0 && <EmptyState text="Nenhuma análise ainda." />}
+          {(repQ.data ?? []).length === 0 && <EmptyState variant="dashed" icon={BarChart3} title="Nenhuma análise ainda" text="Solicite uma análise para gerar red/green flags e recomendações acionáveis." />}
         </div>
       </div>
     </div>
@@ -825,7 +826,7 @@ function CouncilPanel() {
       <div className="space-y-6">
         {sessions.map((s) => <CouncilSession key={s.key} topic={s.topic} opinions={s.opinions} />)}
         {sessions.length === 0 && (
-          <EmptyState text="Sem pareceres ainda. Faça uma pergunta acima." />
+          <EmptyState variant="dashed" icon={Users2} title="Sem pareceres do conselho" text="Faça uma pergunta acima e os mentores responderão com perspectivas complementares." />
         )}
       </div>
     </div>
@@ -844,11 +845,11 @@ function TimelinePanel() {
     return <EmptyState text="Selecione um workspace para ver a linha do tempo." />;
   }
   if (tlQ.isLoading) {
-    return <div className="text-sm text-muted-foreground">Construindo narrativa…</div>;
+    return <ListSkeleton rows={4} />;
   }
   const data = tlQ.data;
   if (!data || data.periods.length === 0) {
-    return <EmptyState text="Histórico ainda raso. Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua trajetória trimestre a trimestre." />;
+    return <EmptyState variant="card" icon={History} title="Trajetória ainda em construção" text="Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua linha do tempo trimestre a trimestre." />;
   }
 
   const trajectory = data.mentor.trajectory_delta;
