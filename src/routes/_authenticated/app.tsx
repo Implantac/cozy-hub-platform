@@ -175,15 +175,14 @@ function AppShell() {
 
   const crumb = findBreadcrumb(path, t);
   const needsOnboarding = profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
-
-  // Auto-launch product tour once after onboarding completes — persisted in profile.tour_completed.
+  // Auto-launch product tour once after onboarding completes — persisted in localStorage.
   useEffect(() => {
     const p = profileQuery.data;
     if (!p?.onboarding_completed) return;
-    if (p.tour_completed) return;
+    if (hasSeenTour()) return;
     const id = window.setTimeout(() => setTourOpen(true), 600);
     return () => window.clearTimeout(id);
-  }, [profileQuery.data?.onboarding_completed, profileQuery.data?.tour_completed]);
+  }, [profileQuery.data?.onboarding_completed]);
 
   const sidebarBody = (
     <SidebarBody
