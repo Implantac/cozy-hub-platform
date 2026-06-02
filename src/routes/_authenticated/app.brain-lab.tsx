@@ -8,6 +8,7 @@ import {
 import { PageHeader } from "@/components/app/PageHeader";
 import { PageTransition } from "@/components/app/Motion";
 import { EmptyState } from "@/components/app/EmptyState";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import {
   getDigitalTwin, upsertDigitalTwin,
   listSkillAssessments, upsertSkillAssessment,
