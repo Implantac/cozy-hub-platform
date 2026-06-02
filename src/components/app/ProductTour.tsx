@@ -148,7 +148,7 @@ export function ProductTour({
 
   const finish = () => {
     setStep(0);
-    onFinish?.();
+    try { window.localStorage.setItem(TOUR_KEY, "1"); } catch {}
     onClose();
   };
 
