@@ -11,7 +11,7 @@ import {
   Rocket, GitBranch, Brain as BrainIcon,
 } from "lucide-react";
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
-import { completeTour } from "@/lib/api/notifications.functions";
+import { hasSeenTour } from "@/components/app/ProductTour";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { signOut, useAuth } from "@/lib/auth/use-auth";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -137,7 +137,7 @@ function AppShell() {
   const fetchProfile = useServerFn(getMyProfile);
   const createWs = useServerFn(createWorkspace);
   const setDefaultWs = useServerFn(setDefaultWorkspace);
-  const finishTour = useServerFn(completeTour);
+  
 
   const wsQuery = useQuery({ queryKey: ["my-workspaces"], queryFn: () => fetchWs(), enabled: !!auth.user });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile(), enabled: !!auth.user });
@@ -175,15 +175,14 @@ function AppShell() {
 
   const crumb = findBreadcrumb(path, t);
   const needsOnboarding = profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
-
-  // Auto-launch product tour once after onboarding completes — persisted in profile.tour_completed.
+  // Auto-launch product tour once after onboarding completes — persisted in localStorage.
   useEffect(() => {
     const p = profileQuery.data;
     if (!p?.onboarding_completed) return;
-    if (p.tour_completed) return;
+    if (hasSeenTour()) return;
     const id = window.setTimeout(() => setTourOpen(true), 600);
     return () => window.clearTimeout(id);
-  }, [profileQuery.data?.onboarding_completed, profileQuery.data?.tour_completed]);
+  }, [profileQuery.data?.onboarding_completed]);
 
   const sidebarBody = (
     <SidebarBody
@@ -305,10 +304,6 @@ function AppShell() {
         <ProductTour
           open={tourOpen}
           onClose={() => setTourOpen(false)}
-          onFinish={() => {
-            finishTour({}).catch(() => {});
-            profileQuery.refetch();
-          }}
         />
       </div>
     </TooltipProvider>
