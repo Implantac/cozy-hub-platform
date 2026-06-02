@@ -113,7 +113,7 @@ function MissionsPage() {
           {byCol.map((col) => (
             <div
               key={col.status}
-              className="rounded-2xl border border-border bg-card/40 p-4"
+              className="section-card p-4"
             >
               <h3 className="mb-3 text-sm font-medium capitalize text-muted-foreground">
                 {col.status.replace("_", " ")} · {col.items.length}
@@ -122,7 +122,7 @@ function MissionsPage() {
                 {col.items.map((m) => (
                   <div
                     key={m.id}
-                    className="rounded-lg border border-border bg-background/40 p-3 text-sm"
+                    className="hover-lift rounded-lg border border-border bg-background/40 p-3 text-sm"
                   >
                     <div className="font-medium">{m.title}</div>
                     <div className="mt-2 flex gap-1 text-xs">
