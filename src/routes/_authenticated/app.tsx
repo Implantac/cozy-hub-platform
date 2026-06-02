@@ -114,6 +114,7 @@ function AppShell() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   // Hydrate collapsed state from localStorage (client-only).
   useEffect(() => {
