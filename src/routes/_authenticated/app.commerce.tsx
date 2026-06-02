@@ -19,13 +19,12 @@ function CommercePage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <ShoppingBag className="size-3 text-accent"/> Commerce Hub
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight">Comércio digital</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Infraestrutura para você vender produtos físicos e digitais em escala.</p>
-        </header>
+        <PageHeader
+          icon={ShoppingBag}
+          eyebrow="Commerce Hub"
+          title="Comércio digital"
+          subtitle="Infraestrutura para você vender produtos físicos e digitais em escala."
+        />
 
         <div className="grid gap-4 md:grid-cols-2">
           {SECTIONS.map(s => (
