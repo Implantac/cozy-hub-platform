@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Palette, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
+import { Button } from "@/components/ui/button";
 import {
   useWorkspaceMutation,
   useWorkspaceQuery,
