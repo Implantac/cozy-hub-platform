@@ -163,10 +163,8 @@ function CoachPage() {
           </div>
 
           {tl.isLoading && (
-            <div className="rounded-2xl border border-border bg-card/40 p-6 text-sm text-muted-foreground">
-              Carregando memória...
-            </div>
-          )}
+          {tl.isLoading && <ListSkeleton rows={4} />}
+
 
           {!tl.isLoading && (tl.data ?? []).length === 0 && (
             <div className="rounded-2xl border border-dashed border-border bg-card/30 py-10 text-center text-sm text-muted-foreground">
