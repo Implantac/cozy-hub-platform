@@ -107,7 +107,7 @@ function ChannelsPage() {
       />
 
       {/* OAuth Connect grid */}
-      <div className="rounded-2xl border border-border bg-card/60 p-5">
+      <div className="section-card p-5">
         <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
           Connect a platform
         </h3>
@@ -134,7 +134,7 @@ function ChannelsPage() {
       </div>
 
       {/* Manual register */}
-      <div className="rounded-2xl border border-border bg-card/60 p-5">
+      <div className="section-card p-5">
         <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
           Or register a handle manually
         </h3>
@@ -180,7 +180,7 @@ function ChannelsPage() {
           return (
             <div
               key={c.id}
-              className="rounded-2xl border border-border bg-card/60 p-5"
+              className="section-card p-5"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
