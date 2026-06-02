@@ -232,6 +232,13 @@ function AppShell() {
 
   return (
     <TooltipProvider delayDuration={150}>
+      {/* Skip to content for keyboard / screen reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-glow"
+      >
+        {t("a11y.skipToContent", "Pular para o conteúdo")}
+      </a>
       <div className="flex min-h-screen bg-background">
         {/* DESKTOP SIDEBAR */}
         <aside
