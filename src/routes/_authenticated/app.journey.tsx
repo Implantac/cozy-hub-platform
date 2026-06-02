@@ -46,15 +46,14 @@ function JourneyPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp}>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <Compass className="size-3 text-accent" /> Journey · sua trajetória
-          </div>
-          <h1 className="text-4xl font-semibold tracking-tight">Linha do tempo</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Trimestres reconstruídos a partir das suas decisões, experimentos e memória do Brain.
-          </p>
-        </motion.header>
+        <motion.div variants={fadeUp}>
+          <PageHeader
+            icon={Compass}
+            eyebrow="Journey · sua trajetória"
+            title="Linha do tempo"
+            subtitle="Trimestres reconstruídos a partir das suas decisões, experimentos e memória do Brain."
+          />
+        </motion.div>
 
         {/* Mentor verdict */}
         {mentor && (
