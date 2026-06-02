@@ -6,6 +6,8 @@ import {
   Compass, MapPin, Sparkles, TrendingUp, TrendingDown, Minus, Activity,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
+import { EmptyState } from "@/components/app/EmptyState";
 import { ListSkeleton } from "@/components/app/Skeletons";
 import { BrainEvolutionService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
