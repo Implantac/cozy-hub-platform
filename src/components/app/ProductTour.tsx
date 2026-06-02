@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TOUR_KEY = "digitalos.tour_done";
-
 type Step = {
   selector: string;
   title: string;
@@ -17,23 +15,17 @@ type Step = {
   placement?: "auto" | "right" | "bottom" | "left" | "top";
 };
 
-export function hasSeenTour() {
-  if (typeof window === "undefined") return true;
-  return window.localStorage.getItem(TOUR_KEY) === "1";
-}
-
-export function resetTour() {
-  if (typeof window !== "undefined") window.localStorage.removeItem(TOUR_KEY);
-}
-
 type Rect = { top: number; left: number; width: number; height: number };
 
 export function ProductTour({
   open,
   onClose,
+  onFinish,
 }: {
   open: boolean;
   onClose: () => void;
+  /** Called once when the user completes or skips the tour. Use to persist completion. */
+  onFinish?: () => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
