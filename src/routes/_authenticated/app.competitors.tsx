@@ -177,7 +177,7 @@ function ThreatMatrix({ items }: { items: Competitor[] }) {
   const maxE = Math.max(1, ...items.map((i) => i.engagement));
   return (
     <motion.div variants={fadeUp}
-      className="relative h-[420px] rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+      className="section-card relative h-[420px] p-6">
       <div className="absolute left-3 top-3 text-[10px] uppercase tracking-wider text-muted-foreground">↑ Engajamento</div>
       <div className="absolute bottom-3 right-3 text-[10px] uppercase tracking-wider text-muted-foreground">Audiência →</div>
       <div className="absolute inset-12">
