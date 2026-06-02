@@ -190,6 +190,15 @@ function AppShell() {
       .catch((e) => { bootstrappingRef.current = false; toast.error(e.message); });
   }, [wsQuery.isSuccess, workspaces.length, auth.user, createWs, setCurrentWsId, wsQuery, t]);
 
+  // Auto-launch product tour once after onboarding completes — persisted in localStorage.
+  useEffect(() => {
+    const p = profileQuery.data;
+    if (!p?.onboarding_completed) return;
+    if (hasSeenTour()) return;
+    const id = window.setTimeout(() => setTourOpen(true), 600);
+    return () => window.clearTimeout(id);
+  }, [profileQuery.data?.onboarding_completed]);
+
   if (auth.loading || wsQuery.isLoading) {
     return (
       <div className="grid min-h-screen place-items-center bg-background">
@@ -205,14 +214,6 @@ function AppShell() {
 
   const crumb = findBreadcrumb(path, t);
   const needsOnboarding = profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
-  // Auto-launch product tour once after onboarding completes — persisted in localStorage.
-  useEffect(() => {
-    const p = profileQuery.data;
-    if (!p?.onboarding_completed) return;
-    if (hasSeenTour()) return;
-    const id = window.setTimeout(() => setTourOpen(true), 600);
-    return () => window.clearTimeout(id);
-  }, [profileQuery.data?.onboarding_completed]);
 
   const sidebarBody = (
     <SidebarBody
