@@ -825,7 +825,7 @@ function CouncilPanel() {
       <div className="space-y-6">
         {sessions.map((s) => <CouncilSession key={s.key} topic={s.topic} opinions={s.opinions} />)}
         {sessions.length === 0 && (
-          <EmptyState text="Sem pareceres ainda. Faça uma pergunta acima." />
+          <EmptyState variant="dashed" icon={Users2} title="Sem pareceres do conselho" text="Faça uma pergunta acima e os mentores responderão com perspectivas complementares." />
         )}
       </div>
     </div>
