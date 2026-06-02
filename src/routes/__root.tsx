@@ -84,7 +84,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/693f9ecb-3f8d-4a50-ab70-137860a3a82d/id-preview-a73581d8--1aa24862-05df-400b-882d-81fde032cb48.lovable.app-1780285602900.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/693f9ecb-3f8d-4a50-ab70-137860a3a82d/id-preview-a73581d8--1aa24862-05df-400b-882d-81fde032cb48.lovable.app-1780285602900.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "icon",
+        type: "image/svg+xml",
+        href: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%237c3aed'/><stop offset='1' stop-color='%2306b6d4'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='url(%23g)'/><text x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='Inter,system-ui,sans-serif' font-size='30' font-weight='800' fill='white'>V</text></svg>",
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
