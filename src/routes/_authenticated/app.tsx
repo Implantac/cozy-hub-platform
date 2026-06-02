@@ -201,7 +201,7 @@ function AppShell() {
 
   if (auth.loading || wsQuery.isLoading) {
     return (
-      <div className="grid min-h-screen place-items-center bg-background">
+      <div className="grid min-h-dvh place-items-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <div className="grid size-12 place-items-center rounded-xl bg-gradient-brand shadow-glow animate-pulse">
             <Brain className="size-6 text-primary-foreground" />
