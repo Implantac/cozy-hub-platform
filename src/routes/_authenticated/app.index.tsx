@@ -116,20 +116,22 @@ function GPSDashboard() {
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
         {/* Header */}
         <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+          <div className="min-w-0">
+            <div className="eyebrow-chip mb-2">
               <Compass className="size-3 text-accent" />
               Business GPS · cockpit operacional
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight">USE Brain</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-balance text-[30px] font-semibold leading-tight tracking-tight md:text-[36px]">
+              USE Brain
+            </h1>
+            <p className="mt-1.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
               O cérebro do seu negócio digital — sempre respondendo as 5 perguntas que importam.
             </p>
           </div>
           <button
             onClick={() => refreshAll.mutate()}
             disabled={refreshAll.isPending}
-            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
+            className="press group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
           >
             <Brain className={`size-4 transition group-hover:rotate-12 ${refreshAll.isPending ? "animate-pulse" : ""}`} />
             {refreshAll.isPending ? "Pensando..." : "Pensar de novo"}
@@ -149,16 +151,16 @@ function GPSDashboard() {
             const Icon = card.icon;
             return (
               <motion.div key={card.q} variants={fadeUp}
-                className="relative overflow-hidden rounded-2xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40">
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                className="section-card hover-lift relative overflow-hidden p-4 transition hover:border-primary/40">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                   <Icon className="size-3 text-accent" /> {card.label}
                 </div>
-                <div className="mt-2 text-sm font-semibold leading-snug">
+                <div className="mt-2 text-sm font-semibold leading-snug text-balance">
                   {a?.headline ?? (brain.isLoading ? "Analisando..." : "—")}
                 </div>
-                {a?.body && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{a.body}</p>}
+                {a?.body && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{a.body}</p>}
                 {a?.cta && (
-                  <Link to={a.cta.href} className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
+                  <Link to={a.cta.href} className="link-underline mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
                     {a.cta.label} <ArrowUpRight className="size-3" />
                   </Link>
                 )}
@@ -173,21 +175,22 @@ function GPSDashboard() {
         </motion.section>
 
 
+
         {/* Top row — Score + Health summary + Goal */}
         <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
-          <motion.div variants={fadeUp} className="grid place-items-center rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+          <motion.div variants={fadeUp} className="section-card grid place-items-center p-6">
             <ScoreGauge value={s?.overall ?? 0} size={200} label="Digital Score" />
-            <Link to="/app/score" className="mt-3 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+            <Link to="/app/score" className="link-underline mt-3 inline-flex items-center gap-1 text-xs text-primary">
               Ver detalhes <ArrowUpRight className="size-3" />
             </Link>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+          <motion.div variants={fadeUp} className="section-card p-6">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Heart className="size-4 text-accent" /> Saúde do negócio
               </div>
-              <Link to="/app/health" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+              <Link to="/app/health" className="link-underline text-xs text-primary inline-flex items-center gap-1">
                 Diagnóstico <ArrowUpRight className="size-3" />
               </Link>
             </div>
@@ -196,18 +199,18 @@ function GPSDashboard() {
             ) : (
               <>
                 <div className="mb-4 flex items-baseline gap-2">
-                  <span className="text-4xl font-bold tabular-nums">{healthAvg}</span>
+                  <span className="text-4xl font-semibold tabular-nums tracking-tight">{healthAvg}</span>
                   <span className="text-xs text-muted-foreground">/ 100 — média geral</span>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {(health.data ?? []).map((h: any) => (
                     <div key={h.id}>
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="capitalize text-muted-foreground">{h.category}</span>
-                        <span className="font-mono">{h.score}</span>
+                        <span className="font-mono tabular-nums">{h.score}</span>
                       </div>
                       <div className="h-1 overflow-hidden rounded-full bg-secondary">
-                        <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${h.score}%` }} />
+                        <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${h.score}%` }} />
                       </div>
                     </div>
                   ))}
@@ -216,12 +219,12 @@ function GPSDashboard() {
             )}
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+          <motion.div variants={fadeUp} className="section-card p-6">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Flame className="size-4 text-accent" /> Oportunidades em alta
               </div>
-              <Link to="/app/opportunities" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+              <Link to="/app/opportunities" className="link-underline text-xs text-primary inline-flex items-center gap-1">
                 Explorar <ArrowUpRight className="size-3" />
               </Link>
             </div>
@@ -230,15 +233,15 @@ function GPSDashboard() {
             ) : (
               <ul className="space-y-2">
                 {trending.map((o: any) => (
-                  <li key={o.id} className="rounded-lg border border-border bg-background/40 p-3">
-                    <div className="flex items-center justify-between">
+                  <li key={o.id} className="rounded-lg border border-border/70 bg-background/40 p-3 transition hover:border-primary/30">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="truncate text-sm font-medium">{o.title}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ${
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] ${
                         o.status === "exploding" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"
                       }`}>{o.status}</span>
                     </div>
                     {o.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{o.description}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{o.description}</p>
                     )}
                   </li>
                 ))}
@@ -246,6 +249,7 @@ function GPSDashboard() {
             )}
           </motion.div>
         </section>
+
 
         {/* Coach recommendations + Priority missions */}
         <section className="grid gap-4 lg:grid-cols-3">
@@ -372,12 +376,12 @@ function GPSDashboard() {
             ];
             return cards.map((c) => (
               <motion.div key={c.to} variants={fadeUp}>
-                <Link to={c.to} className="group block rounded-2xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40 hover:shadow-soft">
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-muted-foreground">
+                <Link to={c.to} className="stat-tile group block">
+                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5"><c.icon className="size-3 text-accent" /> {c.label}</span>
                     <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />
                   </div>
-                  <div className="mt-2 text-xl font-semibold tabular-nums">{c.value}</div>
+                  <div className="mt-2 text-xl font-semibold tabular-nums tracking-tight">{c.value}</div>
                   <div className="text-[11px] text-muted-foreground">{c.hint}</div>
                   {c.pct !== null && (
                     <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary">
@@ -436,12 +440,12 @@ function KpiCard({
   icon: Icon, label, value, hint, to,
 }: { icon: LucideIcon; label: string; value: string | number; hint?: string; to?: string }) {
   const body = (
-    <MotionCard className="relative overflow-hidden rounded-xl border border-border bg-card/60 p-4 backdrop-blur transition hover:border-primary/40">
+    <MotionCard className="stat-tile group relative block">
       <div className="flex items-center justify-between">
-        <Icon className="size-4 text-accent" />
-        {to && <ArrowUpRight className="size-3 text-muted-foreground" />}
+        <Icon className="size-4 text-accent transition-colors group-hover:text-primary" />
+        {to && <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />}
       </div>
-      <div className="mt-2 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-2 text-2xl font-semibold tabular-nums tracking-tight">{value}</div>
       <div className="text-[11px] text-muted-foreground">{label}{hint ? ` · ${hint}` : ""}</div>
     </MotionCard>
   );
@@ -455,11 +459,11 @@ function Panel({
   children: React.ReactNode; className?: string;
 }) {
   return (
-    <motion.div variants={fadeUp} className={`rounded-2xl border border-border bg-card/60 p-5 backdrop-blur ${className}`}>
-      <div className="mb-4 flex items-center justify-between">
+    <motion.div variants={fadeUp} className={`section-card p-5 md:p-6 ${className}`}>
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Icon className="size-4 text-accent" />
-          {title}
+          <span className="tracking-tight">{title}</span>
         </div>
         {action}
       </div>
@@ -470,7 +474,7 @@ function Panel({
 
 function LinkAction({ to, label }: { to: string; label: string }) {
   return (
-    <Link to={to} className="inline-flex items-center gap-1 text-xs text-primary transition hover:underline">
+    <Link to={to} className="link-underline inline-flex items-center gap-1 text-xs text-primary">
       {label} <ArrowUpRight className="size-3" />
     </Link>
   );
@@ -491,7 +495,7 @@ function StatusPill({ status }: { status: string }) {
 
 function Empty({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-border/70 bg-card/20 px-4 py-6 text-center text-sm leading-relaxed text-muted-foreground">
       {text}
     </div>
   );
