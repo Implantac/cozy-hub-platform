@@ -180,7 +180,7 @@ function ChannelsPage() {
           return (
             <div
               key={c.id}
-              className="section-card p-5"
+              className="section-card hover-lift p-5"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
