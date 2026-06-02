@@ -138,13 +138,22 @@ function SchedulerPage() {
         </div>
 
         {q.isLoading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-card/40" />
-            ))}
-          </div>
+          <ListSkeleton rows={4} />
         ) : q.data?.length === 0 ? (
-          <EmptyState text="No scheduled jobs. Publish content from the Content module to enqueue." />
+          <EmptyState
+            variant="card"
+            icon={Calendar}
+            title="Nenhuma publicação na fila"
+            text="Quando você agendar conteúdos no módulo Content, eles aparecem aqui aguardando o tick do scheduler."
+            action={
+              <Link
+                to="/app/content"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+              >
+                Ir para Content
+              </Link>
+            }
+          />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border bg-card/60">
             <table className="w-full text-sm">
