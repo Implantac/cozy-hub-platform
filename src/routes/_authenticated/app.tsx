@@ -137,6 +137,7 @@ function AppShell() {
   const fetchProfile = useServerFn(getMyProfile);
   const createWs = useServerFn(createWorkspace);
   const setDefaultWs = useServerFn(setDefaultWorkspace);
+  const finishTour = useServerFn(completeTour);
 
   const wsQuery = useQuery({ queryKey: ["my-workspaces"], queryFn: () => fetchWs(), enabled: !!auth.user });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile(), enabled: !!auth.user });
