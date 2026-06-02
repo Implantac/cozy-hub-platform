@@ -15,7 +15,9 @@ import {
 } from "recharts";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { StatGridSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
+import { Link } from "@tanstack/react-router";
 import { useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { getAnalyticsOverview } from "@/lib/api/analytics.functions";
 
@@ -63,13 +65,22 @@ function AnalyticsPage() {
         </div>
 
         {q.isLoading ? (
-          <div className="grid gap-3 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-24 animate-pulse rounded-2xl bg-card/40" />
-            ))}
-          </div>
+          <StatGridSkeleton count={4} />
         ) : !hasData ? (
-          <EmptyState text="No analytics yet. Publish content to start collecting snapshots." />
+          <EmptyState
+            variant="card"
+            icon={BarChart3}
+            title="Sem analytics ainda"
+            text="Publique conteúdo para começar a coletar snapshots de impressões, alcance e engajamento."
+            action={
+              <Link
+                to="/app/content"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+              >
+                Criar conteúdo
+              </Link>
+            }
+          />
         ) : (
           <>
             <div className="grid gap-3 md:grid-cols-4">

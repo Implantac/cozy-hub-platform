@@ -241,7 +241,14 @@ function ChannelsPage() {
             </div>
           );
         })}
-        {q.data?.length === 0 && <EmptyState text="No channels yet." />}
+        {q.data?.length === 0 && (
+          <EmptyState
+            variant="card"
+            icon={Radio}
+            title="Nenhum canal conectado"
+            text="Conecte Instagram, YouTube, TikTok ou outros canais para publicar e medir resultados a partir do hub."
+          />
+        )}
       </div>
     </div>
     </PageTransition>
