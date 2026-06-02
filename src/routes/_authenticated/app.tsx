@@ -11,6 +11,7 @@ import {
   Rocket, GitBranch, Brain as BrainIcon,
 } from "lucide-react";
 import { listMyWorkspaces, getMyProfile, createWorkspace, setDefaultWorkspace } from "@/lib/api/workspaces.functions";
+import { completeTour } from "@/lib/api/notifications.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { signOut, useAuth } from "@/lib/auth/use-auth";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
