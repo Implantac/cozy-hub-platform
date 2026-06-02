@@ -44,7 +44,7 @@ function LearningPage() {
             const completed: string[] = prog?.completed_milestones ?? [];
             const pct = prog?.progress_pct ?? 0;
             return (
-              <motion.div key={p.id} variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur">
+              <motion.div key={p.id} variants={fadeUp} className="section-card hover-lift p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <h3 className="font-medium">{p.title}</h3>
