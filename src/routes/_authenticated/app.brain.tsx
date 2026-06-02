@@ -168,13 +168,14 @@ function BrainPage() {
                 ))}
               </ul>
             )}
-          </motion.section>
+          </SectionCard>
 
           {/* Memory layer */}
-          <motion.section variants={fadeUp} className="lg:col-span-2 rounded-2xl border border-border bg-card/60 p-5 backdrop-blur">
-            <div className="mb-4 flex items-center gap-2 text-sm font-medium">
-              <Brain className="size-4 text-accent" /> Camada de memória
-            </div>
+          <SectionCard
+            className="lg:col-span-2"
+            icon={Brain}
+            title="Camada de memória"
+          >
 
             <form
               onSubmit={(e) => {
