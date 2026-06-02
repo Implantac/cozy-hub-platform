@@ -33,7 +33,7 @@ export function OnboardingWizard({
   const finishOnboarding = useServerFn(completeOnboarding);
 
   const steps = [
-    { icon: Sparkles, title: t("onboarding.s1.title", "Bem-vindo ao USE OS"), desc: t("onboarding.s1.desc", "Seu sistema operacional para crescimento digital.") },
+    { icon: Sparkles, title: t("onboarding.s1.title", "Bem-vindo ao VELT"), desc: t("onboarding.s1.desc", "Seu sistema operacional para crescimento digital.") },
     { icon: Building2, title: t("onboarding.s2.title", "Seu perfil"), desc: t("onboarding.s2.desc", "Como devemos te chamar?") },
     { icon: Palette, title: t("onboarding.s3.title", "Primeira marca"), desc: t("onboarding.s3.desc", "Crie sua primeira marca para começar.") },
     { icon: CheckCircle2, title: t("onboarding.s4.title", "Pronto!"), desc: t("onboarding.s4.desc", "Tudo configurado. Vamos operar.") },

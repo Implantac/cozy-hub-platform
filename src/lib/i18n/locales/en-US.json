@@ -1,7 +1,7 @@
 {
   "common": {
     "loading": "Loading...",
-    "booting": "Booting Digital OS...",
+    "booting": "Booting VELT...",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "getStarted": "Get started",
@@ -43,7 +43,7 @@
     "noAccount": "No account?",
     "createOne": "Create one",
     "alreadyOnboard": "Already on board?",
-    "accountCreated": "Account created. Welcome to Digital OS.",
+    "accountCreated": "Account created. Welcome to VELT.",
     "googleFailed": "Google sign-in failed"
   },
   "nav": {
@@ -103,7 +103,7 @@
     "next": "Continue",
     "finish": "Finish",
     "done": "Welcome aboard!",
-    "s1": { "title": "Welcome to USE OS", "desc": "Your operating system for digital growth." },
+    "s1": { "title": "Welcome to VELT", "desc": "Your operating system for digital growth." },
     "s2": { "title": "Your profile", "desc": "What should we call you?", "label": "Display name" },
     "s3": { "title": "First brand", "desc": "Create your first brand to get started.", "label": "Brand name" },
     "s4": { "title": "Ready!", "desc": "All set. Let's operate.", "body": "You're ready to connect channels, create content and let the Brain work for you." },
@@ -156,9 +156,9 @@
     }
   },
   "errors": {
-    "interrupted": "Something interrupted Digital OS",
+    "interrupted": "Something interrupted VELT",
     "unknown": "Unknown error",
     "notFoundTitle": "Page not found",
-    "notFoundDesc": "This route doesn't exist in your Digital OS."
+    "notFoundDesc": "This route doesn't exist in your VELT."
   }
 }

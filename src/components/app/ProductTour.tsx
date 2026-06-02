@@ -43,7 +43,7 @@ export function ProductTour({
   const steps: Step[] = [
     {
       selector: '[data-tour="brand"]',
-      title: t("tour.brand.title", "Bem-vindo ao USE OS"),
+      title: t("tour.brand.title", "Bem-vindo ao VELT"),
       desc: t("tour.brand.desc", "Seu sistema operacional para crescimento digital. Vamos fazer um tour rápido."),
       placement: "right",
     },

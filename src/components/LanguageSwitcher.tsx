@@ -3,7 +3,7 @@ import { Languages } from "lucide-react";
 import { SUPPORTED_LANGUAGES, setLanguage, type LanguageCode } from "@/lib/i18n";
 
 /**
- * USE OS — Language switcher.
+ * VELT — Language switcher.
  * Renders all supported languages with their native names + flag.
  * The wrapper styling mirrors a sidebar nav item so it fits the AppShell.
  */

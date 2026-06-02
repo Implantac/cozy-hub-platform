@@ -1,5 +1,5 @@
 /**
- * USE OS — Lovable AI Gateway helper (server-only)
+ * VELT — Lovable AI Gateway helper (server-only)
  * Single source of truth for structured tool-calling against the gateway.
  * The `.server.ts` extension prevents accidental client-side imports.
  */

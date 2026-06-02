@@ -32,7 +32,7 @@ export function KeyboardShortcuts({ open, onOpenChange }: { open: boolean; onOpe
           </div>
           <DialogTitle>{t("shortcuts.title", "Atalhos de teclado")}</DialogTitle>
           <DialogDescription>
-            {t("shortcuts.desc", "Acelere sua navegação pelo USE OS.")}
+            {t("shortcuts.desc", "Acelere sua navegação pelo VELT.")}
           </DialogDescription>
         </DialogHeader>
         <ul className="divide-y divide-border/60">

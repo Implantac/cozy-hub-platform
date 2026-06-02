@@ -8,7 +8,7 @@ import { lovable } from "@/integrations/lovable";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "Create account · Digital OS" }] }),
+  head: () => ({ meta: [{ title: "Create account · VELT" }] }),
   component: SignupPage,
 });
 
@@ -55,7 +55,7 @@ function SignupPage() {
             <div className="grid size-9 place-items-center rounded-xl bg-gradient-brand shadow-glow">
               <Brain className="size-5 text-primary-foreground" />
             </div>
-            <span className="font-semibold tracking-tight">Digital OS</span>
+            <span className="font-semibold tracking-tight">VELT</span>
           </Link>
           <LanguageSwitcher compact />
         </div>

@@ -254,7 +254,7 @@ function AppShell() {
         {/* MOBILE SIDEBAR */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="w-72 border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground">
-            <SheetTitle className="sr-only">USE OS</SheetTitle>
+            <SheetTitle className="sr-only">VELT</SheetTitle>
             <SidebarBody
               path={path}
               collapsed={false}
@@ -422,7 +422,7 @@ function SidebarBody({
         </div>
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-bold tracking-tight text-gradient-brand">USE OS</div>
+            <div className="truncate text-sm font-bold tracking-tight text-gradient-brand">VELT</div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Digital Growth</div>
           </div>
         )}

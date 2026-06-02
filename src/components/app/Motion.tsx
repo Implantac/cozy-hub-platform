@@ -1,7 +1,7 @@
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { type ReactNode } from "react";
 
-/** USE OS — shared motion presets (Linear/Vercel-like easing). */
+/** VELT — shared motion presets (Linear/Vercel-like easing). */
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
 export const fadeUp = {

@@ -1,5 +1,5 @@
 /**
- * USE OS — Service Layer
+ * VELT — Service Layer
  *
  * Single import surface for every domain. Routes and components should
  * import service namespaces from this barrel rather than from individual
