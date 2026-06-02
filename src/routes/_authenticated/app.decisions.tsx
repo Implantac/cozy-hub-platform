@@ -27,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/app/decisions")({
 
 function DecisionOSPage() {
   return (
+    <PageTransition>
     <div className="space-y-6">
       <PageHeader
         title="Decision OS"
@@ -50,6 +51,7 @@ function DecisionOSPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </PageTransition>
   );
 }
 
