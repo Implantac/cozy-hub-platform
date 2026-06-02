@@ -9,6 +9,7 @@ import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspa
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { ListSkeleton } from "@/components/app/Skeletons";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/coach")({
