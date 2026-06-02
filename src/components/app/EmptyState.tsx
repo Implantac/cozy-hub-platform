@@ -30,20 +30,20 @@ export function EmptyState({
   }
 
   const wrapper = variant === "card"
-    ? "rounded-2xl border border-border bg-card/40 backdrop-blur"
-    : "rounded-xl border border-dashed border-border/80 bg-card/20";
+    ? "section-card"
+    : "rounded-xl border border-dashed border-border/70 bg-card/20";
 
   return (
-    <div className={cn(wrapper, "flex flex-col items-center justify-center gap-3 px-6 py-10 text-center", className)}>
+    <div className={cn(wrapper, "animate-rise-in flex flex-col items-center justify-center gap-3 px-6 py-12 text-center", className)}>
       {Icon && (
-        <div className="grid size-11 place-items-center rounded-xl bg-secondary/60 text-muted-foreground">
-          <Icon className="size-5" />
+        <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-secondary/80 to-secondary/30 text-foreground/70 ring-1 ring-inset ring-border/60">
+          <Icon className="size-6" />
         </div>
       )}
-      {title && <p className="text-sm font-medium text-foreground">{title}</p>}
-      <p className="max-w-sm text-sm text-muted-foreground">{text}</p>
+      {title && <p className="text-base font-semibold tracking-tight text-foreground">{title}</p>}
+      <p className="max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">{text}</p>
       {(action || secondaryAction) && (
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
           {action}
           {secondaryAction}
         </div>
@@ -53,7 +53,7 @@ export function EmptyState({
           href={helpHref}
           target={helpHref.startsWith("http") ? "_blank" : undefined}
           rel="noreferrer"
-          className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="link-underline text-xs text-muted-foreground hover:text-foreground"
         >
           {helpLabel ?? "Saiba mais"}
         </a>
