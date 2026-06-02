@@ -322,10 +322,17 @@ function SidebarBody({
 }) {
   const { t } = useTranslation();
 
+  const TOUR_KEYS: Record<string, string> = {
+    "/app": "dashboard",
+    "/app/brain": "brain",
+    "/app/builder": "builder",
+    "/app/content": "content",
+  };
+
   return (
     <div className="flex h-full flex-col">
       {/* BRAND */}
-      <div className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}>
+      <div data-tour="brand" className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}>
         <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
           <Sparkles className="size-4 text-primary-foreground" />
         </div>
