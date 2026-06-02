@@ -316,7 +316,7 @@ function RealityCheckTab() {
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Histórico</h3>
         {!list.data || list.data.length === 0
-          ? <EmptyState text="Nenhum reality check ainda." variant="dashed" />
+          ? <EmptyState variant="dashed" icon={Shield} title="Nenhum reality check ainda" text="Submeta um plano acima para receber uma análise crítica de riscos e premissas." />
           : list.data.map((r: any) => <RealityCard key={r.id} r={r} />)}
       </div>
     </div>
