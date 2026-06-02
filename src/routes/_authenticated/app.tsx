@@ -288,6 +288,14 @@ function AppShell() {
                 <span className="text-xs">{t("palette.placeholder", "Buscar...")}</span>
                 <kbd className="ml-6 rounded border border-border/70 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
               </button>
+              {/* Mobile: icon-only search trigger */}
+              <button
+                onClick={() => setPaletteOpen(true)}
+                className="press inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground sm:hidden"
+                aria-label={t("palette.placeholder", "Buscar")}
+              >
+                <Search className="size-4" />
+              </button>
               <div className="hidden sm:block">
                 <LanguageSwitcher compact />
               </div>
@@ -306,10 +314,56 @@ function AppShell() {
               <div data-tour="notifications">
                 <NotificationDrawer workspaceId={currentWs?.id} />
               </div>
-              <button className="press grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary/20 transition hover:shadow-glow">
-                {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label={t("nav.account", "Conta")}
+                    className="press grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary/20 transition hover:shadow-glow"
+                  >
+                    {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="truncate">
+                    {profileQuery.data?.display_name ?? auth.user?.email ?? "—"}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/app/settings" })}>
+                    <User className="mr-2 size-4" /> {t("nav.profile", "Perfil & conta")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/app/settings" })}>
+                    <Settings className="mr-2 size-4" /> {t("nav.settings")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setShortcutsOpen(true)}>
+                    <Keyboard className="mr-2 size-4" /> {t("shortcuts.title", "Atalhos de teclado")}
+                    <span className="ml-auto text-[10px] text-muted-foreground">?</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => { resetTour(); setTourOpen(true); }}>
+                    <RefreshCw className="mr-2 size-4" /> {t("tour.restart", "Reiniciar tour")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={async () => { await signOut(); navigate({ to: "/login" }); }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 size-4" /> {t("common.signOut")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+          </header>
+
+
+          <main id="main-content" className="flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 animate-rise-in">
+              {currentWs ? <Outlet /> : <div className="text-muted-foreground">{t("common.noWorkspace")}</div>}
+            </div>
+          </main>
+        </div>
+
+
+        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} onShowShortcuts={() => setShortcutsOpen(true)} />
+        <KeyboardShortcuts open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
           </header>
 
 
