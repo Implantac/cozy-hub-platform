@@ -20,8 +20,13 @@ import { NotificationDrawer } from "@/components/app/NotificationDrawer";
 import { OnboardingWizard } from "@/components/app/OnboardingWizard";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ProductTour } from "@/components/app/ProductTour";
-import { HelpCircle } from "lucide-react";
+import { ProductTour, resetTour } from "@/components/app/ProductTour";
+import { KeyboardShortcuts } from "@/components/app/KeyboardShortcuts";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { HelpCircle, Keyboard, RefreshCw, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
