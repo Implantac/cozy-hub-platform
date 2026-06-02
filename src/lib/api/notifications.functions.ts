@@ -54,12 +54,3 @@ export const completeOnboarding = createServerFn({ method: "POST" })
     throwIfError(error);
     return { ok: true };
   });
-
-export const completeTour = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { error } = await supabase.from("profiles").update({ tour_completed: true }).eq("id", userId);
-    throwIfError(error);
-    return { ok: true };
-  });
