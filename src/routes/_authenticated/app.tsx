@@ -240,7 +240,7 @@ function AppShell() {
       >
         {t("a11y.skipToContent", "Pular para o conteúdo")}
       </a>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex min-h-dvh bg-background">
         {/* DESKTOP SIDEBAR */}
         <aside
           className={cn(
