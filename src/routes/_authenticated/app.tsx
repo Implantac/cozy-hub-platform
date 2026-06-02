@@ -19,6 +19,8 @@ import { NotificationDrawer } from "@/components/app/NotificationDrawer";
 import { OnboardingWizard } from "@/components/app/OnboardingWizard";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ProductTour, hasSeenTour } from "@/components/app/ProductTour";
+import { HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -112,6 +114,7 @@ function AppShell() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   // Hydrate collapsed state from localStorage (client-only).
   useEffect(() => {
@@ -170,6 +173,15 @@ function AppShell() {
 
   const crumb = findBreadcrumb(path, t);
   const needsOnboarding = profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
+
+  // Auto-launch product tour once after onboarding is complete.
+  useEffect(() => {
+    if (!profileQuery.data?.onboarding_completed) return;
+    if (typeof window === "undefined") return;
+    if (hasSeenTour()) return;
+    const id = window.setTimeout(() => setTourOpen(true), 600);
+    return () => window.clearTimeout(id);
+  }, [profileQuery.data?.onboarding_completed]);
 
   const sidebarBody = (
     <SidebarBody
@@ -237,6 +249,7 @@ function AppShell() {
 
             <div className="flex items-center gap-2">
               <button
+                data-tour="search"
                 onClick={() => setPaletteOpen(true)}
                 className="press hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 text-sm text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground hover:shadow-glow-sm sm:flex"
               >
@@ -247,7 +260,21 @@ function AppShell() {
               <div className="hidden sm:block">
                 <LanguageSwitcher compact />
               </div>
-              <NotificationDrawer workspaceId={currentWs?.id} />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setTourOpen(true)}
+                    className="press hidden size-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground sm:inline-flex"
+                    aria-label={t("tour.start", "Iniciar tour")}
+                  >
+                    <HelpCircle className="size-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t("tour.start", "Iniciar tour")}</TooltipContent>
+              </Tooltip>
+              <div data-tour="notifications">
+                <NotificationDrawer workspaceId={currentWs?.id} />
+              </div>
               <button className="press grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary/20 transition hover:shadow-glow">
                 {(profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase()}
               </button>
@@ -273,6 +300,7 @@ function AppShell() {
             userName={auth.user?.user_metadata?.full_name as string | undefined}
           />
         )}
+        <ProductTour open={tourOpen} onClose={() => setTourOpen(false)} />
       </div>
     </TooltipProvider>
   );
@@ -294,10 +322,17 @@ function SidebarBody({
 }) {
   const { t } = useTranslation();
 
+  const TOUR_KEYS: Record<string, string> = {
+    "/app": "dashboard",
+    "/app/brain": "brain",
+    "/app/builder": "builder",
+    "/app/content": "content",
+  };
+
   return (
     <div className="flex h-full flex-col">
       {/* BRAND */}
-      <div className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}>
+      <div data-tour="brand" className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}>
         <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
           <Sparkles className="size-4 text-primary-foreground" />
         </div>
@@ -321,7 +356,7 @@ function SidebarBody({
 
       {/* WORKSPACE */}
       {collapsed ? (
-        <div className="flex justify-center pb-2">
+        <div data-tour="workspace" className="flex justify-center pb-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow">
@@ -332,7 +367,9 @@ function SidebarBody({
           </Tooltip>
         </div>
       ) : (
-        <WorkspaceSwitcher workspaces={workspaces} current={currentWs} onSelect={onSelectWs} onCreate={onCreateWs} />
+        <div data-tour="workspace">
+          <WorkspaceSwitcher workspaces={workspaces} current={currentWs} onSelect={onSelectWs} onCreate={onCreateWs} />
+        </div>
       )}
 
       {/* NAV */}
@@ -352,6 +389,7 @@ function SidebarBody({
                   <Link
                     key={item.to}
                     to={item.to}
+                    data-tour={TOUR_KEYS[item.to]}
                     className={cn(
                       "group relative flex items-center rounded-lg text-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
                       collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
