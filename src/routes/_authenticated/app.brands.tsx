@@ -62,7 +62,7 @@ function BrandsPage() {
         subtitle="Voice, palette and identity per project."
       />
 
-      <div className="rounded-2xl border border-border bg-card/60 p-5">
+      <div className="section-card p-5">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -118,7 +118,7 @@ function BrandsPage() {
           {(q.data ?? []).map((b) => (
             <div
               key={b.id}
-              className="rounded-2xl border border-border bg-card/60 p-5 transition hover:border-primary/30 hover:shadow-glow-sm"
+              className="section-card hover-lift p-5"
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">{b.name}</h3>

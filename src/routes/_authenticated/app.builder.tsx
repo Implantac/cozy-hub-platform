@@ -7,6 +7,7 @@ import {
   Rocket, CheckCircle2, Circle, Layers, ArrowRight, Sparkles, Target, Users, DollarSign, MessageSquare,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { BuilderService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
@@ -75,21 +76,18 @@ function BusinessBuilderPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-              <Rocket className="size-3 text-accent" /> Builder · construa o modelo
+        <PageHeader
+          icon={Rocket}
+          eyebrow="Builder · construa o modelo"
+          title="Business Builder"
+          subtitle="10 blocos. 10 decisões. Um modelo de negócio que cabe em uma página."
+          action={
+            <div className="text-right">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Completo</div>
+              <div className="text-2xl font-bold tabular-nums">{filled}/{total}</div>
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight">Business Builder</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              10 blocos. 10 decisões. Um modelo de negócio que cabe em uma página.
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Completo</div>
-            <div className="text-2xl font-bold tabular-nums">{filled}/{total}</div>
-          </div>
-        </motion.header>
+          }
+        />
 
         <motion.div variants={fadeUp} className="h-2 overflow-hidden rounded-full bg-secondary">
           <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${progress}%` }} />
@@ -131,7 +129,7 @@ function BusinessBuilderPage() {
               onSave={() => mut.mutate({ field: active, value: draft })}
             />
 
-            <div className="mt-6 rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+            <div className="mt-6 section-card p-6">
               <div className="mb-4 text-[11px] uppercase tracking-wider text-muted-foreground">Resumo · one-pager</div>
               <div className="grid gap-3 text-sm">
                 {BLOCKS.map((b) => (
@@ -156,7 +154,7 @@ function BlockEditor({ block, value, onChange, dirty, saving, onSave }: {
 }) {
   const Icon = block.icon;
   return (
-    <div className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+    <div className="section-card p-6">
       <div className="flex items-center gap-3">
         <div className="grid size-10 place-items-center rounded-xl bg-gradient-brand text-primary-foreground shadow-glow">
           <Icon className="size-5" />

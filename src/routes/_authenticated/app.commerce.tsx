@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingBag, Package, Globe, Truck, CheckCircle, Lock } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/commerce")({
@@ -18,18 +19,17 @@ function CommercePage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <ShoppingBag className="size-3 text-accent"/> Commerce Hub
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight">Comércio digital</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Infraestrutura para você vender produtos físicos e digitais em escala.</p>
-        </header>
+        <PageHeader
+          icon={ShoppingBag}
+          eyebrow="Commerce Hub"
+          title="Comércio digital"
+          subtitle="Infraestrutura para você vender produtos físicos e digitais em escala."
+        />
 
         <div className="grid gap-4 md:grid-cols-2">
           {SECTIONS.map(s => (
             <motion.div key={s.title} variants={fadeUp}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+              className="section-card hover-lift group relative overflow-hidden p-6">
               <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/15 to-transparent blur-2xl"/>
               <div className="relative flex items-start gap-4">
                 <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
