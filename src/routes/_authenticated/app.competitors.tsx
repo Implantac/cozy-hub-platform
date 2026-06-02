@@ -60,33 +60,30 @@ function CompetitorRadarPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-              <RadarIcon className="size-3 text-accent" /> Radar · inteligência competitiva
-            </div>
-            <h1 className="text-4xl font-semibold tracking-tight">Concorrentes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Quem está no seu radar, o que estão fazendo, onde você pode ganhar.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-lg border border-border bg-card/60 p-0.5">
-              <button onClick={() => setView("list")}
-                className={`rounded-md px-3 py-1.5 text-xs transition ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                Lista
+        <PageHeader
+          icon={RadarIcon}
+          eyebrow="Radar · inteligência competitiva"
+          title="Concorrentes"
+          subtitle="Quem está no seu radar, o que estão fazendo, onde você pode ganhar."
+          action={
+            <>
+              <div className="inline-flex rounded-lg border border-border bg-card/60 p-0.5">
+                <button onClick={() => setView("list")}
+                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                  Lista
+                </button>
+                <button onClick={() => setView("matrix")}
+                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "matrix" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                  Matriz
+                </button>
+              </div>
+              <button onClick={() => setOpen(true)}
+                className="hover-lift inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
+                <Plus className="size-4" /> Adicionar
               </button>
-              <button onClick={() => setView("matrix")}
-                className={`rounded-md px-3 py-1.5 text-xs transition ${view === "matrix" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                Matriz
-              </button>
-            </div>
-            <button onClick={() => setOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
-              <Plus className="size-4" /> Adicionar
-            </button>
-          </div>
-        </motion.header>
+            </>
+          }
+        />
 
         {q.isLoading ? (
           <Loading />
