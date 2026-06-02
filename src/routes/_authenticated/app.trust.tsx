@@ -148,7 +148,7 @@ function TrustAnalyzerTab() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="p-5">
+      <section className="section-card p-5">
         <h3 className="mb-4 text-base font-semibold">Analisar alvo</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -194,9 +194,9 @@ function TrustAnalyzerTab() {
             {mutation.isPending ? <><Loader2 className="mr-2 size-4 animate-spin" /> Analisando...</> : <><Sparkles className="mr-2 size-4" /> Analisar com IA</>}
           </Button>
         </div>
-      </Card>
+      </section>
 
-      <Card className="p-5">
+      <section className="section-card p-5">
         <h3 className="mb-4 text-base font-semibold">Resultado</h3>
         {!result ? (
           <EmptyState text="Sem análise ainda. Preencha o formulário e rode a IA." />
@@ -213,7 +213,7 @@ function TrustAnalyzerTab() {
             ]}
           />
         )}
-      </Card>
+      </section>
     </div>
   );
 }
@@ -257,7 +257,7 @@ function BeforeYouBuyTab() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="p-5">
+      <section className="section-card p-5">
         <h3 className="mb-4 text-base font-semibold">Antes de comprar</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -306,9 +306,9 @@ function BeforeYouBuyTab() {
             {mutation.isPending ? <><Loader2 className="mr-2 size-4 animate-spin" /> Avaliando...</> : <><Sparkles className="mr-2 size-4" /> Avaliar com IA</>}
           </Button>
         </div>
-      </Card>
+      </section>
 
-      <Card className="p-5">
+      <section className="section-card p-5">
         <h3 className="mb-4 text-base font-semibold">Veredito</h3>
         {!result ? (
           <EmptyState text="Sem avaliação ainda. Descreva a compra e rode a IA antes de pagar." />
@@ -331,7 +331,7 @@ function BeforeYouBuyTab() {
             ]}
           />
         )}
-      </Card>
+      </section>
     </div>
   );
 }
@@ -433,7 +433,7 @@ function HistoryTab() {
                 </div>
               </div>
             </div>
-          </Card>
+          </section>
         );
       })}
     </div>
