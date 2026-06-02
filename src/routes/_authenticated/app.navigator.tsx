@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Compass, ChevronRight, Sparkles, Clock, DollarSign, Check } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { NavigatorService } from "@/lib/services";
 import { toast } from "sonner";
 
@@ -75,13 +76,13 @@ function NavigatorPage() {
             <Stat label="Maturidade" value={String(p.maturity_level).toUpperCase()} />
           </motion.div>
 
-          <div className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+          <div className="section-card p-6">
             <div className="mb-4 flex items-center gap-2 text-sm font-medium">
               <Sparkles className="size-4 text-accent" /> Suas próximas ações
             </div>
             <ul className="space-y-2">
               {(p.recommended_actions as Array<{title:string;href?:string}> | null ?? []).map((a, i) => (
-                <li key={i} className="flex items-center justify-between rounded-xl border border-border bg-background/40 p-4 transition hover:border-primary/40">
+                <li key={i} className="hover-lift flex items-center justify-between rounded-xl border border-border bg-background/40 p-4 transition hover:border-primary/40">
                   <div className="flex items-center gap-3">
                     <div className="grid size-8 place-items-center rounded-lg bg-primary/15 text-sm font-semibold text-primary">{i+1}</div>
                     <span className="text-sm font-medium">{a.title}</span>
@@ -114,7 +115,7 @@ function NavigatorPage() {
         </div>
 
         <motion.div key={step} variants={fadeUp} initial="initial" animate="animate"
-          className="rounded-2xl border border-border bg-card/60 p-8 backdrop-blur">
+          className="section-card p-8">
           {step <= 1 && (
             <>
               <Title>Qual seu nível de experiência?</Title>
@@ -237,13 +238,12 @@ function NavigatorPage() {
 
 function Header() {
   return (
-    <header>
-      <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-        <Compass className="size-3 text-accent" /> Digital Navigator
-      </div>
-      <h1 className="text-3xl font-semibold tracking-tight">Seu caminho de crescimento</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Diagnóstico inteligente para gerar seu plano de ação personalizado.</p>
-    </header>
+    <PageHeader
+      icon={Compass}
+      eyebrow="Digital Navigator"
+      title="Seu caminho de crescimento"
+      subtitle="Diagnóstico inteligente para gerar seu plano de ação personalizado."
+    />
   );
 }
 
@@ -274,7 +274,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <motion.div variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur">
+    <motion.div variants={fadeUp} className="section-card p-5">
       <div className="text-xs uppercase tracking-widest text-muted-foreground">{label}</div>
       <div className="mt-2 text-2xl font-semibold tracking-tight">{value}</div>
     </motion.div>
