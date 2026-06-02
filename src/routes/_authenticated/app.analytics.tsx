@@ -15,6 +15,8 @@ import {
 } from "recharts";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
+import { StatTile } from "@/components/app/StatTile";
+import { SectionCard } from "@/components/app/SectionCard";
 import { StatGridSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
 import { Link } from "@tanstack/react-router";
