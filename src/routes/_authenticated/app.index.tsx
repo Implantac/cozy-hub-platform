@@ -18,6 +18,7 @@ import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { toast } from "sonner";
 import { fadeUp, stagger, MotionCard, PageTransition } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
+import { PageSkeleton } from "@/components/app/Skeletons";
 import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/")({
