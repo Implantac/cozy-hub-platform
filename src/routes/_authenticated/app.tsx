@@ -300,6 +300,7 @@ function AppShell() {
             userName={auth.user?.user_metadata?.full_name as string | undefined}
           />
         )}
+        <ProductTour open={tourOpen} onClose={() => setTourOpen(false)} />
       </div>
     </TooltipProvider>
   );
