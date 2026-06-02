@@ -129,7 +129,7 @@ function BusinessBuilderPage() {
               onSave={() => mut.mutate({ field: active, value: draft })}
             />
 
-            <div className="mt-6 rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+            <div className="mt-6 section-card p-6">
               <div className="mb-4 text-[11px] uppercase tracking-wider text-muted-foreground">Resumo · one-pager</div>
               <div className="grid gap-3 text-sm">
                 {BLOCKS.map((b) => (
@@ -154,7 +154,7 @@ function BlockEditor({ block, value, onChange, dirty, saving, onSave }: {
 }) {
   const Icon = block.icon;
   return (
-    <div className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+    <div className="section-card p-6">
       <div className="flex items-center gap-3">
         <div className="grid size-10 place-items-center rounded-xl bg-gradient-brand text-primary-foreground shadow-glow">
           <Icon className="size-5" />
