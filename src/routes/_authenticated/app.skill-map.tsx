@@ -7,6 +7,7 @@ import {
   Brain, CheckCircle2, Circle, TrendingUp, Target, Sparkles, X,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { BrainEvolutionService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
