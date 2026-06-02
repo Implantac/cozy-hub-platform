@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageHeader } from "@/components/app/PageHeader";
+import { SectionCard } from "@/components/app/SectionCard";
 import {
   addMemory,
   listMemories,
