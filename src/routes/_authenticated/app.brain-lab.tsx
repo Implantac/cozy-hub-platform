@@ -588,7 +588,7 @@ function AntiScamPanel() {
               </div>
             );
           })}
-          {(repQ.data ?? []).length === 0 && <EmptyState text="Nenhuma análise ainda." />}
+          {(repQ.data ?? []).length === 0 && <EmptyState variant="dashed" icon={BarChart3} title="Nenhuma análise ainda" text="Solicite uma análise para gerar red/green flags e recomendações acionáveis." />}
         </div>
       </div>
     </div>
