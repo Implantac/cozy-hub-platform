@@ -19,6 +19,8 @@ import { NotificationDrawer } from "@/components/app/NotificationDrawer";
 import { OnboardingWizard } from "@/components/app/OnboardingWizard";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ProductTour, hasSeenTour } from "@/components/app/ProductTour";
+import { HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
