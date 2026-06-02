@@ -18,6 +18,7 @@ import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { toast } from "sonner";
 import { fadeUp, stagger, MotionCard, PageTransition } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
+import { PageSkeleton } from "@/components/app/Skeletons";
 import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -98,14 +99,7 @@ function GPSDashboard() {
   });
 
   if (!wsId || overview.isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center text-muted-foreground">
-        <div className="flex items-center gap-3">
-          <span className="size-2 animate-pulse rounded-full bg-primary" />
-          Carregando GPS...
-        </div>
-      </div>
-    );
+    return <PageSkeleton stats={4} rows={4} />;
   }
 
   const d = overview.data!;
