@@ -147,7 +147,7 @@ function ContentPage() {
         />
 
         {/* Composer */}
-        <div className="rounded-2xl border border-border bg-card/60 p-5">
+        <div className="section-card p-5">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -250,8 +250,8 @@ function ContentPage() {
             return (
               <div
                 key={c.id}
-                className={`flex items-center gap-3 rounded-xl border bg-card/60 p-4 transition ${
-                  isSelected ? "border-primary ring-1 ring-primary/30" : "border-border"
+                className={`section-card hover-lift flex items-center gap-3 p-4 transition ${
+                  isSelected ? "border-primary ring-1 ring-primary/30" : ""
                 }`}
               >
                 <button
