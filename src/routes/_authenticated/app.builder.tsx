@@ -7,6 +7,7 @@ import {
   Rocket, CheckCircle2, Circle, Layers, ArrowRight, Sparkles, Target, Users, DollarSign, MessageSquare,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
 import { BuilderService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { toast } from "sonner";
