@@ -8,9 +8,10 @@ import {
 import { DecisionOSService } from "@/lib/services";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { PageHeader } from "@/components/app/PageHeader";
+
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageTransition } from "@/components/app/Motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/app/decisions")({
 
 function DecisionOSPage() {
   return (
+    <PageTransition>
     <div className="space-y-6">
       <PageHeader
         title="Decision OS"
@@ -49,6 +51,7 @@ function DecisionOSPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </PageTransition>
   );
 }
 
@@ -88,7 +91,7 @@ function BusinessValidatorTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="p-5">
+      <div className="section-card p-5 animate-rise-in">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="grid size-8 place-items-center rounded-lg bg-gradient-brand">
@@ -130,7 +133,7 @@ function BusinessValidatorTab() {
               : <><Sparkles className="size-4" /> Validar com IA</>}
           </Button>
         </div>
-      </Card>
+      </div>
 
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Validações anteriores</h3>
@@ -152,7 +155,7 @@ function ValidationCard({ v }: { v: any }) {
   const verdict = verdictMap[v.verdict] ?? verdictMap.challenging;
 
   return (
-    <Card className="p-5 space-y-4">
+    <div className="section-card p-5 space-y-4 animate-rise-in">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium line-clamp-2">{v.idea}</p>
@@ -195,7 +198,7 @@ function ValidationCard({ v }: { v: any }) {
           </ol>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -263,7 +266,7 @@ function RealityCheckTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="p-5">
+      <div className="section-card p-5 animate-rise-in">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="grid size-8 place-items-center rounded-lg bg-gradient-brand">
@@ -311,7 +314,7 @@ function RealityCheckTab() {
               : <><Sparkles className="size-4" /> Fazer reality check</>}
           </Button>
         </div>
-      </Card>
+      </div>
 
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Histórico</h3>
@@ -333,7 +336,7 @@ function RealityCard({ r }: { r: any }) {
   const CauIcon = cau.icon;
 
   return (
-    <Card className={`p-5 space-y-4 ring-1 ${cau.ringClass}`}>
+    <div className={`section-card p-5 space-y-4 ring-1 ${cau.ringClass} animate-rise-in`}>
       <div className={`h-1 -m-5 mb-2 ${cau.barClass}`} />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -377,6 +380,6 @@ function RealityCard({ r }: { r: any }) {
           </ul>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

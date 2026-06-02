@@ -6,6 +6,8 @@ import {
   Compass, MapPin, Sparkles, TrendingUp, TrendingDown, Minus, Activity,
 } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageHeader } from "@/components/app/PageHeader";
+import { EmptyState } from "@/components/app/EmptyState";
 import { ListSkeleton } from "@/components/app/Skeletons";
 import { BrainEvolutionService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
@@ -44,19 +46,18 @@ function JourneyPage() {
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <motion.header variants={fadeUp}>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <Compass className="size-3 text-accent" /> Journey · sua trajetória
-          </div>
-          <h1 className="text-4xl font-semibold tracking-tight">Linha do tempo</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Trimestres reconstruídos a partir das suas decisões, experimentos e memória do Brain.
-          </p>
-        </motion.header>
+        <motion.div variants={fadeUp}>
+          <PageHeader
+            icon={Compass}
+            eyebrow="Journey · sua trajetória"
+            title="Linha do tempo"
+            subtitle="Trimestres reconstruídos a partir das suas decisões, experimentos e memória do Brain."
+          />
+        </motion.div>
 
         {/* Mentor verdict */}
         {mentor && (
-          <motion.section variants={fadeUp} className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur">
+          <motion.section variants={fadeUp} className="section-card p-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Veredicto do mentor</div>
@@ -119,7 +120,7 @@ function PeriodRow({ period: p }: { period: Period }) {
       <div className="relative z-10 grid size-8 shrink-0 place-items-center rounded-full bg-primary/15 text-primary ring-2 ring-primary/30">
         <TIcon className="size-3.5" />
       </div>
-      <div className="min-w-0 flex-1 rounded-xl border border-border bg-card/60 p-4 backdrop-blur">
+      <div className="min-w-0 flex-1 section-card hover-lift p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm font-semibold">{p.key}</div>
           <div className="flex flex-wrap gap-1.5">
@@ -160,11 +161,11 @@ function Mini({ label, value }: { label: string; value: string | number }) {
 
 function Empty() {
   return (
-    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-      <Activity className="mx-auto size-6 text-muted-foreground" />
-      <p className="mt-3 text-sm text-muted-foreground">
-        Sem histórico ainda. Comece registrando decisões e experimentos — a timeline se constrói sozinha.
-      </p>
-    </div>
+    <EmptyState
+      variant="dashed"
+      icon={Activity}
+      title="Sem histórico ainda"
+      text="Comece registrando decisões e experimentos — a timeline se constrói sozinha."
+    />
   );
 }
