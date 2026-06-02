@@ -91,31 +91,54 @@ function BrandsPage() {
         </form>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {(q.data ?? []).map((b) => (
-          <div
-            key={b.id}
-            className="rounded-2xl border border-border bg-card/60 p-5"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{b.name}</h3>
-              <button
-                type="button"
-                aria-label={`Delete brand ${b.name}`}
-                onClick={() => delMut.mutate(b.id)}
-                disabled={!q.wsId || delMut.isPending}
-                className="text-muted-foreground hover:text-destructive disabled:opacity-50"
-              >
-                <Trash2 className="size-4" />
-              </button>
+      {q.isLoading ? (
+        <ListSkeleton rows={3} />
+      ) : q.data && q.data.length === 0 ? (
+        <EmptyState
+          variant="card"
+          icon={Palette}
+          title="Nenhuma marca ainda"
+          text="Crie sua primeira marca para definir voz, paleta e canais. É a base da operação no USE OS."
+          action={
+            <Button
+              size="sm"
+              onClick={() => {
+                const input = document.querySelector<HTMLInputElement>('input[placeholder="Brand name"]');
+                input?.focus();
+              }}
+            >
+              <Plus className="size-4" /> Criar primeira marca
+            </Button>
+          }
+          helpHref="https://docs.lovable.dev"
+          helpLabel="Como estruturar uma marca"
+        />
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {(q.data ?? []).map((b) => (
+            <div
+              key={b.id}
+              className="rounded-2xl border border-border bg-card/60 p-5 transition hover:border-primary/30 hover:shadow-glow-sm"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">{b.name}</h3>
+                <button
+                  type="button"
+                  aria-label={`Delete brand ${b.name}`}
+                  onClick={() => delMut.mutate(b.id)}
+                  disabled={!q.wsId || delMut.isPending}
+                  className="text-muted-foreground hover:text-destructive disabled:opacity-50"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {b.description ?? "—"}
+              </p>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {b.description ?? "—"}
-            </p>
-          </div>
-        ))}
-        {q.data?.length === 0 && <EmptyState text="No brands yet." />}
-      </div>
+          ))}
+        </div>
+      )}
       </div>
     </PageTransition>
   );
