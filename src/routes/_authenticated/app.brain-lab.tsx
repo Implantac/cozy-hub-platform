@@ -375,7 +375,7 @@ function ExperimentsPanel() {
               </div>
             </div>
           ))}
-          {(expQ.data ?? []).length === 0 && <EmptyState text="Nenhum experimento ainda." />}
+          {(expQ.data ?? []).length === 0 && <EmptyState variant="dashed" icon={FlaskConical} title="Nenhum experimento ainda" text="Crie experimentos para testar hipóteses e medir impacto antes de escalar decisões." />}
         </div>
       </div>
     </div>
