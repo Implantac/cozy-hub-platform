@@ -201,7 +201,7 @@ function AppShell() {
 
   if (auth.loading || wsQuery.isLoading) {
     return (
-      <div className="grid min-h-screen place-items-center bg-background">
+      <div className="grid min-h-dvh place-items-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <div className="grid size-12 place-items-center rounded-xl bg-gradient-brand shadow-glow animate-pulse">
             <Brain className="size-6 text-primary-foreground" />
@@ -240,7 +240,7 @@ function AppShell() {
       >
         {t("a11y.skipToContent", "Pular para o conteúdo")}
       </a>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex min-h-dvh bg-background">
         {/* DESKTOP SIDEBAR */}
         <aside
           className={cn(
@@ -461,11 +461,11 @@ function SidebarBody({
         {NAV_GROUPS.map((group) => (
           <div key={group.labelKey}>
             {!collapsed && (
-              <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+              <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/60">
                 {t(group.labelKey)}
               </div>
             )}
-            {collapsed && <div className="mx-2 mb-1.5 h-px bg-sidebar-border/70" />}
+            {collapsed && <div className="mx-2 mb-1.5 h-px bg-sidebar-border/60" />}
             <div className="space-y-0.5">
               {group.items.map((item) => {
                 const active = isItemActive(path, item);
@@ -475,18 +475,18 @@ function SidebarBody({
                     to={item.to}
                     data-tour={TOUR_KEYS[item.to]}
                     className={cn(
-                      "group relative flex items-center rounded-lg text-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                      collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2",
+                      "group relative flex items-center rounded-lg text-sm transition-colors duration-200",
+                      collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2 min-h-9",
                       active
-                        ? "bg-sidebar-accent/80 text-sidebar-accent-foreground shadow-soft ring-1 ring-primary/20"
-                        : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground hover:translate-x-0.5",
+                        ? "bg-primary/10 text-foreground"
+                        : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
                     {active && !collapsed && (
-                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-gradient-brand shadow-glow-sm" />
+                      <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-gradient-brand shadow-glow-sm" />
                     )}
-                    <item.icon className={cn("size-4 transition-all duration-200", active ? "text-primary scale-110" : "group-hover:text-foreground group-hover:scale-105")} />
+                    <item.icon className={cn("size-4 transition-colors", active ? "text-primary" : "group-hover:text-foreground")} />
                     {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
                   </Link>
                 );
