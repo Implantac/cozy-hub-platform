@@ -117,7 +117,7 @@ function ChannelsPage() {
               key={p.id}
               onClick={() => connectMut.mutate(p.oauth)}
               disabled={!q.wsId || connectMut.isPending}
-              className="group flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left transition hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+              className="group hover-lift flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left transition hover:border-primary hover:bg-primary/5 disabled:opacity-50"
             >
               <div className="grid size-10 place-items-center rounded-lg bg-secondary group-hover:bg-primary/10">
                 <p.Icon className="size-5" />
