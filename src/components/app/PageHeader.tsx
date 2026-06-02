@@ -8,29 +8,49 @@ interface PageHeaderProps {
   subtitle?: string;
   eyebrow?: string;
   action?: ReactNode;
+  /** Optional pre-title content, e.g. breadcrumbs */
+  breadcrumb?: ReactNode;
   className?: string;
 }
 
-export function PageHeader({ icon: Icon, title, subtitle, eyebrow, action, className }: PageHeaderProps) {
+export function PageHeader({
+  icon: Icon,
+  title,
+  subtitle,
+  eyebrow,
+  action,
+  breadcrumb,
+  className,
+}: PageHeaderProps) {
   return (
-    <header className={cn("flex flex-wrap items-end justify-between gap-4", className)}>
-      <div className="flex items-start gap-3.5 min-w-0">
+    <header
+      className={cn(
+        "flex flex-wrap items-end justify-between gap-4 animate-rise-in",
+        className,
+      )}
+    >
+      <div className="flex min-w-0 items-start gap-3.5">
         <div className="relative grid size-11 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
           <Icon className="size-5 text-primary-foreground" />
         </div>
         <div className="min-w-0">
-          {eyebrow && (
-            <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground backdrop-blur">
-              {eyebrow}
-            </div>
+          {breadcrumb && (
+            <div className="mb-1 text-xs text-muted-foreground">{breadcrumb}</div>
           )}
-          <h1 className="text-2xl font-semibold tracking-tight md:text-[28px] md:leading-tight">{title}</h1>
+          {eyebrow && <div className="eyebrow-chip mb-1.5">{eyebrow}</div>}
+          <h1 className="text-balance text-[26px] font-semibold leading-tight tracking-tight md:text-[30px]">
+            {title}
+          </h1>
           {subtitle ? (
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
+            <p className="mt-1.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
+              {subtitle}
+            </p>
           ) : null}
         </div>
       </div>
-      {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
+      {action ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>
+      ) : null}
     </header>
   );
 }
