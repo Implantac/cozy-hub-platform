@@ -844,11 +844,11 @@ function TimelinePanel() {
     return <EmptyState text="Selecione um workspace para ver a linha do tempo." />;
   }
   if (tlQ.isLoading) {
-    return <div className="text-sm text-muted-foreground">Construindo narrativa…</div>;
+    return <ListSkeleton rows={4} />;
   }
   const data = tlQ.data;
   if (!data || data.periods.length === 0) {
-    return <EmptyState text="Histórico ainda raso. Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua trajetória trimestre a trimestre." />;
+    return <EmptyState variant="card" icon={History} title="Trajetória ainda em construção" text="Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua linha do tempo trimestre a trimestre." />;
   }
 
   const trajectory = data.mentor.trajectory_delta;
