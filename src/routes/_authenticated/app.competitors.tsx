@@ -273,12 +273,16 @@ function Loading() {
 
 function Empty({ onAdd }: { onAdd: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-      <RadarIcon className="mx-auto size-6 text-muted-foreground" />
-      <p className="mt-3 text-sm text-muted-foreground">Nenhum concorrente no radar ainda.</p>
-      <button onClick={onAdd} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow">
-        <Plus className="size-4" /> Adicionar o primeiro
-      </button>
-    </div>
+    <EmptyState
+      variant="card"
+      icon={RadarIcon}
+      title="Radar vazio"
+      text="Adicione concorrentes para acompanhar movimentos, gaps e oportunidades."
+      action={
+        <button onClick={onAdd} className="hover-lift inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow">
+          <Plus className="size-4" /> Adicionar o primeiro
+        </button>
+      }
+    />
   );
 }
