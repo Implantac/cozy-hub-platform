@@ -98,14 +98,7 @@ function GPSDashboard() {
   });
 
   if (!wsId || overview.isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center text-muted-foreground">
-        <div className="flex items-center gap-3">
-          <span className="size-2 animate-pulse rounded-full bg-primary" />
-          Carregando GPS...
-        </div>
-      </div>
-    );
+    return <PageSkeleton stats={4} rows={4} />;
   }
 
   const d = overview.data!;
