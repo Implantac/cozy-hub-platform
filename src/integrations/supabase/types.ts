@@ -1476,7 +1476,6 @@ export type Database = {
           id: string
           locale: string
           onboarding_completed: boolean
-          tour_completed: boolean
           updated_at: string
         }
         Insert: {
@@ -1487,7 +1486,6 @@ export type Database = {
           id: string
           locale?: string
           onboarding_completed?: boolean
-          tour_completed?: boolean
           updated_at?: string
         }
         Update: {
@@ -1498,7 +1496,6 @@ export type Database = {
           id?: string
           locale?: string
           onboarding_completed?: boolean
-          tour_completed?: boolean
           updated_at?: string
         }
         Relationships: []
