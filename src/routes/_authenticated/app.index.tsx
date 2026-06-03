@@ -1,12 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import {
-  Brain, Radio, Palette, FileText, Calendar,
-  Target, Zap, Activity, ArrowUpRight, Compass,
-  Flame, Heart,
-} from "lucide-react";
+import { Activity } from "lucide-react";
 import {
   CoachService, HealthService, OpportunitiesService, BrainCoreService,
   BuilderService, BrainEvolutionService,
@@ -15,14 +11,15 @@ import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { toast } from "sonner";
-import { fadeUp, stagger, PageTransition } from "@/components/app/Motion";
-import { ScoreGauge } from "@/components/app/ScoreGauge";
+import { stagger, PageTransition } from "@/components/app/Motion";
 import { PageSkeleton } from "@/components/app/Skeletons";
-import {
-  Empty, KpiCard, LinkAction, Panel, RecIcon, SeverityPill, StatusPill,
-} from "@/features/dashboard/components/atoms";
 import { FiveQuestionsSection } from "@/features/dashboard/sections/FiveQuestionsSection";
 import { OsLayersSection } from "@/features/dashboard/sections/OsLayersSection";
+import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { TopRowSection } from "@/features/dashboard/sections/TopRowSection";
+import { CoachMissionsSection } from "@/features/dashboard/sections/CoachMissionsSection";
+import { ActivityPipelineSection } from "@/features/dashboard/sections/ActivityPipelineSection";
+import { KpiFooterSection } from "@/features/dashboard/sections/KpiFooterSection";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: GPSDashboard,
@@ -109,212 +106,29 @@ function GPSDashboard() {
   const s = brain.data?.scores as any;
   const topRecs = (recs.data ?? []).slice(0, 4);
   const trending = (opps.data ?? []).filter((o: any) => o.status === "exploding" || o.status === "growing").slice(0, 3);
-  const healthAvg = health.data && health.data.length > 0
-    ? Math.round(health.data.reduce((a: number, h: any) => a + h.score, 0) / health.data.length)
+  const healthList = health.data ?? [];
+  const healthAvg = healthList.length > 0
+    ? Math.round(healthList.reduce((a: number, h: any) => a + h.score, 0) / healthList.length)
     : null;
   const priorityMissions = (d.missions ?? []).filter((m: any) => m.status !== "done").slice(0, 4);
 
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        {/* Header */}
-        <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-4">
-          <div className="min-w-0">
-            <div className="eyebrow-chip mb-2">
-              <Compass className="size-3 text-accent" />
-              Business GPS · cockpit operacional
-            </div>
-            <h1 className="text-balance text-[30px] font-semibold leading-tight tracking-tight md:text-[36px]">
-              USE Brain
-            </h1>
-            <p className="mt-1.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
-              O cérebro do seu negócio digital — sempre respondendo as 5 perguntas que importam.
-            </p>
-          </div>
-          <button
-            onClick={() => refreshAll.mutate()}
-            disabled={refreshAll.isPending}
-            className="press group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
-          >
-            <Brain className={`size-4 transition group-hover:rotate-12 ${refreshAll.isPending ? "animate-pulse" : ""}`} />
-            {refreshAll.isPending ? "Pensando..." : "Pensar de novo"}
-          </button>
-        </motion.header>
+        <DashboardHeader onRefresh={() => refreshAll.mutate()} isPending={refreshAll.isPending} />
 
         <FiveQuestionsSection answers={brain.data?.answers ?? []} loading={brain.isLoading} />
 
-        {/* Top row — Score + Health summary + Goal */}
-        <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
-          <motion.div variants={fadeUp} className="section-card grid place-items-center p-6">
-            <ScoreGauge value={s?.overall ?? 0} size={200} label="Digital Score" />
-            <Link to="/app/score" className="link-underline mt-3 inline-flex items-center gap-1 text-xs text-primary">
-              Ver detalhes <ArrowUpRight className="size-3" />
-            </Link>
-          </motion.div>
+        <TopRowSection
+          scoreOverall={s?.overall ?? 0}
+          healthAvg={healthAvg}
+          health={healthList}
+          trending={trending}
+        />
 
-          <motion.div variants={fadeUp} className="section-card p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Heart className="size-4 text-accent" /> Saúde do negócio
-              </div>
-              <Link to="/app/health" className="link-underline text-xs text-primary inline-flex items-center gap-1">
-                Diagnóstico <ArrowUpRight className="size-3" />
-              </Link>
-            </div>
-            {healthAvg === null ? (
-              <Empty text="Calcule sua saúde no módulo Health." />
-            ) : (
-              <>
-                <div className="mb-4 flex items-baseline gap-2">
-                  <span className="text-4xl font-semibold tabular-nums tracking-tight">{healthAvg}</span>
-                  <span className="text-xs text-muted-foreground">/ 100 — média geral</span>
-                </div>
-                <div className="space-y-2.5">
-                  {(health.data ?? []).map((h: any) => (
-                    <div key={h.id}>
-                      <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="capitalize text-muted-foreground">{h.category}</span>
-                        <span className="font-mono tabular-nums">{h.score}</span>
-                      </div>
-                      <div className="h-1 overflow-hidden rounded-full bg-secondary">
-                        <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${h.score}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </motion.div>
+        <CoachMissionsSection topRecs={topRecs} priorityMissions={priorityMissions} />
 
-          <motion.div variants={fadeUp} className="section-card p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Flame className="size-4 text-accent" /> Oportunidades em alta
-              </div>
-              <Link to="/app/opportunities" className="link-underline text-xs text-primary inline-flex items-center gap-1">
-                Explorar <ArrowUpRight className="size-3" />
-              </Link>
-            </div>
-            {trending.length === 0 ? (
-              <Empty text="Sem tendências capturadas ainda." />
-            ) : (
-              <ul className="space-y-2">
-                {trending.map((o: any) => (
-                  <li key={o.id} className="rounded-lg border border-border/70 bg-background/40 p-3 transition hover:border-primary/30">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-medium">{o.title}</span>
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] ${
-                        o.status === "exploding" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"
-                      }`}>{o.status}</span>
-                    </div>
-                    {o.description && (
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{o.description}</p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </motion.div>
-        </section>
-
-        {/* Coach recommendations + Priority missions */}
-        <section className="grid gap-4 lg:grid-cols-3">
-          <Panel
-            className="lg:col-span-2"
-            title="Próximos passos do Coach"
-            icon={Brain}
-            action={<LinkAction to="/app/coach" label="Abrir Coach" />}
-          >
-            {topRecs.length === 0 ? (
-              <Empty text="Sem recomendações ativas. Clique em Atualizar GPS para gerar." />
-            ) : (
-              <ul className="space-y-2">
-                {topRecs.map((r: any) => (
-                  <li key={r.id} className="rounded-xl border border-border bg-background/40 p-4 transition hover:border-primary/40">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <RecIcon kind={r.kind} />
-                        <div>
-                          <div className="font-medium">{r.title}</div>
-                          {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
-                        </div>
-                      </div>
-                      <SeverityPill severity={r.severity} />
-                    </div>
-                    {r.cta?.href && (
-                      <Link to={r.cta.href} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                        {r.cta.label ?? "Abrir"} <ArrowUpRight className="size-3" />
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-
-          <Panel
-            title="Missões prioritárias"
-            icon={Target}
-            action={<LinkAction to="/app/missions" label="Gerenciar" />}
-          >
-            {priorityMissions.length === 0 ? (
-              <Empty text="Nenhuma missão pendente." />
-            ) : (
-              <ul className="space-y-2">
-                {priorityMissions.map((m: any) => (
-                  <li key={m.id} className="flex items-center justify-between rounded-lg border border-border bg-background/40 p-3">
-                    <span className="truncate text-sm">{m.title}</span>
-                    <StatusPill status={m.status} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-        </section>
-
-        {/* Activity + Pipeline */}
-        <section className="grid gap-4 lg:grid-cols-3">
-          <Panel title="Atividade recente" icon={Zap} className="lg:col-span-2">
-            {d.events.length === 0 ? (
-              <Empty text="Sem eventos ainda." />
-            ) : (
-              <ul className="divide-y divide-border">
-                {d.events.slice(0, 8).map((e: any) => (
-                  <li key={e.id} className="flex items-center justify-between py-2 text-sm">
-                    <span className="font-mono text-xs text-accent">{e.event_type}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(e.created_at).toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-
-          <Panel title="Pipeline de conteúdo" icon={FileText}>
-            {Object.keys(d.contentByStatus).length === 0 ? (
-              <Empty text="Sem conteúdo ainda." />
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(d.contentByStatus).map(([k, v]) => {
-                  const total = Object.values(d.contentByStatus).reduce((a: number, b) => a + (b as number), 0);
-                  const pct = total === 0 ? 0 : Math.round(((v as number) / total) * 100);
-                  return (
-                    <div key={k}>
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="capitalize text-muted-foreground">{k}</span>
-                        <span className="font-medium">{v as number}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-                        <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </Panel>
-        </section>
+        <ActivityPipelineSection events={d.events} contentByStatus={d.contentByStatus} />
 
         <OsLayersSection
           blueprint={blueprint.data}
@@ -323,15 +137,13 @@ function GPSDashboard() {
           journey={journey.data}
         />
 
-        {/* KPI footer */}
-        <motion.section variants={stagger} className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <KpiCard icon={Palette} label="Marcas" value={d.counts.brands} to="/app/brands" />
-          <KpiCard icon={Radio} label="Canais"
-            value={`${d.counts.channelsConnected}/${d.counts.channels}`}
-            to="/app/channels" />
-          <KpiCard icon={FileText} label="Conteúdos" value={d.counts.content} to="/app/content" />
-          <KpiCard icon={Calendar} label="Agendados" value={d.upcomingJobs.length} to="/app/scheduler" />
-        </motion.section>
+        <KpiFooterSection
+          brands={d.counts.brands}
+          channelsConnected={d.counts.channelsConnected}
+          channels={d.counts.channels}
+          content={d.counts.content}
+          scheduled={d.upcomingJobs.length}
+        />
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Activity className="size-3 text-success" /> Sistema operacional · atualização em tempo real ativa
