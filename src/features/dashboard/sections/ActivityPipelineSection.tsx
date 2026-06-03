@@ -1,0 +1,51 @@
+import { FileText, Zap } from "lucide-react";
+import { Empty, Panel } from "../components/atoms";
+
+type Props = { events: any[]; contentByStatus: Record<string, number> };
+
+export function ActivityPipelineSection({ events, contentByStatus }: Props) {
+  const total = Object.values(contentByStatus).reduce((a: number, b) => a + (b as number), 0);
+  return (
+    <section className="grid gap-4 lg:grid-cols-3">
+      <Panel title="Atividade recente" icon={Zap} className="lg:col-span-2">
+        {events.length === 0 ? (
+          <Empty text="Sem eventos ainda." />
+        ) : (
+          <ul className="divide-y divide-border">
+            {events.slice(0, 8).map((e: any) => (
+              <li key={e.id} className="flex items-center justify-between py-2 text-sm">
+                <span className="font-mono text-xs text-accent">{e.event_type}</span>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(e.created_at).toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title="Pipeline de conteúdo" icon={FileText}>
+        {Object.keys(contentByStatus).length === 0 ? (
+          <Empty text="Sem conteúdo ainda." />
+        ) : (
+          <div className="space-y-3">
+            {Object.entries(contentByStatus).map(([k, v]) => {
+              const pct = total === 0 ? 0 : Math.round(((v as number) / total) * 100);
+              return (
+                <div key={k}>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="capitalize text-muted-foreground">{k}</span>
+                    <span className="font-medium">{v as number}</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                    <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Panel>
+    </section>
+  );
+}
