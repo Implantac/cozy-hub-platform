@@ -1,48 +1,19 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  Lightbulb, AlertTriangle, Sparkles, Target, Check, X, Wand2,
-  Brain, TrendingUp, TrendingDown, Minus, History,
-} from "lucide-react";
+import { Brain, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import { CoachService, BrainCoreService } from "@/lib/services";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageTransition, stagger } from "@/components/app/Motion";
 import { PageHeader } from "@/components/app/PageHeader";
-import { ListSkeleton } from "@/components/app/Skeletons";
-import { EmptyState } from "@/components/app/EmptyState";
-import { motion } from "framer-motion";
+import { RecommendationsList } from "@/features/coach/components/RecommendationsList";
+import { JourneyTimeline } from "@/features/coach/components/JourneyTimeline";
 
 export const Route = createFileRoute("/_authenticated/app/coach")({
   component: CoachPage,
 });
-
-const KIND_META: Record<string, { icon: React.ElementType; color: string; label: string }> = {
-  insight: { icon: Lightbulb, color: "text-accent", label: "Insight" },
-  warning: { icon: AlertTriangle, color: "text-destructive", label: "Aviso" },
-  suggestion: { icon: Sparkles, color: "text-primary", label: "Sugestão" },
-  next_action: { icon: Target, color: "text-success", label: "Próxima ação" },
-};
-
-const MEMORY_META: Record<string, { icon: React.ElementType; color: string; label: string }> = {
-  decision: { icon: Check, color: "text-success", label: "Decisão" },
-  result: { icon: Target, color: "text-primary", label: "Resultado" },
-  pivot: { icon: TrendingUp, color: "text-accent", label: "Virada de direção" },
-  signal: { icon: Brain, color: "text-muted-foreground", label: "Sinal do Brain" },
-  reflection: { icon: Lightbulb, color: "text-accent", label: "Reflexão" },
-};
-
-const SENTIMENT_ICON: Record<string, { icon: React.ElementType; color: string }> = {
-  positive: { icon: TrendingUp, color: "text-success" },
-  neutral: { icon: Minus, color: "text-muted-foreground" },
-  negative: { icon: TrendingDown, color: "text-destructive" },
-};
-
-function formatWhen(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-}
 
 function CoachPage() {
   const list = useServerFn(CoachService.listRecommendations);
@@ -62,7 +33,6 @@ function CoachPage() {
   );
 
   const coachKey = wsId ? ["coach", wsId] : ["coach"];
-  const timelineKey = wsId ? ["coach-timeline", wsId] : ["coach-timeline"];
 
   const gen = useWorkspaceMutation(
     () => brainRecommend({ data: { workspaceId: wsId! } }),
@@ -77,10 +47,8 @@ function CoachPage() {
     { invalidate: coachKey },
   );
 
-  // When new recs are generated, the timeline gets a "signal" event — refresh it too
   const onGenerate = async () => {
     await gen.mutateAsync();
-    // best-effort refresh; ignore failure
     try { await (tl as any).refetch?.(); } catch {}
   };
 
@@ -105,44 +73,7 @@ function CoachPage() {
         />
 
         <motion.div variants={stagger} className="grid gap-3">
-          {(q.data ?? []).map((r: any) => {
-            const meta = KIND_META[r.kind] ?? KIND_META.suggestion;
-            const Icon = meta.icon;
-            return (
-              <motion.div key={r.id} variants={fadeUp}
-                className="section-card hover-lift group flex items-start gap-4 p-5">
-                <div className={`grid size-10 shrink-0 place-items-center rounded-xl bg-background/60 ${meta.color}`}>
-                  <Icon className="size-5"/>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] uppercase tracking-widest ${meta.color}`}>{meta.label}</span>
-                    {r.severity && r.severity !== "info" && (
-                      <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">{r.severity}</span>
-                    )}
-                  </div>
-                  <h3 className="mt-1 font-medium">{r.title}</h3>
-                  {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
-                  {r.cta?.href && r.cta?.label && (
-                    <Link to={r.cta.href}
-                      className="mt-3 inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:opacity-90">
-                      {r.cta.label} →
-                    </Link>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <button onClick={() => act.mutate({ id: r.id, action: "complete" })}
-                    className="grid size-8 place-items-center rounded-lg text-success transition hover:bg-success/15" title="Marcar feito">
-                    <Check className="size-4"/>
-                  </button>
-                  <button onClick={() => act.mutate({ id: r.id, action: "dismiss" })}
-                    className="grid size-8 place-items-center rounded-lg text-muted-foreground transition hover:bg-secondary" title="Dispensar">
-                    <X className="size-4"/>
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
+          <RecommendationsList recs={q.data ?? []} onAct={(v) => act.mutate(v)} />
         </motion.div>
 
         {q.data && q.data.length === 0 && (
@@ -151,55 +82,7 @@ function CoachPage() {
           </div>
         )}
 
-        {/* Sua jornada — timeline da memória do Brain */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <History className="size-4 text-accent"/>
-            <h2 className="text-lg font-semibold tracking-tight">Sua jornada</h2>
-            <span className="text-xs text-muted-foreground">
-              · decisões, resultados e viradas que o Brain está usando como contexto
-            </span>
-          </div>
-
-          {tl.isLoading && <ListSkeleton rows={4} />}
-
-
-
-
-          {!tl.isLoading && (tl.data ?? []).length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border bg-card/30 py-10 text-center text-sm text-muted-foreground">
-              Sua jornada ainda está vazia. Decisões, publicações e viradas no Navegador vão aparecer aqui.
-            </div>
-          )}
-
-          <ol className="relative space-y-3 border-l border-border/70 pl-4">
-            {(tl.data ?? []).map((evt: any) => {
-              const meta = MEMORY_META[evt.kind] ?? MEMORY_META.signal;
-              const Icon = meta.icon;
-              const sentiment = evt.sentiment ? SENTIMENT_ICON[evt.sentiment] : null;
-              const SIcon = sentiment?.icon;
-              return (
-                <li key={evt.id} className="relative">
-                  <span className={`absolute -left-[22px] top-2 grid size-4 place-items-center rounded-full border border-border bg-background ${meta.color}`}>
-                    <Icon className="size-2.5"/>
-                  </span>
-                  <div className="rounded-xl border border-border bg-card/50 p-4">
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-widest">
-                      <span className={meta.color}>{meta.label}</span>
-                      <span className="text-muted-foreground">· {formatWhen(evt.created_at)}</span>
-                      {SIcon && sentiment && (
-                        <span className={`inline-flex items-center gap-1 ${sentiment.color}`}>
-                          <SIcon className="size-3"/>
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1 text-sm text-foreground">{evt.subject}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
+        <JourneyTimeline events={tl.data ?? []} isLoading={tl.isLoading} />
       </motion.div>
     </PageTransition>
   );
