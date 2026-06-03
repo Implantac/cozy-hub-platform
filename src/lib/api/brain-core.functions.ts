@@ -7,10 +7,34 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "./_types";
 import {
-  loadContext, runEngines, computeScores, buildSnapshot, answerQuestion, aggregateSignals, aggregateActions,
+  loadContext, runEngines, computeScores, answerQuestion, aggregateSignals, aggregateActions,
 } from "@/lib/brain/brain";
 import { runAIInsights } from "@/lib/brain/ai-insights.server";
+import type { BrainAnswer, BrainQuestion } from "@/lib/brain/types";
 import { throwIfError } from "./_supabase";
+
+/** Pull AI insights from the latest persisted snapshot (cheap read, no Gateway call). */
+async function readAIFromLatest(supabase: any, workspaceId: string) {
+  const { data } = await supabase.from("brain_snapshots")
+    .select("snapshot").eq("workspace_id", workspaceId)
+    .order("computed_at", { ascending: false }).limit(1).maybeSingle();
+  const ai = data?.snapshot?.ai;
+  return ai && typeof ai === "object" ? ai : null;
+}
+
+/** Brain-3: enrich a rule-based answer with the AI note relevant to its question. */
+function enrichWithAI(answer: BrainAnswer, ai: any | null): BrainAnswer {
+  if (!ai) return { ...answer, source: "rules" };
+  let aiNote: string | null = null;
+  switch (answer.question as BrainQuestion) {
+    case "where_am_i":     aiNote = ai.narrative ?? null; break;
+    case "whats_blocking": aiNote = (ai.blueprintGaps ?? [])[0] ?? null; break;
+    case "should_pivot":   aiNote = ai.pivotAdvice ?? null; break;
+    case "next_action":    aiNote = (ai.opportunityRationales ?? [])[0]?.why ?? null; break;
+    case "where_to_go":    aiNote = (ai.trustNotes ?? [])[0] ?? null; break;
+  }
+  return { ...answer, aiNote, source: aiNote ? "ai" : "rules" };
+}
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
 
