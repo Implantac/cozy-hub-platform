@@ -20,33 +20,35 @@ export const brainSnapshot = createServerFn({ method: "POST" })
   .inputValidator((i) => wsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const snap = await buildSnapshot(supabase, data.workspaceId, userId);
+    // Brain-3: load context ONCE, reuse for snapshot + AI insights.
+    const ctx = await loadContext(supabase, data.workspaceId, userId);
+    const reports = runEngines(ctx);
+    const scores = computeScores(ctx, reports);
+    const signals = aggregateSignals(reports);
 
-    // Brain-3: AI contextual insights (one Gateway call, best-effort).
-    const ctxForAI = await loadContext(supabase, data.workspaceId, userId);
-    const reportsForAI = runEngines(ctxForAI);
-    const ai = await runAIInsights(ctxForAI, reportsForAI, snap.scores);
-    const enrichedSnapshot = { ...snap.snapshot, ai };
+    const ai = await runAIInsights(ctx, reports, scores);
+    const enrichedSnapshot = {
+      user: reports.user.facts, business: reports.business.facts,
+      growth: reports.growth.facts, market: reports.market.facts,
+      opportunity: reports.opportunity.facts, trust: reports.trust.facts,
+      memory_size: ctx.memory.length, ai,
+    };
 
     const { data: row, error } = await supabase.from("brain_snapshots").insert({
-      workspace_id: snap.workspace_id,
+      workspace_id: data.workspaceId,
       snapshot: enrichedSnapshot as unknown as Json,
-      scores: snap.scores as unknown as Json,
-      signals: snap.signals as unknown as Json,
+      scores: scores as unknown as Json,
+      signals: signals as unknown as Json,
     }).select().single();
     throwIfError(error);
 
     // Mirror score into digital_scores for back-compat with Score module
     await supabase.from("digital_scores").insert({
       workspace_id: data.workspaceId,
-      overall: snap.scores.overall,
-      presence: snap.scores.presence,
-      branding: snap.scores.branding,
-      content: snap.scores.content,
-      consistency: snap.scores.consistency,
-      growth: snap.scores.growth,
-      channel_setup: snap.scores.channel_setup,
-      breakdown: { gaps: snap.signals.filter((s) => s.kind === "negative").map((s) => s.message).slice(0, 6) },
+      overall: scores.overall, presence: scores.presence, branding: scores.branding,
+      content: scores.content, consistency: scores.consistency,
+      growth: scores.growth, channel_setup: scores.channel_setup,
+      breakdown: { gaps: signals.filter((s) => s.kind === "negative").map((s) => s.message).slice(0, 6) },
     });
 
     // Invalidate cached answers
