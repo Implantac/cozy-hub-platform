@@ -1,34 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import {
-  Brain, CheckCircle2, Circle, TrendingUp, Target, Sparkles, X,
-} from "lucide-react";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { Brain, CheckCircle2, Target, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
+import { PageTransition, stagger } from "@/components/app/Motion";
 import { PageHeader } from "@/components/app/PageHeader";
 import { BrainEvolutionService } from "@/lib/services";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
-import { toast } from "sonner";
+import { AREAS, type AreaId } from "@/features/skill-map/constants";
+import { SkillStat } from "@/features/skill-map/components/SkillStat";
+import { SkillCard } from "@/features/skill-map/components/SkillCard";
 
 export const Route = createFileRoute("/_authenticated/app/skill-map")({
   component: SkillMapPage,
 });
-
-const AREAS = [
-  { id: "copy",         label: "Copywriting",  why: "Palavras que convertem." },
-  { id: "content",      label: "Conteúdo",     why: "Conexão constante com audiência." },
-  { id: "product",      label: "Produto",      why: "Encaixe da oferta na dor real." },
-  { id: "sales",        label: "Vendas",       why: "Conversa que vira receita." },
-  { id: "branding",     label: "Marca",        why: "Reconhecimento e diferenciação." },
-  { id: "analytics",    label: "Métricas",     why: "Decidir com dado, não palpite." },
-  { id: "automation",   label: "Automação",    why: "Multiplica horas de trabalho." },
-  { id: "prospecting",  label: "Prospecção",   why: "Conseguir clientes intencionalmente." },
-  { id: "community",    label: "Comunidade",   why: "Tribo > audiência fria." },
-  { id: "strategy",     label: "Estratégia",   why: "Foco e tradeoffs claros." },
-] as const;
-type AreaId = (typeof AREAS)[number]["id"];
 
 function SkillMapPage() {
   const [wsId] = useCurrentWorkspaceId();
@@ -49,7 +35,6 @@ function SkillMapPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Reduce: latest assessment per area
   const latest = new Map<AreaId, { score: number; assessed_at: string }>();
   for (const a of (q.data ?? []) as Array<{ area: AreaId; score: number; assessed_at: string }>) {
     if (!latest.has(a.area)) latest.set(a.area, { score: a.score, assessed_at: a.assessed_at });
@@ -71,9 +56,9 @@ function SkillMapPage() {
         />
 
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-3">
-          <Stat label="Dominadas" value={mastered} icon={CheckCircle2} />
-          <Stat label="Em construção" value={learning} icon={TrendingUp} />
-          <Stat label="Próximo foco" value={next?.label ?? "Tudo dominado"} icon={Target} small />
+          <SkillStat label="Dominadas" value={mastered} icon={CheckCircle2} />
+          <SkillStat label="Em construção" value={learning} icon={TrendingUp} />
+          <SkillStat label="Próximo foco" value={next?.label ?? "Tudo dominado"} icon={Target} small />
         </motion.section>
 
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -84,58 +69,5 @@ function SkillMapPage() {
         </motion.section>
       </motion.div>
     </PageTransition>
-  );
-}
-
-function SkillCard({ area, pending, onScore }: {
-  area: { id: AreaId; label: string; why: string; score: number | null };
-  pending: boolean;
-  onScore: (score: number) => void;
-}) {
-  const [draft, setDraft] = useState<number>(area.score ?? 0);
-  const score = area.score ?? draft;
-  const status = score >= 80 ? "mastered" : score >= 30 ? "learning" : "todo";
-  const Icon = status === "mastered" ? CheckCircle2 : status === "learning" ? TrendingUp : Circle;
-  const tone =
-    status === "mastered" ? "border-success/30 bg-success/5"
-    : status === "learning" ? "border-primary/30 bg-primary/5"
-    : "border-border bg-card/60";
-
-  return (
-    <motion.div variants={fadeUp}
-      className={`section-card hover-lift p-4 ${tone}`}>
-      <div className="flex items-start gap-3">
-        <Icon className={`mt-0.5 size-4 ${
-          status === "mastered" ? "text-success" : status === "learning" ? "text-primary" : "text-muted-foreground"
-        }`} />
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold">{area.label}</div>
-          <p className="mt-0.5 text-xs text-muted-foreground">{area.why}</p>
-        </div>
-        <span className="text-xs font-mono tabular-nums text-muted-foreground">{score}</span>
-      </div>
-      <input
-        type="range" min={0} max={100} step={5}
-        value={draft || (area.score ?? 0)}
-        onChange={(e) => setDraft(Number(e.target.value))}
-        onMouseUp={(e) => onScore(Number((e.target as HTMLInputElement).value))}
-        onTouchEnd={(e) => onScore(Number((e.target as HTMLInputElement).value))}
-        disabled={pending}
-        className="mt-3 w-full accent-primary"
-      />
-    </motion.div>
-  );
-}
-
-function Stat({ label, value, icon: Icon, small }: {
-  label: string; value: string | number; icon: typeof CheckCircle2; small?: boolean;
-}) {
-  return (
-    <motion.div variants={fadeUp} className="section-card hover-lift p-4">
-      <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <Icon className="size-3 text-accent" /> {label}
-      </div>
-      <div className={`mt-2 ${small ? "text-base font-medium" : "text-3xl font-bold tabular-nums"}`}>{value}</div>
-    </motion.div>
   );
 }
