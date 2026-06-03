@@ -76,4 +76,8 @@ export interface BrainAnswer {
   cta?: { label: string; href: string } | null;
   confidence: number; // 0..1
   supporting?: BrainSignal[];
+  /** Brain-3: contextual note from Lovable AI Gateway. */
+  aiNote?: string | null;
+  /** "rules" (heuristic only) | "ai" (enriched). */
+  source?: "rules" | "ai";
 }
