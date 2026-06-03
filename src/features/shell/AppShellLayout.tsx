@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { AppHeader } from "@/features/shell/AppHeader";
 import { SidebarBody } from "@/features/shell/SidebarBody";
-import { type Workspace } from "@/features/shell/nav-groups";
+import { findBreadcrumb, type Workspace } from "@/features/shell/nav-groups";
 
 type Props = {
   path: string;
@@ -17,7 +17,7 @@ type Props = {
   onSelectWs: (id: string) => Promise<void> | void;
   onCreateWs: (name: string) => Promise<void>;
   onSignOut: () => void;
-  crumb: ReturnType<typeof import("@/features/shell/nav-groups").findBreadcrumb>;
+  crumb: ReturnType<typeof findBreadcrumb>;
   userInitial: string;
   displayName: string;
   onOpenPalette: () => void;
