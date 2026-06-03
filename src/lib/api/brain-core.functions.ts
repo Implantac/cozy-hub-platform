@@ -262,6 +262,13 @@ export const brainOpportunities = createServerFn({ method: "GET" })
       profile?.experience_level === "advanced" ? 30
       : profile?.experience_level === "intermediate" ? 15 : 0;
 
+    // Brain-3: read AI opportunity rationales from the latest snapshot.
+    const ai = await readAIFromLatest(supabase, data.workspaceId);
+    const rationaleById = new Map<string, string>(
+      ((ai?.opportunityRationales ?? []) as Array<{ id: string; why: string }>)
+        .map((r) => [r.id, r.why]),
+    );
+
     const scored = (ctx.opportunities ?? []).map((o: any) => {
       let s = 50;
       if (o.status === "exploding") s += 25;
@@ -274,7 +281,11 @@ export const brainOpportunities = createServerFn({ method: "GET" })
       s -= Math.max(0, (difficultyPenalty[o.difficulty] ?? 10) - userTolerance);
       const tags: string[] = (o.tags ?? []).map((t: string) => String(t).toLowerCase());
       s += tags.filter((t) => userTags.includes(t)).length * 8;
-      return { ...o, _compatibility: Math.max(0, Math.min(100, s)) };
+      return {
+        ...o,
+        _compatibility: Math.max(0, Math.min(100, s)),
+        _aiRationale: rationaleById.get(o.id) ?? null,
+      };
     });
 
     const ranked = scored
