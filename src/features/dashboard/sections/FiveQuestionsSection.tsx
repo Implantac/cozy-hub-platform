@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Flag, GitBranch, MapPin, Rocket, Shield, type LucideIcon } from "lucide-react";
 import { fadeUp, stagger } from "@/components/app/Motion";
 
-type FiveQ = { question: string; headline?: string; body?: string; cta?: { href: string; label: string }; confidence?: number };
+type FiveQ = { question: string; headline?: string | null; body?: string | null; cta?: { href: string; label: string } | null; confidence?: number | null };
 
 const CARDS: { q: string; icon: LucideIcon; label: string }[] = [
   { q: "where_am_i", icon: MapPin, label: "Onde estou?" },
