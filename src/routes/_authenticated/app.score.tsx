@@ -1,27 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { motion } from "framer-motion";
 import { TrendingUp, RefreshCw } from "lucide-react";
 import { ScoreService } from "@/lib/services";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
-import { ScoreGauge } from "@/components/app/ScoreGauge";
+import { PageTransition, stagger } from "@/components/app/Motion";
 import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { ScoreOverview } from "@/features/score/components/ScoreOverview";
+import { ScoreGaps } from "@/features/score/components/ScoreGaps";
 
 export const Route = createFileRoute("/_authenticated/app/score")({
   component: ScorePage,
 });
-
-const PILLARS = [
-  { key: "presence", label: "Presença" },
-  { key: "branding", label: "Branding" },
-  { key: "content", label: "Conteúdo" },
-  { key: "consistency", label: "Consistência" },
-  { key: "growth", label: "Crescimento" },
-  { key: "channel_setup", label: "Setup de Canais" },
-] as const;
 
 function ScorePage() {
   const get = useServerFn(ScoreService.getLatestScore);
@@ -36,7 +28,8 @@ function ScorePage() {
     { invalidate: wsId ? ["score", wsId] : ["score"], successMessage: "Score recalculado" },
   );
 
-  const score = q.data;
+  const score = q.data as any;
+  const gaps = Array.isArray(score?.breakdown?.gaps) ? (score.breakdown.gaps as string[]) : [];
 
   return (
     <PageTransition>
@@ -58,46 +51,8 @@ function ScorePage() {
           }
         />
 
-        <div className="grid gap-6 lg:grid-cols-[auto,1fr]">
-          <motion.div variants={fadeUp} className="section-card grid place-items-center p-8">
-            <ScoreGauge value={score?.overall ?? 0} size={240} />
-          </motion.div>
-          <motion.div variants={fadeUp} className="grid gap-3 sm:grid-cols-2">
-            {PILLARS.map((p) => {
-              const v = (score?.[p.key as keyof typeof score] as number) ?? 0;
-              return (
-                <div key={p.key} className="stat-tile">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{p.label}</span>
-                    <span className="font-mono font-semibold tabular-nums">{v}</span>
-                  </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${v}%` }}
-                      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                      className="h-full rounded-full bg-gradient-brand"
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </motion.div>
-        </div>
-
-        {score?.breakdown && Array.isArray((score.breakdown as any).gaps) && (score.breakdown as any).gaps.length > 0 && (
-          <motion.div variants={fadeUp} className="section-card p-5 md:p-6">
-            <div className="mb-3 text-sm font-medium tracking-tight">Como subir cada pilar</div>
-            <ul className="space-y-2">
-              {((score.breakdown as any).gaps as string[]).map((g, i) => (
-                <li key={i} className="flex items-center gap-3 rounded-lg border border-border/70 bg-background/40 p-3 text-sm leading-relaxed">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/15 text-xs font-bold text-primary">{i + 1}</span>
-                  {g}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
+        {score && <ScoreOverview score={score} />}
+        {score && <ScoreGaps gaps={gaps} />}
 
         {!score && (
           <EmptyState
