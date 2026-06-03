@@ -31,6 +31,12 @@ export function FiveQuestionsSection({
               {a?.headline ?? (loading ? "Analisando..." : "—")}
             </div>
             {a?.body && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{a.body}</p>}
+            {a?.aiNote && (
+              <div className="mt-2 flex items-start gap-1.5 rounded-md border border-accent/30 bg-accent/5 px-2 py-1.5">
+                <Sparkles className="mt-0.5 size-3 shrink-0 text-accent" />
+                <p className="text-[11px] leading-snug text-foreground/85 line-clamp-3">{a.aiNote}</p>
+              </div>
+            )}
             {a?.cta && (
               <Link to={a.cta.href} className="link-underline mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
                 {a.cta.label} <ArrowUpRight className="size-3" />
