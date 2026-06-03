@@ -4,9 +4,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { AppHeader } from "@/features/shell/AppHeader";
 import { SidebarBody } from "@/features/shell/SidebarBody";
-import type { Breadcrumb } from "@/features/shell/nav-groups";
-
-type Workspace = { id: string; name: string };
+import { type Workspace } from "@/features/shell/nav-groups";
 
 type Props = {
   path: string;
@@ -17,9 +15,9 @@ type Props = {
   workspaces: Workspace[];
   currentWs?: Workspace;
   onSelectWs: (id: string) => Promise<void> | void;
-  onCreateWs: (name: string) => Promise<void> | void;
+  onCreateWs: (name: string) => Promise<void>;
   onSignOut: () => void;
-  crumb: Breadcrumb;
+  crumb: ReturnType<typeof import("@/features/shell/nav-groups").findBreadcrumb>;
   userInitial: string;
   displayName: string;
   onOpenPalette: () => void;
