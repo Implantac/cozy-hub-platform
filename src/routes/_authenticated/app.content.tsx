@@ -2,10 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { FileText, Plus, Search, Trash2, CheckSquare, Square } from "lucide-react";
+import { CheckSquare, FileText, Square } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app/PageHeader";
-import { EmptyState } from "@/components/app/EmptyState";
 import { ListSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
 import {
@@ -20,22 +19,20 @@ import {
   useWorkspaceQuery,
 } from "@/lib/query/use-workspace-query";
 import type { Content } from "@/lib/api/_types";
+import {
+  STATUSES,
+  type ContentStatus,
+  type FilterValue,
+} from "@/features/content/constants";
+import { ContentComposer } from "@/features/content/components/ContentComposer";
+import { ContentFilters } from "@/features/content/components/ContentFilters";
+import { BulkActionBar } from "@/features/content/components/BulkActionBar";
+import { ContentRow } from "@/features/content/components/ContentRow";
+import { ContentEmptyAll, ContentEmptyFiltered } from "@/features/content/components/ContentEmpty";
 
 export const Route = createFileRoute("/_authenticated/app/content")({
   component: ContentPage,
 });
-
-type ContentStatus = "draft" | "scheduled" | "published" | "archived";
-const STATUSES: readonly ContentStatus[] = ["draft", "scheduled", "published", "archived"] as const;
-const FILTERS = ["all", ...STATUSES] as const;
-type FilterValue = (typeof FILTERS)[number];
-
-const STATUS_STYLES: Record<ContentStatus, string> = {
-  draft: "bg-secondary text-secondary-foreground",
-  scheduled: "bg-primary/15 text-primary",
-  published: "bg-success/15 text-success",
-  archived: "bg-muted text-muted-foreground",
-};
 
 function ContentPage() {
   const qc = useQueryClient();
@@ -100,10 +97,7 @@ function ContentPage() {
     {
       invalidate: invalidateKey,
       successMessage: "Draft created",
-      onSuccess: () => {
-        setTitle("");
-        setBody("");
-      },
+      onSuccess: () => { setTitle(""); setBody(""); },
     },
   );
 
@@ -140,101 +134,34 @@ function ContentPage() {
   return (
     <PageTransition>
       <div className="space-y-6">
-        <PageHeader
-          icon={FileText}
-          title="Content"
-          subtitle="Drafts, templates and AI-assisted creation."
+        <PageHeader icon={FileText} title="Content" subtitle="Drafts, templates and AI-assisted creation." />
+
+        <ContentComposer
+          title={title}
+          body={body}
+          onTitleChange={setTitle}
+          onBodyChange={setBody}
+          onSubmit={() => createMut.mutate()}
+          isPending={createMut.isPending}
         />
 
-        {/* Composer */}
-        <div className="section-card p-5">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (title.length >= 1) createMut.mutate();
-            }}
-            className="space-y-3"
-          >
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your post..."
-              rows={4}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-            <button
-              disabled={createMut.isPending}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-            >
-              <Plus className="size-4" /> New draft
-            </button>
-          </form>
-        </div>
+        <ContentFilters
+          filter={filter}
+          onFilterChange={setFilter}
+          search={search}
+          onSearchChange={setSearch}
+          counts={counts}
+        />
 
-        {/* Filters + search */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {FILTERS.map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`rounded-md border px-3 py-1.5 text-xs font-medium capitalize transition ${
-                  filter === f
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-card/40 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {f} <span className="ml-1 opacity-60">{counts[f] ?? 0}</span>
-              </button>
-            ))}
-          </div>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search content..."
-              className="w-full rounded-md border border-input bg-background py-2 pl-8 pr-3 text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Bulk action bar */}
         {selected.size > 0 && (
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm">
-            <span className="font-medium">{selected.size} selected</span>
-            <span className="text-muted-foreground">·</span>
-            {STATUSES.map((s) => (
-              <button
-                key={s}
-                onClick={() => runBulkStatus(s)}
-                className="rounded-md border border-border bg-background px-2.5 py-1 text-xs capitalize hover:bg-secondary"
-              >
-                Move to {s}
-              </button>
-            ))}
-            <button
-              onClick={runBulkDelete}
-              className="ml-auto inline-flex items-center gap-1 rounded-md bg-destructive/15 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/25"
-            >
-              <Trash2 className="size-3" /> Delete
-            </button>
-            <button
-              onClick={() => setSelected(new Set())}
-              className="rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
-            >
-              Clear
-            </button>
-          </div>
+          <BulkActionBar
+            count={selected.size}
+            onMoveTo={runBulkStatus}
+            onDelete={runBulkDelete}
+            onClear={() => setSelected(new Set())}
+          />
         )}
 
-        {/* List */}
         <div className="space-y-2">
           {filtered.length > 0 && (
             <button
@@ -245,84 +172,20 @@ function ContentPage() {
               {allVisibleSelected ? "Unselect all" : "Select all"}
             </button>
           )}
-          {filtered.map((c) => {
-            const isSelected = selected.has(c.id);
-            return (
-              <div
-                key={c.id}
-                className={`section-card hover-lift flex items-center gap-3 p-4 transition ${
-                  isSelected ? "border-primary ring-1 ring-primary/30" : ""
-                }`}
-              >
-                <button
-                  onClick={() => toggleOne(c.id)}
-                  className="text-muted-foreground hover:text-foreground"
-                  aria-label="Select"
-                >
-                  {isSelected ? <CheckSquare className="size-4 text-primary" /> : <Square className="size-4" />}
-                </button>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium">{c.title || "Untitled"}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {c.brand?.name ?? "no brand"} · {c.type}
-                  </div>
-                </div>
-                <span
-                  className={`hidden rounded-full px-2 py-0.5 text-[10px] font-medium capitalize sm:inline-block ${
-                    STATUS_STYLES[c.status as ContentStatus] ?? "bg-secondary"
-                  }`}
-                >
-                  {c.status}
-                </span>
-                <select
-                  value={c.status}
-                  onChange={(e) => changeStatus(c.id, e.target.value as ContentStatus)}
-                  className="rounded-md border border-input bg-background px-2 py-1 text-xs capitalize"
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            );
-          })}
+          {filtered.map((c) => (
+            <ContentRow
+              key={c.id}
+              item={c}
+              selected={selected.has(c.id)}
+              onToggle={() => toggleOne(c.id)}
+              onStatusChange={(status) => changeStatus(c.id, status)}
+            />
+          ))}
           {q.isLoading && <ListSkeleton rows={4} />}
           {!q.isLoading && filtered.length === 0 && (
-            items.length === 0 ? (
-              <EmptyState
-                variant="card"
-                icon={FileText}
-                title="Sem conteúdo ainda"
-                text="Crie seu primeiro rascunho acima. O scheduler vai publicar nos canais conectados quando estiver pronto."
-                action={
-                  <button
-                    onClick={() => {
-                      document.querySelector<HTMLInputElement>('input[placeholder*="title"], input[placeholder*="Title"]')?.focus();
-                    }}
-                    className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-                  >
-                    <Plus className="size-4" /> Criar primeiro rascunho
-                  </button>
-                }
-              />
-            ) : (
-              <EmptyState
-                variant="dashed"
-                icon={Search}
-                title="Nada encontrado"
-                text="Nenhum conteúdo bate com seus filtros atuais."
-                action={
-                  <button
-                    onClick={() => { setFilter("all"); setSearch(""); }}
-                    className="inline-flex items-center gap-2 rounded-md bg-secondary px-4 py-2 text-sm font-medium hover:bg-secondary/80"
-                  >
-                    Limpar filtros
-                  </button>
-                }
-              />
-            )
+            items.length === 0
+              ? <ContentEmptyAll />
+              : <ContentEmptyFiltered onClear={() => { setFilter("all"); setSearch(""); }} />
           )}
         </div>
       </div>
