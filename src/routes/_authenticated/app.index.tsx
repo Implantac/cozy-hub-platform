@@ -3,10 +3,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import {
-  Brain, Sparkles, Radio, Palette, FileText, Calendar,
-  Target, Zap, TrendingUp, Activity, ArrowUpRight, Compass,
-  AlertTriangle, Lightbulb, CheckCircle2, Flame, Heart,
-  MapPin, Flag, Shield, Rocket, GitBranch,
+  Brain, Radio, Palette, FileText, Calendar,
+  Target, Zap, Activity, ArrowUpRight, Compass,
+  Flame, Heart,
 } from "lucide-react";
 import {
   CoachService, HealthService, OpportunitiesService, BrainCoreService,
@@ -16,10 +15,14 @@ import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { useBrainRealtime } from "@/lib/brain/use-brain-realtime";
 import { toast } from "sonner";
-import { fadeUp, stagger, MotionCard, PageTransition } from "@/components/app/Motion";
+import { fadeUp, stagger, PageTransition } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
 import { PageSkeleton } from "@/components/app/Skeletons";
-import type { LucideIcon } from "lucide-react";
+import {
+  Empty, KpiCard, LinkAction, Panel, RecIcon, SeverityPill, StatusPill,
+} from "@/features/dashboard/components/atoms";
+import { FiveQuestionsSection } from "@/features/dashboard/sections/FiveQuestionsSection";
+import { OsLayersSection } from "@/features/dashboard/sections/OsLayersSection";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: GPSDashboard,
@@ -138,43 +141,7 @@ function GPSDashboard() {
           </button>
         </motion.header>
 
-        {/* Five Questions — the soul of USE Brain */}
-        <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {[
-            { q: "where_am_i", icon: MapPin, label: "Onde estou?" },
-            { q: "where_to_go", icon: Flag, label: "Onde quero chegar?" },
-            { q: "whats_blocking", icon: Shield, label: "O que me impede?" },
-            { q: "next_action", icon: Rocket, label: "Próxima ação" },
-            { q: "should_pivot", icon: GitBranch, label: "Devo mudar?" },
-          ].map((card) => {
-            const a = (brain.data?.answers ?? []).find((x: any) => x.question === card.q);
-            const Icon = card.icon;
-            return (
-              <motion.div key={card.q} variants={fadeUp}
-                className="section-card hover-lift relative overflow-hidden p-4 transition hover:border-primary/40">
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                  <Icon className="size-3 text-accent" /> {card.label}
-                </div>
-                <div className="mt-2 text-sm font-semibold leading-snug text-balance">
-                  {a?.headline ?? (brain.isLoading ? "Analisando..." : "—")}
-                </div>
-                {a?.body && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{a.body}</p>}
-                {a?.cta && (
-                  <Link to={a.cta.href} className="link-underline mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                    {a.cta.label} <ArrowUpRight className="size-3" />
-                  </Link>
-                )}
-                {typeof a?.confidence === "number" && (
-                  <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${Math.round(a.confidence * 100)}%` }} />
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
-        </motion.section>
-
-
+        <FiveQuestionsSection answers={brain.data?.answers ?? []} loading={brain.isLoading} />
 
         {/* Top row — Score + Health summary + Goal */}
         <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
@@ -249,7 +216,6 @@ function GPSDashboard() {
             )}
           </motion.div>
         </section>
-
 
         {/* Coach recommendations + Priority missions */}
         <section className="grid gap-4 lg:grid-cols-3">
@@ -350,49 +316,12 @@ function GPSDashboard() {
           </Panel>
         </section>
 
-        {/* Manifesto · 4 OS layers · status compacto */}
-        <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {(() => {
-            const bp = blueprint.data ?? {};
-            const bpFields = ["problem","audience","promise","differentiator","offer","price","channels","content_pillars","funnel","metric"];
-            const bpFilled = bpFields.filter((f) => ((bp[f] ?? "") as string).trim().length > 0).length;
-            const bpPct = Math.round((bpFilled / bpFields.length) * 100);
-
-            const comps = competitors.data ?? [];
-            const compHigh = comps.filter((c: any) => c.threat === "high").length;
-
-            const sk = skills.data ?? [];
-            const skMastered = sk.filter((s: any) => (s.level ?? s.score ?? 0) >= 80).length;
-            const skAvg = sk.length > 0 ? Math.round(sk.reduce((a: number, s: any) => a + (s.level ?? s.score ?? 0), 0) / sk.length) : 0;
-
-            const periods = journey.data?.periods ?? [];
-            const current = [...periods].reverse().find((p: any) => p.events_count > 0 || p.decisions_count > 0) ?? periods[periods.length - 1];
-
-            const cards = [
-              { to: "/app/builder",     icon: Rocket,   label: "Modelo de negócio", value: `${bpFilled}/10`,            hint: `${bpPct}% completo`,                  pct: bpPct },
-              { to: "/app/journey",     icon: Compass,  label: "Sua jornada",        value: current?.key ?? "—",          hint: current ? `${current.events_count} eventos` : "comece a registrar", pct: null },
-              { to: "/app/competitors", icon: Shield,   label: "Radar competitivo",  value: String(comps.length),         hint: compHigh > 0 ? `${compHigh} alta ameaça` : "sem ameaças altas", pct: null },
-              { to: "/app/skill-map",   icon: Brain,    label: "Skill Map",          value: `${skMastered} domínios`,     hint: sk.length > 0 ? `média ${skAvg}` : "calibre suas skills", pct: skAvg || null },
-            ];
-            return cards.map((c) => (
-              <motion.div key={c.to} variants={fadeUp}>
-                <Link to={c.to} className="stat-tile group block">
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1.5"><c.icon className="size-3 text-accent" /> {c.label}</span>
-                    <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />
-                  </div>
-                  <div className="mt-2 text-xl font-semibold tabular-nums tracking-tight">{c.value}</div>
-                  <div className="text-[11px] text-muted-foreground">{c.hint}</div>
-                  {c.pct !== null && (
-                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary">
-                      <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${c.pct}%` }} />
-                    </div>
-                  )}
-                </Link>
-              </motion.div>
-            ));
-          })()}
-        </motion.section>
+        <OsLayersSection
+          blueprint={blueprint.data}
+          competitors={competitors.data}
+          skills={skills.data}
+          journey={journey.data}
+        />
 
         {/* KPI footer */}
         <motion.section variants={stagger} className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -409,94 +338,5 @@ function GPSDashboard() {
         </div>
       </motion.div>
     </PageTransition>
-  );
-}
-
-function RecIcon({ kind }: { kind: string }) {
-  const map: Record<string, { icon: LucideIcon; color: string }> = {
-    warning: { icon: AlertTriangle, color: "text-destructive" },
-    insight: { icon: TrendingUp, color: "text-primary" },
-    suggestion: { icon: Lightbulb, color: "text-accent" },
-    next_action: { icon: CheckCircle2, color: "text-success" },
-  };
-  const m = map[kind] ?? map.insight;
-  const I = m.icon;
-  return (
-    <div className={`grid size-8 shrink-0 place-items-center rounded-lg bg-background/60 ${m.color}`}>
-      <I className="size-4" />
-    </div>
-  );
-}
-
-function SeverityPill({ severity }: { severity: string }) {
-  const tone =
-    severity === "critical" || severity === "high" ? "bg-destructive/15 text-destructive"
-    : severity === "medium" ? "bg-primary/15 text-primary"
-    : "bg-secondary text-secondary-foreground";
-  return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ${tone}`}>{severity}</span>;
-}
-
-function KpiCard({
-  icon: Icon, label, value, hint, to,
-}: { icon: LucideIcon; label: string; value: string | number; hint?: string; to?: string }) {
-  const body = (
-    <MotionCard className="stat-tile group relative block">
-      <div className="flex items-center justify-between">
-        <Icon className="size-4 text-accent transition-colors group-hover:text-primary" />
-        {to && <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />}
-      </div>
-      <div className="mt-2 text-2xl font-semibold tabular-nums tracking-tight">{value}</div>
-      <div className="text-[11px] text-muted-foreground">{label}{hint ? ` · ${hint}` : ""}</div>
-    </MotionCard>
-  );
-  return to ? <Link to={to} className="block">{body}</Link> : body;
-}
-
-function Panel({
-  title, icon: Icon, action, children, className = "",
-}: {
-  title: string; icon: LucideIcon; action?: React.ReactNode;
-  children: React.ReactNode; className?: string;
-}) {
-  return (
-    <motion.div variants={fadeUp} className={`section-card p-5 md:p-6 ${className}`}>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Icon className="size-4 text-accent" />
-          <span className="tracking-tight">{title}</span>
-        </div>
-        {action}
-      </div>
-      {children}
-    </motion.div>
-  );
-}
-
-function LinkAction({ to, label }: { to: string; label: string }) {
-  return (
-    <Link to={to} className="link-underline inline-flex items-center gap-1 text-xs text-primary">
-      {label} <ArrowUpRight className="size-3" />
-    </Link>
-  );
-}
-
-function StatusPill({ status }: { status: string }) {
-  const tone =
-    status === "done" ? "bg-success/15 text-success"
-    : status === "in_progress" ? "bg-primary/15 text-primary"
-    : status === "blocked" ? "bg-destructive/15 text-destructive"
-    : "bg-secondary text-secondary-foreground";
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs capitalize ${tone}`}>
-      {status.replace("_", " ")}
-    </span>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border/70 bg-card/20 px-4 py-6 text-center text-sm leading-relaxed text-muted-foreground">
-      {text}
-    </div>
   );
 }
