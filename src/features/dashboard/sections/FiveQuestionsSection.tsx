@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Flag, GitBranch, MapPin, Rocket, Shield, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Flag, GitBranch, MapPin, Rocket, Shield, Sparkles, type LucideIcon } from "lucide-react";
 import { fadeUp, stagger } from "@/components/app/Motion";
 
-type FiveQ = { question: string; headline?: string | null; body?: string | null; cta?: { href: string; label: string } | null; confidence?: number | null };
+type FiveQ = { question: string; headline?: string | null; body?: string | null; cta?: { href: string; label: string } | null; confidence?: number | null; aiNote?: string | null; source?: "rules" | "ai" };
 
 const CARDS: { q: string; icon: LucideIcon; label: string }[] = [
   { q: "where_am_i", icon: MapPin, label: "Onde estou?" },
