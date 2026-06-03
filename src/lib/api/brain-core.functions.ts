@@ -103,7 +103,9 @@ export const brainAsk = createServerFn({ method: "POST" })
     const ctx = await loadContext(supabase, data.workspaceId, userId);
     const reports = runEngines(ctx);
     const scores = computeScores(ctx, reports);
-    const answer = answerQuestion(data.question, ctx, reports, scores);
+    const base = answerQuestion(data.question, ctx, reports, scores);
+    const ai = await readAIFromLatest(supabase, data.workspaceId);
+    const answer = enrichWithAI(base, ai);
 
     const expires = new Date(Date.now() + 60 * 60_000).toISOString();
     await supabase.from("brain_answers").insert({
@@ -122,8 +124,9 @@ export const brainAskAll = createServerFn({ method: "POST" })
     const ctx = await loadContext(supabase, data.workspaceId, userId);
     const reports = runEngines(ctx);
     const scores = computeScores(ctx, reports);
+    const ai = await readAIFromLatest(supabase, data.workspaceId);
     const questions = ["where_am_i","where_to_go","whats_blocking","next_action","should_pivot"] as const;
-    const answers = questions.map((q) => answerQuestion(q, ctx, reports, scores));
+    const answers = questions.map((q) => enrichWithAI(answerQuestion(q, ctx, reports, scores), ai));
     return { scores, signals: aggregateSignals(reports), actions: aggregateActions(reports), answers };
   });
 
