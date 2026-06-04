@@ -13,7 +13,7 @@ export function ActivityPipelineSection({ events, contentByStatus }: Props) {
         ) : (
           <ul className="divide-y divide-border/40">
             {events.slice(0, 8).map((e: any) => (
-              <li key={e.id} className="flex items-center justify-between py-3 text-sm transition-colors hover:bg-white/5 px-2 rounded-lg">
+              <li key={e.id} className="flex items-center justify-between py-2.5 sm:py-3 text-sm transition-colors hover:bg-white/5 px-2 rounded-lg">
                 <div className="flex items-center gap-2">
                   <div className="size-1.5 rounded-full bg-accent animate-soft-pulse" />
                   <span className="font-mono text-xs font-medium text-accent">{e.event_type}</span>

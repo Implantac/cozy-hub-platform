@@ -12,7 +12,7 @@ export function BrandGrid({ brands, canDelete, isDeleting, onDelete }: Props) {
   return (
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       {brands.map((b) => (
-        <div key={b.id} className="section-card hover-lift p-6 group">
+        <div key={b.id} className="section-card hover-lift p-5 sm:p-6 group">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{b.name}</h3>
             <button

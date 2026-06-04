@@ -17,7 +17,7 @@ export function RecIcon({ kind }: { kind: string }) {
   const m = map[kind] ?? map.insight;
   const I = m.icon;
   return (
-    <div className={`grid size-10 shrink-0 place-items-center rounded-2xl bg-background/40 backdrop-blur-sm ring-1 ring-border/50 transition-all duration-300 group-hover:ring-primary/40 group-hover:bg-primary/10 ${m.color}`}>
+    <div className={`grid size-9 sm:size-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-background/40 backdrop-blur-sm ring-1 ring-border/50 transition-all duration-300 group-hover:ring-primary/40 group-hover:bg-primary/10 ${m.color}`}>
       <I className="size-4.5" />
     </div>
   );
@@ -89,7 +89,7 @@ export function KpiCard({
         <Icon className="size-4 text-accent transition-colors group-hover:text-primary" />
         {to && <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />}
       </div>
-      <div className="mt-3 text-3xl font-bold tabular-nums tracking-tighter text-foreground">{value}</div>
+      <div className="mt-2.5 sm:mt-3 text-2xl sm:text-3xl font-bold tabular-nums tracking-tighter text-foreground">{value}</div>
       <div className="text-[11px] text-muted-foreground">{label}{hint ? ` · ${hint}` : ""}</div>
     </MotionCard>
   );

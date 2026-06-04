@@ -41,10 +41,10 @@ export function SectionCard({
     >
       {hasHeader && (
         <header className={cn("flex flex-wrap items-start justify-between gap-3", children ? "mb-4" : "")}>
-          <div className="flex min-w-0 items-start gap-3">
+          <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
             {Icon && (
-              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-secondary/60 text-foreground/80">
-                <Icon className="size-4" />
+              <div className="grid size-8 sm:size-9 shrink-0 place-items-center rounded-lg bg-secondary/60 text-foreground/80">
+                <Icon className="size-3.5 sm:size-4" />
               </div>
             )}
             <div className="min-w-0">

@@ -354,7 +354,10 @@
   @media (min-width: 1024px) {
     .page-container { padding-inline: 2rem; }
   }
-  .page-stack > * + * { margin-top: 1.5rem; }
+  .page-stack > * + * { margin-top: 1rem; }
+  @media (min-width: 768px) {
+    .page-stack > * + * { margin-top: 1.5rem; }
+  }
 
   /* Section card — replaces ad-hoc rounded-2xl border bg-card/60 backdrop-blur */
   .section-card {

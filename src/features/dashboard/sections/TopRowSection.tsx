@@ -15,14 +15,14 @@ type Props = {
 export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Props) {
   return (
     <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
-      <motion.div variants={fadeUp} className="section-card grid place-items-center p-8 bg-gradient-to-br from-card/80 to-card/40">
+      <motion.div variants={fadeUp} className="section-card grid place-items-center p-6 sm:p-8 bg-gradient-to-br from-card/80 to-card/40">
         <ScoreGauge value={scoreOverall} size={200} label="Digital Score" />
         <Link to="/app/score" className="link-underline mt-3 inline-flex items-center gap-1 text-xs text-primary">
           Ver detalhes <ArrowUpRight className="size-3" />
         </Link>
       </motion.div>
 
-      <motion.div variants={fadeUp} className="section-card p-6">
+      <motion.div variants={fadeUp} className="section-card p-5 sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Heart className="size-4 text-accent" /> Saúde do negócio
@@ -36,7 +36,7 @@ export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Pro
         ) : (
           <>
             <div className="mb-4 flex items-baseline gap-2">
-              <span className="text-5xl font-bold tabular-nums tracking-tighter text-foreground">{healthAvg}</span>
+              <span className="text-4xl sm:text-5xl font-bold tabular-nums tracking-tighter text-foreground">{healthAvg}</span>
               <span className="text-xs text-muted-foreground">/ 100 — média geral</span>
             </div>
             <div className="space-y-2.5">
@@ -56,7 +56,7 @@ export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Pro
         )}
       </motion.div>
 
-      <motion.div variants={fadeUp} className="section-card p-6">
+      <motion.div variants={fadeUp} className="section-card p-5 sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Flame className="size-4 text-accent" /> Oportunidades em alta

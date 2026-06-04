@@ -15,7 +15,7 @@ type Props = {
 
 export function MemoryPanel({ memories, memText, setMemText, memKind, setMemKind, onSubmit, isPending }: Props) {
   return (
-    <SectionCard className="lg:col-span-2" icon={Brain} title="Camada de memória">
+    <SectionCard className="lg:col-span-2" icon={Brain} title="Camada de memória" dense>
       <form
         onSubmit={(e) => {
           e.preventDefault();
