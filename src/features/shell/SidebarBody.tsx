@@ -32,7 +32,7 @@ export function SidebarBody({
   return (
     <div className="flex h-full flex-col">
       <div data-tour="brand" className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}>
-        <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow ring-2 ring-primary/20">
           <Sparkles className="size-4 text-primary-foreground" />
         </div>
         {!collapsed && (
@@ -88,9 +88,9 @@ export function SidebarBody({
                     data-tour={TOUR_KEYS[item.to]}
                     className={cn(
                       "group relative flex items-center rounded-lg text-sm transition-colors duration-200",
-                      collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-3 py-2 min-h-9",
+                      collapsed ? "justify-center px-2 py-2" : "gap-3 px-3.5 py-2.5 min-h-10",
                       active
-                        ? "bg-primary/10 text-foreground"
+                        ? "bg-primary/15 text-foreground shadow-glow-sm ring-1 ring-primary/20"
                         : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                     )}
                     aria-current={active ? "page" : undefined}

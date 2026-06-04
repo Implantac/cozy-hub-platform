@@ -12,7 +12,7 @@ export function DashboardHeader({ onRefresh, isPending }: Props) {
           <Compass className="size-3 text-accent" />
           Business GPS · cockpit operacional
         </div>
-        <h1 className="text-balance text-[30px] font-semibold leading-tight tracking-tight md:text-[36px]">
+        <h1 className="text-balance text-[32px] font-bold leading-tight tracking-tight md:text-[42px] text-foreground">
           USE Brain
         </h1>
         <p className="mt-1.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">

@@ -32,7 +32,7 @@ export function AppHeader({
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border/50 bg-background/75 px-4 backdrop-blur-xl backdrop-saturate-150 lg:px-8">
+    <header className="sticky top-0 z-30 flex h-18 items-center justify-between gap-3 border-b border-border/40 bg-background/60 px-4 backdrop-blur-2xl backdrop-saturate-150 lg:px-8">
       <div className="flex min-w-0 items-center gap-2.5 text-sm">
         <button
           onClick={onOpenMobileNav}
@@ -50,7 +50,7 @@ export function AppHeader({
         <button
           data-tour="search"
           onClick={onOpenPalette}
-          className="press hidden h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 text-sm text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground hover:shadow-glow-sm sm:flex"
+          className="press hidden h-10 items-center gap-2.5 rounded-xl border border-border/60 bg-card/40 px-3.5 text-sm text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-card/70 hover:text-foreground hover:shadow-glow-sm sm:flex"
         >
           <Search className="size-3.5" />
           <span className="text-xs">{t("palette.placeholder", "Buscar...")}</span>

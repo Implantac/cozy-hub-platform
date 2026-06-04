@@ -36,7 +36,7 @@ export function AppShellLayout({
     <div className="flex min-h-dvh bg-background">
       <aside
         className={cn(
-          "hidden shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 lg:flex lg:flex-col",
+          "hidden shrink-0 border-r border-sidebar-border/50 bg-sidebar/95 text-sidebar-foreground transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex lg:flex-col",
           collapsed ? "w-[68px]" : "w-64",
         )}
       >
@@ -80,7 +80,7 @@ export function AppShellLayout({
         />
 
         <main id="main-content" className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8 animate-rise-in">
+          <div className="mx-auto max-w-7xl px-4 py-8 lg:px-10 lg:py-10 animate-rise-in">
             {currentWs ? <Outlet /> : <div className="text-muted-foreground">{t("common.noWorkspace")}</div>}
           </div>
         </main>
