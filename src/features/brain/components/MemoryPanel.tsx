@@ -73,7 +73,7 @@ export function MemoryPanel({ memories, memText, setMemText, memKind, setMemKind
             return (
               <li
                 key={m.id}
-                className="flex items-start gap-2 rounded-lg border border-border bg-background/40 p-2.5 text-sm transition hover:border-primary/40"
+                className="flex items-start gap-3 rounded-xl border border-border/50 bg-background/30 p-3 text-sm transition-all hover:border-primary/40 hover:bg-background/50"
               >
                 <span className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-background/60 shadow-sm ring-1 ring-border/50 ${meta.color}`}>
                   <Icon className="size-3" />
