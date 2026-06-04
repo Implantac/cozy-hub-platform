@@ -23,11 +23,11 @@ export function FiveQuestionsSection({
         const Icon = card.icon;
         return (
           <motion.div key={card.q} variants={fadeUp}
-            className="section-card hover-lift relative overflow-hidden p-4 transition hover:border-primary/40">
+            className="section-card hover-lift group relative overflow-hidden p-5 transition-all duration-300 hover:border-primary/50 hover:bg-card/80">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
               <Icon className="size-3 text-accent" /> {card.label}
             </div>
-            <div className="mt-2 text-sm font-semibold leading-snug text-balance">
+            <div className="mt-3 text-base font-bold leading-tight text-balance transition-colors group-hover:text-primary">
               {a?.headline ?? (loading ? "Analisando..." : "—")}
             </div>
             {a?.body && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{a.body}</p>}
