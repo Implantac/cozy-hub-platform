@@ -20,18 +20,26 @@ export function ScoreGauge({
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90 drop-shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+      <svg width={size} height={size} className="-rotate-90 drop-shadow-[0_12px_32px_rgba(0,0,0,0.35)]">
         <defs>
           <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={colorVar} stopOpacity="1" />
             <stop offset="100%" stopColor={colorVar} stopOpacity="0.45" />
           </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
         <circle cx={size/2} cy={size/2} r={radius}
           stroke="var(--border)" strokeWidth={stroke} fill="none" />
         <motion.circle
           cx={size/2} cy={size/2} r={radius}
           stroke="url(#gauge-grad)" strokeWidth={stroke} fill="none" strokeLinecap="round"
+          filter="url(#glow)"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}

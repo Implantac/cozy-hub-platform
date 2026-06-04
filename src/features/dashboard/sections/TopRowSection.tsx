@@ -15,10 +15,13 @@ type Props = {
 export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Props) {
   return (
     <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
-      <motion.div variants={fadeUp} className="section-card grid place-items-center p-6 sm:p-8 bg-gradient-to-br from-card/80 to-card/40">
-        <ScoreGauge value={scoreOverall} size={200} label="Digital Score" />
-        <Link to="/app/score" className="link-underline mt-3 inline-flex items-center gap-1 text-xs text-primary">
-          Ver detalhes <ArrowUpRight className="size-3" />
+      <motion.div variants={fadeUp} className="section-card hover-lift group grid place-items-center p-6 sm:p-8 bg-gradient-to-br from-card/90 to-card/50">
+        <div className="relative">
+          <div className="absolute inset-0 -m-4 rounded-full bg-primary/5 blur-3xl transition-opacity group-hover:opacity-100 opacity-0" />
+          <ScoreGauge value={scoreOverall} size={200} label="Digital Score" />
+        </div>
+        <Link to="/app/score" className="link-underline mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition-all hover:gap-2">
+          Ver detalhes <ArrowUpRight className="size-3.5" />
         </Link>
       </motion.div>
 

@@ -87,11 +87,11 @@ export function SidebarBody({
                     to={item.to}
                     data-tour={TOUR_KEYS[item.to]}
                     className={cn(
-                      "group relative flex items-center rounded-lg text-sm transition-colors duration-200",
+                      "group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                       collapsed ? "justify-center px-2 py-2" : "gap-3 px-3.5 py-2.5 min-h-10",
                       active
-                        ? "bg-primary/15 text-foreground shadow-glow-sm ring-1 ring-primary/20"
-                        : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                        ? "bg-primary/10 text-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.05),0_4px_12px_-4px_oklch(0.72_0.2_285_/_0.3)] ring-1 ring-primary/25"
+                        : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground hover:translate-x-1",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
