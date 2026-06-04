@@ -36,7 +36,7 @@ export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Pro
         ) : (
           <>
             <div className="mb-4 flex items-baseline gap-2">
-              <span className="text-5xl font-bold tabular-nums tracking-tighter text-foreground">{healthAvg}</span>
+              <span className="text-4xl sm:text-5xl font-bold tabular-nums tracking-tighter text-foreground">{healthAvg}</span>
               <span className="text-xs text-muted-foreground">/ 100 — média geral</span>
             </div>
             <div className="space-y-2.5">
