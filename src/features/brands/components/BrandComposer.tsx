@@ -18,7 +18,7 @@ export function BrandComposer({
   onSubmit,
 }: Props) {
   return (
-    <div className="section-card p-6">
+    <div className="section-card p-5 sm:p-6">
       <form
         onSubmit={(e) => {
           e.preventDefault();

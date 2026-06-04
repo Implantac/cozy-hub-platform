@@ -8,7 +8,7 @@ type Props = {
 
 export function ConnectPlatformGrid({ disabled, onConnect }: Props) {
   return (
-    <div className="section-card p-6">
+    <div className="section-card p-5 sm:p-6">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Connect a platform</h3>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {PLATFORMS.map((p) => (

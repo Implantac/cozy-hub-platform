@@ -16,7 +16,7 @@ export function ChannelCard({ channel: c, disabled, onDelete, onDisconnect, onCo
   const isConnected = c.status === "connected";
 
   return (
-    <div className="section-card hover-lift p-6 group">
+    <div className="section-card hover-lift p-5 sm:p-6 group">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="grid size-11 place-items-center rounded-xl bg-secondary/50 group-hover:bg-primary/10 transition-colors">

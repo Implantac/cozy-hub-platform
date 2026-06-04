@@ -12,7 +12,7 @@ type Props = {
 
 export function ManualRegisterForm({ platform, setPlatform, handle, setHandle, onSubmit, isPending }: Props) {
   return (
-    <div className="section-card p-6">
+    <div className="section-card p-5 sm:p-6">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Or register a handle manually</h3>
       <form
         onSubmit={(e) => { e.preventDefault(); if (handle.length > 0) onSubmit(); }}

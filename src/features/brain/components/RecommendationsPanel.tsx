@@ -28,7 +28,7 @@ export function RecommendationsPanel({ recs, onSetStatus }: Props) {
           {recs.map((r) => (
             <li
               key={r.id}
-              className="group rounded-2xl border border-border/50 bg-background/30 p-5 transition-all duration-300 hover:border-primary/40 hover:bg-background/50 hover:shadow-soft"
+              className="group rounded-xl sm:rounded-2xl border border-border/50 bg-background/30 p-4 sm:p-5 transition-all duration-300 hover:border-primary/40 hover:bg-background/50 hover:shadow-soft"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
