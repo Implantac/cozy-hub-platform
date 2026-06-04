@@ -11,12 +11,15 @@ export function ActivityPipelineSection({ events, contentByStatus }: Props) {
         {events.length === 0 ? (
           <Empty text="Sem eventos ainda." />
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border/40">
             {events.slice(0, 8).map((e: any) => (
-              <li key={e.id} className="flex items-center justify-between py-2 text-sm">
-                <span className="font-mono text-xs text-accent">{e.event_type}</span>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(e.created_at).toLocaleString()}
+              <li key={e.id} className="flex items-center justify-between py-3 text-sm transition-colors hover:bg-white/5 px-2 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="size-1.5 rounded-full bg-accent animate-soft-pulse" />
+                  <span className="font-mono text-xs font-medium text-accent">{e.event_type}</span>
+                </div>
+                <span className="text-[11px] font-medium text-muted-foreground/70">
+                  {new Date(e.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                 </span>
               </li>
             ))}

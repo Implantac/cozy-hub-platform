@@ -18,12 +18,12 @@ export function CoachMissionsSection({ topRecs, priorityMissions }: Props) {
         ) : (
           <ul className="space-y-2">
             {topRecs.map((r: any) => (
-              <li key={r.id} className="rounded-xl border border-border bg-background/40 p-4 transition hover:border-primary/40">
+              <li key={r.id} className="rounded-2xl border border-border/50 bg-background/30 p-5 transition-all duration-300 hover:border-primary/40 hover:bg-background/50 hover:shadow-soft">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <RecIcon kind={r.kind} />
                     <div>
-                      <div className="font-medium">{r.title}</div>
+                      <div className="font-bold tracking-tight text-foreground">{r.title}</div>
                       {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
                     </div>
                   </div>
@@ -50,7 +50,7 @@ export function CoachMissionsSection({ topRecs, priorityMissions }: Props) {
         ) : (
           <ul className="space-y-2">
             {priorityMissions.map((m: any) => (
-              <li key={m.id} className="flex items-center justify-between rounded-lg border border-border bg-background/40 p-3">
+              <li key={m.id} className="flex items-center justify-between rounded-xl border border-border/50 bg-background/30 p-4 transition-all hover:border-primary/30">
                 <span className="truncate text-sm">{m.title}</span>
                 <StatusPill status={m.status} />
               </li>
