@@ -44,17 +44,17 @@ export function MemoryPanel({ memories, memText, setMemText, memKind, setMemKind
             );
           })}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-end">
           <input
             value={memText}
             onChange={(e) => setMemText(e.target.value)}
             placeholder="Ex.: Meta de R$ 10k/mês até dezembro..."
-            className="flex-1 rounded-lg border border-input bg-background/40 px-3 py-2 text-sm transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="h-10 flex-1 rounded-xl border border-input bg-background/50 px-3 py-2 text-sm transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
           />
           <button
             type="submit"
             disabled={memText.length < 2 || isPending}
-            className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+            className="h-10 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow-sm hover:bg-primary/90 transition-all disabled:opacity-50"
           >
             <Plus className="size-3.5" /> Salvar
           </button>
@@ -73,9 +73,9 @@ export function MemoryPanel({ memories, memText, setMemText, memKind, setMemKind
             return (
               <li
                 key={m.id}
-                className="flex items-start gap-2 rounded-lg border border-border bg-background/40 p-2.5 text-sm transition hover:border-primary/40"
+                className="flex items-start gap-3 rounded-xl border border-border/50 bg-background/30 p-3 text-sm transition-all hover:border-primary/40 hover:bg-background/50"
               >
-                <span className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-background/60 ${meta.color}`}>
+                <span className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-background/60 shadow-sm ring-1 ring-border/50 ${meta.color}`}>
                   <Icon className="size-3" />
                 </span>
                 <span className="flex-1 leading-snug">{m.content}</span>

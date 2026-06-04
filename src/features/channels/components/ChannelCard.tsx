@@ -16,14 +16,14 @@ export function ChannelCard({ channel: c, disabled, onDelete, onDisconnect, onCo
   const isConnected = c.status === "connected";
 
   return (
-    <div className="section-card hover-lift p-5">
+    <div className="section-card hover-lift p-6 group">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-lg bg-secondary">
+          <div className="grid size-11 place-items-center rounded-xl bg-secondary/50 group-hover:bg-primary/10 transition-colors">
             <Icon className="size-5" />
           </div>
           <div>
-            <div className="font-semibold capitalize">{c.platform}</div>
+            <div className="font-bold capitalize text-foreground group-hover:text-primary transition-colors">{c.platform}</div>
             <div className="text-sm text-muted-foreground">
               {c.handle ?? c.external_id ?? "—"}
             </div>

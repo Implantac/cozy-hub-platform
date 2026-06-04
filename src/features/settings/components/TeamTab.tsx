@@ -10,8 +10,8 @@ type Member = {
 export function TeamTab({ members }: { members: unknown[] }) {
   const { t } = useTranslation();
   return (
-    <div className="rounded-2xl border border-border bg-card/60 p-6">
-      <h3 className="mb-4 text-sm font-semibold">
+    <div className="section-card p-6">
+      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
         {t("settings.team.title", "Membros")} ({members.length})
       </h3>
       <ul className="space-y-2">

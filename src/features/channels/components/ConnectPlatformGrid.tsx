@@ -8,15 +8,15 @@ type Props = {
 
 export function ConnectPlatformGrid({ disabled, onConnect }: Props) {
   return (
-    <div className="section-card p-5">
-      <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Connect a platform</h3>
+    <div className="section-card p-6">
+      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Connect a platform</h3>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {PLATFORMS.map((p) => (
           <button
             key={p.id}
             onClick={() => onConnect(p.oauth)}
             disabled={disabled}
-            className="group hover-lift flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left transition hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+            className="group hover-lift flex items-center gap-3 rounded-2xl border border-border/50 bg-card/50 px-4 py-4 text-left transition-all duration-300 hover:border-primary/50 hover:bg-card hover:shadow-soft disabled:opacity-50"
           >
             <div className="grid size-10 place-items-center rounded-lg bg-secondary group-hover:bg-primary/10">
               <p.Icon className="size-5" />
