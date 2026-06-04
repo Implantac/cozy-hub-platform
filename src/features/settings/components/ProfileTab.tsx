@@ -32,8 +32,8 @@ export function ProfileTab() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card/60 p-6">
-      <h3 className="text-sm font-semibold">{t("settings.profile.title", "Seu perfil")}</h3>
+    <div className="section-card p-6">
+      <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{t("settings.profile.title", "Seu perfil")}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{auth.user?.email}</p>
       <div className="mt-4 space-y-3 max-w-md">
         <div className="space-y-1.5">
