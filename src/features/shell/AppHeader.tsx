@@ -33,28 +33,30 @@ export function AppHeader({
 
   return (
     <header className="sticky top-0 z-30 flex h-18 items-center justify-between gap-3 border-b border-border/40 bg-background/60 px-4 backdrop-blur-2xl backdrop-saturate-150 lg:px-8">
-      <div className="flex min-w-0 items-center gap-2.5 text-sm">
+      <div className="flex min-w-0 items-center gap-3 text-sm">
         <button
           onClick={onOpenMobileNav}
-          className="press inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-card hover:text-foreground lg:hidden"
+          className="press inline-flex size-9 items-center justify-center rounded-xl border border-border/60 bg-card/60 text-muted-foreground transition-all hover:border-primary/40 hover:bg-card hover:text-foreground lg:hidden"
           aria-label="Open navigation"
         >
           <Menu className="size-4" />
         </button>
-        <span className="hidden text-muted-foreground/80 sm:inline">{crumb.group}</span>
-        <span className="hidden text-muted-foreground/30 sm:inline">/</span>
-        <span className="truncate font-medium text-foreground">{crumb.page}</span>
+        <div className="flex items-center gap-2 overflow-hidden">
+          <span className="hidden whitespace-nowrap text-xs font-bold uppercase tracking-widest text-muted-foreground/60 sm:inline">{crumb.group}</span>
+          <span className="hidden text-muted-foreground/20 sm:inline">/</span>
+          <span className="truncate font-semibold tracking-tight text-foreground">{crumb.page}</span>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
         <button
           data-tour="search"
           onClick={onOpenPalette}
-          className="press hidden h-10 items-center gap-2.5 rounded-xl border border-border/60 bg-card/40 px-3.5 text-sm text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:bg-card/70 hover:text-foreground hover:shadow-glow-sm sm:flex"
+          className="press group hidden h-10 items-center gap-3 rounded-xl border border-border/60 bg-card/40 px-3.5 text-sm text-muted-foreground transition-all duration-300 hover:border-primary/50 hover:bg-card/70 hover:text-foreground hover:shadow-glow-sm sm:flex"
         >
-          <Search className="size-3.5" />
-          <span className="text-xs">{t("palette.placeholder", "Buscar...")}</span>
-          <kbd className="ml-6 rounded border border-border/70 bg-background/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">⌘K</kbd>
+          <Search className="size-3.5 transition-transform group-hover:scale-110" />
+          <span className="text-xs font-medium">{t("palette.placeholder", "Buscar...")}</span>
+          <kbd className="ml-6 rounded-md border border-border/70 bg-background/80 px-2 py-0.5 text-[10px] font-mono text-muted-foreground/70 shadow-sm transition-colors group-hover:border-primary/30 group-hover:text-primary">⌘K</kbd>
         </button>
         <button
           onClick={onOpenPalette}
