@@ -17,7 +17,7 @@ export function RecIcon({ kind }: { kind: string }) {
   const m = map[kind] ?? map.insight;
   const I = m.icon;
   return (
-    <div className={`grid size-9 shrink-0 place-items-center rounded-xl bg-background/40 backdrop-blur-sm ring-1 ring-border/50 ${m.color}`}>
+    <div className={`grid size-10 shrink-0 place-items-center rounded-2xl bg-background/40 backdrop-blur-sm ring-1 ring-border/50 transition-all duration-300 group-hover:ring-primary/40 group-hover:bg-primary/10 ${m.color}`}>
       <I className="size-4.5" />
     </div>
   );
@@ -84,7 +84,7 @@ export function KpiCard({
   icon: Icon, label, value, hint, to,
 }: { icon: LucideIcon; label: string; value: string | number; hint?: string; to?: string }) {
   const body = (
-    <MotionCard className="stat-tile group relative block overflow-hidden">
+    <MotionCard className="stat-tile group relative block overflow-hidden p-6 md:p-7">
       <div className="flex items-center justify-between">
         <Icon className="size-4 text-accent transition-colors group-hover:text-primary" />
         {to && <ArrowUpRight className="size-3 text-muted-foreground transition group-hover:text-primary" />}
