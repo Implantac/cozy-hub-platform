@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.9.1] — 2026-10-28
+
+### Corrigido — o seletor oferecia 16 idiomas e entregava 2
+
+O seletor de idioma listava dezesseis opções. Apenas **pt-BR e en-US** tinham
+tradução; as outras catorze caíam no fallback em inglês. Quem escolhia 日本語 via
+a interface inteira em inglês — sem aviso, sem indicação de que a escolha tinha
+sido ignorada.
+
+Isso não é "em breve". É um defeito na primeira tela que um usuário não-brasileiro
+toca, enviado para todos.
+
+A lista agora tem **dois** idiomas — os que existem. Adicionar outros continua
+barato: um JSON em `locales/`, uma linha em `SUPPORTED_LANGUAGES`, nada mais.
+
+### Um caso de borda que o código antigo não tratava
+
+Quem havia escolhido `de` antes da redução mantém `"de"` salvo no navegador. A
+detecção antiga confiava no valor salvo sem revalidar contra a lista, o que
+deixaria a interface no fallback e o seletor mostrando um código inexistente.
+Agora a preferência salva só vale se ainda for oferecida; caso contrário, cai na
+preferência do navegador por idioma-base (`pt-PT` → `pt-BR`).
+
+O suporte a RTL foi mantido como conjunto de locales, vazio hoje: a primeira
+língua da direita para a esquerda é uma linha, não um refactor.
+
+### Testes
+
+**257 testes (era 249)**: 8 novos, incluindo "ignora escolha salva de idioma que
+não é mais oferecido", o mapeamento de variantes regionais, e a verificação de que
+as chaves de amostra resolvem para strings diferentes nos dois idiomas — o teste
+que pega uma tradução faltando antes do cliente pegar.
+
 ## [1.9.0] — 2026-10-28
 
 ### Adicionado — feature flags, começando por esconder o Commerce Hub

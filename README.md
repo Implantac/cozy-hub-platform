@@ -53,6 +53,11 @@ qualquer JWT em arquivo versionado e falha se encontrar uma chave privilegiada.
 Chaves de servidor (`SUPABASE_SERVICE_ROLE_KEY`, `OAUTH_TOKEN_ENC_KEY`, segredos
 de OAuth) ficam no ambiente de deploy, nunca no repositório.
 
+Idiomas: **pt-BR** (padrão e língua de autoria) e **en-US**. O seletor mostra
+apenas os que têm tradução — listar um idioma sem arquivo de tradução faz a
+interface cair no inglês sem avisar. Para adicionar outro: um JSON em
+`src/lib/i18n/locales/` e uma linha em `SUPPORTED_LANGUAGES`.
+
 Requisitos: **Node 22+** (recomendado) ou Node 20 com a dependência `ws` já incluída. O projeto declara engine `>=20` para não quebrar CI antigo, mas o Supabase Realtime só usa WebSocket nativo a partir do Node 22 — o client já resolve isso via transporte `ws`.
 
 ### Scripts
