@@ -162,11 +162,18 @@ export async function resolveAndTrackClick(
   if (!/^https?:\/\//i.test(link.url)) return null;
 
   try {
+    // The generated types declare these args as `string | undefined`, not
+    // `string | null`: PostgREST omits absent fields, and an explicit `null`
+    // would be sent as JSON null. Both land on the SQL default, so the honest
+    // spelling is `undefined` — and it avoids a cast.
+    const referrerHost = referrerHostOnly(meta.referrer);
+    const device = deviceFromUserAgent(meta.userAgent);
+
     await supabaseAdmin.rpc("bio_register_click", {
       _link_id: linkId,
-      _referrer_host: referrerHostOnly(meta.referrer),
-      _device: deviceFromUserAgent(meta.userAgent),
-      _country: null, // populated by the edge layer when available
+      ...(referrerHost ? { _referrer_host: referrerHost } : {}),
+      ...(device ? { _device: device } : {}),
+      // `_country` stays unset until the edge layer supplies it.
     });
   } catch {
     /* tracking must never break the redirect */
