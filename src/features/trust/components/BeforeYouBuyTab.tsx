@@ -140,7 +140,11 @@ export function BeforeYouBuyTab() {
               { title: "Pontos positivos", items: checks.green_flags ?? [], tone: "good" },
               { title: "Pontos de alerta", items: checks.red_flags ?? [], tone: "bad" },
               { title: "Custos escondidos", items: checks.hidden_costs ?? [], tone: "bad" },
-              { title: "Alternativas", items: checks.comparison_alternatives ?? [], tone: "neutral" },
+              {
+                title: "Alternativas",
+                items: checks.comparison_alternatives ?? [],
+                tone: "neutral",
+              },
               {
                 title: "Perguntas para o vendedor",
                 items: checks.questions_for_seller ?? [],

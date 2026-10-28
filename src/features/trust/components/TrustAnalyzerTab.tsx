@@ -45,10 +45,7 @@ export function TrustAnalyzerTab() {
   const checks = result?.checks ?? {};
 
   const disabled =
-    mutation.isPending ||
-    !workspaceId ||
-    target_name.length < 2 ||
-    observations.length < 20;
+    mutation.isPending || !workspaceId || target_name.length < 2 || observations.length < 20;
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -127,7 +124,11 @@ export function TrustAnalyzerTab() {
             sections={[
               { title: "Sinais de confiança", items: checks.trust_signals ?? [], tone: "good" },
               { title: "Sinais de alerta", items: checks.red_flags ?? [], tone: "bad" },
-              { title: "Perguntas para fazer", items: checks.questions_to_ask ?? [], tone: "neutral" },
+              {
+                title: "Perguntas para fazer",
+                items: checks.questions_to_ask ?? [],
+                tone: "neutral",
+              },
             ]}
           />
         )}

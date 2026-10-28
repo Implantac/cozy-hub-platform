@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { History, Shield, ShieldAlert, ShoppingCart } from "lucide-react";
+import { Building2, History, Shield, ShieldAlert, ShoppingCart } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BeforeYouBuyTab } from "@/features/trust/components/BeforeYouBuyTab";
 import { HistoryTab } from "@/features/trust/components/HistoryTab";
 import { TrustAnalyzerTab } from "@/features/trust/components/TrustAnalyzerTab";
+import { RegistryDossierTab } from "@/features/trust/components/RegistryDossierTab";
 
 export const Route = createFileRoute("/_authenticated/app/trust")({
   component: TrustOSPage,
@@ -18,10 +19,13 @@ function TrustOSPage() {
         subtitle="Analise perfis, cursos, fornecedores e produtos antes de investir tempo ou dinheiro."
         icon={Shield}
       />
-      <Tabs defaultValue="analyzer" className="space-y-4">
-        <TabsList className="grid w-full max-w-xl grid-cols-3">
+      <Tabs defaultValue="registry" className="space-y-4">
+        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsTrigger value="registry" className="gap-2">
+            <Building2 className="size-4" /> Dossiê
+          </TabsTrigger>
           <TabsTrigger value="analyzer" className="gap-2">
-            <ShieldAlert className="size-4" /> Trust Analyzer
+            <ShieldAlert className="size-4" /> Sinais manuais
           </TabsTrigger>
           <TabsTrigger value="buy" className="gap-2">
             <ShoppingCart className="size-4" /> Before You Buy
@@ -30,6 +34,9 @@ function TrustOSPage() {
             <History className="size-4" /> Histórico
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="registry" className="space-y-4">
+          <RegistryDossierTab />
+        </TabsContent>
         <TabsContent value="analyzer" className="space-y-4">
           <TrustAnalyzerTab />
         </TabsContent>

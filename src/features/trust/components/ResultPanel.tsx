@@ -47,7 +47,9 @@ export function ResultPanel({
 
       {recommendation && (
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-          <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">Recomendação</div>
+          <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
+            Recomendação
+          </div>
           {recommendation}
         </div>
       )}

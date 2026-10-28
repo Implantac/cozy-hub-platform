@@ -9,11 +9,17 @@ interface BulletListProps {
 export function BulletList({ title, items, tone }: BulletListProps) {
   if (!items?.length) return null;
   const color =
-    tone === "good" ? "text-emerald-500" : tone === "bad" ? "text-red-500" : "text-muted-foreground";
+    tone === "good"
+      ? "text-emerald-500"
+      : tone === "bad"
+        ? "text-red-500"
+        : "text-muted-foreground";
   const Icon = tone === "good" ? CheckCircle2 : tone === "bad" ? XCircle : Sparkles;
   return (
     <div className="space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</div>
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </div>
       <ul className="space-y-1.5">
         {items.map((it, i) => (
           <li key={i} className="flex gap-2 text-sm">

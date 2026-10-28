@@ -9,11 +9,21 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callAITool } from "./_ai-gateway.server";
 import { throwIfError } from "./_supabase";
+import { parseCnpj, parseDomain } from "@/lib/trust/signals";
 
 /* ============================================================
  * Trust Analyzer
  * ============================================================ */
-const TARGET_TYPES = ["instagram", "youtube", "tiktok", "website", "course", "supplier", "person", "other"] as const;
+const TARGET_TYPES = [
+  "instagram",
+  "youtube",
+  "tiktok",
+  "website",
+  "course",
+  "supplier",
+  "person",
+  "other",
+] as const;
 
 const trustInput = z.object({
   workspaceId: z.string().uuid(),
@@ -61,13 +71,33 @@ Produza análise de confiança estruturada.`;
         properties: {
           risk_score: { type: "number", description: "0-100, maior = mais risco" },
           verdict: { type: "string", enum: ["safe", "caution", "risky", "avoid"] },
-          trust_signals: { type: "array", items: { type: "string" }, description: "Sinais positivos concretos" },
-          red_flags: { type: "array", items: { type: "string" }, description: "Sinais de alerta concretos" },
-          questions_to_ask: { type: "array", items: { type: "string" }, description: "Perguntas que o usuário deve fazer antes de avançar" },
+          trust_signals: {
+            type: "array",
+            items: { type: "string" },
+            description: "Sinais positivos concretos",
+          },
+          red_flags: {
+            type: "array",
+            items: { type: "string" },
+            description: "Sinais de alerta concretos",
+          },
+          questions_to_ask: {
+            type: "array",
+            items: { type: "string" },
+            description: "Perguntas que o usuário deve fazer antes de avançar",
+          },
           recommendation: { type: "string", description: "Recomendação direta de 1-2 frases" },
           summary: { type: "string", description: "Resumo executivo em 2-3 frases" },
         },
-        required: ["risk_score", "verdict", "trust_signals", "red_flags", "questions_to_ask", "recommendation", "summary"],
+        required: [
+          "risk_score",
+          "verdict",
+          "trust_signals",
+          "red_flags",
+          "questions_to_ask",
+          "recommendation",
+          "summary",
+        ],
       },
     });
 
@@ -158,14 +188,30 @@ Produza avaliação estruturada "antes de comprar".`;
           value_for_money: { type: "number", description: "0-100" },
           promise_realism: { type: "number", description: "0-100, quão realista é a promessa" },
           hidden_costs: { type: "array", items: { type: "string" } },
-          comparison_alternatives: { type: "array", items: { type: "string" }, description: "Alternativas no mercado (grátis ou pagas)" },
+          comparison_alternatives: {
+            type: "array",
+            items: { type: "string" },
+            description: "Alternativas no mercado (grátis ou pagas)",
+          },
           questions_for_seller: { type: "array", items: { type: "string" } },
           red_flags: { type: "array", items: { type: "string" } },
           green_flags: { type: "array", items: { type: "string" } },
           final_recommendation: { type: "string" },
           summary: { type: "string" },
         },
-        required: ["risk_score", "verdict", "value_for_money", "promise_realism", "hidden_costs", "comparison_alternatives", "questions_for_seller", "red_flags", "green_flags", "final_recommendation", "summary"],
+        required: [
+          "risk_score",
+          "verdict",
+          "value_for_money",
+          "promise_realism",
+          "hidden_costs",
+          "comparison_alternatives",
+          "questions_for_seller",
+          "red_flags",
+          "green_flags",
+          "final_recommendation",
+          "summary",
+        ],
       },
     });
 
@@ -218,3 +264,137 @@ export const listTrustReports = createServerFn({ method: "GET" })
     throwIfError(error);
     return rows ?? [];
   });
+
+/* ============================================================
+ * Registry-backed dossier (item 5 of the roadmap)
+ * ============================================================ */
+
+/**
+ * Replaces free-text → risk-score with facts → evidence → score.
+ *
+ * The previous analyzer asked a model to rate a target from the user's own
+ * description of it. It could only return what the user already believed. This
+ * one reads two public registries and derives the score from what they say,
+ * attaching the evidence to every signal so the user can re-run the check.
+ */
+export const runRegistryDossier = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        cnpj: z.string().max(30).optional(),
+        site: z.string().max(300).optional(),
+        label: z.string().max(200).optional(),
+        /** The user's own notes stay, but they no longer drive the score. */
+        observations: z.string().max(4000).optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const cnpj = data.cnpj ? parseCnpj(data.cnpj) : null;
+    const domain = data.site ? parseDomain(data.site) : null;
+
+    if ((!cnpj || !cnpj.ok) && (!domain || !domain.ok)) {
+      // Nothing verifiable was supplied. Refusing is more useful than guessing:
+      // a "risk score" produced from nothing is worse than no score at all.
+      return {
+        ok: false as const,
+        rejected: true as const,
+        reason:
+          cnpj && !cnpj.ok
+            ? cnpjMessage(cnpj.reason)
+            : domain && !domain.ok
+              ? domainMessage(domain.reason)
+              : "Informe um CNPJ válido ou o site do negócio.",
+      };
+    }
+
+    const { buildDossier } = await import("@/lib/trust/dossier.server");
+    const dossier = await buildDossier({
+      cnpjDigits: cnpj?.ok ? cnpj.digits : null,
+      domainHost: domain?.ok ? domain.host : null,
+      cnpjInvalid: cnpj && !cnpj.ok ? cnpj.reason : null,
+      domainInvalid: domain && !domain.ok ? domain.reason : null,
+    });
+
+    const targetName =
+      data.label?.trim() ||
+      dossier.company?.nomeFantasia ||
+      dossier.company?.razaoSocial ||
+      dossier.domain?.host ||
+      "Alvo sem nome";
+
+    // risk_score in this table means "higher = more risk" (legacy contract).
+    // The dossier produces confidence (higher = better), so invert on write and
+    // keep both numbers in the payload to avoid the classic sign confusion.
+    const riskScore = Math.max(0, Math.min(100, 100 - dossier.verdict.score));
+
+    const verdictMap = {
+      high: "safe",
+      moderate: "caution",
+      low: "risky",
+      insufficient: "caution",
+    } as const;
+
+    const { data: row, error } = await supabase
+      .from("due_diligence_reports")
+      .insert({
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        target_name: targetName,
+        target_type: "registry_dossier",
+        raw_input: data.observations ?? null,
+        source_url: dossier.domain ? `https://${dossier.domain.host}` : null,
+        risk_score: riskScore,
+        verdict:
+          dossier.verdict.level === "insufficient"
+            ? "insufficient"
+            : verdictMap[dossier.verdict.level],
+        checks: {
+          mode: "registry_dossier",
+          confidence: dossier.verdict.score,
+          level: dossier.verdict.level,
+          headline: dossier.verdict.headline,
+          signals: dossier.verdict.signals,
+          sources: dossier.sources,
+          fetchedAt: dossier.fetchedAt,
+          company: dossier.company,
+          domain: dossier.domain,
+        } as never,
+        summary: dossier.verdict.headline,
+      })
+      .select()
+      .single();
+    throwIfError(error);
+
+    return { ok: true as const, dossier, report: row };
+  });
+
+function cnpjMessage(reason: "empty" | "length" | "repeated" | "checksum"): string {
+  switch (reason) {
+    case "length":
+      return "CNPJ precisa ter 14 dígitos.";
+    case "repeated":
+      return "Este número não é um CNPJ válido.";
+    case "checksum":
+      return "Os dígitos verificadores do CNPJ não fecham — provavelmente há um erro de digitação.";
+    default:
+      return "Informe o CNPJ.";
+  }
+}
+
+function domainMessage(reason: "empty" | "invalid" | "ip" | "free_host"): string {
+  switch (reason) {
+    case "ip":
+      return "Endereço IP não tem registro público para consultar. Use o domínio do site.";
+    case "free_host":
+      return "Site hospedado em plataforma gratuita (Wix, Linktree, Netlify…) não tem registro próprio para verificar. Tente o CNPJ.";
+    case "invalid":
+      return "Endereço de site inválido.";
+    default:
+      return "Informe o site.";
+  }
+}

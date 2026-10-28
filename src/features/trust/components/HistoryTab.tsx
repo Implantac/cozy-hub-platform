@@ -34,7 +34,9 @@ export function HistoryTab() {
         return (
           <section key={r.id} className="section-card hover-lift p-4">
             <div className="flex items-start gap-3">
-              <div className={`grid size-10 shrink-0 place-items-center rounded-lg border ${tone.bg}`}>
+              <div
+                className={`grid size-10 shrink-0 place-items-center rounded-lg border ${tone.bg}`}
+              >
                 <tone.Icon className={`size-5 ${tone.color}`} />
               </div>
               <div className="min-w-0 flex-1">
