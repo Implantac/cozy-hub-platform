@@ -9,7 +9,12 @@ export function AnalyticsTotals({ totals }: { totals: Totals }) {
       <StatTile icon={Eye} label="Impressões" value={totals.impressions.toLocaleString()} />
       <StatTile icon={Heart} label="Engajamento" value={totals.engagement.toLocaleString()} />
       <StatTile icon={Users} label="Alcance" value={totals.reach.toLocaleString()} />
-      <StatTile icon={TrendingUp} label="Snapshots" value={totals.posts.toLocaleString()} emphasis />
+      <StatTile
+        icon={TrendingUp}
+        label="Snapshots"
+        value={totals.posts.toLocaleString()}
+        emphasis
+      />
     </div>
   );
 }

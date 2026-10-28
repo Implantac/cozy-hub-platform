@@ -1,6 +1,12 @@
 import { TrendingUp } from "lucide-react";
 import {
-  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { SectionCard } from "@/components/app/SectionCard";
 import { TOOLTIP_STYLE } from "../constants";
@@ -21,7 +27,13 @@ export function EngagementTrendChart({ daily }: { daily: any[] }) {
             <XAxis dataKey="date" stroke="var(--muted-foreground)" fontSize={11} />
             <YAxis stroke="var(--muted-foreground)" fontSize={11} />
             <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Area type="monotone" dataKey="engagement" stroke="var(--primary)" strokeWidth={2} fill="url(#g1)" />
+            <Area
+              type="monotone"
+              dataKey="engagement"
+              stroke="var(--primary)"
+              strokeWidth={2}
+              fill="url(#g1)"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>

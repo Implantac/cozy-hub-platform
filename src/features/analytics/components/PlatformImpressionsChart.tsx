@@ -1,7 +1,5 @@
 import { BarChart3 } from "lucide-react";
-import {
-  Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SectionCard } from "@/components/app/SectionCard";
 import { TOOLTIP_STYLE } from "../constants";
 
