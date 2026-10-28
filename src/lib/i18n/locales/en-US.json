@@ -19,18 +19,60 @@
     "language": "Language"
   },
   "landing": {
-    "badge": "Native Cognitive Brain · pgvector · multi-tenant",
+    "badge": "Native Cognitive Brain · multi-tenant",
     "title1": "The operating system for your",
     "titleHighlight": "digital presence",
     "subtitle": "Connect every channel, schedule every post, monitor every signal — and let a Native Cognitive Brain turn it into recommendations and missions.",
     "startFree": "Start free",
     "features": {
-      "multichannel": { "title": "Multi-channel", "desc": "Instagram, Facebook, YouTube, TikTok, LinkedIn — unified." },
-      "scheduler": { "title": "Scheduler", "desc": "Plan, schedule and publish across all channels with queues and DLQ." },
-      "analytics": { "title": "Analytics", "desc": "Real-time metrics and historical series per channel and brand." },
-      "brain": { "title": "Brain (AI)", "desc": "Recommendations, missions and vector memory with RAG." },
-      "missions": { "title": "Missions", "desc": "Execution kanban with SLAs, owners and deadlines." },
-      "tenant": { "title": "Multi-tenant", "desc": "Isolated workspaces with RLS, RBAC and auditing." }
+      "multichannel": {
+        "title": "Multi-channel",
+        "desc": "Instagram, Facebook, YouTube, TikTok, LinkedIn — unified."
+      },
+      "scheduler": {
+        "title": "Scheduler",
+        "desc": "Plan, schedule and publish across all channels with queues and DLQ."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "desc": "Real-time metrics and historical series per channel and brand."
+      },
+      "brain": {
+        "title": "Brain (AI)",
+        "desc": "Diagnosis, priorities and the memory of your decisions — with a preflight for every post."
+      },
+      "missions": {
+        "title": "Missions",
+        "desc": "Execution kanban with SLAs, owners and deadlines."
+      },
+      "tenant": {
+        "title": "Multi-tenant",
+        "desc": "Isolated workspaces with RLS, RBAC and auditing."
+      },
+      "growth": {
+        "title": "Growth engine",
+        "desc": "Preflight for every post, best time to publish from your own data, hook analysis."
+      }
+    },
+    "steps": {
+      "connect": {
+        "title": "Connect",
+        "desc": "Plug in your networks, brands and channels in seconds."
+      },
+      "learn": {
+        "title": "Learns",
+        "desc": "The Brain absorbs context, metrics and the memory of your decisions."
+      },
+      "execute": {
+        "title": "Executes",
+        "desc": "Get missions, content and decisions ready to act on."
+      }
+    },
+    "proof": {
+      "multichannel": "Native multi-channel",
+      "preflight": "Content preflight before publishing",
+      "rls": "RLS and audit per workspace",
+      "reality": "Decisions with reality-check"
     }
   },
   "auth": {
@@ -86,7 +128,8 @@
       "intelligence": "Intelligence",
       "commerce": "Commerce Hub",
       "settings": "Settings"
-    }
+    },
+    "bio": "Link in bio"
   },
   "palette": {
     "placeholder": "Search pages, actions...",
@@ -103,10 +146,25 @@
     "next": "Continue",
     "finish": "Finish",
     "done": "Welcome aboard!",
-    "s1": { "title": "Welcome to VELT", "desc": "Your operating system for digital growth." },
-    "s2": { "title": "Your profile", "desc": "What should we call you?", "label": "Display name" },
-    "s3": { "title": "First brand", "desc": "Create your first brand to get started.", "label": "Brand name" },
-    "s4": { "title": "Ready!", "desc": "All set. Let's operate.", "body": "You're ready to connect channels, create content and let the Brain work for you." },
+    "s1": {
+      "title": "Welcome to VELT",
+      "desc": "Your operating system for digital growth."
+    },
+    "s2": {
+      "title": "Your profile",
+      "desc": "What should we call you?",
+      "label": "Display name"
+    },
+    "s3": {
+      "title": "First brand",
+      "desc": "Create your first brand to get started.",
+      "label": "Brand name"
+    },
+    "s4": {
+      "title": "Ready!",
+      "desc": "All set. Let's operate.",
+      "body": "You're ready to connect channels, create content and let the Brain work for you."
+    },
     "welcome": {
       "line1": "Active workspace:",
       "line2": "In 3 quick steps you'll be operating like a Digital Director."
@@ -118,10 +176,22 @@
     "save": "Save changes",
     "saved": "Saved",
     "plan": "plan",
-    "tabs": { "profile": "Profile", "workspace": "Workspace", "team": "Team", "appearance": "Language" },
-    "profile": { "title": "Your profile", "displayName": "Display name" },
-    "team": { "title": "Members" },
-    "appearance": { "title": "Interface language" }
+    "tabs": {
+      "profile": "Profile",
+      "workspace": "Workspace",
+      "team": "Team",
+      "appearance": "Language"
+    },
+    "profile": {
+      "title": "Your profile",
+      "displayName": "Display name"
+    },
+    "team": {
+      "title": "Members"
+    },
+    "appearance": {
+      "title": "Interface language"
+    }
   },
   "workspace": {
     "new": "New workspace",

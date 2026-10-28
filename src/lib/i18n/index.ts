@@ -18,9 +18,22 @@ import enUS from "./locales/en-US.json";
  */
 
 export type LanguageCode =
-  | "pt-BR" | "en-US" | "es" | "fr" | "de" | "it"
-  | "ja" | "zh-CN" | "ko" | "ru" | "ar" | "hi"
-  | "tr" | "nl" | "pl" | "sv";
+  | "pt-BR"
+  | "en-US"
+  | "es"
+  | "fr"
+  | "de"
+  | "it"
+  | "ja"
+  | "zh-CN"
+  | "ko"
+  | "ru"
+  | "ar"
+  | "hi"
+  | "tr"
+  | "nl"
+  | "pl"
+  | "sv";
 
 export const SUPPORTED_LANGUAGES: ReadonlyArray<{
   code: LanguageCode;
@@ -30,21 +43,21 @@ export const SUPPORTED_LANGUAGES: ReadonlyArray<{
   rtl?: boolean;
 }> = [
   { code: "pt-BR", label: "Portuguese (Brazil)", native: "Português (Brasil)", flag: "🇧🇷" },
-  { code: "en-US", label: "English (US)",         native: "English (US)",       flag: "🇺🇸" },
-  { code: "es",    label: "Spanish",              native: "Español",             flag: "🇪🇸" },
-  { code: "fr",    label: "French",               native: "Français",            flag: "🇫🇷" },
-  { code: "de",    label: "German",               native: "Deutsch",             flag: "🇩🇪" },
-  { code: "it",    label: "Italian",              native: "Italiano",            flag: "🇮🇹" },
-  { code: "ja",    label: "Japanese",             native: "日本語",                flag: "🇯🇵" },
-  { code: "zh-CN", label: "Chinese (Simplified)", native: "中文简体",              flag: "🇨🇳" },
-  { code: "ko",    label: "Korean",               native: "한국어",                flag: "🇰🇷" },
-  { code: "ru",    label: "Russian",              native: "Русский",             flag: "🇷🇺" },
-  { code: "ar",    label: "Arabic",               native: "العربية",             flag: "🇸🇦", rtl: true },
-  { code: "hi",    label: "Hindi",                native: "हिन्दी",                  flag: "🇮🇳" },
-  { code: "tr",    label: "Turkish",              native: "Türkçe",              flag: "🇹🇷" },
-  { code: "nl",    label: "Dutch",                native: "Nederlands",          flag: "🇳🇱" },
-  { code: "pl",    label: "Polish",               native: "Polski",              flag: "🇵🇱" },
-  { code: "sv",    label: "Swedish",              native: "Svenska",             flag: "🇸🇪" },
+  { code: "en-US", label: "English (US)", native: "English (US)", flag: "🇺🇸" },
+  { code: "es", label: "Spanish", native: "Español", flag: "🇪🇸" },
+  { code: "fr", label: "French", native: "Français", flag: "🇫🇷" },
+  { code: "de", label: "German", native: "Deutsch", flag: "🇩🇪" },
+  { code: "it", label: "Italian", native: "Italiano", flag: "🇮🇹" },
+  { code: "ja", label: "Japanese", native: "日本語", flag: "🇯🇵" },
+  { code: "zh-CN", label: "Chinese (Simplified)", native: "中文简体", flag: "🇨🇳" },
+  { code: "ko", label: "Korean", native: "한국어", flag: "🇰🇷" },
+  { code: "ru", label: "Russian", native: "Русский", flag: "🇷🇺" },
+  { code: "ar", label: "Arabic", native: "العربية", flag: "🇸🇦", rtl: true },
+  { code: "hi", label: "Hindi", native: "हिन्दी", flag: "🇮🇳" },
+  { code: "tr", label: "Turkish", native: "Türkçe", flag: "🇹🇷" },
+  { code: "nl", label: "Dutch", native: "Nederlands", flag: "🇳🇱" },
+  { code: "pl", label: "Polish", native: "Polski", flag: "🇵🇱" },
+  { code: "sv", label: "Swedish", native: "Svenska", flag: "🇸🇪" },
 ] as const;
 
 const STORAGE_KEY = "use-os:lang";
@@ -76,9 +89,10 @@ if (!i18n.isInitialized) {
   // is provided. This is intentional — it lets the product run globally
   // today without shipping 14 partial translation files.
   const fallbackResources = Object.fromEntries(
-    SUPPORTED_LANGUAGES
-      .filter((l) => l.code !== "pt-BR" && l.code !== "en-US")
-      .map((l) => [l.code, { translation: enUS }]),
+    SUPPORTED_LANGUAGES.filter((l) => l.code !== "pt-BR" && l.code !== "en-US").map((l) => [
+      l.code,
+      { translation: enUS },
+    ]),
   );
 
   i18n.use(initReactI18next).init({

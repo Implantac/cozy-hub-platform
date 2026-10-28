@@ -70,11 +70,7 @@ export function useWorkspaceMutation<TVars, TData>(
     mutationFn: fn,
     onSuccess: (data) => {
       const raw = opts.invalidate;
-      const keys: QueryKey[] = !raw
-        ? []
-        : isQueryKeyArray(raw)
-        ? raw
-        : [raw];
+      const keys: QueryKey[] = !raw ? [] : isQueryKeyArray(raw) ? raw : [raw];
       keys.forEach((key) => qc.invalidateQueries({ queryKey: key }));
 
       if (opts.successMessage) {

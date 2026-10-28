@@ -16,6 +16,13 @@ dist-ssr
 .nitro
 *.local
 
+# Environment — must never be committed.
+# .env holds the Supabase project URL + publishable key. The publishable key is
+# public by design, but committing env files is how service-role keys leak.
+.env
+.env.*
+!.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
@@ -30,3 +37,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test / coverage artifacts
+coverage
+.vitest

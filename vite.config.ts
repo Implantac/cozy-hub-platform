@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // The app is developed in hosted preview environments where the origin is
+      // not localhost (e.g. *.e2b.app). Vite blocks unknown hosts by default,
+      // which silently breaks every preview URL.
+      host: true,
+      allowedHosts: true,
+    },
+  },
 });
