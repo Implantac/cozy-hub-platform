@@ -15,6 +15,13 @@
       "when": 1793219976607,
       "tag": "0001_bio_pages",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793220003491,
+      "tag": "0002_bio_data_access",
+      "breakpoints": true
     }
   ]
 }
