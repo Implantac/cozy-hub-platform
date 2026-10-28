@@ -1,5 +1,67 @@
 # Changelog
 
+## [1.7.0] — 2026-10-28
+
+### Adicionado — Relatório semanal em PDF
+
+Item nº 6 do roadmap. O produto já mede; faltava o artefato que sai da tela.
+Quem toca um pequeno negócio mostra número para sócio, cliente ou contador — e
+abrir o celular na reunião não é mostrar nada.
+
+```
+POST /api/reports/weekly?workspaceId=…&format=pdf|csv
+├── valida o Bearer token do usuário
+├── lê com a sessão dele (RLS decide o que pode ver)
+├── 7 dias vs. os 7 anteriores
+└── PDF de uma página + CSV dos mesmos números
+```
+
+- **`weekly.ts`** (puro, 14 testes): soma de métricas, comparação entre janelas
+  e as frases de leitura. Taxa é derivada, nunca somada — somar percentuais não
+  produz percentual.
+- **`layout.ts`** (puro, testado): paginação, quebra de linha e conteúdo, como
+  uma lista de operações de desenho.
+- **`render.ts`**: executa as operações com `pdf-lib`. Nenhuma decisão de layout.
+- **`WeeklyReportCard`** em Analytics com download de PDF e CSV.
+
+### Três decisões que valem registro
+
+1. **A comparação é o produto.** Um relatório que lista totais sem "vs. semana
+   anterior" é print de dashboard. A pergunta que faz alguém abrir o PDF é o que
+   mudou.
+2. **Sem comparação possível, sem número inventado.** Quando a semana anterior é
+   zero, a variação aparece como "novo", não como "∞%" — que ninguém lê.
+3. **Nada de e-mail ainda.** O card diz, com todas as letras, que o envio
+   automático depende de um provedor transacional que não existe. Um botão que
+   não faz nada seria pior que a ausência do botão.
+
+### Corrigido no caminho — quatro bugs, três deles invisíveis em teste
+
+1. **Texto longo vazava para fora da página, em silêncio.** O desenho não
+   paginava por linha: um título de 10 mil caracteres era escrito abaixo da
+   margem e simplesmente não existia no PDF. Nenhum erro, nenhum aviso.
+2. **Sanitização agressiva comia o travessão.** O filtro cortava tudo acima de
+   U+00FF, então `21/10 — 28/10` saía como `21/10 ? 28/10` em todo relatório.
+   WinAnsi inclui o travessão (0x97) e o ponto médio (0xB7); agora só emoji e CJK
+   são substituídos.
+3. **`getClaims` lança exceção em vez de retornar erro.** Token inválido produzia
+   **500 com a página de erro do framework em HTML** — status errado, e expondo
+   que a falha foi no servidor. Agora é 401 com JSON.
+4. **Node 20 sem WebSocket derrubava a rota.** `createClient` constrói o cliente
+   Realtime na hora, e essa rota nunca usa Realtime. O mesmo contorno que os
+   outros módulos já faziam foi aplicado aqui.
+
+Os bugs 1 e 2 passaram por testes que geravam PDF real e verificavam que o
+arquivo abria. O que faltava era testar a **camada de layout** — daí a
+separação de `layout.ts`: paginação e conteúdo agora são verificáveis numa
+estrutura de dados, antes de virar byte.
+
+### Testes
+
+**244 testes (era 217)** em 16 arquivos: +14 de dados, +8 de layout (incluindo
+"nunca desenhar abaixo da margem inferior" e "o número de páginas prometido pelo
+layout é o que o PDF tem") e +5 de render.
+
 ## [1.6.0] — 2026-10-28
 
 ### Adicionado — Trust OS com fonte externa verificável

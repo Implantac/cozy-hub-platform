@@ -25,6 +25,7 @@ O diferencial não é ser mais um agendador de posts. É ser a camada de **julga
 | IA generativa no Brain                                 | ⚠️ Opcional, requer `LOVABLE_API_KEY`      |
 | Coach de reescrita com IA verificada                    | ✅ Com IA ou fallback determinístico       |
 | Trust OS com fonte externa (CNPJ + domínio)             | ✅ BrasilAPI + RDAP, sem chave             |
+| Relatório semanal em PDF + CSV                          | ✅ Sob demanda, autenticado                |
 | Busca vetorial / RAG                                   | ⛔ Não implementado (removido da landing)  |
 
 A honestidade é um requisito de produto: a tela de Agendamento mostra, canal por canal, o que realmente está habilitado naquele ambiente (`VELT_PUBLISHER_MODE`, credenciais presentes). Nenhum job entra em fila prometendo publicar o que não publica.
@@ -50,7 +51,7 @@ npm run dev         # servidor de desenvolvimento
 npm run build       # build de produção
 npm run typecheck   # tsc --noEmit
 npm run lint        # eslint
-npm run test        # vitest (217 testes)
+npm run test        # vitest (244 testes)
 npm run verify      # typecheck + lint + test + build
 ```
 
@@ -215,13 +216,33 @@ que fez.
 
 ---
 
+## Relatório semanal
+
+`GET /api/reports/weekly?workspaceId=…&format=pdf|csv`, com o Bearer token do
+usuário. Nada é armazenado: os bytes existem durante a requisição.
+
+A comparação é o ponto. Sete dias contra os sete anteriores, com a variação ao
+lado de cada número. Semanas sem base de comparação mostram "novo" em vez de uma
+porcentagem infinita, e uma semana sem atividade diz isso — não desenha um
+gráfico vazio.
+
+O PDF é gerado por `pdf-lib` com fontes padrão (Helvetica cobre todo o pt-BR em
+WinAnsi, verificado) e sem imagens externas: renderiza igual num servidor sem
+rede e sem bucket. O CSV traz os mesmos números, para quem quiser conferir a
+conta em vez de confiar no documento.
+
+**Envio automático por e-mail não existe.** O card na tela diz isso. Depende de um
+provedor transacional que ainda não está configurado.
+
+---
+
 ## Testes
 
 ```bash
 npm run test
 ```
 
-217 testes cobrindo as partes em que um bug é invisível em produção: limites de plataforma, análise de gancho, timezone e slots, normalização por impressões, decaimento por espera, classificação de mídia, montagem de legenda, os motores do Brain, o contrato do Google Business e a exposição pública do link na bio (rascunho invisível, slug malformado, referrer reduzido a host, protocolo perigoso).
+244 testes cobrindo as partes em que um bug é invisível em produção: limites de plataforma, análise de gancho, timezone e slots, normalização por impressões, decaimento por espera, classificação de mídia, montagem de legenda, os motores do Brain, o contrato do Google Business e a exposição pública do link na bio (rascunho invisível, slug malformado, referrer reduzido a host, protocolo perigoso).
 
 ---
 

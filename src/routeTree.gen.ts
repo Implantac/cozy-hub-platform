@@ -17,6 +17,7 @@ import { Route as BioSlugRouteImport } from './routes/bio/$slug'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as BioClickLinkIdRouteImport } from './routes/bio/click.$linkId'
+import { Route as ApiReportsWeeklyRouteImport } from './routes/api/reports/weekly'
 import { Route as AuthenticatedAppTrustRouteImport } from './routes/_authenticated/app.trust'
 import { Route as AuthenticatedAppSkillMapRouteImport } from './routes/_authenticated/app.skill-map'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
@@ -81,6 +82,11 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
 const BioClickLinkIdRoute = BioClickLinkIdRouteImport.update({
   id: '/bio/click/$linkId',
   path: '/bio/click/$linkId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReportsWeeklyRoute = ApiReportsWeeklyRouteImport.update({
+  id: '/api/reports/weekly',
+  path: '/api/reports/weekly',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppTrustRoute = AuthenticatedAppTrustRouteImport.update({
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/skill-map': typeof AuthenticatedAppSkillMapRoute
   '/app/trust': typeof AuthenticatedAppTrustRoute
+  '/api/reports/weekly': typeof ApiReportsWeeklyRoute
   '/bio/click/$linkId': typeof BioClickLinkIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/analytics-sync': typeof ApiPublicCronAnalyticsSyncRoute
@@ -293,6 +300,7 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/skill-map': typeof AuthenticatedAppSkillMapRoute
   '/app/trust': typeof AuthenticatedAppTrustRoute
+  '/api/reports/weekly': typeof ApiReportsWeeklyRoute
   '/bio/click/$linkId': typeof BioClickLinkIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/analytics-sync': typeof ApiPublicCronAnalyticsSyncRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/skill-map': typeof AuthenticatedAppSkillMapRoute
   '/_authenticated/app/trust': typeof AuthenticatedAppTrustRoute
+  '/api/reports/weekly': typeof ApiReportsWeeklyRoute
   '/bio/click/$linkId': typeof BioClickLinkIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/cron/analytics-sync': typeof ApiPublicCronAnalyticsSyncRoute
@@ -367,6 +376,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/skill-map'
     | '/app/trust'
+    | '/api/reports/weekly'
     | '/bio/click/$linkId'
     | '/app/'
     | '/api/public/cron/analytics-sync'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/skill-map'
     | '/app/trust'
+    | '/api/reports/weekly'
     | '/bio/click/$linkId'
     | '/app'
     | '/api/public/cron/analytics-sync'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/settings'
     | '/_authenticated/app/skill-map'
     | '/_authenticated/app/trust'
+    | '/api/reports/weekly'
     | '/bio/click/$linkId'
     | '/_authenticated/app/'
     | '/api/public/cron/analytics-sync'
@@ -450,6 +462,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   BioSlugRoute: typeof BioSlugRoute
+  ApiReportsWeeklyRoute: typeof ApiReportsWeeklyRoute
   BioClickLinkIdRoute: typeof BioClickLinkIdRoute
   ApiPublicCronAnalyticsSyncRoute: typeof ApiPublicCronAnalyticsSyncRoute
   ApiPublicCronSchedulerTickRoute: typeof ApiPublicCronSchedulerTickRoute
@@ -512,6 +525,13 @@ declare module '@tanstack/react-router' {
       path: '/bio/click/$linkId'
       fullPath: '/bio/click/$linkId'
       preLoaderRoute: typeof BioClickLinkIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/reports/weekly': {
+      id: '/api/reports/weekly'
+      path: '/api/reports/weekly'
+      fullPath: '/api/reports/weekly'
+      preLoaderRoute: typeof ApiReportsWeeklyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/trust': {
@@ -774,6 +794,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   BioSlugRoute: BioSlugRoute,
+  ApiReportsWeeklyRoute: ApiReportsWeeklyRoute,
   BioClickLinkIdRoute: BioClickLinkIdRoute,
   ApiPublicCronAnalyticsSyncRoute: ApiPublicCronAnalyticsSyncRoute,
   ApiPublicCronSchedulerTickRoute: ApiPublicCronSchedulerTickRoute,

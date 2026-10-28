@@ -14,6 +14,7 @@ import { AnalyticsTotals } from "@/features/analytics/components/AnalyticsTotals
 import { EngagementTrendChart } from "@/features/analytics/components/EngagementTrendChart";
 import { PlatformImpressionsChart } from "@/features/analytics/components/PlatformImpressionsChart";
 import { SyncMetricsPanel } from "@/features/analytics/components/SyncMetricsPanel";
+import { WeeklyReportCard } from "@/features/analytics/components/WeeklyReportCard";
 
 export const Route = createFileRoute("/_authenticated/app/analytics")({
   component: AnalyticsPage,
@@ -45,6 +46,10 @@ function AnalyticsPage() {
 
         {/* Always visible: the empty state must explain itself and offer the fix. */}
         <SyncMetricsPanel />
+
+        {/* The weekly PDF compares two adjacent 7-day windows, so it is shown
+            regardless of the period selected above. */}
+        <WeeklyReportCard workspaceId={q.wsId} />
 
         <PeriodTabs days={days} onChange={setDays} />
 
