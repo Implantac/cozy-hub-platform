@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793219936524,
+      "tag": "0000_google_business_platform",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793219976607,
+      "tag": "0001_bio_pages",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793220003491,
+      "tag": "0002_bio_data_access",
+      "breakpoints": true
+    }
+  ]
+}
