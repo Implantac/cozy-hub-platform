@@ -16,12 +16,21 @@ dist-ssr
 .nitro
 *.local
 
-# Environment — must never be committed.
-# .env holds the Supabase project URL + publishable key. The publishable key is
-# public by design, but committing env files is how service-role keys leak.
+# Environment.
+#
+# `.env` IS versioned here, deliberately. The Vite client resolves
+# VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY at build time, so removing the
+# file produced a deployed bundle that threw "Missing Supabase environment
+# variable(s)" in the browser. The publishable (anon) key is public by design and
+# is already shipped to every client.
+#
+# The guard that keeps this safe is `scripts/check-env.mjs`: the build fails if a
+# service_role / sb_secret_ key ever appears in a tracked env file.
 .env
-.env.*
+!.env
 !.env.example
+.env.local
+.env.*.local
 
 # Wrangler / Cloudflare
 .wrangler/

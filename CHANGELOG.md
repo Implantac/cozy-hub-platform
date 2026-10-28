@@ -1,5 +1,51 @@
 # Changelog
 
+## [1.7.1] — 2026-10-28
+
+### Corrigido — aplicação quebrada por `.env` removido do versionamento
+
+Sintoma no browser publicado:
+
+```
+Error: Missing Supabase environment variable(s): SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY
+```
+
+Causa: o commit `chore: saneamento de base` removeu o `.env` do repositório. O
+cliente do Supabase resolve `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
+em **build time**, então sem o arquivo o bundle saiu sem as variáveis e todo
+carregamento da página estourava ao criar o cliente.
+
+Removi o arquivo por hábito — "versionar `.env` é como chave de service-role
+vaza". O hábito está certo em geral e errado neste projeto. A chave em questão é
+`anon` (papel verificado no JWT), que já vai para o navegador de qualquer usuário
+por definição e só permite o que o RLS autorizar. Esconder essa chave não protege
+nada e, neste caso, derrubou a aplicação.
+
+### A proteção que falta, agora implementada
+
+O risco real nunca foi o `.env` versionado em si, e sim uma `service_role` key
+acabar dentro dele — essa ignora RLS por completo. `scripts/check-env.mjs` roda
+antes de todo build e falha se encontrar uma chave privilegiada num arquivo
+rastreado:
+
+- decodifica o claim `role` de qualquer JWT presente e recusa `service_role`;
+- reconhece o formato novo do Supabase (`sb_secret_`) além do JWT clássico;
+- só considera arquivos **versionados** — um `.env.local` do desenvolvedor é
+  assunto dele;
+- não imprime nenhum valor, apenas arquivo, variável e tipo de chave.
+
+`npm run build` e `npm run build:dev` agora passam pelo guarda.
+
+### Verificado
+
+| Verificação | Resultado |
+| --- | --- |
+| Guarda com o `.env` real (chave `anon`) | passa |
+| Guarda com `service_role` injetada | **bloqueia**, exit 1 |
+| Build completo | ✓ 11,41 s + 26,39 s |
+| URL do projeto no bundle client | presente |
+| `service_role` no bundle client | ausente |
+
 ## [1.7.0] — 2026-10-28
 
 ### Adicionado — Relatório semanal em PDF

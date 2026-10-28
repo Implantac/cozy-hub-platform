@@ -42,6 +42,17 @@ npm install
 npm run dev               # http://localhost:8080
 ```
 
+O `.env` **é versionado neste projeto** e isso é intencional: o cliente Vite
+resolve as variáveis do Supabase em tempo de build, então sem o arquivo o bundle
+publicado sobe sem configuração e quebra no navegador. A chave contida nele é
+`anon`, pública por design.
+
+O risco real é uma `service_role` acabar dentro desse arquivo — ela ignora RLS.
+`npm run build` executa `scripts/check-env.mjs`, que decodifica o `role` de
+qualquer JWT em arquivo versionado e falha se encontrar uma chave privilegiada.
+Chaves de servidor (`SUPABASE_SERVICE_ROLE_KEY`, `OAUTH_TOKEN_ENC_KEY`, segredos
+de OAuth) ficam no ambiente de deploy, nunca no repositório.
+
 Requisitos: **Node 22+** (recomendado) ou Node 20 com a dependência `ws` já incluída. O projeto declara engine `>=20` para não quebrar CI antigo, mas o Supabase Realtime só usa WebSocket nativo a partir do Node 22 — o client já resolve isso via transporte `ws`.
 
 ### Scripts
@@ -279,7 +290,8 @@ Convenções que não devem ser quebradas:
 - RLS habilitada em todas as tabelas, escopo por workspace; eventos pessoais do Brain restritos ao próprio `user_id`.
 - Tokens OAuth cifrados em repouso (AES-256-GCM, `OAUTH_TOKEN_ENC_KEY`).
 - State de OAuth assinado por HMAC, com proteção contra injeção de host.
-- `.env` fora do versionamento — use `.env.example` como referência.
+- `.env` versionado por necessidade de build (ver "Começando"). Guarda apenas a
+  chave `anon`; o build falha se uma `service_role` aparecer ali.
 
 ---
 
