@@ -2,7 +2,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +19,11 @@ import { completeOnboarding, updateMyProfile } from "@/lib/api/notifications.fun
 import { toast } from "sonner";
 
 export function OnboardingWizard({
-  open, onClose, workspaceName, workspaceId, userName,
+  open,
+  onClose,
+  workspaceName,
+  workspaceId,
+  userName,
 }: {
   open: boolean;
   onClose: () => void;
@@ -33,10 +43,26 @@ export function OnboardingWizard({
   const finishOnboarding = useServerFn(completeOnboarding);
 
   const steps = [
-    { icon: Sparkles, title: t("onboarding.s1.title", "Bem-vindo ao VELT"), desc: t("onboarding.s1.desc", "Seu sistema operacional para crescimento digital.") },
-    { icon: Building2, title: t("onboarding.s2.title", "Seu perfil"), desc: t("onboarding.s2.desc", "Como devemos te chamar?") },
-    { icon: Palette, title: t("onboarding.s3.title", "Primeira marca"), desc: t("onboarding.s3.desc", "Crie sua primeira marca para começar.") },
-    { icon: CheckCircle2, title: t("onboarding.s4.title", "Pronto!"), desc: t("onboarding.s4.desc", "Tudo configurado. Vamos operar.") },
+    {
+      icon: Sparkles,
+      title: t("onboarding.s1.title", "Bem-vindo ao VELT"),
+      desc: t("onboarding.s1.desc", "Seu sistema operacional para crescimento digital."),
+    },
+    {
+      icon: Building2,
+      title: t("onboarding.s2.title", "Seu perfil"),
+      desc: t("onboarding.s2.desc", "Como devemos te chamar?"),
+    },
+    {
+      icon: Palette,
+      title: t("onboarding.s3.title", "Primeira marca"),
+      desc: t("onboarding.s3.desc", "Crie sua primeira marca para começar."),
+    },
+    {
+      icon: CheckCircle2,
+      title: t("onboarding.s4.title", "Pronto!"),
+      desc: t("onboarding.s4.desc", "Tudo configurado. Vamos operar."),
+    },
   ];
 
   const next = async () => {
@@ -73,7 +99,12 @@ export function OnboardingWizard({
   const Current = steps[step];
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) skip(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) skip();
+      }}
+    >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="mb-3 grid size-12 place-items-center rounded-xl bg-gradient-brand shadow-glow">
@@ -94,25 +125,48 @@ export function OnboardingWizard({
           >
             {step === 0 && (
               <div className="rounded-lg border border-border/50 bg-card/50 p-4 text-sm text-muted-foreground">
-                <p>{t("onboarding.welcome.line1", "Workspace ativo:")} <strong className="text-foreground">{workspaceName}</strong></p>
-                <p className="mt-2">{t("onboarding.welcome.line2", "Em 3 passos rápidos você estará operando como um Diretor Digital.")}</p>
+                <p>
+                  {t("onboarding.welcome.line1", "Workspace ativo:")}{" "}
+                  <strong className="text-foreground">{workspaceName}</strong>
+                </p>
+                <p className="mt-2">
+                  {t(
+                    "onboarding.welcome.line2",
+                    "Em 3 passos rápidos você estará operando como um Diretor Digital.",
+                  )}
+                </p>
               </div>
             )}
             {step === 1 && (
               <div className="space-y-2">
                 <Label htmlFor="dn">{t("onboarding.s2.label", "Nome de exibição")}</Label>
-                <Input id="dn" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Ex: Maria Silva" />
+                <Input
+                  id="dn"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Ex: Maria Silva"
+                />
               </div>
             )}
             {step === 2 && (
               <div className="space-y-2">
                 <Label htmlFor="bn">{t("onboarding.s3.label", "Nome da marca")}</Label>
-                <Input id="bn" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="Ex: Minha Marca" />
+                <Input
+                  id="bn"
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                  placeholder="Ex: Minha Marca"
+                />
               </div>
             )}
             {step === 3 && (
               <div className="rounded-lg border border-success/30 bg-success/10 p-4 text-sm">
-                <p className="text-success-foreground">{t("onboarding.s4.body", "Você está pronto para conectar canais, criar conteúdo e deixar o Brain trabalhar pra você.")}</p>
+                <p className="text-success-foreground">
+                  {t(
+                    "onboarding.s4.body",
+                    "Você está pronto para conectar canais, criar conteúdo e deixar o Brain trabalhar pra você.",
+                  )}
+                </p>
               </div>
             )}
           </motion.div>
@@ -121,15 +175,22 @@ export function OnboardingWizard({
         <div className="flex items-center justify-between pt-2">
           <div className="flex gap-1.5">
             {steps.map((_, i) => (
-              <div key={i} className={`h-1.5 w-8 rounded-full transition ${i <= step ? "bg-primary" : "bg-border"}`} />
+              <div
+                key={i}
+                className={`h-1.5 w-8 rounded-full transition ${i <= step ? "bg-primary" : "bg-border"}`}
+              />
             ))}
           </div>
           <div className="flex gap-2">
             {step < steps.length - 1 && (
-              <Button variant="ghost" size="sm" onClick={skip}>{t("onboarding.skip", "Pular")}</Button>
+              <Button variant="ghost" size="sm" onClick={skip}>
+                {t("onboarding.skip", "Pular")}
+              </Button>
             )}
             <Button onClick={next} disabled={loading || (step === 2 && !brandName.trim())}>
-              {step === steps.length - 1 ? t("onboarding.finish", "Concluir") : t("onboarding.next", "Continuar")}
+              {step === steps.length - 1
+                ? t("onboarding.finish", "Concluir")
+                : t("onboarding.next", "Continuar")}
             </Button>
           </div>
         </div>

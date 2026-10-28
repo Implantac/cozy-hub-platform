@@ -6,9 +6,7 @@ export function useShortcutsHotkey(toggle: () => void) {
       const target = e.target as HTMLElement | null;
       const isTyping =
         target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable);
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
       if (!isTyping && e.key === "?") {
         e.preventDefault();
         toggle();

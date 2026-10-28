@@ -1,4 +1,12 @@
-export function Metric({ label, value, accent = "foreground" }: { label: string; value: string | number; accent?: string }) {
+export function Metric({
+  label,
+  value,
+  accent = "foreground",
+}: {
+  label: string;
+  value: string | number;
+  accent?: string;
+}) {
   return (
     <div className="rounded-lg border border-border bg-background/40 p-2.5">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>

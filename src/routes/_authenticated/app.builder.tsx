@@ -32,12 +32,17 @@ function BusinessBuilderPage() {
   const [active, setActive] = useState<BlockId>("problem");
   const [draft, setDraft] = useState("");
 
-  useEffect(() => { setDraft((q.data?.[active] ?? "") as string); }, [active, q.data]);
+  useEffect(() => {
+    setDraft((q.data?.[active] ?? "") as string);
+  }, [active, q.data]);
 
   const mut = useMutation({
     mutationFn: (p: { field: BlockId; value: string }) =>
       update({ data: { workspaceId: wsId!, field: p.field, value: p.value } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["blueprint", wsId] }); toast.success("Bloco salvo"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["blueprint", wsId] });
+      toast.success("Bloco salvo");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -57,14 +62,21 @@ function BusinessBuilderPage() {
           subtitle="10 blocos. 10 decisões. Um modelo de negócio que cabe em uma página."
           action={
             <div className="text-right">
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Completo</div>
-              <div className="text-2xl font-bold tabular-nums">{filled}/{total}</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Completo
+              </div>
+              <div className="text-2xl font-bold tabular-nums">
+                {filled}/{total}
+              </div>
             </div>
           }
         />
 
         <motion.div variants={fadeUp} className="h-2 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${progress}%` }} />
+          <div
+            className="h-full rounded-full bg-gradient-brand transition-all"
+            style={{ width: `${progress}%` }}
+          />
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr,1.5fr]">

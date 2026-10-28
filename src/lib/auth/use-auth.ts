@@ -15,7 +15,9 @@ export function useAuth(): AuthState {
   useEffect(() => {
     let mounted = true;
     // onAuthStateChange fires INITIAL_SESSION on subscribe, so getSession() is redundant.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_evt, session) => {
       if (!mounted) return;
       setState({ user: session?.user ?? null, loading: false });
     });

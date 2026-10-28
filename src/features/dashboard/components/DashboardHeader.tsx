@@ -24,7 +24,9 @@ export function DashboardHeader({ onRefresh, isPending }: Props) {
         disabled={isPending}
         className="press group inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
       >
-        <Brain className={`size-4 transition group-hover:rotate-12 ${isPending ? "animate-pulse" : ""}`} />
+        <Brain
+          className={`size-4 transition group-hover:rotate-12 ${isPending ? "animate-pulse" : ""}`}
+        />
         {isPending ? "Pensando..." : "Pensar de novo"}
       </button>
     </motion.header>

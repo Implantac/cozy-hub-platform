@@ -32,11 +32,18 @@ export function ValidationCard({ v }: { v: any }) {
       </div>
 
       {v.ai_analysis?.summary && (
-        <p className="text-sm leading-relaxed border-l-2 border-primary/40 pl-3">{v.ai_analysis.summary}</p>
+        <p className="text-sm leading-relaxed border-l-2 border-primary/40 pl-3">
+          {v.ai_analysis.summary}
+        </p>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <ListBlock icon={CheckCircle2} title="Forças" tone="text-emerald-600" items={v.strengths ?? []} />
+        <ListBlock
+          icon={CheckCircle2}
+          title="Forças"
+          tone="text-emerald-600"
+          items={v.strengths ?? []}
+        />
         <ListBlock icon={AlertCircle} title="Riscos" tone="text-amber-600" items={v.risks ?? []} />
       </div>
 

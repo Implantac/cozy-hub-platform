@@ -27,7 +27,10 @@ export function ListSkeleton({ rows = 5, className }: { rows?: number; className
   return (
     <div className={cn("space-y-2", className)}>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/30 p-3">
+        <div
+          key={i}
+          className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/30 p-3"
+        >
           <Skeleton className="size-10 rounded-lg" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-3 w-1/3" />

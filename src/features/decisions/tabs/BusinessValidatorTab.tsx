@@ -37,7 +37,11 @@ export function BusinessValidatorTab() {
     {
       invalidate: wsId ? ["business-validations", wsId] : ["business-validations"],
       successMessage: "Validação concluída",
-      onSuccess: () => { setIdea(""); setModel(""); setAudience(""); },
+      onSuccess: () => {
+        setIdea("");
+        setModel("");
+        setAudience("");
+      },
     },
   );
 
@@ -55,9 +59,11 @@ export function BusinessValidatorTab() {
           <div className="space-y-2">
             <Label htmlFor="idea">Ideia (mínimo 20 caracteres)</Label>
             <Textarea
-              id="idea" rows={4}
+              id="idea"
+              rows={4}
               placeholder="Ex: Curso online para freelancers de design aprenderem a precificar projetos..."
-              value={idea} onChange={(e) => setIdea(e.target.value)}
+              value={idea}
+              onChange={(e) => setIdea(e.target.value)}
               maxLength={2000}
             />
           </div>
@@ -65,13 +71,23 @@ export function BusinessValidatorTab() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="model">Modelo de negócio (opcional)</Label>
-              <Input id="model" placeholder="Ex: assinatura mensal, produto digital..."
-                value={model} onChange={(e) => setModel(e.target.value)} maxLength={200} />
+              <Input
+                id="model"
+                placeholder="Ex: assinatura mensal, produto digital..."
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                maxLength={200}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="audience">Público-alvo (opcional)</Label>
-              <Input id="audience" placeholder="Ex: freelancers, pequenos lojistas..."
-                value={audience} onChange={(e) => setAudience(e.target.value)} maxLength={300} />
+              <Input
+                id="audience"
+                placeholder="Ex: freelancers, pequenos lojistas..."
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+                maxLength={300}
+              />
             </div>
           </div>
 
@@ -80,18 +96,33 @@ export function BusinessValidatorTab() {
             onClick={() => validate.mutate()}
             className="gap-2"
           >
-            {validate.isPending
-              ? <><Loader2 className="size-4 animate-spin" /> Analisando com IA...</>
-              : <><Sparkles className="size-4" /> Validar com IA</>}
+            {validate.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Analisando com IA...
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-4" /> Validar com IA
+              </>
+            )}
           </Button>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Validações anteriores</h3>
-        {!list.data || list.data.length === 0
-          ? <EmptyState variant="dashed" icon={Lightbulb} title="Nenhuma validação ainda" text="Use o formulário acima para validar sua primeira ideia com IA." />
-          : list.data.map((v: any) => <ValidationCard key={v.id} v={v} />)}
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          Validações anteriores
+        </h3>
+        {!list.data || list.data.length === 0 ? (
+          <EmptyState
+            variant="dashed"
+            icon={Lightbulb}
+            title="Nenhuma validação ainda"
+            text="Use o formulário acima para validar sua primeira ideia com IA."
+          />
+        ) : (
+          list.data.map((v: any) => <ValidationCard key={v.id} v={v} />)
+        )}
       </div>
     </div>
   );

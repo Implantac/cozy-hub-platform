@@ -61,17 +61,53 @@ export const validateBusinessIdea = createServerFn({ method: "POST" })
       parameters: {
         type: "object",
         properties: {
-          market_demand_score: { type: "number", minimum: 0, maximum: 100, description: "Score de demanda de mercado (0-100)." },
-          competition_score: { type: "number", minimum: 0, maximum: 100, description: "Intensidade da concorrência (0=zero, 100=saturado)." },
-          complexity_score: { type: "number", minimum: 0, maximum: 100, description: "Complexidade de execução (0=simples, 100=muito complexo)." },
-          opportunity_score: { type: "number", minimum: 0, maximum: 100, description: "Score geral de oportunidade." },
+          market_demand_score: {
+            type: "number",
+            minimum: 0,
+            maximum: 100,
+            description: "Score de demanda de mercado (0-100).",
+          },
+          competition_score: {
+            type: "number",
+            minimum: 0,
+            maximum: 100,
+            description: "Intensidade da concorrência (0=zero, 100=saturado).",
+          },
+          complexity_score: {
+            type: "number",
+            minimum: 0,
+            maximum: 100,
+            description: "Complexidade de execução (0=simples, 100=muito complexo).",
+          },
+          opportunity_score: {
+            type: "number",
+            minimum: 0,
+            maximum: 100,
+            description: "Score geral de oportunidade.",
+          },
           verdict: { type: "string", enum: ["strong", "promising", "challenging", "weak"] },
           strengths: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 5 },
           risks: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 5 },
-          next_steps: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 5, description: "Próximas ações concretas." },
+          next_steps: {
+            type: "array",
+            items: { type: "string" },
+            minItems: 3,
+            maxItems: 5,
+            description: "Próximas ações concretas.",
+          },
           summary: { type: "string", description: "1-2 frases com diagnóstico central." },
         },
-        required: ["market_demand_score", "competition_score", "complexity_score", "opportunity_score", "verdict", "strengths", "risks", "next_steps", "summary"],
+        required: [
+          "market_demand_score",
+          "competition_score",
+          "complexity_score",
+          "opportunity_score",
+          "verdict",
+          "strengths",
+          "risks",
+          "next_steps",
+          "summary",
+        ],
         additionalProperties: false,
       },
     });
@@ -158,9 +194,10 @@ export const runRealityCheck = createServerFn({ method: "POST" })
     const twinCtx = twin
       ? `Perfil: estilo=${twin.work_style ?? "?"}, horas/dia=${twin.daily_hours ?? "?"}, modelo=${twin.monetization_model ?? "?"}, forças=${(twin.strengths ?? []).join(", ")}.`
       : "Perfil não preenchido.";
-    const historyCtx = (recentDecisions ?? []).length > 0
-      ? `Decisões recentes: ${(recentDecisions ?? []).map((d: { title: string; status: string }) => `${d.title} (${d.status})`).join("; ")}.`
-      : "Sem histórico de decisões registrado.";
+    const historyCtx =
+      (recentDecisions ?? []).length > 0
+        ? `Decisões recentes: ${(recentDecisions ?? []).map((d: { title: string; status: string }) => `${d.title} (${d.status})`).join("; ")}.`
+        : "Sem histórico de decisões registrado.";
 
     const system = `Você é um conselheiro experiente que evita que empreendedores tomem decisões impulsivas. Faça um "reality check" honesto: identifique se a mudança é prematura, bem fundamentada ou arriscada. Use semáforo: verde (siga), amarelo (cuidado), vermelho (não recomendo agora). Responda em português do Brasil, sem clichês.`;
     const user = `${twinCtx}\n${historyCtx}\n\nTipo de mudança: ${data.change_type}\nEstado atual: "${data.current_state}"\nMudança proposta: "${data.proposed_change}"\n\nFaça o reality check.`;
@@ -173,14 +210,49 @@ export const runRealityCheck = createServerFn({ method: "POST" })
       parameters: {
         type: "object",
         properties: {
-          caution_level: { type: "string", enum: ["green", "yellow", "red"], description: "verde=siga, amarelo=cuidado, vermelho=pare." },
-          indicators_positive: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 5, description: "Sinais que justificam a mudança." },
-          indicators_warning: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 5, description: "Sinais de alerta a considerar." },
-          recommendations: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 5, description: "Recomendações concretas." },
-          questions_to_answer: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 5, description: "Perguntas a responder antes de decidir." },
+          caution_level: {
+            type: "string",
+            enum: ["green", "yellow", "red"],
+            description: "verde=siga, amarelo=cuidado, vermelho=pare.",
+          },
+          indicators_positive: {
+            type: "array",
+            items: { type: "string" },
+            minItems: 1,
+            maxItems: 5,
+            description: "Sinais que justificam a mudança.",
+          },
+          indicators_warning: {
+            type: "array",
+            items: { type: "string" },
+            minItems: 1,
+            maxItems: 5,
+            description: "Sinais de alerta a considerar.",
+          },
+          recommendations: {
+            type: "array",
+            items: { type: "string" },
+            minItems: 2,
+            maxItems: 5,
+            description: "Recomendações concretas.",
+          },
+          questions_to_answer: {
+            type: "array",
+            items: { type: "string" },
+            minItems: 2,
+            maxItems: 5,
+            description: "Perguntas a responder antes de decidir.",
+          },
           summary: { type: "string", description: "1-2 frases com veredito honesto." },
         },
-        required: ["caution_level", "indicators_positive", "indicators_warning", "recommendations", "questions_to_answer", "summary"],
+        required: [
+          "caution_level",
+          "indicators_positive",
+          "indicators_warning",
+          "recommendations",
+          "questions_to_answer",
+          "summary",
+        ],
         additionalProperties: false,
       },
     });

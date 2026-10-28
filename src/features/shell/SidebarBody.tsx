@@ -25,20 +25,34 @@ interface SidebarBodyProps {
 }
 
 export function SidebarBody({
-  path, collapsed, workspaces, currentWs, onSelectWs, onCreateWs, onSignOut, onToggleCollapse,
+  path,
+  collapsed,
+  workspaces,
+  currentWs,
+  onSelectWs,
+  onCreateWs,
+  onSignOut,
+  onToggleCollapse,
 }: SidebarBodyProps) {
   const { t } = useTranslation();
 
   return (
     <div className="flex h-full flex-col">
-      <div data-tour="brand" className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}>
+      <div
+        data-tour="brand"
+        className={cn("flex items-center gap-2.5 py-5", collapsed ? "px-3 justify-center" : "px-5")}
+      >
         <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-brand shadow-glow ring-2 ring-primary/20">
           <Sparkles className="size-4 text-primary-foreground" />
         </div>
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-bold tracking-tight text-gradient-brand">VELT</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Digital Growth</div>
+            <div className="truncate text-sm font-bold tracking-tight text-gradient-brand">
+              VELT
+            </div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Digital Growth
+            </div>
           </div>
         )}
         {!collapsed && onToggleCollapse && (
@@ -65,11 +79,21 @@ export function SidebarBody({
         </div>
       ) : (
         <div data-tour="workspace">
-          <WorkspaceSwitcher workspaces={workspaces} current={currentWs} onSelect={onSelectWs} onCreate={onCreateWs} />
+          <WorkspaceSwitcher
+            workspaces={workspaces}
+            current={currentWs}
+            onSelect={onSelectWs}
+            onCreate={onCreateWs}
+          />
         </div>
       )}
 
-      <nav className={cn("mt-4 flex-1 overflow-y-auto pb-3", collapsed ? "px-2 space-y-3" : "px-3 space-y-5")}>
+      <nav
+        className={cn(
+          "mt-4 flex-1 overflow-y-auto pb-3",
+          collapsed ? "px-2 space-y-3" : "px-3 space-y-5",
+        )}
+      >
         {NAV_GROUPS.map((group) => (
           <div key={group.labelKey}>
             {!collapsed && (
@@ -98,7 +122,12 @@ export function SidebarBody({
                     {active && !collapsed && (
                       <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-gradient-brand shadow-glow-sm" />
                     )}
-                    <item.icon className={cn("size-4 transition-colors", active ? "text-primary" : "group-hover:text-foreground")} />
+                    <item.icon
+                      className={cn(
+                        "size-4 transition-colors",
+                        active ? "text-primary" : "group-hover:text-foreground",
+                      )}
+                    />
                     {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
                   </Link>
                 );
@@ -107,7 +136,9 @@ export function SidebarBody({
                     <TooltipTrigger asChild>{link}</TooltipTrigger>
                     <TooltipContent side="right">{t(item.labelKey)}</TooltipContent>
                   </Tooltip>
-                ) : link;
+                ) : (
+                  link
+                );
               })}
             </div>
           </div>
@@ -118,14 +149,20 @@ export function SidebarBody({
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link to="/app/settings" className="flex items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground">
+              <Link
+                to="/app/settings"
+                className="flex items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              >
                 <Settings className="size-4" />
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">{t("nav.settings")}</TooltipContent>
           </Tooltip>
         ) : (
-          <Link to="/app/settings" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground">
+          <Link
+            to="/app/settings"
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+          >
             <Settings className="size-4" /> {t("nav.settings")}
           </Link>
         )}
@@ -133,14 +170,20 @@ export function SidebarBody({
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <button onClick={onSignOut} className="flex w-full items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground">
+              <button
+                onClick={onSignOut}
+                className="flex w-full items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              >
                 <LogOut className="size-4" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="right">{t("common.signOut")}</TooltipContent>
           </Tooltip>
         ) : (
-          <button onClick={onSignOut} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground">
+          <button
+            onClick={onSignOut}
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+          >
             <LogOut className="size-4" /> {t("common.signOut")}
           </button>
         )}

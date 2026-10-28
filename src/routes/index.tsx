@@ -1,7 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Brain, Sparkles, BarChart3, Calendar, Network, Target, Layers,
-  ArrowRight, Compass, Rocket, Shield, Workflow, CheckCircle2,
+  Brain,
+  Sparkles,
+  BarChart3,
+  Calendar,
+  Network,
+  Target,
+  Layers,
+  ArrowRight,
+  Compass,
+  Rocket,
+  Shield,
+  Workflow,
+  CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -10,7 +21,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "VELT — AI-native operating system for your digital presence" },
-      { name: "description", content: "Launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn." },
+      {
+        name: "description",
+        content:
+          "Launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn.",
+      },
     ],
   }),
   component: Landing,
@@ -19,25 +34,33 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const { t } = useTranslation();
   const features = [
-    { icon: Network, ...t("landing.features.multichannel", { returnObjects: true }) as any },
-    { icon: Calendar, ...t("landing.features.scheduler", { returnObjects: true }) as any },
-    { icon: BarChart3, ...t("landing.features.analytics", { returnObjects: true }) as any },
-    { icon: Brain, ...t("landing.features.brain", { returnObjects: true }) as any },
-    { icon: Target, ...t("landing.features.missions", { returnObjects: true }) as any },
-    { icon: Layers, ...t("landing.features.tenant", { returnObjects: true }) as any },
+    { icon: Network, ...(t("landing.features.multichannel", { returnObjects: true }) as any) },
+    { icon: Calendar, ...(t("landing.features.scheduler", { returnObjects: true }) as any) },
+    { icon: BarChart3, ...(t("landing.features.analytics", { returnObjects: true }) as any) },
+    { icon: Brain, ...(t("landing.features.brain", { returnObjects: true }) as any) },
+    { icon: Target, ...(t("landing.features.missions", { returnObjects: true }) as any) },
+    { icon: Layers, ...(t("landing.features.tenant", { returnObjects: true }) as any) },
   ];
 
   const steps = [
     { icon: Compass, title: "Conecte", desc: "Plugue suas redes, marcas e canais em segundos." },
-    { icon: Brain, title: "Aprende", desc: "O Cérebro Cognitivo absorve contexto, métricas e memória." },
-    { icon: Rocket, title: "Executa", desc: "Receba missões, conteúdos e decisões prontas para agir." },
+    {
+      icon: Brain,
+      title: "Aprende",
+      desc: "O Cérebro Cognitivo absorve contexto, métricas e memória.",
+    },
+    {
+      icon: Rocket,
+      title: "Executa",
+      desc: "Receba missões, conteúdos e decisões prontas para agir.",
+    },
   ];
 
   const proof = [
-    "Multi-canal nativo",
-    "Brain com RAG vetorial",
-    "RLS e auditoria por workspace",
-    "Decisões com reality-check",
+    t("landing.proof.multichannel", "Multi-canal nativo"),
+    t("landing.proof.preflight", "Pré-voo de conteúdo antes de publicar"),
+    t("landing.proof.rls", "RLS e auditoria por workspace"),
+    t("landing.proof.reality", "Decisões com reality-check"),
   ];
 
   return (
@@ -58,9 +81,19 @@ function Landing() {
           <span className="text-lg font-semibold tracking-tight">VELT</span>
         </div>
         <nav className="flex items-center gap-2 text-sm">
-          <div className="hidden sm:block"><LanguageSwitcher compact /></div>
-          <Link to="/login" className="rounded-md px-3 py-2 text-muted-foreground transition hover:text-foreground">{t("common.signIn")}</Link>
-          <Link to="/signup" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground shadow-glow transition hover:opacity-90">
+          <div className="hidden sm:block">
+            <LanguageSwitcher compact />
+          </div>
+          <Link
+            to="/login"
+            className="rounded-md px-3 py-2 text-muted-foreground transition hover:text-foreground"
+          >
+            {t("common.signIn")}
+          </Link>
+          <Link
+            to="/signup"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground shadow-glow transition hover:opacity-90"
+          >
             {t("common.getStarted")}
             <ArrowRight className="size-3.5" />
           </Link>
@@ -78,17 +111,24 @@ function Landing() {
             {t("landing.badge")}
           </div>
           <h1 className="text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
-            {t("landing.title1")} <span className="text-gradient-brand">{t("landing.titleHighlight")}</span>
+            {t("landing.title1")}{" "}
+            <span className="text-gradient-brand">{t("landing.titleHighlight")}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg text-muted-foreground">
             {t("landing.subtitle")}
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <Link to="/signup" className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-glow transition hover:opacity-90">
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-glow transition hover:opacity-90"
+            >
               {t("landing.startFree")}
               <ArrowRight className="size-4" />
             </Link>
-            <Link to="/login" className="rounded-md border border-border bg-card/60 px-6 py-3 text-base font-medium backdrop-blur transition hover:bg-secondary">
+            <Link
+              to="/login"
+              className="rounded-md border border-border bg-card/60 px-6 py-3 text-base font-medium backdrop-blur transition hover:bg-secondary"
+            >
               {t("common.signIn")}
             </Link>
           </div>
@@ -176,11 +216,17 @@ function Landing() {
               Crie seu workspace em 60 segundos. Sem cartão. Migre quando quiser.
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <Link to="/signup" className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-glow transition hover:opacity-90">
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-glow transition hover:opacity-90"
+              >
                 {t("landing.startFree")}
                 <ArrowRight className="size-4" />
               </Link>
-              <Link to="/login" className="rounded-md border border-border bg-background/40 px-6 py-3 text-base font-medium backdrop-blur transition hover:bg-secondary">
+              <Link
+                to="/login"
+                className="rounded-md border border-border bg-background/40 px-6 py-3 text-base font-medium backdrop-blur transition hover:bg-secondary"
+              >
                 {t("common.signIn")}
               </Link>
             </div>

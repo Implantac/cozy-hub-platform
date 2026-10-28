@@ -7,8 +7,7 @@ export function useSidebarCollapse() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     setCollapsed(window.localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1");
-    const onToggle = () =>
-      setCollapsed(window.localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1");
+    const onToggle = () => setCollapsed(window.localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1");
     window.addEventListener("digitalos:sidebar-toggle", onToggle);
     return () => window.removeEventListener("digitalos:sidebar-toggle", onToggle);
   }, []);

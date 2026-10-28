@@ -13,8 +13,10 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BioSlugRouteImport } from './routes/bio/$slug'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as BioClickLinkIdRouteImport } from './routes/bio/click.$linkId'
 import { Route as AuthenticatedAppTrustRouteImport } from './routes/_authenticated/app.trust'
 import { Route as AuthenticatedAppSkillMapRouteImport } from './routes/_authenticated/app.skill-map'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
@@ -36,8 +38,10 @@ import { Route as AuthenticatedAppBuilderRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authenticated/app.brands'
 import { Route as AuthenticatedAppBrainLabRouteImport } from './routes/_authenticated/app.brain-lab'
 import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
+import { Route as AuthenticatedAppBioRouteImport } from './routes/_authenticated/app.bio'
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/app.analytics'
 import { Route as ApiPublicCronSchedulerTickRouteImport } from './routes/api/public/cron/scheduler-tick'
+import { Route as ApiPublicCronAnalyticsSyncRouteImport } from './routes/api/public/cron/analytics-sync'
 import { Route as ApiPublicOauthCallbackProviderRouteImport } from './routes/api/public/oauth/callback/$provider'
 
 const SignupRoute = SignupRouteImport.update({
@@ -59,6 +63,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BioSlugRoute = BioSlugRouteImport.update({
+  id: '/bio/$slug',
+  path: '/bio/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -68,6 +77,11 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const BioClickLinkIdRoute = BioClickLinkIdRouteImport.update({
+  id: '/bio/click/$linkId',
+  path: '/bio/click/$linkId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppTrustRoute = AuthenticatedAppTrustRouteImport.update({
   id: '/trust',
@@ -186,6 +200,11 @@ const AuthenticatedAppBrainRoute = AuthenticatedAppBrainRouteImport.update({
   path: '/brain',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppBioRoute = AuthenticatedAppBioRouteImport.update({
+  id: '/bio',
+  path: '/bio',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppAnalyticsRoute =
   AuthenticatedAppAnalyticsRouteImport.update({
     id: '/analytics',
@@ -196,6 +215,12 @@ const ApiPublicCronSchedulerTickRoute =
   ApiPublicCronSchedulerTickRouteImport.update({
     id: '/api/public/cron/scheduler-tick',
     path: '/api/public/cron/scheduler-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronAnalyticsSyncRoute =
+  ApiPublicCronAnalyticsSyncRouteImport.update({
+    id: '/api/public/cron/analytics-sync',
+    path: '/api/public/cron/analytics-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicOauthCallbackProviderRoute =
@@ -210,7 +235,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/bio/$slug': typeof BioSlugRoute
   '/app/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/app/bio': typeof AuthenticatedAppBioRoute
   '/app/brain': typeof AuthenticatedAppBrainRoute
   '/app/brain-lab': typeof AuthenticatedAppBrainLabRoute
   '/app/brands': typeof AuthenticatedAppBrandsRoute
@@ -232,7 +259,9 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/skill-map': typeof AuthenticatedAppSkillMapRoute
   '/app/trust': typeof AuthenticatedAppTrustRoute
+  '/bio/click/$linkId': typeof BioClickLinkIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/cron/analytics-sync': typeof ApiPublicCronAnalyticsSyncRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
   '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
 }
@@ -240,7 +269,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/bio/$slug': typeof BioSlugRoute
   '/app/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/app/bio': typeof AuthenticatedAppBioRoute
   '/app/brain': typeof AuthenticatedAppBrainRoute
   '/app/brain-lab': typeof AuthenticatedAppBrainLabRoute
   '/app/brands': typeof AuthenticatedAppBrandsRoute
@@ -262,7 +293,9 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/skill-map': typeof AuthenticatedAppSkillMapRoute
   '/app/trust': typeof AuthenticatedAppTrustRoute
+  '/bio/click/$linkId': typeof BioClickLinkIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/api/public/cron/analytics-sync': typeof ApiPublicCronAnalyticsSyncRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
   '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
 }
@@ -273,7 +306,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/bio/$slug': typeof BioSlugRoute
   '/_authenticated/app/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/_authenticated/app/bio': typeof AuthenticatedAppBioRoute
   '/_authenticated/app/brain': typeof AuthenticatedAppBrainRoute
   '/_authenticated/app/brain-lab': typeof AuthenticatedAppBrainLabRoute
   '/_authenticated/app/brands': typeof AuthenticatedAppBrandsRoute
@@ -295,7 +330,9 @@ export interface FileRoutesById {
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/skill-map': typeof AuthenticatedAppSkillMapRoute
   '/_authenticated/app/trust': typeof AuthenticatedAppTrustRoute
+  '/bio/click/$linkId': typeof BioClickLinkIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/cron/analytics-sync': typeof ApiPublicCronAnalyticsSyncRoute
   '/api/public/cron/scheduler-tick': typeof ApiPublicCronSchedulerTickRoute
   '/api/public/oauth/callback/$provider': typeof ApiPublicOauthCallbackProviderRoute
 }
@@ -306,7 +343,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/app'
+    | '/bio/$slug'
     | '/app/analytics'
+    | '/app/bio'
     | '/app/brain'
     | '/app/brain-lab'
     | '/app/brands'
@@ -328,7 +367,9 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/skill-map'
     | '/app/trust'
+    | '/bio/click/$linkId'
     | '/app/'
+    | '/api/public/cron/analytics-sync'
     | '/api/public/cron/scheduler-tick'
     | '/api/public/oauth/callback/$provider'
   fileRoutesByTo: FileRoutesByTo
@@ -336,7 +377,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/bio/$slug'
     | '/app/analytics'
+    | '/app/bio'
     | '/app/brain'
     | '/app/brain-lab'
     | '/app/brands'
@@ -358,7 +401,9 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/skill-map'
     | '/app/trust'
+    | '/bio/click/$linkId'
     | '/app'
+    | '/api/public/cron/analytics-sync'
     | '/api/public/cron/scheduler-tick'
     | '/api/public/oauth/callback/$provider'
   id:
@@ -368,7 +413,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authenticated/app'
+    | '/bio/$slug'
     | '/_authenticated/app/analytics'
+    | '/_authenticated/app/bio'
     | '/_authenticated/app/brain'
     | '/_authenticated/app/brain-lab'
     | '/_authenticated/app/brands'
@@ -390,7 +437,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/settings'
     | '/_authenticated/app/skill-map'
     | '/_authenticated/app/trust'
+    | '/bio/click/$linkId'
     | '/_authenticated/app/'
+    | '/api/public/cron/analytics-sync'
     | '/api/public/cron/scheduler-tick'
     | '/api/public/oauth/callback/$provider'
   fileRoutesById: FileRoutesById
@@ -400,6 +449,9 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  BioSlugRoute: typeof BioSlugRoute
+  BioClickLinkIdRoute: typeof BioClickLinkIdRoute
+  ApiPublicCronAnalyticsSyncRoute: typeof ApiPublicCronAnalyticsSyncRoute
   ApiPublicCronSchedulerTickRoute: typeof ApiPublicCronSchedulerTickRoute
   ApiPublicOauthCallbackProviderRoute: typeof ApiPublicOauthCallbackProviderRoute
 }
@@ -434,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bio/$slug': {
+      id: '/bio/$slug'
+      path: '/bio/$slug'
+      fullPath: '/bio/$slug'
+      preLoaderRoute: typeof BioSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -447,6 +506,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/bio/click/$linkId': {
+      id: '/bio/click/$linkId'
+      path: '/bio/click/$linkId'
+      fullPath: '/bio/click/$linkId'
+      preLoaderRoute: typeof BioClickLinkIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/trust': {
       id: '/_authenticated/app/trust'
@@ -595,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBrainRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/bio': {
+      id: '/_authenticated/app/bio'
+      path: '/bio'
+      fullPath: '/app/bio'
+      preLoaderRoute: typeof AuthenticatedAppBioRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/analytics': {
       id: '/_authenticated/app/analytics'
       path: '/analytics'
@@ -609,6 +682,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronSchedulerTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/analytics-sync': {
+      id: '/api/public/cron/analytics-sync'
+      path: '/api/public/cron/analytics-sync'
+      fullPath: '/api/public/cron/analytics-sync'
+      preLoaderRoute: typeof ApiPublicCronAnalyticsSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/oauth/callback/$provider': {
       id: '/api/public/oauth/callback/$provider'
       path: '/api/public/oauth/callback/$provider'
@@ -621,6 +701,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAnalyticsRoute: typeof AuthenticatedAppAnalyticsRoute
+  AuthenticatedAppBioRoute: typeof AuthenticatedAppBioRoute
   AuthenticatedAppBrainRoute: typeof AuthenticatedAppBrainRoute
   AuthenticatedAppBrainLabRoute: typeof AuthenticatedAppBrainLabRoute
   AuthenticatedAppBrandsRoute: typeof AuthenticatedAppBrandsRoute
@@ -647,6 +728,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAnalyticsRoute: AuthenticatedAppAnalyticsRoute,
+  AuthenticatedAppBioRoute: AuthenticatedAppBioRoute,
   AuthenticatedAppBrainRoute: AuthenticatedAppBrainRoute,
   AuthenticatedAppBrainLabRoute: AuthenticatedAppBrainLabRoute,
   AuthenticatedAppBrandsRoute: AuthenticatedAppBrandsRoute,
@@ -691,9 +773,22 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  BioSlugRoute: BioSlugRoute,
+  BioClickLinkIdRoute: BioClickLinkIdRoute,
+  ApiPublicCronAnalyticsSyncRoute: ApiPublicCronAnalyticsSyncRoute,
   ApiPublicCronSchedulerTickRoute: ApiPublicCronSchedulerTickRoute,
   ApiPublicOauthCallbackProviderRoute: ApiPublicOauthCallbackProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

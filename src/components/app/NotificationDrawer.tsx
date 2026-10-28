@@ -36,11 +36,25 @@ export function NotificationDrawer({ workspaceId }: { workspaceId: string | unde
 
   useEffect(() => {
     if (!workspaceId) return;
+    // Same runtime guard as useBrainRealtime: no WebSocket, no subscription.
+    // The 30s refetchInterval above keeps the drawer fresh either way.
+    if (typeof globalThis.WebSocket !== "function") return;
     const ch = supabase
       .channel(`events-${workspaceId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "domain_events", filter: `workspace_id=eq.${workspaceId}` }, () => q.refetch())
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "domain_events",
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
+        () => q.refetch(),
+      )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [workspaceId, q]);
 
   const events = q.data ?? [];
@@ -68,24 +82,37 @@ export function NotificationDrawer({ workspaceId }: { workspaceId: string | unde
             {t("notifications.title", "Notificações")}
           </SheetTitle>
         </SheetHeader>
-        <div className="mt-4 space-y-2 overflow-y-auto pr-1" style={{ maxHeight: "calc(100vh - 100px)" }}>
+        <div
+          className="mt-4 space-y-2 overflow-y-auto pr-1"
+          style={{ maxHeight: "calc(100vh - 100px)" }}
+        >
           {events.length === 0 && (
             <div className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
               {t("notifications.empty", "Nenhuma atividade ainda.")}
             </div>
           )}
           {events.map((e) => (
-            <div key={e.id} className="rounded-lg border border-border/50 bg-card/40 p-3 transition hover:bg-card/70">
+            <div
+              key={e.id}
+              className="rounded-lg border border-border/50 bg-card/40 p-3 transition hover:bg-card/70"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground">{formatEventType(e.event_type)}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {formatEventType(e.event_type)}
+                  </p>
                   {e.payload && typeof e.payload === "object" && (
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {Object.entries(e.payload as Record<string, unknown>).slice(0, 2).map(([k, v]) => `${k}: ${String(v).slice(0, 40)}`).join(" · ")}
+                      {Object.entries(e.payload as Record<string, unknown>)
+                        .slice(0, 2)
+                        .map(([k, v]) => `${k}: ${String(v).slice(0, 40)}`)
+                        .join(" · ")}
                     </p>
                   )}
                 </div>
-                <Badge variant="secondary" className="shrink-0 text-[10px]">{timeAgo(e.created_at, i18n.language)}</Badge>
+                <Badge variant="secondary" className="shrink-0 text-[10px]">
+                  {timeAgo(e.created_at, i18n.language)}
+                </Badge>
               </div>
             </div>
           ))}

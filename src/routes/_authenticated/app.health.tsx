@@ -22,10 +22,10 @@ function HealthPage() {
     ({ workspaceId }) => get({ data: { workspaceId } }),
   );
   const wsId = q.wsId;
-  const mut = useWorkspaceMutation(
-    () => compute({ data: { workspaceId: wsId! } }),
-    { invalidate: wsId ? ["health", wsId] : ["health"], successMessage: "Saúde atualizada" },
-  );
+  const mut = useWorkspaceMutation(() => compute({ data: { workspaceId: wsId! } }), {
+    invalidate: wsId ? ["health", wsId] : ["health"],
+    successMessage: "Saúde atualizada",
+  });
 
   return (
     <PageTransition>
@@ -60,7 +60,11 @@ function HealthPage() {
             title="Sem diagnóstico ainda"
             text="Clique em Atualizar para gerar o diagnóstico de saúde do negócio."
             action={
-              <Button onClick={() => mut.mutate()} disabled={mut.isPending || !wsId} className="gap-2">
+              <Button
+                onClick={() => mut.mutate()}
+                disabled={mut.isPending || !wsId}
+                className="gap-2"
+              >
                 <RefreshCw className={`size-4 ${mut.isPending ? "animate-spin" : ""}`} />
                 Atualizar agora
               </Button>

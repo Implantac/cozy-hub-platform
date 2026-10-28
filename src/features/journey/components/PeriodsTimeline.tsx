@@ -16,7 +16,12 @@ function PeriodRow({ period: p }: { period: Period }) {
           <div className="text-sm font-semibold">{p.key}</div>
           <div className="flex flex-wrap gap-1.5">
             {p.highlights.map((h, i) => (
-              <span key={i} className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-accent">{h}</span>
+              <span
+                key={i}
+                className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-accent"
+              >
+                {h}
+              </span>
             ))}
           </div>
         </div>
@@ -37,7 +42,9 @@ export function PeriodsTimeline({ periods }: { periods: Period[] }) {
     <motion.section variants={stagger} className="relative">
       <div className="absolute bottom-2 left-[15px] top-2 w-px bg-gradient-to-b from-border via-border to-transparent" />
       <div className="space-y-4">
-        {periods.map((p) => <PeriodRow key={p.key} period={p} />)}
+        {periods.map((p) => (
+          <PeriodRow key={p.key} period={p} />
+        ))}
       </div>
     </motion.section>
   );

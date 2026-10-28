@@ -1,14 +1,25 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
-  HelpCircle, Keyboard, LogOut, Menu, RefreshCw, Search, Settings, User,
+  HelpCircle,
+  Keyboard,
+  LogOut,
+  Menu,
+  RefreshCw,
+  Search,
+  Settings,
+  User,
 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NotificationDrawer } from "@/components/app/NotificationDrawer";
 import { resetTour } from "@/components/app/ProductTour";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
-  DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { signOut } from "@/lib/auth/use-auth";
@@ -25,8 +36,14 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({
-  crumb, userInitial, displayName, workspaceId,
-  onOpenPalette, onOpenMobileNav, onOpenTour, onOpenShortcuts,
+  crumb,
+  userInitial,
+  displayName,
+  workspaceId,
+  onOpenPalette,
+  onOpenMobileNav,
+  onOpenTour,
+  onOpenShortcuts,
 }: AppHeaderProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -42,9 +59,13 @@ export function AppHeader({
           <Menu className="size-4" />
         </button>
         <div className="flex items-center gap-2 overflow-hidden">
-          <span className="hidden whitespace-nowrap text-xs font-bold uppercase tracking-widest text-muted-foreground/60 sm:inline">{crumb.group}</span>
+          <span className="hidden whitespace-nowrap text-xs font-bold uppercase tracking-widest text-muted-foreground/60 sm:inline">
+            {crumb.group}
+          </span>
           <span className="hidden text-muted-foreground/20 sm:inline">/</span>
-          <span className="truncate font-semibold tracking-tight text-foreground">{crumb.page}</span>
+          <span className="truncate font-semibold tracking-tight text-foreground">
+            {crumb.page}
+          </span>
         </div>
       </div>
 
@@ -56,7 +77,9 @@ export function AppHeader({
         >
           <Search className="size-3.5 transition-transform group-hover:scale-110" />
           <span className="text-xs font-medium">{t("palette.placeholder", "Buscar...")}</span>
-          <kbd className="ml-6 rounded-md border border-border/70 bg-background/80 px-2 py-0.5 text-[10px] font-mono text-muted-foreground/70 shadow-sm transition-colors group-hover:border-primary/30 group-hover:text-primary">⌘K</kbd>
+          <kbd className="ml-6 rounded-md border border-border/70 bg-background/80 px-2 py-0.5 text-[10px] font-mono text-muted-foreground/70 shadow-sm transition-colors group-hover:border-primary/30 group-hover:text-primary">
+            ⌘K
+          </kbd>
         </button>
         <button
           onClick={onOpenPalette}
@@ -105,12 +128,20 @@ export function AppHeader({
               <Keyboard className="mr-2 size-4" /> {t("shortcuts.title", "Atalhos de teclado")}
               <span className="ml-auto text-[10px] text-muted-foreground">?</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => { resetTour(); onOpenTour(); }}>
+            <DropdownMenuItem
+              onSelect={() => {
+                resetTour();
+                onOpenTour();
+              }}
+            >
               <RefreshCw className="mr-2 size-4" /> {t("tour.restart", "Reiniciar tour")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={async () => { await signOut(); navigate({ to: "/login" }); }}
+              onSelect={async () => {
+                await signOut();
+                navigate({ to: "/login" });
+              }}
               className="text-destructive focus:text-destructive"
             >
               <LogOut className="mr-2 size-4" /> {t("common.signOut")}

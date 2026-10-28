@@ -13,6 +13,7 @@ import { PeriodTabs } from "@/features/analytics/components/PeriodTabs";
 import { AnalyticsTotals } from "@/features/analytics/components/AnalyticsTotals";
 import { EngagementTrendChart } from "@/features/analytics/components/EngagementTrendChart";
 import { PlatformImpressionsChart } from "@/features/analytics/components/PlatformImpressionsChart";
+import { SyncMetricsPanel } from "@/features/analytics/components/SyncMetricsPanel";
 
 export const Route = createFileRoute("/_authenticated/app/analytics")({
   component: AnalyticsPage,
@@ -42,6 +43,9 @@ function AnalyticsPage() {
           subtitle="Agregue impressões, alcance e engajamento ao longo do tempo e compare canais."
         />
 
+        {/* Always visible: the empty state must explain itself and offer the fix. */}
+        <SyncMetricsPanel />
+
         <PeriodTabs days={days} onChange={setDays} />
 
         {q.isLoading ? (
@@ -50,8 +54,8 @@ function AnalyticsPage() {
           <EmptyState
             variant="card"
             icon={BarChart3}
-            title="Sem analytics ainda"
-            text="Publique conteúdo para começar a coletar snapshots de impressões, alcance e engajamento."
+            title="Sem métricas coletadas neste período"
+            text="Os insights vêm de posts publicados com canal conectado via OAuth. Use “Medir agora” acima ou amplie o período."
             action={
               <Link
                 to="/app/content"

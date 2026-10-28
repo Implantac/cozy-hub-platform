@@ -36,12 +36,12 @@ function AppShell() {
     return () => window.removeEventListener("digitalos:tour-start", onTourStart);
   }, []);
 
-  useEffect(() => { setMobileOpen(false); }, [path]);
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [path]);
 
-  const {
-    auth, wsQuery, profileQuery, workspaces, currentWs,
-    handleSelectWs, handleCreateWs,
-  } = useWorkspaceBootstrap();
+  const { auth, wsQuery, profileQuery, workspaces, currentWs, handleSelectWs, handleCreateWs } =
+    useWorkspaceBootstrap();
 
   useEffect(() => {
     const p = profileQuery.data;
@@ -49,7 +49,9 @@ function AppShell() {
     if (hasSeenTour()) return;
     const id = window.setTimeout(() => setTourOpen(true), 600);
     return () => window.clearTimeout(id);
-  }, [profileQuery.data?.onboarding_completed]);
+    // Depende do objeto inteiro: o tour deve abrir quando o onboarding conclui,
+    // mesmo que o restante do perfil mude na mesma resposta.
+  }, [profileQuery.data]);
 
   if (auth.loading || wsQuery.isLoading) {
     return (
@@ -65,11 +67,17 @@ function AppShell() {
   }
 
   const crumb = findBreadcrumb(path, t);
-  const needsOnboarding = profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
+  const needsOnboarding =
+    profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
   const displayName = profileQuery.data?.display_name ?? auth.user?.email ?? "—";
-  const userInitial = (profileQuery.data?.display_name ?? auth.user?.email ?? "U").slice(0, 1).toUpperCase();
+  const userInitial = (profileQuery.data?.display_name ?? auth.user?.email ?? "U")
+    .slice(0, 1)
+    .toUpperCase();
 
-  const handleSignOut = async () => { await signOut(); navigate({ to: "/login" }); };
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/login" });
+  };
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -99,7 +107,11 @@ function AppShell() {
         onOpenShortcuts={() => setShortcutsOpen(true)}
       />
 
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} onShowShortcuts={() => setShortcutsOpen(true)} />
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        onShowShortcuts={() => setShortcutsOpen(true)}
+      />
       <KeyboardShortcuts open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
       {needsOnboarding && currentWs && (
         <OnboardingWizard

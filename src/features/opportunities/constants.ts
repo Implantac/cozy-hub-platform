@@ -9,7 +9,7 @@ export const STATUS = [
   { id: "declining", label: "Em queda" },
 ] as const;
 
-export type OpportunityStatusFilter = typeof STATUS[number]["id"];
+export type OpportunityStatusFilter = (typeof STATUS)[number]["id"];
 
 export const STATUS_META: Record<string, { icon: LucideIcon; color: string; label: string }> = {
   exploding: { icon: Flame, color: "text-destructive", label: "Em explosão" },

@@ -17,8 +17,6 @@ export type { Json };
 /** Domain enum for `brain_memories.kind`. Mirrors the zod schema in brain.functions. */
 export type MemoryKind = "fact" | "preference" | "goal" | "signal" | "outcome" | "strategy";
 
-
-
 export type Brand = Tables["brands"]["Row"];
 export type Mission = Tables["missions"]["Row"];
 export type Recommendation = Tables["brain_recommendations"]["Row"];

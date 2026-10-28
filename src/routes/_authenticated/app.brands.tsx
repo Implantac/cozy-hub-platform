@@ -7,15 +7,8 @@ import { EmptyState } from "@/components/app/EmptyState";
 import { ListSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
 import { Button } from "@/components/ui/button";
-import {
-  useWorkspaceMutation,
-  useWorkspaceQuery,
-} from "@/lib/query/use-workspace-query";
-import {
-  createBrand,
-  deleteBrand,
-  listBrands,
-} from "@/lib/api/brands.functions";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
+import { createBrand, deleteBrand, listBrands } from "@/lib/api/brands.functions";
 import type { Brand } from "@/lib/api/_types";
 import { BrandComposer } from "@/features/brands/components/BrandComposer";
 import { BrandGrid } from "@/features/brands/components/BrandGrid";
@@ -85,7 +78,9 @@ function BrandsPage() {
               <Button
                 size="sm"
                 onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>('input[placeholder="Brand name"]');
+                  const input = document.querySelector<HTMLInputElement>(
+                    'input[placeholder="Brand name"]',
+                  );
                   input?.focus();
                 }}
               >

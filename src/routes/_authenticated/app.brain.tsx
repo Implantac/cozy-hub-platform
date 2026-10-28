@@ -13,10 +13,7 @@ import {
   runBrainRecommend,
   updateRecommendation,
 } from "@/lib/api/brain.functions";
-import {
-  useWorkspaceMutation,
-  useWorkspaceQuery,
-} from "@/lib/query/use-workspace-query";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import type { Memory, Recommendation } from "@/lib/api/_types";
 import { MemoryPanel } from "@/features/brain/components/MemoryPanel";
 import { RecommendationsPanel } from "@/features/brain/components/RecommendationsPanel";
@@ -46,13 +43,10 @@ function BrainPage() {
   const recsKey = wsId ? ["recs", wsId] : ["recs"];
   const memKey = wsId ? ["mem", wsId] : ["mem"];
 
-  const runMut = useWorkspaceMutation(
-    () => run({ data: { workspaceId: wsId! } }),
-    {
-      invalidate: recsKey,
-      successMessage: (r) => `${r.generated} recomendações geradas`,
-    },
-  );
+  const runMut = useWorkspaceMutation(() => run({ data: { workspaceId: wsId! } }), {
+    invalidate: recsKey,
+    successMessage: (r) => `${r.generated} recomendações geradas`,
+  });
 
   const [memText, setMemText] = useState("");
   const [memKind, setMemKind] = useState<MemoryKind>("goal");

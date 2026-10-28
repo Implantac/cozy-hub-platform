@@ -31,7 +31,10 @@ function SkillMapPage() {
   const mut = useMutation({
     mutationFn: (p: { area: AreaId; score: number }) =>
       upsert({ data: { workspaceId: wsId!, area: p.area, score: p.score, source: "self" } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["skills", wsId] }); toast.success("Avaliação salva"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["skills", wsId] });
+      toast.success("Avaliação salva");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -58,13 +61,22 @@ function SkillMapPage() {
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-3">
           <SkillStat label="Dominadas" value={mastered} icon={CheckCircle2} />
           <SkillStat label="Em construção" value={learning} icon={TrendingUp} />
-          <SkillStat label="Próximo foco" value={next?.label ?? "Tudo dominado"} icon={Target} small />
+          <SkillStat
+            label="Próximo foco"
+            value={next?.label ?? "Tudo dominado"}
+            icon={Target}
+            small
+          />
         </motion.section>
 
         <motion.section variants={stagger} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {scored.map((s) => (
-            <SkillCard key={s.id} area={s} pending={mut.isPending}
-              onScore={(score) => mut.mutate({ area: s.id, score })} />
+            <SkillCard
+              key={s.id}
+              area={s}
+              pending={mut.isPending}
+              onScore={(score) => mut.mutate({ area: s.id, score })}
+            />
           ))}
         </motion.section>
       </motion.div>

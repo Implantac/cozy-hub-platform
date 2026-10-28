@@ -11,12 +11,16 @@ export function MentorPanel({ mentor, current }: Props) {
     <motion.section variants={fadeUp} className="section-card p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Veredicto do mentor</div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Veredicto do mentor
+          </div>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed">{mentor.verdict}</p>
         </div>
         {current && (
           <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Período atual</div>
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              Período atual
+            </div>
             <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
               <MapPin className="size-3" /> {current.key}
             </div>
@@ -28,10 +32,21 @@ export function MentorPanel({ mentor, current }: Props) {
         <Metric label="Eventos" value={mentor.total_events} />
         <Metric label="Decisões" value={mentor.total_decisions} />
         <Metric label="Experimentos" value={mentor.completed_experiments} />
-        <Metric label="Trajetória"
-          value={mentor.trajectory_delta == null ? "—" : `${mentor.trajectory_delta > 0 ? "+" : ""}${mentor.trajectory_delta.toFixed(1)}`}
-          accent={mentor.trajectory_delta != null && mentor.trajectory_delta > 0 ? "success"
-                : mentor.trajectory_delta != null && mentor.trajectory_delta < 0 ? "destructive" : "muted-foreground"} />
+        <Metric
+          label="Trajetória"
+          value={
+            mentor.trajectory_delta == null
+              ? "—"
+              : `${mentor.trajectory_delta > 0 ? "+" : ""}${mentor.trajectory_delta.toFixed(1)}`
+          }
+          accent={
+            mentor.trajectory_delta != null && mentor.trajectory_delta > 0
+              ? "success"
+              : mentor.trajectory_delta != null && mentor.trajectory_delta < 0
+                ? "destructive"
+                : "muted-foreground"
+          }
+        />
       </div>
       {mentor.patterns.length > 0 && (
         <ul className="mt-4 space-y-1.5">

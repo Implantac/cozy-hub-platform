@@ -23,10 +23,10 @@ function ScorePage() {
     ({ workspaceId }) => get({ data: { workspaceId } }),
   );
   const wsId = q.wsId;
-  const mut = useWorkspaceMutation(
-    () => compute({ data: { workspaceId: wsId! } }),
-    { invalidate: wsId ? ["score", wsId] : ["score"], successMessage: "Score recalculado" },
-  );
+  const mut = useWorkspaceMutation(() => compute({ data: { workspaceId: wsId! } }), {
+    invalidate: wsId ? ["score", wsId] : ["score"],
+    successMessage: "Score recalculado",
+  });
 
   const score = q.data as any;
   const gaps = Array.isArray(score?.breakdown?.gaps) ? (score.breakdown.gaps as string[]) : [];
@@ -61,7 +61,11 @@ function ScorePage() {
             title="Sem cálculo ainda"
             text="Clique em Recalcular para gerar seu Digital Score com base nos sinais atuais do seu workspace."
             action={
-              <Button onClick={() => mut.mutate()} disabled={mut.isPending || !wsId} className="gap-2">
+              <Button
+                onClick={() => mut.mutate()}
+                disabled={mut.isPending || !wsId}
+                className="gap-2"
+              >
                 <RefreshCw className={`size-4 ${mut.isPending ? "animate-spin" : ""}`} />
                 Calcular agora
               </Button>

@@ -39,9 +39,7 @@ export function MissionBoard({ missions, onMove }: Props) {
                 </div>
               </div>
             ))}
-            {col.items.length === 0 && (
-              <p className="text-xs text-muted-foreground">Vazio</p>
-            )}
+            {col.items.length === 0 && <p className="text-xs text-muted-foreground">Vazio</p>}
           </div>
         </div>
       ))}

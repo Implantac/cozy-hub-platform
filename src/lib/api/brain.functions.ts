@@ -37,8 +37,11 @@ export const listRecommendations = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     await assertWorkspaceMember(supabase, data.workspaceId, userId);
     const { data: rows, error } = await supabase
-      .from("brain_recommendations").select("*").eq("workspace_id", data.workspaceId)
-      .order("score", { ascending: false }).limit(50);
+      .from("brain_recommendations")
+      .select("*")
+      .eq("workspace_id", data.workspaceId)
+      .order("score", { ascending: false })
+      .limit(50);
     throwIfError(error);
     return rows ?? [];
   });
@@ -46,11 +49,13 @@ export const listRecommendations = createServerFn({ method: "GET" })
 export const updateRecommendation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      id: z.string().uuid(),
-      status: z.enum(["open", "applied", "dismissed", "expired"]),
-    }).parse(input)
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        id: z.string().uuid(),
+        status: z.enum(["open", "applied", "dismissed", "expired"]),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -80,14 +85,21 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
     type ContentRow = { id: string; status: string; created_at: string };
     type MissionRow = { id: string; status: string };
 
-    const [{ data: brands }, { data: channels }, { data: content }, { data: missions }] = await Promise.all([
-      supabase.from("brands").select("id").eq("workspace_id", ws),
-      supabase.from("channels").select("id, platform, status").eq("workspace_id", ws),
-      supabase.from("content").select("id, status, created_at").eq("workspace_id", ws),
-      supabase.from("missions").select("id, status").eq("workspace_id", ws),
-    ]);
+    const [{ data: brands }, { data: channels }, { data: content }, { data: missions }] =
+      await Promise.all([
+        supabase.from("brands").select("id").eq("workspace_id", ws),
+        supabase.from("channels").select("id, platform, status").eq("workspace_id", ws),
+        supabase.from("content").select("id, status, created_at").eq("workspace_id", ws),
+        supabase.from("missions").select("id, status").eq("workspace_id", ws),
+      ]);
 
-    const recs: Array<{ kind: string; title: string; rationale: string; score: number; payload: Record<string, unknown> }> = [];
+    const recs: Array<{
+      kind: string;
+      title: string;
+      rationale: string;
+      score: number;
+      payload: Record<string, unknown>;
+    }> = [];
 
     if (!brands || brands.length === 0) {
       recs.push({
@@ -137,19 +149,27 @@ export const runBrainRecommend = createServerFn({ method: "POST" })
 
     // Persist as open recommendations (replace previous open of same kind)
     if (recs.length > 0) {
-      await supabase.from("brain_recommendations")
+      await supabase
+        .from("brain_recommendations")
         .update({ status: "expired" })
-        .eq("workspace_id", ws).eq("status", "open");
+        .eq("workspace_id", ws)
+        .eq("status", "open");
 
       await supabase.from("brain_recommendations").insert(
         recs.map((r) => ({
-          workspace_id: ws, kind: r.kind, title: r.title, rationale: r.rationale,
-          payload: r.payload as never, score: r.score, status: "open" as const,
-        }))
+          workspace_id: ws,
+          kind: r.kind,
+          title: r.title,
+          rationale: r.rationale,
+          payload: r.payload as never,
+          score: r.score,
+          status: "open" as const,
+        })),
       );
 
       await supabase.from("domain_events").insert({
-        workspace_id: ws, event_type: "BrainRecommendationCreated",
+        workspace_id: ws,
+        event_type: "BrainRecommendationCreated",
         payload: { count: recs.length },
       });
     }
@@ -165,8 +185,11 @@ export const listMemories = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     await assertWorkspaceMember(supabase, data.workspaceId, userId);
     const { data: rows, error } = await supabase
-      .from("brain_memories").select("id, kind, content, metadata, created_at")
-      .eq("workspace_id", data.workspaceId).order("created_at", { ascending: false }).limit(50);
+      .from("brain_memories")
+      .select("id, kind, content, metadata, created_at")
+      .eq("workspace_id", data.workspaceId)
+      .order("created_at", { ascending: false })
+      .limit(50);
     throwIfError(error);
     return rows ?? [];
   });
@@ -174,18 +197,26 @@ export const listMemories = createServerFn({ method: "GET" })
 export const addMemory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      kind: z.enum(["fact", "preference", "goal", "signal", "outcome", "strategy"]),
-      content: z.string().min(2).max(4000),
-    }).parse(input)
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        kind: z.enum(["fact", "preference", "goal", "signal", "outcome", "strategy"]),
+        content: z.string().min(2).max(4000),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertWorkspaceMember(supabase, data.workspaceId, userId, ["owner", "admin", "editor"]);
-    const { data: row, error } = await supabase.from("brain_memories").insert({
-      workspace_id: data.workspaceId, kind: data.kind, content: data.content,
-    }).select("id, kind, content, metadata, created_at").single();
+    const { data: row, error } = await supabase
+      .from("brain_memories")
+      .insert({
+        workspace_id: data.workspaceId,
+        kind: data.kind,
+        content: data.content,
+      })
+      .select("id, kind, content, metadata, created_at")
+      .single();
     throwIfError(error);
     return row;
   });

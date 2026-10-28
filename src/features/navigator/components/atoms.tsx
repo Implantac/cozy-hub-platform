@@ -18,24 +18,52 @@ export function Title({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-6 text-xl font-medium">{children}</h2>;
 }
 
-export function ChoiceCard({ active, onClick, label, desc }: { active: boolean; onClick: () => void; label: string; desc: string }) {
+export function ChoiceCard({
+  active,
+  onClick,
+  label,
+  desc,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  desc: string;
+}) {
   return (
-    <button onClick={onClick}
+    <button
+      onClick={onClick}
       className={`text-left rounded-xl border p-4 transition ${
-        active ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-background/40 hover:border-primary/40"
-      }`}>
+        active
+          ? "border-primary bg-primary/10 shadow-glow"
+          : "border-border bg-background/40 hover:border-primary/40"
+      }`}
+    >
       <div className="font-medium">{label}</div>
       <div className="mt-0.5 text-xs text-muted-foreground">{desc}</div>
     </button>
   );
 }
 
-export function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+export function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <button onClick={onClick}
+    <button
+      onClick={onClick}
       className={`rounded-full border px-4 py-1.5 text-sm transition ${
-        active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background/40 text-foreground hover:border-primary/40"
-      }`}>{children}</button>
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background/40 text-foreground hover:border-primary/40"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 

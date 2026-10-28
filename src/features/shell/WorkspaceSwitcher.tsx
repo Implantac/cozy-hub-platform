@@ -11,7 +11,12 @@ interface WorkspaceSwitcherProps {
   onCreate: (name: string) => Promise<void>;
 }
 
-export function WorkspaceSwitcher({ workspaces, current, onSelect, onCreate }: WorkspaceSwitcherProps) {
+export function WorkspaceSwitcher({
+  workspaces,
+  current,
+  onSelect,
+  onCreate,
+}: WorkspaceSwitcherProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
@@ -50,7 +55,10 @@ export function WorkspaceSwitcher({ workspaces, current, onSelect, onCreate }: W
               return (
                 <button
                   key={w.id}
-                  onClick={async () => { setOpen(false); if (!isCurrent) await onSelect(w.id); }}
+                  onClick={async () => {
+                    setOpen(false);
+                    if (!isCurrent) await onSelect(w.id);
+                  }}
                   className={cn(
                     "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent",
                     isCurrent && "text-primary",
@@ -67,7 +75,10 @@ export function WorkspaceSwitcher({ workspaces, current, onSelect, onCreate }: W
             <button
               onClick={async () => {
                 const name = window.prompt(t("workspace.newName"));
-                if (name && name.trim()) { setOpen(false); await onCreate(name.trim()); }
+                if (name && name.trim()) {
+                  setOpen(false);
+                  await onCreate(name.trim());
+                }
               }}
               className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-primary hover:bg-sidebar-accent"
             >

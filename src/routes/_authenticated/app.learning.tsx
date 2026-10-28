@@ -48,10 +48,16 @@ function LearningPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <h3 className="font-medium">{p.title}</h3>
-                    {p.description && <p className="mt-1 text-xs text-muted-foreground">{p.description}</p>}
+                    {p.description && (
+                      <p className="mt-1 text-xs text-muted-foreground">{p.description}</p>
+                    )}
                   </div>
                   <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-                    {p.difficulty === "beginner" ? "Iniciante" : p.difficulty === "intermediate" ? "Intermediário" : "Avançado"}
+                    {p.difficulty === "beginner"
+                      ? "Iniciante"
+                      : p.difficulty === "intermediate"
+                        ? "Intermediário"
+                        : "Avançado"}
                   </span>
                 </div>
                 <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
@@ -60,25 +66,38 @@ function LearningPage() {
                   <span>~{p.estimated_hours}h</span>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
                     transition={{ duration: 0.6 }}
-                    className="h-full rounded-full bg-gradient-brand"/>
+                    className="h-full rounded-full bg-gradient-brand"
+                  />
                 </div>
                 <ul className="mt-4 space-y-2">
                   {(Array.isArray(p.milestones) ? p.milestones : []).map((m: any) => {
                     const done = completed.includes(m.id);
                     return (
                       <li key={m.id}>
-                        <button onClick={() => mut.mutate({ pathId: p.id, milestoneId: m.id })}
+                        <button
+                          onClick={() => mut.mutate({ pathId: p.id, milestoneId: m.id })}
                           className={`group flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                            done ? "border-success/40 bg-success/5" : "border-border bg-background/40 hover:border-primary/40"
-                          }`}>
-                          <div className={`grid size-5 shrink-0 place-items-center rounded-full border-2 transition ${
-                            done ? "border-success bg-success text-success-foreground" : "border-border"
-                          }`}>
-                            {done && <Check className="size-3"/>}
+                            done
+                              ? "border-success/40 bg-success/5"
+                              : "border-border bg-background/40 hover:border-primary/40"
+                          }`}
+                        >
+                          <div
+                            className={`grid size-5 shrink-0 place-items-center rounded-full border-2 transition ${
+                              done
+                                ? "border-success bg-success text-success-foreground"
+                                : "border-border"
+                            }`}
+                          >
+                            {done && <Check className="size-3" />}
                           </div>
-                          <span className={done ? "text-muted-foreground line-through" : ""}>{m.title}</span>
+                          <span className={done ? "text-muted-foreground line-through" : ""}>
+                            {m.title}
+                          </span>
                         </button>
                       </li>
                     );

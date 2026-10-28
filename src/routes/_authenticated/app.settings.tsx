@@ -33,16 +33,34 @@ function SettingsPage() {
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="profile"><User className="mr-2 size-3.5" />{t("settings.tabs.profile", "Perfil")}</TabsTrigger>
-          <TabsTrigger value="workspace"><Building2 className="mr-2 size-3.5" />{t("settings.tabs.workspace", "Workspace")}</TabsTrigger>
-          <TabsTrigger value="team"><Users className="mr-2 size-3.5" />{t("settings.tabs.team", "Equipe")}</TabsTrigger>
-          <TabsTrigger value="appearance"><Globe className="mr-2 size-3.5" />{t("settings.tabs.appearance", "Idioma")}</TabsTrigger>
+          <TabsTrigger value="profile">
+            <User className="mr-2 size-3.5" />
+            {t("settings.tabs.profile", "Perfil")}
+          </TabsTrigger>
+          <TabsTrigger value="workspace">
+            <Building2 className="mr-2 size-3.5" />
+            {t("settings.tabs.workspace", "Workspace")}
+          </TabsTrigger>
+          <TabsTrigger value="team">
+            <Users className="mr-2 size-3.5" />
+            {t("settings.tabs.team", "Equipe")}
+          </TabsTrigger>
+          <TabsTrigger value="appearance">
+            <Globe className="mr-2 size-3.5" />
+            {t("settings.tabs.appearance", "Idioma")}
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="space-y-4"><ProfileTab /></TabsContent>
-        <TabsContent value="workspace">{q.data && <WorkspaceTab workspace={q.data.workspace} />}</TabsContent>
+        <TabsContent value="profile" className="space-y-4">
+          <ProfileTab />
+        </TabsContent>
+        <TabsContent value="workspace">
+          {q.data && <WorkspaceTab workspace={q.data.workspace} />}
+        </TabsContent>
         <TabsContent value="team">{q.data && <TeamTab members={q.data.members} />}</TabsContent>
-        <TabsContent value="appearance"><AppearanceTab /></TabsContent>
+        <TabsContent value="appearance">
+          <AppearanceTab />
+        </TabsContent>
       </Tabs>
     </div>
   );

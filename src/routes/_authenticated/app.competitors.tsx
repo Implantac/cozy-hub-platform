@@ -38,12 +38,19 @@ function CompetitorRadarPage() {
 
   const create = useMutation({
     mutationFn: (data: CompetitorInput) => upsert({ data: { workspaceId: wsId!, ...data } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["competitors", wsId] }); setOpen(false); toast.success("Concorrente adicionado"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["competitors", wsId] });
+      setOpen(false);
+      toast.success("Concorrente adicionado");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
   const remove = useMutation({
     mutationFn: (id: string) => del({ data: { workspaceId: wsId!, id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["competitors", wsId] }); toast.success("Removido"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["competitors", wsId] });
+      toast.success("Removido");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -60,17 +67,23 @@ function CompetitorRadarPage() {
           action={
             <>
               <div className="inline-flex rounded-lg border border-border bg-card/60 p-0.5">
-                <button onClick={() => setView("list")}
-                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <button
+                  onClick={() => setView("list")}
+                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
                   Lista
                 </button>
-                <button onClick={() => setView("matrix")}
-                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "matrix" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <button
+                  onClick={() => setView("matrix")}
+                  className={`rounded-md px-3 py-1.5 text-xs transition ${view === "matrix" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
                   Matriz
                 </button>
               </div>
-              <button onClick={() => setOpen(true)}
-                className="hover-lift inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated">
+              <button
+                onClick={() => setOpen(true)}
+                className="hover-lift inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated"
+              >
                 <Plus className="size-4" /> Adicionar
               </button>
             </>
@@ -86,14 +99,19 @@ function CompetitorRadarPage() {
             title="Radar vazio"
             text="Adicione concorrentes para acompanhar movimentos, gaps e oportunidades."
             action={
-              <button onClick={() => setOpen(true)} className="hover-lift inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow">
+              <button
+                onClick={() => setOpen(true)}
+                className="hover-lift inline-flex items-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow"
+              >
                 <Plus className="size-4" /> Adicionar o primeiro
               </button>
             }
           />
         ) : view === "list" ? (
           <motion.section variants={stagger} className="space-y-3">
-            {competitors.map((c) => <CompetitorRow key={c.id} c={c} onRemove={() => remove.mutate(c.id)} />)}
+            {competitors.map((c) => (
+              <CompetitorRow key={c.id} c={c} onRemove={() => remove.mutate(c.id)} />
+            ))}
           </motion.section>
         ) : (
           <ThreatMatrix items={competitors} />

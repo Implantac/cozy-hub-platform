@@ -43,13 +43,7 @@ export function StatTile({
   const Trender = trend ? TrendIcon[trend] : null;
 
   return (
-    <div
-      className={cn(
-        "stat-tile group",
-        emphasis && "shadow-glow-sm",
-        className,
-      )}
-    >
+    <div className={cn("stat-tile group", emphasis && "shadow-glow-sm", className)}>
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
           {label}

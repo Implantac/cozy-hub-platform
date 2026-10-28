@@ -13,7 +13,9 @@ export function HealthCategoryCard({ h }: { h: any }) {
         <div className="flex items-center gap-2 text-sm font-medium">
           <Icon className="size-4 text-accent" /> {meta.label}
         </div>
-        <div className={`text-2xl font-semibold tabular-nums tracking-tight ${tone}`}>{h.score}</div>
+        <div className={`text-2xl font-semibold tabular-nums tracking-tight ${tone}`}>
+          {h.score}
+        </div>
       </div>
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary">
         <motion.div

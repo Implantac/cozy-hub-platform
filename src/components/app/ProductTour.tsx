@@ -21,20 +21,22 @@ const TOUR_KEY = "use-os:product-tour-completed";
 
 export function hasSeenTour() {
   if (typeof window === "undefined") return false;
-  try { return window.localStorage.getItem(TOUR_KEY) === "1"; } catch { return false; }
+  try {
+    return window.localStorage.getItem(TOUR_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 export function resetTour() {
-  try { window.localStorage.removeItem(TOUR_KEY); } catch {}
+  try {
+    window.localStorage.removeItem(TOUR_KEY);
+  } catch {
+    /* localStorage indisponível (modo privado) — tour reinicia só nesta sessão */
+  }
 }
 
-export function ProductTour({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function ProductTour({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -44,7 +46,10 @@ export function ProductTour({
     {
       selector: '[data-tour="brand"]',
       title: t("tour.brand.title", "Bem-vindo ao VELT"),
-      desc: t("tour.brand.desc", "Seu sistema operacional para crescimento digital. Vamos fazer um tour rápido."),
+      desc: t(
+        "tour.brand.desc",
+        "Seu sistema operacional para crescimento digital. Vamos fazer um tour rápido.",
+      ),
       placement: "right",
     },
     {
@@ -63,7 +68,10 @@ export function ProductTour({
     {
       selector: '[data-tour="brain"]',
       title: t("tour.brain.title", "Brain — IA Nativa"),
-      desc: t("tour.brain.desc", "O cérebro cognitivo gera recomendações, missões e respostas com contexto da sua operação."),
+      desc: t(
+        "tour.brain.desc",
+        "O cérebro cognitivo gera recomendações, missões e respostas com contexto da sua operação.",
+      ),
       placement: "right",
     },
     {
@@ -75,19 +83,28 @@ export function ProductTour({
     {
       selector: '[data-tour="content"]',
       title: t("tour.content.title", "Conteúdo"),
-      desc: t("tour.content.desc", "Crie, agende e publique em múltiplos canais a partir de um único lugar."),
+      desc: t(
+        "tour.content.desc",
+        "Crie, agende e publique em múltiplos canais a partir de um único lugar.",
+      ),
       placement: "right",
     },
     {
       selector: '[data-tour="search"]',
       title: t("tour.search.title", "Busca rápida (⌘K)"),
-      desc: t("tour.search.desc", "Use o command palette para navegar e executar ações em segundos."),
+      desc: t(
+        "tour.search.desc",
+        "Use o command palette para navegar e executar ações em segundos.",
+      ),
       placement: "bottom",
     },
     {
       selector: '[data-tour="notifications"]',
       title: t("tour.notifications.title", "Notificações"),
-      desc: t("tour.notifications.desc", "Acompanhe sinais, alertas e atualizações do Brain em tempo real."),
+      desc: t(
+        "tour.notifications.desc",
+        "Acompanhe sinais, alertas e atualizações do Brain em tempo real.",
+      ),
       placement: "bottom",
     },
   ];
@@ -148,7 +165,11 @@ export function ProductTour({
 
   const finish = () => {
     setStep(0);
-    try { window.localStorage.setItem(TOUR_KEY, "1"); } catch {}
+    try {
+      window.localStorage.setItem(TOUR_KEY, "1");
+    } catch {
+      /* localStorage indisponível — tour pode reaparecer na próxima visita */
+    }
     onClose();
   };
 
@@ -186,7 +207,8 @@ export function ProductTour({
     const placement = current.placement ?? "auto";
     const spaceRight = vw - (spotlight.left + spotlight.width);
     const spaceBottom = vh - (spotlight.top + spotlight.height);
-    const useRight = placement === "right" || (placement === "auto" && spaceRight > cardWidth + cardGap + 16);
+    const useRight =
+      placement === "right" || (placement === "auto" && spaceRight > cardWidth + cardGap + 16);
     const useBottom = !useRight && (placement === "bottom" || spaceBottom > 240);
     if (useRight) {
       cardStyle = {

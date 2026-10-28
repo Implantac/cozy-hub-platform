@@ -14,7 +14,9 @@ export function BrandGrid({ brands, canDelete, isDeleting, onDelete }: Props) {
       {brands.map((b) => (
         <div key={b.id} className="section-card hover-lift p-5 sm:p-6 group">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{b.name}</h3>
+            <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+              {b.name}
+            </h3>
             <button
               type="button"
               aria-label={`Delete brand ${b.name}`}
@@ -25,9 +27,7 @@ export function BrandGrid({ brands, canDelete, isDeleting, onDelete }: Props) {
               <Trash2 className="size-4" />
             </button>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {b.description ?? "—"}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{b.description ?? "—"}</p>
         </div>
       ))}
     </div>

@@ -34,13 +34,10 @@ function CoachPage() {
 
   const coachKey = wsId ? ["coach", wsId] : ["coach"];
 
-  const gen = useWorkspaceMutation(
-    () => brainRecommend({ data: { workspaceId: wsId! } }),
-    {
-      invalidate: coachKey,
-      successMessage: (r: any) => `${r.generated} recomendações geradas pelo Brain`,
-    },
-  );
+  const gen = useWorkspaceMutation(() => brainRecommend({ data: { workspaceId: wsId! } }), {
+    invalidate: coachKey,
+    successMessage: (r: any) => `${r.generated} recomendações geradas pelo Brain`,
+  });
   const act = useWorkspaceMutation(
     (v: { id: string; action: "dismiss" | "complete" }) =>
       update({ data: { ...v, workspaceId: wsId! } }),
@@ -49,7 +46,9 @@ function CoachPage() {
 
   const onGenerate = async () => {
     await gen.mutateAsync();
-    try { await (tl as any).refetch?.(); } catch {}
+    // Regenerar recomendações muda a memória do Brain: a timeline precisa
+    // refletir os novos eventos. Falha aqui não deve bloquear a UI.
+    tl.refetch().catch(() => undefined);
   };
 
   return (
@@ -66,7 +65,7 @@ function CoachPage() {
               disabled={gen.isPending || !wsId}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elevated disabled:opacity-60"
             >
-              <Sparkles className={`size-4 ${gen.isPending ? "animate-pulse" : ""}`}/>
+              <Sparkles className={`size-4 ${gen.isPending ? "animate-pulse" : ""}`} />
               {gen.isPending ? "Analisando..." : "Gerar recomendações"}
             </button>
           }
@@ -78,7 +77,8 @@ function CoachPage() {
 
         {q.data && q.data.length === 0 && (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 py-12 text-center text-sm text-muted-foreground">
-            Nenhuma recomendação ativa. Clique em "Gerar recomendações" para o Brain analisar sua operação.
+            Nenhuma recomendação ativa. Clique em "Gerar recomendações" para o Brain analisar sua
+            operação.
           </div>
         )}
 

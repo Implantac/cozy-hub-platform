@@ -11,11 +11,22 @@ type Props = {
   scheduled: number;
 };
 
-export function KpiFooterSection({ brands, channelsConnected, channels, content, scheduled }: Props) {
+export function KpiFooterSection({
+  brands,
+  channelsConnected,
+  channels,
+  content,
+  scheduled,
+}: Props) {
   return (
     <motion.section variants={stagger} className="grid grid-cols-2 gap-3 md:grid-cols-4">
       <KpiCard icon={Palette} label="Marcas" value={brands} to="/app/brands" />
-      <KpiCard icon={Radio} label="Canais" value={`${channelsConnected}/${channels}`} to="/app/channels" />
+      <KpiCard
+        icon={Radio}
+        label="Canais"
+        value={`${channelsConnected}/${channels}`}
+        to="/app/channels"
+      />
       <KpiCard icon={FileText} label="Conteúdos" value={content} to="/app/content" />
       <KpiCard icon={Calendar} label="Agendados" value={scheduled} to="/app/scheduler" />
     </motion.section>

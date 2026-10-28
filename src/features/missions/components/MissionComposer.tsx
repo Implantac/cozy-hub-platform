@@ -22,7 +22,8 @@ export function MissionComposer({ title, onTitleChange, onSubmit }: Props) {
         className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
       <button className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-        <Plus className="size-4" />Add
+        <Plus className="size-4" />
+        Add
       </button>
     </form>
   );

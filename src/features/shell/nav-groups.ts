@@ -1,7 +1,26 @@
 import {
-  Activity, BarChart3, Brain, Brain as BrainIcon, Calendar, Compass, FileText,
-  FlaskConical, GitBranch, GraduationCap, LayoutDashboard, Lightbulb, Palette,
-  RadarIcon, Radio, Rocket, Shield, ShoppingBag, Target, TrendingUp, Wand2,
+  Activity,
+  BarChart3,
+  Brain,
+  Brain as BrainIcon,
+  Calendar,
+  Compass,
+  FileText,
+  FlaskConical,
+  GitBranch,
+  GraduationCap,
+  LayoutDashboard,
+  Lightbulb,
+  Link2,
+  Palette,
+  RadarIcon,
+  Radio,
+  Rocket,
+  Shield,
+  ShoppingBag,
+  Target,
+  TrendingUp,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
       { to: "/app/content", labelKey: "nav.content", icon: FileText },
       { to: "/app/scheduler", labelKey: "nav.scheduler", icon: Calendar },
+      { to: "/app/bio", labelKey: "nav.bio", icon: Link2 },
     ],
   },
   {
@@ -76,7 +96,8 @@ export function findBreadcrumb(path: string, t: (k: string) => string) {
       if (isItemActive(path, it)) return { group: t(g.labelKey), page: t(it.labelKey) };
     }
   }
-  if (path.includes("/settings")) return { group: t("nav.group.settings"), page: t("nav.settings") };
+  if (path.includes("/settings"))
+    return { group: t("nav.group.settings"), page: t("nav.settings") };
   return { group: t("nav.group.overview"), page: t("nav.dashboard") };
 }
 

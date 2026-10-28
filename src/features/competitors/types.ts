@@ -1,10 +1,15 @@
 export type Competitor = {
-  id: string; workspace_id: string;
-  name: string; handle: string | null;
-  followers: number; engagement: number;
+  id: string;
+  workspace_id: string;
+  name: string;
+  handle: string | null;
+  followers: number;
+  engagement: number;
   trend: "up" | "down" | "flat";
   threat: "high" | "medium" | "low";
-  positioning: string | null; recent_move: string | null; gap: string | null;
+  positioning: string | null;
+  recent_move: string | null;
+  gap: string | null;
 };
 
 export type CompetitorInput = {

@@ -13,13 +13,21 @@ export function ActivityPipelineSection({ events, contentByStatus }: Props) {
         ) : (
           <ul className="divide-y divide-border/40">
             {events.slice(0, 8).map((e: any) => (
-              <li key={e.id} className="flex items-center justify-between py-2.5 sm:py-3 text-sm transition-colors hover:bg-white/5 px-2 rounded-lg">
+              <li
+                key={e.id}
+                className="flex items-center justify-between py-2.5 sm:py-3 text-sm transition-colors hover:bg-white/5 px-2 rounded-lg"
+              >
                 <div className="flex items-center gap-2">
                   <div className="size-1.5 rounded-full bg-accent animate-soft-pulse" />
                   <span className="font-mono text-xs font-medium text-accent">{e.event_type}</span>
                 </div>
                 <span className="text-[11px] font-medium text-muted-foreground/70">
-                  {new Date(e.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
+                  {new Date(e.created_at).toLocaleString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "short",
+                  })}
                 </span>
               </li>
             ))}
@@ -41,7 +49,10 @@ export function ActivityPipelineSection({ events, contentByStatus }: Props) {
                     <span className="font-medium">{v as number}</span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${pct}%` }} />
+                    <div
+                      className="h-full rounded-full bg-gradient-brand transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
                   </div>
                 </div>
               );

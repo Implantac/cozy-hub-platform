@@ -26,10 +26,22 @@ type Props = {
 };
 
 export function AppShellLayout({
-  path, collapsed, toggleCollapsed, mobileOpen, setMobileOpen,
-  workspaces, currentWs, onSelectWs, onCreateWs, onSignOut,
-  crumb, userInitial, displayName,
-  onOpenPalette, onOpenTour, onOpenShortcuts,
+  path,
+  collapsed,
+  toggleCollapsed,
+  mobileOpen,
+  setMobileOpen,
+  workspaces,
+  currentWs,
+  onSelectWs,
+  onCreateWs,
+  onSignOut,
+  crumb,
+  userInitial,
+  displayName,
+  onOpenPalette,
+  onOpenTour,
+  onOpenShortcuts,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -53,7 +65,10 @@ export function AppShellLayout({
       </aside>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground">
+        <SheetContent
+          side="left"
+          className="w-72 border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
+        >
           <SheetTitle className="sr-only">VELT</SheetTitle>
           <SidebarBody
             path={path}
@@ -81,7 +96,11 @@ export function AppShellLayout({
 
         <main id="main-content" className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-7xl px-4 py-8 lg:px-10 lg:py-10 animate-rise-in">
-            {currentWs ? <Outlet /> : <div className="text-muted-foreground">{t("common.noWorkspace")}</div>}
+            {currentWs ? (
+              <Outlet />
+            ) : (
+              <div className="text-muted-foreground">{t("common.noWorkspace")}</div>
+            )}
           </div>
         </main>
       </div>

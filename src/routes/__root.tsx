@@ -54,12 +54,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">{error.message || t("errors.unknown")}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
           >
             {t("common.tryAgain")}
           </button>
-          <a href="/" className="inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary">
+          <a
+            href="/"
+            className="inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+          >
             {t("common.goHome")}
           </a>
         </div>
@@ -74,15 +80,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "VELT — Operating system for your digital presence" },
-      { name: "description", content: "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn." },
+      {
+        name: "description",
+        content:
+          "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn.",
+      },
       { property: "og:title", content: "VELT — Operating system for your digital presence" },
-      { property: "og:description", content: "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn." },
+      {
+        property: "og:description",
+        content:
+          "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "VELT — Operating system for your digital presence" },
-      { name: "twitter:description", content: "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/693f9ecb-3f8d-4a50-ab70-137860a3a82d/id-preview-a73581d8--1aa24862-05df-400b-882d-81fde032cb48.lovable.app-1780285602900.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/693f9ecb-3f8d-4a50-ab70-137860a3a82d/id-preview-a73581d8--1aa24862-05df-400b-882d-81fde032cb48.lovable.app-1780285602900.png" },
+      {
+        name: "twitter:description",
+        content:
+          "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/693f9ecb-3f8d-4a50-ab70-137860a3a82d/id-preview-a73581d8--1aa24862-05df-400b-882d-81fde032cb48.lovable.app-1780285602900.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/693f9ecb-3f8d-4a50-ab70-137860a3a82d/id-preview-a73581d8--1aa24862-05df-400b-882d-81fde032cb48.lovable.app-1780285602900.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -117,7 +143,9 @@ function AuthInvalidator() {
   const router = useRouter();
   const queryClient = useQueryClient();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       // Only react to actual auth transitions — ignore INITIAL_SESSION and
       // TOKEN_REFRESHED to avoid an invalidate ↔ getUser() refresh loop.
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
@@ -129,7 +157,6 @@ function AuthInvalidator() {
   }, [router, queryClient]);
   return null;
 }
-
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

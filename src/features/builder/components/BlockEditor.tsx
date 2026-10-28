@@ -2,8 +2,12 @@ import { Sparkles } from "lucide-react";
 import type { Block } from "../constants";
 
 type Props = {
-  block: Block; value: string; onChange: (v: string) => void;
-  dirty: boolean; saving: boolean; onSave: () => void;
+  block: Block;
+  value: string;
+  onChange: (v: string) => void;
+  dirty: boolean;
+  saving: boolean;
+  onSave: () => void;
 };
 
 export function BlockEditor({ block, value, onChange, dirty, saving, onSave }: Props) {
@@ -15,7 +19,9 @@ export function BlockEditor({ block, value, onChange, dirty, saving, onSave }: P
           <Icon className="size-5" />
         </div>
         <div>
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{block.category}</div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            {block.category}
+          </div>
           <div className="text-lg font-semibold">{block.label}</div>
         </div>
       </div>
@@ -31,8 +37,11 @@ export function BlockEditor({ block, value, onChange, dirty, saving, onSave }: P
         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
           <Sparkles className="size-3 text-accent" /> Dica: comece pelo problema.
         </span>
-        <button onClick={onSave} disabled={!dirty || saving}
-          className="rounded-lg bg-gradient-brand px-4 py-2 text-xs font-medium text-primary-foreground shadow-glow transition disabled:opacity-50">
+        <button
+          onClick={onSave}
+          disabled={!dirty || saving}
+          className="rounded-lg bg-gradient-brand px-4 py-2 text-xs font-medium text-primary-foreground shadow-glow transition disabled:opacity-50"
+        >
           {saving ? "Salvando…" : dirty ? "Salvar bloco" : "Salvo"}
         </button>
       </div>

@@ -29,9 +29,7 @@ export interface SupabaseLikeResult<T> {
  * to the success branch on the lines that follow — matching the narrowing
  * the inline `if (error) throw …` pattern provided.
  */
-export function throwIfError(
-  error: SupabaseLikeError | null,
-): asserts error is null {
+export function throwIfError(error: SupabaseLikeError | null): asserts error is null {
   if (error) throw new Error(error.message);
 }
 

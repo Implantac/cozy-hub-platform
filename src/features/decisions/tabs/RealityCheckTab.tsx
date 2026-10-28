@@ -7,7 +7,13 @@ import { EmptyState } from "@/components/app/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RealityCard } from "../components/RealityCard";
 
 export function RealityCheckTab() {
@@ -37,7 +43,10 @@ export function RealityCheckTab() {
     {
       invalidate: wsId ? ["reality-checks", wsId] : ["reality-checks"],
       successMessage: "Reality check concluído",
-      onSuccess: () => { setCurrentState(""); setProposed(""); },
+      onSuccess: () => {
+        setCurrentState("");
+        setProposed("");
+      },
     },
   );
 
@@ -55,7 +64,9 @@ export function RealityCheckTab() {
           <div className="space-y-2">
             <Label>Tipo de mudança</Label>
             <Select value={changeType} onValueChange={setChangeType}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pivot">Pivô / mudar de direção</SelectItem>
                 <SelectItem value="new_channel">Abrir novo canal</SelectItem>
@@ -69,16 +80,26 @@ export function RealityCheckTab() {
 
           <div className="space-y-2">
             <Label htmlFor="cur">Estado atual</Label>
-            <Textarea id="cur" rows={3}
+            <Textarea
+              id="cur"
+              rows={3}
               placeholder="O que está acontecendo hoje? Quais resultados você está vendo?"
-              value={currentState} onChange={(e) => setCurrentState(e.target.value)} maxLength={2000} />
+              value={currentState}
+              onChange={(e) => setCurrentState(e.target.value)}
+              maxLength={2000}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="prop">Mudança proposta</Label>
-            <Textarea id="prop" rows={3}
+            <Textarea
+              id="prop"
+              rows={3}
               placeholder="O que você está pensando em mudar? Por quê?"
-              value={proposed} onChange={(e) => setProposed(e.target.value)} maxLength={2000} />
+              value={proposed}
+              onChange={(e) => setProposed(e.target.value)}
+              maxLength={2000}
+            />
           </div>
 
           <Button
@@ -86,18 +107,33 @@ export function RealityCheckTab() {
             onClick={() => run.mutate()}
             className="gap-2"
           >
-            {run.isPending
-              ? <><Loader2 className="size-4 animate-spin" /> Analisando...</>
-              : <><Sparkles className="size-4" /> Fazer reality check</>}
+            {run.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Analisando...
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-4" /> Fazer reality check
+              </>
+            )}
           </Button>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Histórico</h3>
-        {!list.data || list.data.length === 0
-          ? <EmptyState variant="dashed" icon={Shield} title="Nenhum reality check ainda" text="Submeta um plano acima para receber uma análise crítica de riscos e premissas." />
-          : list.data.map((r: any) => <RealityCard key={r.id} r={r} />)}
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          Histórico
+        </h3>
+        {!list.data || list.data.length === 0 ? (
+          <EmptyState
+            variant="dashed"
+            icon={Shield}
+            title="Nenhum reality check ainda"
+            text="Submeta um plano acima para receber uma análise crítica de riscos e premissas."
+          />
+        ) : (
+          list.data.map((r: any) => <RealityCard key={r.id} r={r} />)
+        )}
       </div>
     </div>
   );

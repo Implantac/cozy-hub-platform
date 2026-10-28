@@ -4,8 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { Activity } from "lucide-react";
 import {
-  CoachService, HealthService, OpportunitiesService, BrainCoreService,
-  BuilderService, BrainEvolutionService,
+  CoachService,
+  HealthService,
+  OpportunitiesService,
+  BrainCoreService,
+  BuilderService,
+  BrainEvolutionService,
 } from "@/lib/services";
 import { getDashboard } from "@/lib/api/dashboard.functions";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
@@ -43,7 +47,8 @@ function GPSDashboard() {
   const overview = useQuery({
     queryKey: ["dashboard", wsId],
     queryFn: () => (fetchOverview as any)({ data: { workspaceId: wsId! } }),
-    enabled: !!wsId, refetchInterval: 30_000,
+    enabled: !!wsId,
+    refetchInterval: 30_000,
   });
   const brain = useQuery({
     queryKey: ["brain-all", wsId],
@@ -67,7 +72,11 @@ function GPSDashboard() {
   });
   const blueprint = useQuery({
     queryKey: ["blueprint-mini", wsId],
-    queryFn: () => getBlueprint({ data: { workspaceId: wsId! } }) as Promise<Record<string, string | null> | null>,
+    queryFn: () =>
+      getBlueprint({ data: { workspaceId: wsId! } }) as Promise<Record<
+        string,
+        string | null
+      > | null>,
     enabled: !!wsId,
   });
   const competitors = useQuery({
@@ -93,7 +102,9 @@ function GPSDashboard() {
     },
     onSuccess: () => {
       toast.success("USE Brain atualizado");
-      brain.refetch(); recs.refetch(); overview.refetch();
+      brain.refetch();
+      recs.refetch();
+      overview.refetch();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -105,11 +116,14 @@ function GPSDashboard() {
   const d = overview.data!;
   const s = brain.data?.scores as any;
   const topRecs = (recs.data ?? []).slice(0, 4);
-  const trending = (opps.data ?? []).filter((o: any) => o.status === "exploding" || o.status === "growing").slice(0, 3);
+  const trending = (opps.data ?? [])
+    .filter((o: any) => o.status === "exploding" || o.status === "growing")
+    .slice(0, 3);
   const healthList = health.data ?? [];
-  const healthAvg = healthList.length > 0
-    ? Math.round(healthList.reduce((a: number, h: any) => a + h.score, 0) / healthList.length)
-    : null;
+  const healthAvg =
+    healthList.length > 0
+      ? Math.round(healthList.reduce((a: number, h: any) => a + h.score, 0) / healthList.length)
+      : null;
   const priorityMissions = (d.missions ?? []).filter((m: any) => m.status !== "done").slice(0, 4);
 
   return (
@@ -146,7 +160,8 @@ function GPSDashboard() {
         />
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Activity className="size-3 text-success" /> Sistema operacional · atualização em tempo real ativa
+          <Activity className="size-3 text-success" /> Sistema operacional · atualização em tempo
+          real ativa
         </div>
       </motion.div>
     </PageTransition>

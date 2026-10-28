@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  BarChart3, BrainCircuit, FlaskConical, History, Scale, ShieldAlert, User, Users2,
+  BarChart3,
+  BrainCircuit,
+  FlaskConical,
+  History,
+  Scale,
+  ShieldAlert,
+  User,
+  Users2,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { PageTransition } from "@/components/app/Motion";

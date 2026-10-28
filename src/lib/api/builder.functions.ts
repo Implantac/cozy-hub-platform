@@ -65,7 +65,8 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
       throwIfError(error);
       if (payload.threat === "high") {
         await emitMemoryEvent(supabase, {
-          workspaceId, userId,
+          workspaceId,
+          userId,
           kind: "signal",
           subject: `Concorrente "${rest.name}" marcado como alta ameaça`,
           payload: { competitorId: id, trend: payload.trend, gap: rest.gap ?? null },
@@ -82,7 +83,8 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
       .single();
     throwIfError(error);
     await emitMemoryEvent(supabase, {
-      workspaceId, userId,
+      workspaceId,
+      userId,
       kind: "signal",
       subject: `Novo concorrente no radar: ${rest.name}`,
       payload: { threat: payload.threat, trend: payload.trend, handle: rest.handle ?? null },
@@ -111,8 +113,16 @@ export const deleteCompetitor = createServerFn({ method: "POST" })
 
 /* ============== Business Blueprint (10 blocks) ============== */
 const BLOCK_FIELDS = [
-  "problem", "audience", "promise", "differentiator",
-  "offer", "price", "channels", "content_pillars", "funnel", "metric",
+  "problem",
+  "audience",
+  "promise",
+  "differentiator",
+  "offer",
+  "price",
+  "channels",
+  "content_pillars",
+  "funnel",
+  "metric",
 ] as const;
 type BlockField = (typeof BLOCK_FIELDS)[number];
 
@@ -161,7 +171,8 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
         .single();
       throwIfError(error);
       await emitMemoryEvent(supabase, {
-        workspaceId, userId,
+        workspaceId,
+        userId,
         kind: "decision",
         subject: `Blueprint atualizado: ${field}`,
         payload: { field, preview: value.slice(0, 160) },
@@ -182,7 +193,8 @@ export const updateBlueprintBlock = createServerFn({ method: "POST" })
       .single();
     throwIfError(error);
     await emitMemoryEvent(supabase, {
-      workspaceId, userId,
+      workspaceId,
+      userId,
       kind: "decision",
       subject: `Blueprint iniciado pelo bloco: ${field}`,
       payload: { field, preview: value.slice(0, 160) },

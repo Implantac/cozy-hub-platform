@@ -10,10 +10,12 @@ import { throwIfError } from "./_supabase";
 export const getAnalyticsOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      days: z.number().int().min(7).max(180).default(30),
-    }).parse(input),
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        days: z.number().int().min(7).max(180).default(30),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -29,9 +31,15 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
 
     throwIfError(error);
 
-    const daily = new Map<string, { date: string; impressions: number; engagement: number; reach: number }>();
-    const byPlatform = new Map<string, { platform: string; impressions: number; engagement: number }>();
-    let totals = { impressions: 0, engagement: 0, reach: 0, posts: 0 };
+    const daily = new Map<
+      string,
+      { date: string; impressions: number; engagement: number; reach: number }
+    >();
+    const byPlatform = new Map<
+      string,
+      { platform: string; impressions: number; engagement: number }
+    >();
+    const totals = { impressions: 0, engagement: 0, reach: 0, posts: 0 };
 
     for (const r of rows ?? []) {
       const m = (r.metrics ?? {}) as Record<string, unknown>;
@@ -41,12 +49,15 @@ export const getAnalyticsOverview = createServerFn({ method: "GET" })
       const day = (r.captured_at as string).slice(0, 10);
 
       const d = daily.get(day) ?? { date: day, impressions: 0, engagement: 0, reach: 0 };
-      d.impressions += imp; d.engagement += eng; d.reach += reach;
+      d.impressions += imp;
+      d.engagement += eng;
+      d.reach += reach;
       daily.set(day, d);
 
       const platform = (r.channel as { platform: string } | null)?.platform ?? "other";
       const p = byPlatform.get(platform) ?? { platform, impressions: 0, engagement: 0 };
-      p.impressions += imp; p.engagement += eng;
+      p.impressions += imp;
+      p.engagement += eng;
       byPlatform.set(platform, p);
 
       totals.impressions += imp;

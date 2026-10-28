@@ -6,10 +6,7 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { EmptyState } from "@/components/app/EmptyState";
 import { ListSkeleton } from "@/components/app/Skeletons";
 import { PageTransition } from "@/components/app/Motion";
-import {
-  useWorkspaceMutation,
-  useWorkspaceQuery,
-} from "@/lib/query/use-workspace-query";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import {
   cancelSchedulerJob,
   listSchedulerJobs,
@@ -19,6 +16,8 @@ import type { SchedulerJob } from "@/lib/api/_types";
 import { STATUSES } from "@/features/scheduler/constants";
 import { SchedulerFilters } from "@/features/scheduler/components/SchedulerFilters";
 import { SchedulerTable } from "@/features/scheduler/components/SchedulerTable";
+import { BestTimeCard } from "@/features/scheduler/components/BestTimeCard";
+import { PublishCapabilityStrip } from "@/features/scheduler/components/PublishCapabilityStrip";
 
 export const Route = createFileRoute("/_authenticated/app/scheduler")({
   component: SchedulerPage,
@@ -51,13 +50,11 @@ function SchedulerPage() {
     { invalidate: invalidateKey, successMessage: "Job canceled" },
   );
 
-  const tickMut = useWorkspaceMutation(
-    () => tick({ data: { workspaceId: q.wsId!, limit: 10 } }),
-    {
-      invalidate: invalidateKey,
-      successMessage: (r) => `Dispatcher ran · ${(r as { processed?: number }).processed ?? 0} processed`,
-    },
-  );
+  const tickMut = useWorkspaceMutation(() => tick({ data: { workspaceId: q.wsId!, limit: 10 } }), {
+    invalidate: invalidateKey,
+    successMessage: (r) =>
+      `Dispatcher ran · ${(r as { processed?: number }).processed ?? 0} processed`,
+  });
 
   const counts = (q.data ?? []).reduce<Record<string, number>>((acc, j) => {
     acc[j.status] = (acc[j.status] ?? 0) + 1;
@@ -73,15 +70,22 @@ function SchedulerPage() {
           subtitle="Multi-channel publishing queue with retry & DLQ."
         />
 
-        <SchedulerFilters
-          filter={filter}
-          setFilter={setFilter}
-          counts={counts}
-          total={q.data?.length ?? 0}
-          onTick={() => tickMut.mutate()}
-          tickDisabled={!q.wsId || tickMut.isPending}
-          tickPending={tickMut.isPending}
-        />
+        <PublishCapabilityStrip />
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="space-y-3">
+            <SchedulerFilters
+              filter={filter}
+              setFilter={setFilter}
+              counts={counts}
+              total={q.data?.length ?? 0}
+              onTick={() => tickMut.mutate()}
+              tickDisabled={!q.wsId || tickMut.isPending}
+              tickPending={tickMut.isPending}
+            />
+          </div>
+          <BestTimeCard platform="instagram" />
+        </div>
 
         {q.isLoading ? (
           <ListSkeleton rows={4} />

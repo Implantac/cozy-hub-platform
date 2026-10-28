@@ -13,7 +13,17 @@ export const Route = createFileRoute("/_authenticated/app/channels")({
 });
 
 function ChannelsPage() {
-  const { q, platform, setPlatform, handle, setHandle, createMut, delMut, disconnectMut, connectMut } = useChannelsPage();
+  const {
+    q,
+    platform,
+    setPlatform,
+    handle,
+    setHandle,
+    createMut,
+    delMut,
+    disconnectMut,
+    connectMut,
+  } = useChannelsPage();
 
   return (
     <PageTransition>
@@ -43,6 +53,7 @@ function ChannelsPage() {
             <ChannelCard
               key={c.id}
               channel={c}
+              workspaceId={q.wsId}
               disabled={!q.wsId || delMut.isPending}
               onDelete={() => delMut.mutate(c.id)}
               onDisconnect={() => disconnectMut.mutate(c.id)}

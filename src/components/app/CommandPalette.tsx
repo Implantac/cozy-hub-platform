@@ -2,12 +2,42 @@ import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
-  CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
 } from "@/components/ui/command";
 import {
-  LayoutDashboard, Palette, Radio, FileText, Calendar, BarChart3, Brain, Target, Settings, LogOut,
-  Rocket, GitBranch, RadarIcon, Brain as BrainIcon, Compass, TrendingUp, Activity, Lightbulb, Shield,
-  Wand2, GraduationCap, FlaskConical, ShoppingBag, Keyboard, RefreshCw, PanelLeftClose,
+  LayoutDashboard,
+  Palette,
+  Radio,
+  FileText,
+  Calendar,
+  Link2,
+  BarChart3,
+  Brain,
+  Target,
+  Settings,
+  LogOut,
+  Rocket,
+  GitBranch,
+  RadarIcon,
+  Brain as BrainIcon,
+  Compass,
+  TrendingUp,
+  Activity,
+  Lightbulb,
+  Shield,
+  Wand2,
+  GraduationCap,
+  FlaskConical,
+  ShoppingBag,
+  Keyboard,
+  RefreshCw,
+  PanelLeftClose,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/use-auth";
 import { resetTour } from "@/components/app/ProductTour";
@@ -46,6 +76,7 @@ const GROUPS: Array<{ labelKey: string; items: Item[] }> = [
       { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
       { to: "/app/content", labelKey: "nav.content", icon: FileText },
       { to: "/app/scheduler", labelKey: "nav.scheduler", icon: Calendar },
+      { to: "/app/bio", labelKey: "nav.bio", icon: Link2 },
     ],
   },
   {
@@ -74,7 +105,9 @@ const GROUPS: Array<{ labelKey: string; items: Item[] }> = [
 const COLLAPSE_KEY = "digitalos.sidebar_collapsed";
 
 export function CommandPalette({
-  open, onOpenChange, onShowShortcuts,
+  open,
+  onOpenChange,
+  onShowShortcuts,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -110,7 +143,10 @@ export function CommandPalette({
                 <CommandItem
                   key={it.to}
                   value={`${t(g.labelKey)} ${t(it.labelKey)}`}
-                  onSelect={() => { close(); navigate({ to: it.to }); }}
+                  onSelect={() => {
+                    close();
+                    navigate({ to: it.to });
+                  }}
                 >
                   <it.icon className="mr-2 size-4" />
                   {t(it.labelKey)}
@@ -124,14 +160,20 @@ export function CommandPalette({
         <CommandGroup heading={t("palette.actions", "Ações")}>
           <CommandItem
             value="settings configurações"
-            onSelect={() => { close(); navigate({ to: "/app/settings" }); }}
+            onSelect={() => {
+              close();
+              navigate({ to: "/app/settings" });
+            }}
           >
             <Settings className="mr-2 size-4" /> {t("nav.settings")}
           </CommandItem>
           {onShowShortcuts && (
             <CommandItem
               value="keyboard shortcuts atalhos teclado"
-              onSelect={() => { close(); onShowShortcuts(); }}
+              onSelect={() => {
+                close();
+                onShowShortcuts();
+              }}
             >
               <Keyboard className="mr-2 size-4" /> {t("shortcuts.title", "Atalhos de teclado")}
             </CommandItem>
@@ -144,10 +186,13 @@ export function CommandPalette({
                 const cur = window.localStorage.getItem(COLLAPSE_KEY) === "1";
                 window.localStorage.setItem(COLLAPSE_KEY, cur ? "0" : "1");
                 window.dispatchEvent(new Event("digitalos:sidebar-toggle"));
-              } catch {}
+              } catch {
+                /* localStorage indisponível (modo privado) — toggle só não persiste */
+              }
             }}
           >
-            <PanelLeftClose className="mr-2 size-4" /> {t("palette.toggleSidebar", "Recolher/expandir menu")}
+            <PanelLeftClose className="mr-2 size-4" />{" "}
+            {t("palette.toggleSidebar", "Recolher/expandir menu")}
           </CommandItem>
           <CommandItem
             value="restart product tour reiniciar tour"
@@ -162,7 +207,11 @@ export function CommandPalette({
           </CommandItem>
           <CommandItem
             value="sign out logout sair"
-            onSelect={async () => { close(); await signOut(); navigate({ to: "/login" }); }}
+            onSelect={async () => {
+              close();
+              await signOut();
+              navigate({ to: "/login" });
+            }}
           >
             <LogOut className="mr-2 size-4" /> {t("common.signOut")}
           </CommandItem>

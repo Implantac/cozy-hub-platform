@@ -1,5 +1,10 @@
 function Metric({ label, value }: { label: string; value: "low" | "medium" | "high" }) {
-  const tone = value === "high" ? "text-success" : value === "medium" ? "text-primary" : "text-muted-foreground";
+  const tone =
+    value === "high"
+      ? "text-success"
+      : value === "medium"
+        ? "text-primary"
+        : "text-muted-foreground";
   const txt = value === "high" ? "Alto" : value === "medium" ? "Médio" : "Baixo";
   return (
     <div className="rounded-lg bg-background/40 p-2 text-center">
@@ -21,7 +26,9 @@ export function OpportunityCard({ o }: { o: any }) {
       <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-2xl opacity-0 transition group-hover:opacity-100" />
       <div className="relative space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <div className={`inline-flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-0.5 text-xs ${meta.color}`}>
+          <div
+            className={`inline-flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-0.5 text-xs ${meta.color}`}
+          >
             <Icon className="size-3" /> {meta.label}
           </div>
           {typeof o._compatibility === "number" && (
@@ -30,8 +37,8 @@ export function OpportunityCard({ o }: { o: any }) {
                 o._compatibility >= 70
                   ? "border-success/40 bg-success/10 text-success"
                   : o._compatibility >= 50
-                  ? "border-primary/40 bg-primary/10 text-primary"
-                  : "border-border bg-background/40 text-muted-foreground"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border bg-background/40 text-muted-foreground"
               }`}
               title="Compatibilidade com seu perfil"
             >
@@ -39,9 +46,15 @@ export function OpportunityCard({ o }: { o: any }) {
             </div>
           )}
         </div>
-        {o.niche && <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{o.niche}</span>}
+        {o.niche && (
+          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            {o.niche}
+          </span>
+        )}
         <h3 className="text-lg font-medium leading-snug">{o.title}</h3>
-        {o.description && <p className="text-sm leading-relaxed text-muted-foreground">{o.description}</p>}
+        {o.description && (
+          <p className="text-sm leading-relaxed text-muted-foreground">{o.description}</p>
+        )}
         <div className="grid grid-cols-3 gap-2 pt-2">
           <Metric label="Dificuldade" value={o.difficulty} />
           <Metric label="Competição" value={o.competition} />

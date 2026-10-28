@@ -22,13 +22,19 @@ function JourneyPage() {
   const fetchTimeline = useServerFn(BrainEvolutionService.getLongTermTimeline);
   const q = useQuery({
     queryKey: ["journey", wsId],
-    queryFn: () => fetchTimeline({ data: { workspaceId: wsId! } }) as Promise<{ periods: Period[]; mentor: Mentor }>,
+    queryFn: () =>
+      fetchTimeline({ data: { workspaceId: wsId! } }) as Promise<{
+        periods: Period[];
+        mentor: Mentor;
+      }>,
     enabled: !!wsId,
   });
 
   const periods = q.data?.periods ?? [];
   const mentor = q.data?.mentor;
-  const current = [...periods].reverse().find((p) => p.events_count > 0 || p.decisions_count > 0) ?? periods[periods.length - 1];
+  const current =
+    [...periods].reverse().find((p) => p.events_count > 0 || p.decisions_count > 0) ??
+    periods[periods.length - 1];
 
   return (
     <PageTransition>

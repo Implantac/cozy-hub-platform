@@ -25,11 +25,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         aria-label={t("common.language")}
       >
         {SUPPORTED_LANGUAGES.map((l) => (
-          <option
-            key={l.code}
-            value={l.code}
-            className="bg-background text-foreground"
-          >
+          <option key={l.code} value={l.code} className="bg-background text-foreground">
             {l.flag} {l.native}
           </option>
         ))}

@@ -35,12 +35,11 @@ export function SectionCard({
   const pad = flush ? "" : dense ? "p-4 md:p-5" : "p-5 md:p-6";
 
   return (
-    <section
-      {...rest}
-      className={cn("section-card animate-rise-in", pad, className)}
-    >
+    <section {...rest} className={cn("section-card animate-rise-in", pad, className)}>
       {hasHeader && (
-        <header className={cn("flex flex-wrap items-start justify-between gap-3", children ? "mb-4" : "")}>
+        <header
+          className={cn("flex flex-wrap items-start justify-between gap-3", children ? "mb-4" : "")}
+        >
           <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
             {Icon && (
               <div className="grid size-8 sm:size-9 shrink-0 place-items-center rounded-lg bg-secondary/60 text-foreground/80">

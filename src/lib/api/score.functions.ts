@@ -28,22 +28,26 @@ export const computeDigitalScore = createServerFn({ method: "POST" })
     });
 
     // Mirror into digital_scores (Score module read model)
-    const { data: row, error } = await supabase.from("digital_scores").insert({
-      workspace_id: data.workspaceId,
-      overall: snap.scores.overall,
-      presence: snap.scores.presence,
-      branding: snap.scores.branding,
-      content: snap.scores.content,
-      consistency: snap.scores.consistency,
-      growth: snap.scores.growth,
-      channel_setup: snap.scores.channel_setup,
-      breakdown: {
-        gaps: snap.signals
-          .filter((s) => s.kind === "negative")
-          .map((s) => s.message)
-          .slice(0, 6),
-      },
-    }).select().single();
+    const { data: row, error } = await supabase
+      .from("digital_scores")
+      .insert({
+        workspace_id: data.workspaceId,
+        overall: snap.scores.overall,
+        presence: snap.scores.presence,
+        branding: snap.scores.branding,
+        content: snap.scores.content,
+        consistency: snap.scores.consistency,
+        growth: snap.scores.growth,
+        channel_setup: snap.scores.channel_setup,
+        breakdown: {
+          gaps: snap.signals
+            .filter((s) => s.kind === "negative")
+            .map((s) => s.message)
+            .slice(0, 6),
+        },
+      })
+      .select()
+      .single();
     throwIfError(error);
 
     // Invalidate cached Brain answers since scores changed
@@ -58,8 +62,12 @@ export const getLatestScore = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error } = await supabase
-      .from("digital_scores").select("*").eq("workspace_id", data.workspaceId)
-      .order("computed_at", { ascending: false }).limit(1).maybeSingle();
+      .from("digital_scores")
+      .select("*")
+      .eq("workspace_id", data.workspaceId)
+      .order("computed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
     throwIfError(error);
     return row;
   });

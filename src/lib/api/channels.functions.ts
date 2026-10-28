@@ -22,24 +22,33 @@ export const listChannels = createServerFn({ method: "GET" })
 export const createChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      brandId: z.string().uuid().optional(),
-      platform: PlatformSchema,
-      handle: z.string().min(1).max(80),
-    }).parse(input)
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        brandId: z.string().uuid().optional(),
+        platform: PlatformSchema,
+        handle: z.string().min(1).max(80),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const row = unwrap(await supabase.from("channels").insert({
-      workspace_id: data.workspaceId,
-      brand_id: data.brandId ?? null,
-      platform: data.platform,
-      handle: data.handle,
-      status: "disconnected",
-    }).select().single());
+    const row = unwrap(
+      await supabase
+        .from("channels")
+        .insert({
+          workspace_id: data.workspaceId,
+          brand_id: data.brandId ?? null,
+          platform: data.platform,
+          handle: data.handle,
+          status: "disconnected",
+        })
+        .select()
+        .single(),
+    );
     await supabase.from("domain_events").insert({
-      workspace_id: data.workspaceId, event_type: "ChannelRegistered",
+      workspace_id: data.workspaceId,
+      event_type: "ChannelRegistered",
       payload: { channel_id: row.id, platform: row.platform },
     });
     return row;
@@ -48,10 +57,12 @@ export const createChannel = createServerFn({ method: "POST" })
 export const deleteChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      id: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        id: z.string().uuid(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;

@@ -18,7 +18,10 @@ export function CoachMissionsSection({ topRecs, priorityMissions }: Props) {
         ) : (
           <ul className="space-y-2">
             {topRecs.map((r: any) => (
-              <li key={r.id} className="rounded-xl sm:rounded-2xl border border-border/50 bg-background/30 p-4 sm:p-5 transition-all duration-300 hover:border-primary/40 hover:bg-background/50 hover:shadow-soft">
+              <li
+                key={r.id}
+                className="rounded-xl sm:rounded-2xl border border-border/50 bg-background/30 p-4 sm:p-5 transition-all duration-300 hover:border-primary/40 hover:bg-background/50 hover:shadow-soft"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <RecIcon kind={r.kind} />
@@ -30,7 +33,10 @@ export function CoachMissionsSection({ topRecs, priorityMissions }: Props) {
                   <SeverityPill severity={r.severity} />
                 </div>
                 {r.cta?.href && (
-                  <Link to={r.cta.href} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                  <Link
+                    to={r.cta.href}
+                    className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                  >
                     {r.cta.label ?? "Abrir"} <ArrowUpRight className="size-3" />
                   </Link>
                 )}
@@ -50,7 +56,10 @@ export function CoachMissionsSection({ topRecs, priorityMissions }: Props) {
         ) : (
           <ul className="space-y-2">
             {priorityMissions.map((m: any) => (
-              <li key={m.id} className="flex items-center justify-between rounded-xl border border-border/50 bg-background/30 p-4 transition-all hover:border-primary/30">
+              <li
+                key={m.id}
+                className="flex items-center justify-between rounded-xl border border-border/50 bg-background/30 p-4 transition-all hover:border-primary/30"
+              >
                 <span className="truncate text-sm">{m.title}</span>
                 <StatusPill status={m.status} />
               </li>

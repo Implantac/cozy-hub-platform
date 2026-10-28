@@ -7,4 +7,4 @@ export const PILLARS = [
   { key: "channel_setup", label: "Setup de Canais" },
 ] as const;
 
-export type PillarKey = typeof PILLARS[number]["key"];
+export type PillarKey = (typeof PILLARS)[number]["key"];

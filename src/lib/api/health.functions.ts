@@ -9,7 +9,7 @@ import { buildSnapshot } from "@/lib/brain/brain";
 import { throwIfError } from "./_supabase";
 
 const wsInput = z.object({ workspaceId: z.string().uuid() });
-type Category = "marketing"|"content"|"brand"|"channel"|"growth";
+type Category = "marketing" | "content" | "brand" | "channel" | "growth";
 
 export const computeHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -27,7 +27,10 @@ export const computeHealth = createServerFn({ method: "POST" })
         .map((sig) => sig.message);
 
     const cards: Array<{
-      category: Category; score: number; strengths: string[]; weaknesses: string[];
+      category: Category;
+      score: number;
+      strengths: string[];
+      weaknesses: string[];
     }> = [
       {
         category: "marketing",
@@ -61,12 +64,18 @@ export const computeHealth = createServerFn({ method: "POST" })
       },
     ];
 
-    const { data: rows, error } = await supabase.from("health_metrics").insert(
-      cards.map((c) => ({
-        workspace_id: data.workspaceId, category: c.category, score: c.score,
-        strengths: c.strengths, weaknesses: c.weaknesses,
-      })),
-    ).select();
+    const { data: rows, error } = await supabase
+      .from("health_metrics")
+      .insert(
+        cards.map((c) => ({
+          workspace_id: data.workspaceId,
+          category: c.category,
+          score: c.score,
+          strengths: c.strengths,
+          weaknesses: c.weaknesses,
+        })),
+      )
+      .select();
     throwIfError(error);
     return rows ?? [];
   });
@@ -76,12 +85,19 @@ export const getLatestHealth = createServerFn({ method: "GET" })
   .inputValidator((i) => wsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const cats: Category[] = ["marketing","content","brand","channel","growth"];
-    const results = await Promise.all(cats.map(async (cat) => {
-      const { data: r } = await supabase.from("health_metrics").select("*")
-        .eq("workspace_id", data.workspaceId).eq("category", cat)
-        .order("computed_at", { ascending: false }).limit(1).maybeSingle();
-      return r;
-    }));
+    const cats: Category[] = ["marketing", "content", "brand", "channel", "growth"];
+    const results = await Promise.all(
+      cats.map(async (cat) => {
+        const { data: r } = await supabase
+          .from("health_metrics")
+          .select("*")
+          .eq("workspace_id", data.workspaceId)
+          .eq("category", cat)
+          .order("computed_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        return r;
+      }),
+    );
     return results.filter(Boolean);
   });
