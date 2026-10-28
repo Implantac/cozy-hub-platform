@@ -61,7 +61,11 @@ export const upsertDigitalTwin = createServerFn({ method: "POST" })
     if (existing) {
       const { data: row, error } = await supabase
         .from("digital_twins")
-        .update({ ...rest, version: (existing.version ?? 1) + 1, updated_at: new Date().toISOString() })
+        .update({
+          ...rest,
+          version: (existing.version ?? 1) + 1,
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", existing.id)
         .select()
         .single();
@@ -82,8 +86,16 @@ export const upsertDigitalTwin = createServerFn({ method: "POST" })
  * Brain-2A — Skill Map
  * ============================================================ */
 const SKILL_AREAS = [
-  "copy", "content", "product", "sales", "branding",
-  "analytics", "automation", "prospecting", "community", "strategy",
+  "copy",
+  "content",
+  "product",
+  "sales",
+  "branding",
+  "analytics",
+  "automation",
+  "prospecting",
+  "community",
+  "strategy",
 ] as const;
 
 export const listSkillAssessments = createServerFn({ method: "GET" })
@@ -103,14 +115,18 @@ export const listSkillAssessments = createServerFn({ method: "GET" })
 
 export const upsertSkillAssessment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    area: z.enum(SKILL_AREAS),
-    score: z.number().int().min(0).max(100),
-    confidence: z.number().min(0).max(1).optional(),
-    notes: z.string().max(500).optional(),
-    source: z.string().max(40).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        area: z.enum(SKILL_AREAS),
+        score: z.number().int().min(0).max(100),
+        confidence: z.number().min(0).max(1).optional(),
+        notes: z.string().max(500).optional(),
+        source: z.string().max(40).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: prev } = await supabase
@@ -123,10 +139,13 @@ export const upsertSkillAssessment = createServerFn({ method: "POST" })
     const { data: row, error } = await supabase
       .from("skill_assessments")
       .insert({
-        workspace_id: data.workspaceId, user_id: userId,
-        area: data.area, score: data.score,
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        area: data.area,
+        score: data.score,
         confidence: data.confidence ?? 0.6,
-        notes: data.notes, source: data.source ?? "self",
+        notes: data.notes,
+        source: data.source ?? "self",
       })
       .select()
       .single();
@@ -136,7 +155,8 @@ export const upsertSkillAssessment = createServerFn({ method: "POST" })
     const kind = delta >= 15 ? "result" : "reflection";
     const sentiment = delta >= 10 ? "positive" : delta <= -10 ? "negative" : "neutral";
     await emitMemoryEvent(supabase, {
-      workspaceId: data.workspaceId, userId,
+      workspaceId: data.workspaceId,
+      userId,
       kind,
       subject: `Skill "${data.area}": ${prevScore} → ${data.score}`,
       payload: { area: data.area, from: prevScore, to: data.score, delta },
@@ -166,26 +186,34 @@ export const listExperiments = createServerFn({ method: "GET" })
 
 export const createExperiment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    title: z.string().min(1).max(200),
-    hypothesis: z.string().min(1).max(500),
-    area: z.enum(SKILL_AREAS).optional(),
-    metric_name: z.string().max(80).optional(),
-    metric_baseline: z.number().optional(),
-    metric_target: z.number().optional(),
-    duration_days: z.number().int().min(1).max(365).optional(),
-    effort_level: z.enum(["low", "medium", "high"]).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        title: z.string().min(1).max(200),
+        hypothesis: z.string().min(1).max(500),
+        area: z.enum(SKILL_AREAS).optional(),
+        metric_name: z.string().max(80).optional(),
+        metric_baseline: z.number().optional(),
+        metric_target: z.number().optional(),
+        duration_days: z.number().int().min(1).max(365).optional(),
+        effort_level: z.enum(["low", "medium", "high"]).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("brain_experiments")
       .insert({
-        workspace_id: data.workspaceId, user_id: userId,
-        title: data.title, hypothesis: data.hypothesis,
-        area: data.area, metric_name: data.metric_name,
-        metric_baseline: data.metric_baseline, metric_target: data.metric_target,
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        title: data.title,
+        hypothesis: data.hypothesis,
+        area: data.area,
+        metric_name: data.metric_name,
+        metric_baseline: data.metric_baseline,
+        metric_target: data.metric_target,
         duration_days: data.duration_days ?? 7,
         effort_level: data.effort_level ?? "medium",
         status: "proposed",
@@ -198,13 +226,17 @@ export const createExperiment = createServerFn({ method: "POST" })
 
 export const updateExperimentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    id: z.string().uuid(),
-    status: z.enum(["proposed", "running", "completed", "abandoned"]),
-    metric_result: z.number().optional(),
-    insights: z.string().max(1000).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        id: z.string().uuid(),
+        status: z.enum(["proposed", "running", "completed", "abandoned"]),
+        metric_result: z.number().optional(),
+        insights: z.string().max(1000).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const patch: Record<string, unknown> = {
@@ -257,19 +289,29 @@ function evaluateDecision(input: {
   const reasoning: string[] = [];
   let score = 50;
 
-  if (cost === 0) { score += 20; reasoning.push("Custo zero — risco financeiro mínimo."); }
-  else if (cost < 100) { score += 10; reasoning.push("Investimento baixo, fácil de testar."); }
-  else if (cost > 1000) { score -= 15; reasoning.push("Investimento alto — exige validação prévia."); }
+  if (cost === 0) {
+    score += 20;
+    reasoning.push("Custo zero — risco financeiro mínimo.");
+  } else if (cost < 100) {
+    score += 10;
+    reasoning.push("Investimento baixo, fácil de testar.");
+  } else if (cost > 1000) {
+    score -= 15;
+    reasoning.push("Investimento alto — exige validação prévia.");
+  }
 
   if (input.expected_benefit.length > 30) {
-    score += 10; reasoning.push("Benefício bem articulado.");
+    score += 10;
+    reasoning.push("Benefício bem articulado.");
   } else {
-    score -= 10; reasoning.push("Benefício pouco específico — refine antes de executar.");
+    score -= 10;
+    reasoning.push("Benefício pouco específico — refine antes de executar.");
   }
 
   const riskyCategories = ["hire", "tool", "course", "ads"];
   if (riskyCategories.includes(input.category.toLowerCase())) {
-    score -= 5; reasoning.push("Categoria com risco médio — execute em fase de teste.");
+    score -= 5;
+    reasoning.push("Categoria com risco médio — execute em fase de teste.");
   }
 
   score = Math.max(0, Math.min(100, score));
@@ -279,14 +321,18 @@ function evaluateDecision(input: {
 
 export const createDecision = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    title: z.string().min(1).max(200),
-    description: z.string().max(1000).optional(),
-    category: z.string().min(1).max(60),
-    cost_estimate: z.number().min(0).max(1_000_000).optional(),
-    expected_benefit: z.string().max(500).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        title: z.string().min(1).max(200),
+        description: z.string().max(1000).optional(),
+        category: z.string().min(1).max(60),
+        cost_estimate: z.number().min(0).max(1_000_000).optional(),
+        expected_benefit: z.string().max(500).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const evaluation = evaluateDecision({
@@ -297,8 +343,10 @@ export const createDecision = createServerFn({ method: "POST" })
     const { data: row, error } = await supabase
       .from("brain_decisions")
       .insert({
-        workspace_id: data.workspaceId, user_id: userId,
-        title: data.title, description: data.description,
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        title: data.title,
+        description: data.description,
         category: data.category,
         cost_estimate: data.cost_estimate ?? 0,
         expected_benefit: data.expected_benefit,
@@ -312,8 +360,10 @@ export const createDecision = createServerFn({ method: "POST" })
 
     // Remember as memory event
     await supabase.from("brain_memory_events").insert({
-      workspace_id: data.workspaceId, user_id: userId,
-      kind: "decision", subject: data.title,
+      workspace_id: data.workspaceId,
+      user_id: userId,
+      kind: "decision",
+      subject: data.title,
       payload: { category: data.category, verdict: evaluation.verdict, score: evaluation.score },
     });
 
@@ -322,12 +372,16 @@ export const createDecision = createServerFn({ method: "POST" })
 
 export const markDecisionExecuted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    id: z.string().uuid(),
-    outcome_score: z.number().int().min(0).max(100).optional(),
-    outcome_note: z.string().max(500).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        id: z.string().uuid(),
+        outcome_score: z.number().int().min(0).max(100).optional(),
+        outcome_note: z.string().max(500).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error } = await supabase
@@ -357,17 +411,29 @@ function dueDiligenceHeuristic(input: {
 }): { risk_score: number; verdict: string; checks: Record<string, unknown>; summary: string } {
   const text = `${input.raw_input} ${input.target_name}`.toLowerCase();
   const red = [
-    "garantido", "100%", "lucro fácil", "ganhar dinheiro rápido", "sem esforço",
-    "comissão alta", "mlm", "marketing multinível", "investimento garantido",
-    "rendimento mensal", "duplicar capital", "criptomoeda exclusiva",
+    "garantido",
+    "100%",
+    "lucro fácil",
+    "ganhar dinheiro rápido",
+    "sem esforço",
+    "comissão alta",
+    "mlm",
+    "marketing multinível",
+    "investimento garantido",
+    "rendimento mensal",
+    "duplicar capital",
+    "criptomoeda exclusiva",
   ];
   const yellow = [
-    "comissão", "afiliado", "curso premium", "vagas limitadas", "última chance",
-    "bônus exclusivo", "mentoria",
+    "comissão",
+    "afiliado",
+    "curso premium",
+    "vagas limitadas",
+    "última chance",
+    "bônus exclusivo",
+    "mentoria",
   ];
-  const green = [
-    "cnpj", "contrato", "reembolso", "depoimentos verificáveis", "garantia",
-  ];
+  const green = ["cnpj", "contrato", "reembolso", "depoimentos verificáveis", "garantia"];
 
   const redHits = red.filter((k) => text.includes(k));
   const yellowHits = yellow.filter((k) => text.includes(k));
@@ -391,11 +457,12 @@ function dueDiligenceHeuristic(input: {
       green_flags: greenHits,
       has_source_url: !!input.source_url,
     },
-    summary: verdict === "high_risk"
-      ? `${redHits.length} sinais críticos detectados. Recomendamos NÃO prosseguir sem validação externa profunda.`
-      : verdict === "caution"
-        ? "Sinais mistos. Pesquise reputação, peça contrato e converse com 3 ex-alunos/clientes."
-        : "Sinais positivos. Ainda assim, valide reputação antes de investir valores altos.",
+    summary:
+      verdict === "high_risk"
+        ? `${redHits.length} sinais críticos detectados. Recomendamos NÃO prosseguir sem validação externa profunda.`
+        : verdict === "caution"
+          ? "Sinais mistos. Pesquise reputação, peça contrato e converse com 3 ex-alunos/clientes."
+          : "Sinais positivos. Ainda assim, valide reputação antes de investir valores altos.",
   };
 }
 
@@ -416,24 +483,33 @@ export const listDueDiligenceReports = createServerFn({ method: "GET" })
 
 export const createDueDiligenceReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    target_name: z.string().min(1).max(200),
-    target_type: z.string().min(1).max(60),
-    raw_input: z.string().min(10).max(5000),
-    source_url: z.string().url().max(500).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        target_name: z.string().min(1).max(200),
+        target_type: z.string().min(1).max(60),
+        raw_input: z.string().min(10).max(5000),
+        source_url: z.string().url().max(500).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const result = dueDiligenceHeuristic(data);
     const { data: row, error } = await supabase
       .from("due_diligence_reports")
       .insert({
-        workspace_id: data.workspaceId, user_id: userId,
-        target_name: data.target_name, target_type: data.target_type,
-        raw_input: data.raw_input, source_url: data.source_url,
-        risk_score: result.risk_score, verdict: result.verdict,
-        checks: result.checks as never, summary: result.summary,
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        target_name: data.target_name,
+        target_type: data.target_type,
+        raw_input: data.raw_input,
+        source_url: data.source_url,
+        risk_score: result.risk_score,
+        verdict: result.verdict,
+        checks: result.checks as never,
+        summary: result.summary,
       })
       .select()
       .single();
@@ -459,7 +535,13 @@ async function adviseWithAI(
   advisor: Advisor,
   topic: string,
   twin: Record<string, unknown> | null,
-): Promise<{ summary: string; analysis: string; recommendations: string[]; confidence: number; model: string }> {
+): Promise<{
+  summary: string;
+  analysis: string;
+  recommendations: string[];
+  confidence: number;
+  model: string;
+}> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) {
     return {
@@ -484,30 +566,40 @@ async function adviseWithAI(
       { role: "system", content: system },
       { role: "user", content: userMsg },
     ],
-    tools: [{
-      type: "function",
-      function: {
-        name: "advise",
-        description: `Estrutura da opinião do conselheiro ${advisor}.`,
-        parameters: {
-          type: "object",
-          properties: {
-            summary: { type: "string", description: "1 frase com o diagnóstico central." },
-            analysis: { type: "string", description: "2-4 parágrafos curtos com a análise sob a lente do conselheiro." },
-            recommendations: {
-              type: "array",
-              items: { type: "string" },
-              minItems: 3,
-              maxItems: 5,
-              description: "Ações concretas, priorizadas.",
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "advise",
+          description: `Estrutura da opinião do conselheiro ${advisor}.`,
+          parameters: {
+            type: "object",
+            properties: {
+              summary: { type: "string", description: "1 frase com o diagnóstico central." },
+              analysis: {
+                type: "string",
+                description: "2-4 parágrafos curtos com a análise sob a lente do conselheiro.",
+              },
+              recommendations: {
+                type: "array",
+                items: { type: "string" },
+                minItems: 3,
+                maxItems: 5,
+                description: "Ações concretas, priorizadas.",
+              },
+              confidence: {
+                type: "number",
+                minimum: 0,
+                maximum: 1,
+                description: "Confiança na análise.",
+              },
             },
-            confidence: { type: "number", minimum: 0, maximum: 1, description: "Confiança na análise." },
+            required: ["summary", "analysis", "recommendations", "confidence"],
+            additionalProperties: false,
           },
-          required: ["summary", "analysis", "recommendations", "confidence"],
-          additionalProperties: false,
         },
       },
-    }],
+    ],
     tool_choice: { type: "function", function: { name: "advise" } },
   };
 
@@ -519,29 +611,46 @@ async function adviseWithAI(
 
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
-    console.error("[council] AI gateway error", { advisor, status: res.status, body: txt.slice(0, 500) });
-    if (res.status === 429) throw new Error("Limite de requisições da IA excedido. Tente novamente em instantes.");
-    if (res.status === 402) throw new Error("Créditos da IA esgotados. Contate o administrador do workspace.");
+    console.error("[council] AI gateway error", {
+      advisor,
+      status: res.status,
+      body: txt.slice(0, 500),
+    });
+    if (res.status === 429)
+      throw new Error("Limite de requisições da IA excedido. Tente novamente em instantes.");
+    if (res.status === 402)
+      throw new Error("Créditos da IA esgotados. Contate o administrador do workspace.");
     throw new Error("Serviço de IA indisponível. Tente novamente em instantes.");
   }
 
-  const json = await res.json() as { choices?: Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }> };
+  const json = (await res.json()) as {
+    choices?: Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }>;
+  };
   const call = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
   if (!call) {
     console.error("[council] AI response missing tool call", { advisor });
     throw new Error("Resposta da IA inválida. Tente novamente em instantes.");
   }
-  const parsed = JSON.parse(call) as { summary: string; analysis: string; recommendations: string[]; confidence: number };
+  const parsed = JSON.parse(call) as {
+    summary: string;
+    analysis: string;
+    recommendations: string[];
+    confidence: number;
+  };
   return { ...parsed, model: "google/gemini-3-flash-preview" };
 }
 
 export const askCouncil = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    topic: z.string().min(5).max(500),
-    advisors: z.array(z.enum(ADVISORS)).min(1).max(6).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        topic: z.string().min(5).max(500),
+        advisors: z.array(z.enum(ADVISORS)).min(1).max(6).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const list = data.advisors ?? (ADVISORS as readonly Advisor[]);
@@ -590,7 +699,6 @@ export const askCouncil = createServerFn({ method: "POST" })
     throwIfError(error);
     return inserted ?? [];
   });
-
 
 export const listCouncilOpinions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -642,10 +750,30 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
     const ws = data.workspaceId;
 
     const [eventsRes, decisionsRes, experimentsRes, snapshotsRes] = await Promise.all([
-      supabase.from("brain_memory_events").select("*").eq("workspace_id", ws).order("created_at", { ascending: true }).limit(1000),
-      supabase.from("brain_decisions").select("*").eq("workspace_id", ws).order("created_at", { ascending: true }).limit(500),
-      supabase.from("brain_experiments").select("*").eq("workspace_id", ws).order("created_at", { ascending: true }).limit(500),
-      supabase.from("brain_snapshots").select("*").eq("workspace_id", ws).order("computed_at", { ascending: true }).limit(500),
+      supabase
+        .from("brain_memory_events")
+        .select("*")
+        .eq("workspace_id", ws)
+        .order("created_at", { ascending: true })
+        .limit(1000),
+      supabase
+        .from("brain_decisions")
+        .select("*")
+        .eq("workspace_id", ws)
+        .order("created_at", { ascending: true })
+        .limit(500),
+      supabase
+        .from("brain_experiments")
+        .select("*")
+        .eq("workspace_id", ws)
+        .order("created_at", { ascending: true })
+        .limit(500),
+      supabase
+        .from("brain_snapshots")
+        .select("*")
+        .eq("workspace_id", ws)
+        .order("computed_at", { ascending: true })
+        .limit(500),
     ]);
 
     const events = eventsRes.data ?? [];
@@ -662,11 +790,19 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
         const starts = new Date(Date.UTC(year, (q - 1) * 3, 1));
         const ends = new Date(Date.UTC(year, q * 3, 0, 23, 59, 59));
         b = {
-          key, year, quarter: q,
-          starts_at: starts.toISOString(), ends_at: ends.toISOString(),
-          events_count: 0, decisions_count: 0, experiments_count: 0,
-          wins: [], setbacks: [], score_avg: null,
-          highlights: [], narrative: "",
+          key,
+          year,
+          quarter: q,
+          starts_at: starts.toISOString(),
+          ends_at: ends.toISOString(),
+          events_count: 0,
+          decisions_count: 0,
+          experiments_count: 0,
+          wins: [],
+          setbacks: [],
+          score_avg: null,
+          highlights: [],
+          narrative: "",
         };
         buckets.set(key, b);
       }
@@ -683,12 +819,19 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
       const b = bucket(d.created_at);
       b.decisions_count++;
       if ((d.outcome_score ?? 0) >= 70 && b.wins.length < 5) b.wins.push(`Decisão: ${d.title}`);
-      if ((d.outcome_score ?? 100) < 30 && b.setbacks.length < 5) b.setbacks.push(`Decisão: ${d.title}`);
+      if ((d.outcome_score ?? 100) < 30 && b.setbacks.length < 5)
+        b.setbacks.push(`Decisão: ${d.title}`);
     }
     for (const x of experiments) {
       const b = bucket(x.created_at);
       b.experiments_count++;
-      if (x.status === "succeeded" && x.metric_result != null && x.metric_target != null && Number(x.metric_result) >= Number(x.metric_target) && b.wins.length < 5) {
+      if (
+        x.status === "succeeded" &&
+        x.metric_result != null &&
+        x.metric_target != null &&
+        Number(x.metric_result) >= Number(x.metric_target) &&
+        b.wins.length < 5
+      ) {
         b.wins.push(`Experimento: ${x.title}`);
       }
     }
@@ -709,18 +852,31 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
       if (b) b.score_avg = arr.reduce((a, c) => a + c, 0) / arr.length;
     }
 
-    const list = Array.from(buckets.values()).sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    const list = Array.from(buckets.values()).sort((a, b) =>
+      a.starts_at.localeCompare(b.starts_at),
+    );
     for (let i = 0; i < list.length; i++) {
       const b = list[i];
       const prev = i > 0 ? list[i - 1] : null;
-      const delta = prev && prev.score_avg != null && b.score_avg != null ? b.score_avg - prev.score_avg : null;
-      const dir = delta == null ? "estável" : delta > 5 ? "evolução clara" : delta < -5 ? "retração" : "platô";
+      const delta =
+        prev && prev.score_avg != null && b.score_avg != null ? b.score_avg - prev.score_avg : null;
+      const dir =
+        delta == null
+          ? "estável"
+          : delta > 5
+            ? "evolução clara"
+            : delta < -5
+              ? "retração"
+              : "platô";
       const parts: string[] = [];
-      parts.push(`${b.key}: ${b.events_count} eventos, ${b.decisions_count} decisões, ${b.experiments_count} experimentos.`);
+      parts.push(
+        `${b.key}: ${b.events_count} eventos, ${b.decisions_count} decisões, ${b.experiments_count} experimentos.`,
+      );
       if (b.score_avg != null) parts.push(`Score médio ${b.score_avg.toFixed(1)} (${dir}).`);
       if (b.wins.length) parts.push(`Vitórias: ${b.wins.slice(0, 3).join("; ")}.`);
       if (b.setbacks.length) parts.push(`Tropeços: ${b.setbacks.slice(0, 3).join("; ")}.`);
-      if (!b.wins.length && !b.setbacks.length && b.events_count === 0) parts.push("Período silencioso — pouca atividade registrada.");
+      if (!b.wins.length && !b.setbacks.length && b.events_count === 0)
+        parts.push("Período silencioso — pouca atividade registrada.");
       b.narrative = parts.join(" ");
       if (b.wins.length >= 3) b.highlights.push("Trimestre de alta execução");
       if (b.setbacks.length >= 3) b.highlights.push("Trimestre de fricção");
@@ -742,21 +898,25 @@ export const getLongTermTimeline = createServerFn({ method: "GET" })
       total_decisions: totalDecisions,
       completed_experiments: completedExp,
       trajectory_delta: trajectory,
-      verdict: trajectory == null
-        ? "Ainda não tenho histórico suficiente para julgar trajetória — siga registrando."
-        : trajectory > 10
-          ? "Trajetória ascendente. Você está construindo composto — mantenha o ritmo e documente o que funciona."
-          : trajectory < -10
-            ? "Trajetória descendente. Pause, revise os últimos 3 períodos e identifique o que mudou."
-            : "Trajetória estável. Para evoluir, aumente a taxa de experimentos ou ataque um gargalo identificado.",
+      verdict:
+        trajectory == null
+          ? "Ainda não tenho histórico suficiente para julgar trajetória — siga registrando."
+          : trajectory > 10
+            ? "Trajetória ascendente. Você está construindo composto — mantenha o ritmo e documente o que funciona."
+            : trajectory < -10
+              ? "Trajetória descendente. Pause, revise os últimos 3 períodos e identifique o que mudou."
+              : "Trajetória estável. Para evoluir, aumente a taxa de experimentos ou ataque um gargalo identificado.",
       patterns: [] as string[],
     };
     const winsAll = list.flatMap((b) => b.wins);
     const setbacksAll = list.flatMap((b) => b.setbacks);
-    if (winsAll.length > setbacksAll.length * 2) mentorSummary.patterns.push("Padrão de execução positiva consistente.");
-    if (setbacksAll.length > winsAll.length * 2) mentorSummary.patterns.push("Padrão de fricção recorrente — investigue causa raiz.");
+    if (winsAll.length > setbacksAll.length * 2)
+      mentorSummary.patterns.push("Padrão de execução positiva consistente.");
+    if (setbacksAll.length > winsAll.length * 2)
+      mentorSummary.patterns.push("Padrão de fricção recorrente — investigue causa raiz.");
     if (completedExp >= 5) mentorSummary.patterns.push("Cultura experimental instalada.");
-    if (totalDecisions >= 10 && completedExp < 3) mentorSummary.patterns.push("Muitas decisões, poucos testes — risco de viés.");
+    if (totalDecisions >= 10 && completedExp < 3)
+      mentorSummary.patterns.push("Muitas decisões, poucos testes — risco de viés.");
 
     return { periods: list, mentor: mentorSummary };
   });

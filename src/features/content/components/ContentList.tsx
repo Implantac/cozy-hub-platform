@@ -18,8 +18,15 @@ type Props = {
 };
 
 export function ContentList({
-  items, filtered, isLoading, selected, allVisibleSelected,
-  onToggleAll, onToggleOne, onStatusChange, onClearFilters,
+  items,
+  filtered,
+  isLoading,
+  selected,
+  allVisibleSelected,
+  onToggleAll,
+  onToggleOne,
+  onStatusChange,
+  onClearFilters,
 }: Props) {
   return (
     <div className="space-y-2">
@@ -42,11 +49,13 @@ export function ContentList({
         />
       ))}
       {isLoading && <ListSkeleton rows={4} />}
-      {!isLoading && filtered.length === 0 && (
-        items.length === 0
-          ? <ContentEmptyAll />
-          : <ContentEmptyFiltered onClear={onClearFilters} />
-      )}
+      {!isLoading &&
+        filtered.length === 0 &&
+        (items.length === 0 ? (
+          <ContentEmptyAll />
+        ) : (
+          <ContentEmptyFiltered onClear={onClearFilters} />
+        ))}
     </div>
   );
 }

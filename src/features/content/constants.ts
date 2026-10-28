@@ -1,6 +1,11 @@
 export type ContentStatus = "draft" | "scheduled" | "published" | "archived";
 
-export const STATUSES: readonly ContentStatus[] = ["draft", "scheduled", "published", "archived"] as const;
+export const STATUSES: readonly ContentStatus[] = [
+  "draft",
+  "scheduled",
+  "published",
+  "archived",
+] as const;
 export const FILTERS = ["all", ...STATUSES] as const;
 export type FilterValue = (typeof FILTERS)[number];
 

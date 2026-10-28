@@ -8,11 +8,16 @@ export function analyzeUser(ctx: BrainContext): EngineReport {
 
   if (!p) {
     signals.push({
-      engine: "user", kind: "negative", severity: "high", weight: 0.9,
+      engine: "user",
+      kind: "negative",
+      severity: "high",
+      weight: 0.9,
       message: "Perfil digital não preenchido — o cérebro não consegue personalizar.",
     });
     actions.push({
-      engine: "user", score: 95, title: "Complete o Digital Navigator",
+      engine: "user",
+      score: 95,
+      title: "Complete o Digital Navigator",
       rationale: "Sem perfil não dá para filtrar oportunidades nem priorizar canais.",
       href: "/app/navigator",
     });
@@ -20,21 +25,30 @@ export function analyzeUser(ctx: BrainContext): EngineReport {
   }
 
   const complexity =
-    p.experience_level === "beginner" ? "low"
-    : p.experience_level === "intermediate" ? "medium" : "high";
+    p.experience_level === "beginner"
+      ? "low"
+      : p.experience_level === "intermediate"
+        ? "medium"
+        : "high";
 
   const time = p.time_budget_hours_week ?? 0;
   const money = Number(p.money_budget_monthly ?? 0);
 
   if (time < 3) {
     signals.push({
-      engine: "user", kind: "negative", severity: "medium", weight: 0.6,
+      engine: "user",
+      kind: "negative",
+      severity: "medium",
+      weight: 0.6,
       message: `Apenas ${time}h/semana — recomendações longas serão evitadas.`,
     });
   }
   if (p.experience_level === "beginner" && money < 100) {
     signals.push({
-      engine: "user", kind: "neutral", severity: "info", weight: 0.3,
+      engine: "user",
+      kind: "neutral",
+      severity: "info",
+      weight: 0.3,
       message: "Estratégias orgânicas terão prioridade sobre tráfego pago.",
     });
   }
@@ -48,23 +62,32 @@ export function analyzeUser(ctx: BrainContext): EngineReport {
   const weakAreas = skills.filter((s) => (s.score ?? 0) < 40).map((s) => s.area);
   if (skills.length === 0) {
     signals.push({
-      engine: "user", kind: "neutral", severity: "low", weight: 0.4,
+      engine: "user",
+      kind: "neutral",
+      severity: "low",
+      weight: 0.4,
       message: "Skill Map vazio — Brain não sabe seus pontos fortes nem gaps.",
     });
     actions.push({
-      engine: "user", score: 65, title: "Mapear habilidades no Skill Map",
+      engine: "user",
+      score: 65,
+      title: "Mapear habilidades no Skill Map",
       rationale: "Sem mapa de habilidades, recomendações ignoram seus gaps reais.",
       href: "/app/skill-map",
     });
   } else if (weakAreas.length >= 3) {
     signals.push({
-      engine: "user", kind: "negative", severity: "medium", weight: 0.55,
+      engine: "user",
+      kind: "negative",
+      severity: "medium",
+      weight: 0.55,
       message: `${weakAreas.length} áreas com nível baixo — priorize aprendizado em ${weakAreas.slice(0, 2).join(", ")}.`,
     });
   }
 
   return {
-    signals, actions,
+    signals,
+    actions,
     facts: {
       hasProfile: true,
       complexity,

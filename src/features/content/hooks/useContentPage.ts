@@ -9,10 +9,7 @@ import {
   listContent,
   updateContentStatus,
 } from "@/lib/api/content.functions";
-import {
-  useWorkspaceMutation,
-  useWorkspaceQuery,
-} from "@/lib/query/use-workspace-query";
+import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import type { Content } from "@/lib/api/_types";
 import { STATUSES, type ContentStatus, type FilterValue } from "../constants";
 
@@ -36,7 +33,8 @@ export function useContentPage() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const items = q.data ?? [];
+  // Memoized so downstream useMemo deps stay referentially stable across renders.
+  const items = useMemo(() => q.data ?? [], [q.data]);
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
     return items.filter((c) => {
@@ -57,8 +55,7 @@ export function useContentPage() {
     return c;
   }, [items]);
 
-  const allVisibleSelected =
-    filtered.length > 0 && filtered.every((c) => selected.has(c.id));
+  const allVisibleSelected = filtered.length > 0 && filtered.every((c) => selected.has(c.id));
 
   const toggleAll = () =>
     setSelected((prev) => {
@@ -124,10 +121,27 @@ export function useContentPage() {
   };
 
   return {
-    q, items, filtered, counts,
-    title, setTitle, body, setBody,
-    filter, setFilter, search, setSearch,
-    selected, setSelected, allVisibleSelected, toggleAll, toggleOne,
-    createMut, changeStatus, runBulkStatus, runBulkDelete, clearFilters,
+    q,
+    items,
+    filtered,
+    counts,
+    title,
+    setTitle,
+    body,
+    setBody,
+    filter,
+    setFilter,
+    search,
+    setSearch,
+    selected,
+    setSelected,
+    allVisibleSelected,
+    toggleAll,
+    toggleOne,
+    createMut,
+    changeStatus,
+    runBulkStatus,
+    runBulkDelete,
+    clearFilters,
   };
 }

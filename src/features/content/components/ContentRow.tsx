@@ -16,7 +16,11 @@ export function ContentRow({ item: c, selected, onToggle, onStatusChange }: Cont
         selected ? "border-primary ring-1 ring-primary/30" : ""
       }`}
     >
-      <button onClick={onToggle} className="text-muted-foreground hover:text-foreground" aria-label="Select">
+      <button
+        onClick={onToggle}
+        className="text-muted-foreground hover:text-foreground"
+        aria-label="Select"
+      >
         {selected ? <CheckSquare className="size-4 text-primary" /> : <Square className="size-4" />}
       </button>
       <div className="min-w-0 flex-1">
@@ -38,7 +42,9 @@ export function ContentRow({ item: c, selected, onToggle, onStatusChange }: Cont
         className="rounded-md border border-input bg-background px-2 py-1 text-xs capitalize"
       >
         {STATUSES.map((s) => (
-          <option key={s} value={s}>{s}</option>
+          <option key={s} value={s}>
+            {s}
+          </option>
         ))}
       </select>
     </div>

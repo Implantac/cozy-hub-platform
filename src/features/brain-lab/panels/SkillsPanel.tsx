@@ -27,7 +27,9 @@ export function SkillsPanel() {
     {
       invalidate: wsId ? ["skills", wsId] : ["skills"],
       successMessage: "Avaliação registrada",
-      onSuccess: () => { setNotes(""); },
+      onSuccess: () => {
+        setNotes("");
+      },
     },
   );
 
@@ -42,21 +44,37 @@ export function SkillsPanel() {
             onChange={(e) => setArea(e.target.value as SkillArea)}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            {SKILL_AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
+            {SKILL_AREAS.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
           </select>
         </label>
         <label className="grid gap-1 text-sm">
           <span className="text-muted-foreground">Nível atual: {score}</span>
-          <input type="range" min={0} max={100} value={score}
-            onChange={(e) => setScore(Number(e.target.value))} />
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={score}
+            onChange={(e) => setScore(Number(e.target.value))}
+          />
         </label>
         <label className="grid gap-1 text-sm">
           <span className="text-muted-foreground">Observações</span>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm" />
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
         </label>
-        <button onClick={() => saveMut.mutate()} disabled={!wsId || saveMut.isPending}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50">
+        <button
+          onClick={() => saveMut.mutate()}
+          disabled={!wsId || saveMut.isPending}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        >
           {saveMut.isPending ? "Salvando…" : "Registrar"}
         </button>
       </div>

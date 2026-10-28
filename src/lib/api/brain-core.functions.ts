@@ -7,7 +7,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "./_types";
 import {
-  loadContext, runEngines, computeScores, answerQuestion, aggregateSignals, aggregateActions,
+  loadContext,
+  runEngines,
+  computeScores,
+  answerQuestion,
+  aggregateSignals,
+  aggregateActions,
 } from "@/lib/brain/brain";
 import { runAIInsights } from "@/lib/brain/ai-insights.server";
 import type { BrainAnswer, BrainQuestion } from "@/lib/brain/types";
@@ -15,9 +20,13 @@ import { throwIfError } from "./_supabase";
 
 /** Pull AI insights from the latest persisted snapshot (cheap read, no Gateway call). */
 async function readAIFromLatest(supabase: any, workspaceId: string) {
-  const { data } = await supabase.from("brain_snapshots")
-    .select("snapshot").eq("workspace_id", workspaceId)
-    .order("computed_at", { ascending: false }).limit(1).maybeSingle();
+  const { data } = await supabase
+    .from("brain_snapshots")
+    .select("snapshot")
+    .eq("workspace_id", workspaceId)
+    .order("computed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
   const ai = data?.snapshot?.ai;
   return ai && typeof ai === "object" ? ai : null;
 }
@@ -27,11 +36,21 @@ function enrichWithAI(answer: BrainAnswer, ai: any | null): BrainAnswer {
   if (!ai) return { ...answer, source: "rules" };
   let aiNote: string | null = null;
   switch (answer.question as BrainQuestion) {
-    case "where_am_i":     aiNote = ai.narrative ?? null; break;
-    case "whats_blocking": aiNote = (ai.blueprintGaps ?? [])[0] ?? null; break;
-    case "should_pivot":   aiNote = ai.pivotAdvice ?? null; break;
-    case "next_action":    aiNote = (ai.opportunityRationales ?? [])[0]?.why ?? null; break;
-    case "where_to_go":    aiNote = (ai.trustNotes ?? [])[0] ?? null; break;
+    case "where_am_i":
+      aiNote = ai.narrative ?? null;
+      break;
+    case "whats_blocking":
+      aiNote = (ai.blueprintGaps ?? [])[0] ?? null;
+      break;
+    case "should_pivot":
+      aiNote = ai.pivotAdvice ?? null;
+      break;
+    case "next_action":
+      aiNote = (ai.opportunityRationales ?? [])[0]?.why ?? null;
+      break;
+    case "where_to_go":
+      aiNote = (ai.trustNotes ?? [])[0] ?? null;
+      break;
   }
   return { ...answer, aiNote, source: aiNote ? "ai" : "rules" };
 }
@@ -52,27 +71,44 @@ export const brainSnapshot = createServerFn({ method: "POST" })
 
     const ai = await runAIInsights(ctx, reports, scores);
     const enrichedSnapshot = {
-      user: reports.user.facts, business: reports.business.facts,
-      growth: reports.growth.facts, market: reports.market.facts,
-      opportunity: reports.opportunity.facts, trust: reports.trust.facts,
-      memory_size: ctx.memory.length, ai,
+      user: reports.user.facts,
+      business: reports.business.facts,
+      growth: reports.growth.facts,
+      market: reports.market.facts,
+      opportunity: reports.opportunity.facts,
+      trust: reports.trust.facts,
+      memory_size: ctx.memory.length,
+      ai,
     };
 
-    const { data: row, error } = await supabase.from("brain_snapshots").insert({
-      workspace_id: data.workspaceId,
-      snapshot: enrichedSnapshot as unknown as Json,
-      scores: scores as unknown as Json,
-      signals: signals as unknown as Json,
-    }).select().single();
+    const { data: row, error } = await supabase
+      .from("brain_snapshots")
+      .insert({
+        workspace_id: data.workspaceId,
+        snapshot: enrichedSnapshot as unknown as Json,
+        scores: scores as unknown as Json,
+        signals: signals as unknown as Json,
+      })
+      .select()
+      .single();
     throwIfError(error);
 
     // Mirror score into digital_scores for back-compat with Score module
     await supabase.from("digital_scores").insert({
       workspace_id: data.workspaceId,
-      overall: scores.overall, presence: scores.presence, branding: scores.branding,
-      content: scores.content, consistency: scores.consistency,
-      growth: scores.growth, channel_setup: scores.channel_setup,
-      breakdown: { gaps: signals.filter((s) => s.kind === "negative").map((s) => s.message).slice(0, 6) },
+      overall: scores.overall,
+      presence: scores.presence,
+      branding: scores.branding,
+      content: scores.content,
+      consistency: scores.consistency,
+      growth: scores.growth,
+      channel_setup: scores.channel_setup,
+      breakdown: {
+        gaps: signals
+          .filter((s) => s.kind === "negative")
+          .map((s) => s.message)
+          .slice(0, 6),
+      },
     });
 
     // Invalidate cached answers
@@ -83,18 +119,33 @@ export const brainSnapshot = createServerFn({ method: "POST" })
 /** Answer one of the five canonical questions. Uses cached answer if fresh (<1h). */
 export const brainAsk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    question: z.enum(["where_am_i","where_to_go","whats_blocking","next_action","should_pivot"]),
-    forceRefresh: z.boolean().optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        question: z.enum([
+          "where_am_i",
+          "where_to_go",
+          "whats_blocking",
+          "next_action",
+          "should_pivot",
+        ]),
+        forceRefresh: z.boolean().optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
     if (!data.forceRefresh) {
-      const { data: cached } = await supabase.from("brain_answers")
-        .select("*").eq("workspace_id", data.workspaceId).eq("question", data.question)
-        .order("computed_at", { ascending: false }).limit(1).maybeSingle();
+      const { data: cached } = await supabase
+        .from("brain_answers")
+        .select("*")
+        .eq("workspace_id", data.workspaceId)
+        .eq("question", data.question)
+        .order("computed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       if (cached && (!cached.expires_at || new Date(cached.expires_at).getTime() > Date.now())) {
         return cached.answer;
       }
@@ -109,8 +160,11 @@ export const brainAsk = createServerFn({ method: "POST" })
 
     const expires = new Date(Date.now() + 60 * 60_000).toISOString();
     await supabase.from("brain_answers").insert({
-      workspace_id: data.workspaceId, question: data.question,
-      answer: answer as unknown as Json, confidence: answer.confidence, expires_at: expires,
+      workspace_id: data.workspaceId,
+      question: data.question,
+      answer: answer as unknown as Json,
+      confidence: answer.confidence,
+      expires_at: expires,
     });
     return answer;
   });
@@ -125,9 +179,20 @@ export const brainAskAll = createServerFn({ method: "POST" })
     const reports = runEngines(ctx);
     const scores = computeScores(ctx, reports);
     const ai = await readAIFromLatest(supabase, data.workspaceId);
-    const questions = ["where_am_i","where_to_go","whats_blocking","next_action","should_pivot"] as const;
+    const questions = [
+      "where_am_i",
+      "where_to_go",
+      "whats_blocking",
+      "next_action",
+      "should_pivot",
+    ] as const;
     const answers = questions.map((q) => enrichWithAI(answerQuestion(q, ctx, reports, scores), ai));
-    return { scores, signals: aggregateSignals(reports), actions: aggregateActions(reports), answers };
+    return {
+      scores,
+      signals: aggregateSignals(reports),
+      actions: aggregateActions(reports),
+      answers,
+    };
   });
 
 /** Generate rule-based recommendations into coach_recommendations (Brain-powered). */
@@ -145,42 +210,63 @@ export const brainRecommend = createServerFn({ method: "POST" })
     const recs: Array<any> = [];
     for (const a of actions.slice(0, 6)) {
       recs.push({
-        workspace_id: data.workspaceId, user_id: userId,
-        kind: "next_action", severity: a.score >= 85 ? "high" : a.score >= 60 ? "medium" : "low",
-        title: a.title, body: a.rationale,
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        kind: "next_action",
+        severity: a.score >= 85 ? "high" : a.score >= 60 ? "medium" : "low",
+        title: a.title,
+        body: a.rationale,
         cta: a.href ? { label: "Abrir", href: a.href } : {},
         score: a.score,
       });
     }
-    for (const s of signals.filter((x) => x.kind === "negative" && x.severity !== "low").slice(0, 4)) {
+    for (const s of signals
+      .filter((x) => x.kind === "negative" && x.severity !== "low")
+      .slice(0, 4)) {
       recs.push({
-        workspace_id: data.workspaceId, user_id: userId,
-        kind: "warning", severity: s.severity,
-        title: s.message, body: `Detectado pelo motor ${s.engine}.`,
-        cta: {}, score: Math.round(s.weight * 100),
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        kind: "warning",
+        severity: s.severity,
+        title: s.message,
+        body: `Detectado pelo motor ${s.engine}.`,
+        cta: {},
+        score: Math.round(s.weight * 100),
       });
     }
     if (recs.length === 0) {
       recs.push({
-        workspace_id: data.workspaceId, user_id: userId,
-        kind: "insight", severity: "info",
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        kind: "insight",
+        severity: "info",
         title: "Tudo em ordem — mantenha a cadência",
-        body: "Sem bloqueadores críticos. Continue publicando.", cta: {}, score: 30,
+        body: "Sem bloqueadores críticos. Continue publicando.",
+        cta: {},
+        score: 30,
       });
     }
 
     // Close previous open recs
-    await supabase.from("coach_recommendations")
+    await supabase
+      .from("coach_recommendations")
       .update({ dismissed_at: new Date().toISOString() })
-      .eq("workspace_id", data.workspaceId).is("dismissed_at", null).is("completed_at", null);
+      .eq("workspace_id", data.workspaceId)
+      .is("dismissed_at", null)
+      .is("completed_at", null);
 
-    const { data: rows, error } = await supabase.from("coach_recommendations").insert(recs).select();
+    const { data: rows, error } = await supabase
+      .from("coach_recommendations")
+      .insert(recs)
+      .select();
     throwIfError(error);
 
     // Remember that we generated insights
     await supabase.from("brain_memory_events").insert({
-      workspace_id: data.workspaceId, user_id: userId,
-      kind: "signal", subject: "Brain gerou novas recomendações",
+      workspace_id: data.workspaceId,
+      user_id: userId,
+      kind: "signal",
+      subject: "Brain gerou novas recomendações",
       payload: { count: rows?.length ?? 0 },
     });
 
@@ -190,20 +276,31 @@ export const brainRecommend = createServerFn({ method: "POST" })
 /** Record a memory event (decision/result/pivot/signal/reflection). */
 export const brainRemember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    kind: z.enum(["decision","result","pivot","signal","reflection"]),
-    subject: z.string().min(1).max(280),
-    payload: z.record(z.string(), z.unknown()).optional(),
-    sentiment: z.enum(["positive","neutral","negative"]).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        kind: z.enum(["decision", "result", "pivot", "signal", "reflection"]),
+        subject: z.string().min(1).max(280),
+        payload: z.record(z.string(), z.unknown()).optional(),
+        sentiment: z.enum(["positive", "neutral", "negative"]).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase.from("brain_memory_events").insert({
-      workspace_id: data.workspaceId, user_id: userId,
-      kind: data.kind, subject: data.subject,
-      payload: (data.payload ?? {}) as Json, sentiment: data.sentiment ?? null,
-    }).select().single();
+    const { data: row, error } = await supabase
+      .from("brain_memory_events")
+      .insert({
+        workspace_id: data.workspaceId,
+        user_id: userId,
+        kind: data.kind,
+        subject: data.subject,
+        payload: (data.payload ?? {}) as Json,
+        sentiment: data.sentiment ?? null,
+      })
+      .select()
+      .single();
     throwIfError(error);
     return row;
   });
@@ -214,9 +311,12 @@ export const brainTimeline = createServerFn({ method: "GET" })
   .inputValidator((i) => wsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: rows, error } = await supabase.from("brain_memory_events")
-      .select("*").eq("workspace_id", data.workspaceId)
-      .order("created_at", { ascending: false }).limit(100);
+    const { data: rows, error } = await supabase
+      .from("brain_memory_events")
+      .select("*")
+      .eq("workspace_id", data.workspaceId)
+      .order("created_at", { ascending: false })
+      .limit(100);
     throwIfError(error);
     return rows ?? [];
   });
@@ -227,9 +327,13 @@ export const brainLatestSnapshot = createServerFn({ method: "GET" })
   .inputValidator((i) => wsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: row, error } = await supabase.from("brain_snapshots")
-      .select("*").eq("workspace_id", data.workspaceId)
-      .order("computed_at", { ascending: false }).limit(1).maybeSingle();
+    const { data: row, error } = await supabase
+      .from("brain_snapshots")
+      .select("*")
+      .eq("workspace_id", data.workspaceId)
+      .order("computed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
     throwIfError(error);
     return row;
   });
@@ -241,11 +345,15 @@ export const brainLatestSnapshot = createServerFn({ method: "GET" })
  */
 export const brainOpportunities = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    workspaceId: z.string().uuid(),
-    status: z.enum(["exploding","growing","stable","saturated","declining"]).optional(),
-    limit: z.number().int().min(1).max(100).optional(),
-  }).parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        status: z.enum(["exploding", "growing", "stable", "saturated", "declining"]).optional(),
+        limit: z.number().int().min(1).max(100).optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const ctx = await loadContext(supabase, data.workspaceId, userId);
@@ -256,17 +364,24 @@ export const brainOpportunities = createServerFn({ method: "GET" })
       ...(profile?.content_preferences ?? []),
       ...(profile?.goals ?? []),
       profile?.business_path,
-    ].filter(Boolean).map((s: string) => String(s).toLowerCase());
+    ]
+      .filter(Boolean)
+      .map((s: string) => String(s).toLowerCase());
     const difficultyPenalty: Record<string, number> = { low: 0, medium: 10, high: 25 };
     const userTolerance =
-      profile?.experience_level === "advanced" ? 30
-      : profile?.experience_level === "intermediate" ? 15 : 0;
+      profile?.experience_level === "advanced"
+        ? 30
+        : profile?.experience_level === "intermediate"
+          ? 15
+          : 0;
 
     // Brain-3: read AI opportunity rationales from the latest snapshot.
     const ai = await readAIFromLatest(supabase, data.workspaceId);
     const rationaleById = new Map<string, string>(
-      ((ai?.opportunityRationales ?? []) as Array<{ id: string; why: string }>)
-        .map((r) => [r.id, r.why]),
+      ((ai?.opportunityRationales ?? []) as Array<{ id: string; why: string }>).map((r) => [
+        r.id,
+        r.why,
+      ]),
     );
 
     const scored = (ctx.opportunities ?? []).map((o: any) => {

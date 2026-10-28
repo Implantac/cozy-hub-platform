@@ -15,7 +15,11 @@ export function RecommendationsPanel({ recs, onSetStatus }: Props) {
       className="lg:col-span-3"
       icon={Sparkles}
       title="Recomendações ativas"
-      action={<span className="text-xs text-muted-foreground">{recs.filter(r => r.status === "open").length} abertas</span>}
+      action={
+        <span className="text-xs text-muted-foreground">
+          {recs.filter((r) => r.status === "open").length} abertas
+        </span>
+      }
     >
       {recs.length === 0 ? (
         <EmptyState
@@ -32,7 +36,9 @@ export function RecommendationsPanel({ recs, onSetStatus }: Props) {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold leading-snug text-foreground group-hover:text-primary transition-colors">{r.title}</div>
+                  <div className="font-bold leading-snug text-foreground group-hover:text-primary transition-colors">
+                    {r.title}
+                  </div>
                   {r.rationale && (
                     <p className="mt-1 text-sm text-muted-foreground">{r.rationale}</p>
                   )}

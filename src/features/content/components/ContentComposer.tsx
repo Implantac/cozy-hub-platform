@@ -7,10 +7,18 @@ interface ContentComposerProps {
   onBodyChange: (v: string) => void;
   onSubmit: () => void;
   isPending: boolean;
+  /** False when the live preflight found a blocker for at least one channel. */
+  canPublish?: boolean;
 }
 
 export function ContentComposer({
-  title, body, onTitleChange, onBodyChange, onSubmit, isPending,
+  title,
+  body,
+  onTitleChange,
+  onBodyChange,
+  onSubmit,
+  isPending,
+  canPublish = true,
 }: ContentComposerProps) {
   return (
     <div className="section-card p-5">
@@ -24,22 +32,29 @@ export function ContentComposer({
         <input
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="Title"
+          placeholder="Gancho do post (primeira linha)"
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
         <textarea
           value={body}
           onChange={(e) => onBodyChange(e.target.value)}
-          placeholder="Write your post..."
+          placeholder="Escreva o post. A primeira linha é o que 90% das pessoas vão ler."
           rows={4}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
-        <button
-          disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-        >
-          <Plus className="size-4" /> New draft
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            disabled={isPending}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            <Plus className="size-4" /> Salvar rascunho
+          </button>
+          {!canPublish && (
+            <span className="text-xs text-amber-500">
+              Impedimento detectado no pré-voo — dá para salvar, mas não para agendar.
+            </span>
+          )}
+        </div>
       </form>
     </div>
   );

@@ -29,11 +29,25 @@ export function TimelinePanel() {
   }
   const data = tlQ.data;
   if (!data || data.periods.length === 0) {
-    return <EmptyState variant="card" icon={History} title="Trajetória ainda em construção" text="Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua linha do tempo trimestre a trimestre." />;
+    return (
+      <EmptyState
+        variant="card"
+        icon={History}
+        title="Trajetória ainda em construção"
+        text="Conforme você usar o sistema, o Mentor de Longo Prazo vai construir sua linha do tempo trimestre a trimestre."
+      />
+    );
   }
 
   const trajectory = data.mentor.trajectory_delta;
-  const trajectoryColor = trajectory == null ? "text-muted-foreground" : trajectory > 10 ? "text-emerald-500" : trajectory < -10 ? "text-destructive" : "text-amber-500";
+  const trajectoryColor =
+    trajectory == null
+      ? "text-muted-foreground"
+      : trajectory > 10
+        ? "text-emerald-500"
+        : trajectory < -10
+          ? "text-destructive"
+          : "text-amber-500";
 
   return (
     <div className="space-y-6">
@@ -51,18 +65,23 @@ export function TimelinePanel() {
         </div>
         {trajectory != null && (
           <p className={`mt-3 text-sm font-medium ${trajectoryColor}`}>
-            Trajetória: {trajectory > 0 ? "+" : ""}{trajectory.toFixed(1)} pts de score acumulado.
+            Trajetória: {trajectory > 0 ? "+" : ""}
+            {trajectory.toFixed(1)} pts de score acumulado.
           </p>
         )}
         {data.mentor.patterns.length > 0 && (
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-            {data.mentor.patterns.map((p, i) => <li key={i}>{p}</li>)}
+            {data.mentor.patterns.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
           </ul>
         )}
       </section>
 
       <section className="space-y-3">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Linha do tempo</h4>
+        <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Linha do tempo
+        </h4>
         <ol className="relative space-y-4 border-l border-border pl-5">
           {data.periods.map((p) => (
             <li key={p.key} className="relative">
@@ -72,13 +91,17 @@ export function TimelinePanel() {
                   <h5 className="font-semibold">{p.key}</h5>
                   <div className="flex flex-wrap gap-1">
                     {p.highlights.map((h, i) => (
-                      <span key={i} className="rounded-full bg-secondary px-2 py-0.5 text-xs">{h}</span>
+                      <span key={i} className="rounded-full bg-secondary px-2 py-0.5 text-xs">
+                        {h}
+                      </span>
                     ))}
                   </div>
                 </div>
                 <p className="mt-2 text-sm text-foreground">{p.narrative}</p>
                 {p.score_avg != null && (
-                  <p className="mt-1 text-xs text-muted-foreground">Score médio: {p.score_avg.toFixed(1)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Score médio: {p.score_avg.toFixed(1)}
+                  </p>
                 )}
                 {(p.wins.length > 0 || p.setbacks.length > 0) && (
                   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -86,7 +109,9 @@ export function TimelinePanel() {
                       <div>
                         <p className="text-xs font-semibold uppercase text-emerald-500">Vitórias</p>
                         <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-muted-foreground">
-                          {p.wins.map((w, i) => <li key={i}>{w}</li>)}
+                          {p.wins.map((w, i) => (
+                            <li key={i}>{w}</li>
+                          ))}
                         </ul>
                       </div>
                     )}
@@ -94,7 +119,9 @@ export function TimelinePanel() {
                       <div>
                         <p className="text-xs font-semibold uppercase text-destructive">Tropeços</p>
                         <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-muted-foreground">
-                          {p.setbacks.map((s, i) => <li key={i}>{s}</li>)}
+                          {p.setbacks.map((s, i) => (
+                            <li key={i}>{s}</li>
+                          ))}
                         </ul>
                       </div>
                     )}

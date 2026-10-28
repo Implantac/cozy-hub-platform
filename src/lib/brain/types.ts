@@ -4,7 +4,11 @@
  */
 
 export type BrainQuestion =
-  | "where_am_i" | "where_to_go" | "whats_blocking" | "next_action" | "should_pivot";
+  | "where_am_i"
+  | "where_to_go"
+  | "whats_blocking"
+  | "next_action"
+  | "should_pivot";
 
 export type BrainEventKind = "decision" | "result" | "pivot" | "signal" | "reflection";
 
@@ -37,7 +41,7 @@ export interface BrainContext {
   workspaceId: string;
   userId: string;
   // Raw data slices
-  profile: any | null;            // user_profile_digital
+  profile: any | null; // user_profile_digital
   workspace: any | null;
   brands: any[];
   channels: any[];
@@ -45,10 +49,10 @@ export interface BrainContext {
   jobs: any[];
   analytics: any[];
   opportunities: any[];
-  memory: any[];                  // brain_memory_events (recent)
-  blueprint: any | null;          // business_blueprints (10 blocks)
-  competitors: any[];             // competitors radar
-  skills: any[];                  // skill_assessments (per user)
+  memory: any[]; // brain_memory_events (recent)
+  blueprint: any | null; // business_blueprints (10 blocks)
+  competitors: any[]; // competitors radar
+  skills: any[]; // skill_assessments (per user)
   // Engine reports filled during analyze()
   reports?: Record<string, EngineReport>;
 }

@@ -9,7 +9,13 @@ interface ContentFiltersProps {
   counts: Record<string, number>;
 }
 
-export function ContentFilters({ filter, onFilterChange, search, onSearchChange, counts }: ContentFiltersProps) {
+export function ContentFilters({
+  filter,
+  onFilterChange,
+  search,
+  onSearchChange,
+  counts,
+}: ContentFiltersProps) {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap items-center gap-1.5">

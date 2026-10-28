@@ -1,6 +1,13 @@
 import {
-  AlertTriangle, Brain, Check, Lightbulb, Minus, Sparkles, Target,
-  TrendingDown, TrendingUp,
+  AlertTriangle,
+  Brain,
+  Check,
+  Lightbulb,
+  Minus,
+  Sparkles,
+  Target,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import type { ElementType } from "react";
 

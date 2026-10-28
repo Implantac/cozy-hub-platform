@@ -11,7 +11,11 @@ export function ContentEmptyAll() {
       action={
         <button
           onClick={() => {
-            document.querySelector<HTMLInputElement>('input[placeholder*="title"], input[placeholder*="Title"]')?.focus();
+            document
+              .querySelector<HTMLInputElement>(
+                'input[placeholder*="title"], input[placeholder*="Title"]',
+              )
+              ?.focus();
           }}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
         >

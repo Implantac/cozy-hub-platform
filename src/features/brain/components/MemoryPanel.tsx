@@ -13,7 +13,15 @@ type Props = {
   isPending: boolean;
 };
 
-export function MemoryPanel({ memories, memText, setMemText, memKind, setMemKind, onSubmit, isPending }: Props) {
+export function MemoryPanel({
+  memories,
+  memText,
+  setMemText,
+  memKind,
+  setMemKind,
+  onSubmit,
+  isPending,
+}: Props) {
   return (
     <SectionCard className="lg:col-span-2" icon={Brain} title="Camada de memória" dense>
       <form
@@ -75,7 +83,9 @@ export function MemoryPanel({ memories, memText, setMemText, memKind, setMemKind
                 key={m.id}
                 className="flex items-start gap-3 rounded-xl border border-border/50 bg-background/30 p-3 text-sm transition-all hover:border-primary/40 hover:bg-background/50"
               >
-                <span className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-background/60 shadow-sm ring-1 ring-border/50 ${meta.color}`}>
+                <span
+                  className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-background/60 shadow-sm ring-1 ring-border/50 ${meta.color}`}
+                >
                   <Icon className="size-3" />
                 </span>
                 <span className="flex-1 leading-snug">{m.content}</span>

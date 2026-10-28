@@ -40,20 +40,33 @@ export function TwinPanel() {
   }
 
   const saveMut = useWorkspaceMutation(
-    () => save({
-      data: {
-        workspaceId: wsId!,
-        work_style: form.work_style || null,
-        daily_hours: Number(form.daily_hours) || 0,
-        audience_type: form.audience_type || null,
-        best_channel: form.best_channel || null,
-        monetization_model: form.monetization_model || null,
-        preferred_formats: form.preferred_formats.split(",").map((s) => s.trim()).filter(Boolean),
-        avoided_formats: form.avoided_formats.split(",").map((s) => s.trim()).filter(Boolean),
-        pain_points: form.pain_points.split(",").map((s) => s.trim()).filter(Boolean),
-        strengths: form.strengths.split(",").map((s) => s.trim()).filter(Boolean),
-      },
-    }),
+    () =>
+      save({
+        data: {
+          workspaceId: wsId!,
+          work_style: form.work_style || null,
+          daily_hours: Number(form.daily_hours) || 0,
+          audience_type: form.audience_type || null,
+          best_channel: form.best_channel || null,
+          monetization_model: form.monetization_model || null,
+          preferred_formats: form.preferred_formats
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          avoided_formats: form.avoided_formats
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          pain_points: form.pain_points
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          strengths: form.strengths
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        },
+      }),
     { invalidate: wsId ? ["twin", wsId] : ["twin"], successMessage: "Digital Twin atualizado" },
   );
 
@@ -99,7 +112,8 @@ export function TwinPanel() {
       </div>
       {twinQ.data && (
         <p className="text-xs text-muted-foreground">
-          Versão {twinQ.data.version} · atualizado em {new Date(twinQ.data.updated_at).toLocaleString()}
+          Versão {twinQ.data.version} · atualizado em{" "}
+          {new Date(twinQ.data.updated_at).toLocaleString()}
         </p>
       )}
     </div>

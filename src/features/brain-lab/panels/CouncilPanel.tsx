@@ -28,7 +28,9 @@ function OpinionCard({ o }: { o: CouncilOpinion }) {
     <article className="rounded-2xl border border-border bg-card/60 p-5 space-y-4">
       <header className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className={`flex size-9 items-center justify-center rounded-xl border ${meta.tone}`}>
+          <span
+            className={`flex size-9 items-center justify-center rounded-xl border ${meta.tone}`}
+          >
             <Icon className="size-4" />
           </span>
           <div>
@@ -39,7 +41,9 @@ function OpinionCard({ o }: { o: CouncilOpinion }) {
         <div className="flex flex-col items-end gap-1">
           <ConfidenceBar value={o.confidence ?? 0} />
           {o.model_used && o.model_used !== "error" && (
-            <span className="text-[10px] text-muted-foreground">{o.model_used.split("/").pop()}</span>
+            <span className="text-[10px] text-muted-foreground">
+              {o.model_used.split("/").pop()}
+            </span>
           )}
         </div>
       </header>
@@ -58,7 +62,9 @@ function OpinionCard({ o }: { o: CouncilOpinion }) {
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {isError ? "Erro" : "Justificativa"}
           </p>
-          <p className={`whitespace-pre-line text-sm leading-relaxed ${isError ? "text-destructive" : "text-muted-foreground"}`}>
+          <p
+            className={`whitespace-pre-line text-sm leading-relaxed ${isError ? "text-destructive" : "text-muted-foreground"}`}
+          >
             {o.analysis}
           </p>
         </div>
@@ -84,7 +90,10 @@ function OpinionCard({ o }: { o: CouncilOpinion }) {
 }
 
 function CouncilSession({ topic, opinions }: { topic: string; opinions: CouncilOpinion[] }) {
-  const valid = opinions.filter((o) => o.model_used !== "error" && Array.isArray(o.recommendations) && o.recommendations!.length > 0);
+  const valid = opinions.filter(
+    (o) =>
+      o.model_used !== "error" && Array.isArray(o.recommendations) && o.recommendations!.length > 0,
+  );
   const best = valid.sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))[0];
   const nextAction = best?.recommendations?.[0];
   const avgConf = opinions.length
@@ -96,11 +105,15 @@ function CouncilSession({ topic, opinions }: { topic: string; opinions: CouncilO
     <section className="space-y-4 rounded-2xl border border-border bg-card/30 p-5">
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border/60 pb-4">
         <div className="space-y-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Consulta ao conselho</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Consulta ao conselho
+          </p>
           <h4 className="text-base font-semibold leading-snug">{topic}</h4>
           {created && (
             <p className="text-[11px] text-muted-foreground">
-              {created.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })} · {opinions.length} {opinions.length === 1 ? "parecer" : "pareceres"} · confiança média {Math.round(avgConf * 100)}%
+              {created.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })} ·{" "}
+              {opinions.length} {opinions.length === 1 ? "parecer" : "pareceres"} · confiança média{" "}
+              {Math.round(avgConf * 100)}%
             </p>
           )}
         </div>
@@ -113,13 +126,17 @@ function CouncilSession({ topic, opinions }: { topic: string; opinions: CouncilO
           </p>
           <p className="text-sm font-medium leading-snug">{nextAction}</p>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            Recomendada por <span className="font-medium">{ADVISOR_META[best.advisor]?.label ?? best.advisor}</span> · confiança {Math.round((best.confidence ?? 0) * 100)}%
+            Recomendada por{" "}
+            <span className="font-medium">{ADVISOR_META[best.advisor]?.label ?? best.advisor}</span>{" "}
+            · confiança {Math.round((best.confidence ?? 0) * 100)}%
           </p>
         </div>
       )}
 
       <div className="grid gap-3 md:grid-cols-2">
-        {opinions.map((o) => <OpinionCard key={o.id} o={o} />)}
+        {opinions.map((o) => (
+          <OpinionCard key={o.id} o={o} />
+        ))}
       </div>
     </section>
   );
@@ -147,7 +164,7 @@ export function CouncilPanel() {
   );
 
   const toggle = (a: Advisor) => {
-    setSelected((s) => s.includes(a) ? s.filter((x) => x !== a) : [...s, a]);
+    setSelected((s) => (s.includes(a) ? s.filter((x) => x !== a) : [...s, a]));
   };
 
   const opinions = opQ.data ?? [];
@@ -174,21 +191,31 @@ export function CouncilPanel() {
         </div>
         <textarea
           placeholder="Sobre o que você quer ouvir o conselho? Ex: 'devo lançar um produto pago agora ou esperar mais audiência?'"
-          value={topic} rows={3}
+          value={topic}
+          rows={3}
           onChange={(e) => setTopic(e.target.value)}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        />
         <div>
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Conselheiros</p>
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Conselheiros
+          </p>
           <div className="flex flex-wrap gap-2">
             {ADVISORS.map((a) => {
               const meta = ADVISOR_META[a];
               const Icon = meta.icon;
               const active = selected.includes(a);
               return (
-                <button key={a} type="button" onClick={() => toggle(a)}
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => toggle(a)}
                   className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition ${
-                    active ? `${meta.tone} border-current` : "border-border bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}>
+                    active
+                      ? `${meta.tone} border-current`
+                      : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
+                >
                   <Icon className="size-3" />
                   {meta.label}
                 </button>
@@ -198,20 +225,30 @@ export function CouncilPanel() {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground">
-            {selected.length} {selected.length === 1 ? "conselheiro selecionado" : "conselheiros selecionados"}
+            {selected.length}{" "}
+            {selected.length === 1 ? "conselheiro selecionado" : "conselheiros selecionados"}
           </p>
-          <button onClick={() => askMut.mutate()}
+          <button
+            onClick={() => askMut.mutate()}
             disabled={!wsId || askMut.isPending || topic.length < 5 || selected.length === 0}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50">
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
             {askMut.isPending ? "Consultando…" : "Pedir parecer"}
           </button>
         </div>
       </div>
 
       <div className="space-y-6">
-        {sessions.map((s) => <CouncilSession key={s.key} topic={s.topic} opinions={s.opinions} />)}
+        {sessions.map((s) => (
+          <CouncilSession key={s.key} topic={s.topic} opinions={s.opinions} />
+        ))}
         {sessions.length === 0 && (
-          <EmptyState variant="dashed" icon={Users2} title="Sem pareceres do conselho" text="Faça uma pergunta acima e os mentores responderão com perspectivas complementares." />
+          <EmptyState
+            variant="dashed"
+            icon={Users2}
+            title="Sem pareceres do conselho"
+            text="Faça uma pergunta acima e os mentores responderão com perspectivas complementares."
+          />
         )}
       </div>
     </div>
