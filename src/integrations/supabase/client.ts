@@ -52,7 +52,6 @@ function resolveRealtimeTransport(): unknown {
   if (!wsResolved) {
     wsResolved = true;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const req = eval("require") as (id: string) => unknown;
       wsTransport = req("ws") ?? InertWebSocket;
     } catch {

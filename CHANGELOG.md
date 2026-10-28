@@ -1,5 +1,67 @@
 # Changelog
 
+## [1.8.0] — 2026-10-28
+
+### Segurança — 20 vulnerabilidades para 4, nenhuma crítica ou alta
+
+O `npm audit` acusava **8 críticas e 8 altas**. Duas das críticas importavam de
+verdade, e uma delas era explorável por qualquer visitante:
+
+| Advisory              | CVSS | Impacto                                             |
+| --------------------- | ---- | --------------------------------------------------- |
+| `GHSA-qx66-fv34-fjm8` | 9,3  | XSS refletido **não autenticado**                   |
+| `GHSA-p6vx-979v-rg4c` | 9,8  | `seroval`: execução de callables na desserialização |
+
+O XSS: um atacante montava uma URL para uma server function; quem abrisse o link
+recebia HTML controlado por ele **na origem do app**, com acesso aos dados
+daquela sessão. Corrigido em `@tanstack/start-server-core@1.169.39` e
+`@tanstack/react-start@1.168.60`.
+
+A correção foi aplicada na versão que **não** exige Vite 8: `react-start`
+1.169.x pede `vite >= 8`, e subir o bundler junto transformaria um patch de
+segurança numa migração de build.
+
+| Pacote                        | Antes    | Depois       |
+| ----------------------------- | -------- | ------------ |
+| `@tanstack/react-start`       | 1.168.18 | **1.168.60** |
+| `@tanstack/start-server-core` | 1.169.8  | **1.169.39** |
+| `seroval`                     | 1.5.4    | **1.7.3**    |
+| `zod`                         | 3.25.76  | **4.6.7**    |
+| `vitest`                      | 3.2.7    | **4.1.12**   |
+| `drizzle-kit`                 | 0.18.1   | **0.31.11**  |
+| `vite`                        | 7.3.3    | 7.3.7        |
+
+**Restam 4 moderadas, todas em `drizzle-kit`** — ferramenta de desenvolvimento
+que não é empacotada na aplicação. Não há caminho de correção sem trocar a
+ferramenta.
+
+### Corrigido no caminho
+
+1. **Módulo duplicado partia os tipos.** `react-router@1.170.46` convivia com a
+   cópia interna de `react-start@1.168.60` (1.170.41), o que gerava dois
+   `router-core` na árvore — e **dois módulos distintos não compartilham module
+   augmentation**. Efeito: `server.handlers` deixou de existir para o
+   compilador em todas as rotas de API. Fixar `react-router` em `1.170.41`
+   resolveu 12 dos 13 erros.
+2. **`ErrorComponent` com tipo honesto.** O router tipa o erro capturado como
+   `unknown`. Ler `error.message` direto quebraria dentro do próprio limite de
+   erro — o único lugar que não pode falhar. Agora há `describeError`.
+3. **`package-lock.json` dessincronizado do `package.json`.** O
+   `drizzle-orm`/`drizzle-kit`/`postgres` entraram no manifest sem entrar no
+   lock, e o npm 10 passou a falhar com `Cannot read properties of null` em
+   qualquer instalação. Regenerado com npm 11.
+
+### Lint: 2.127 erros para 111
+
+O `npm run lint` falhava há muito tempo, e isso o tornava inútil como portão.
+Duas causas: `types.ts` e `previewAuthStorage.ts` são **gerados** — 2.007 dos
+2.127 erros eram formatação de código que a próxima geração sobrescreve. Agora
+esses arquivos são isentos, o resto foi formatado, e sobraram **111 `any`**
+legados em `BrainContext` e tipos afins: dívida real, não disfarçada.
+
+`brace-expansion` foi fixado em 1.1.21 via `overrides` — não há versão sem
+correção na linha 1.x, e o lint roda em toda verificação.
+
 ## [1.7.1] — 2026-10-28
 
 ### Corrigido — aplicação quebrada por `.env` removido do versionamento
@@ -38,13 +100,13 @@ rastreado:
 
 ### Verificado
 
-| Verificação | Resultado |
-| --- | --- |
-| Guarda com o `.env` real (chave `anon`) | passa |
-| Guarda com `service_role` injetada | **bloqueia**, exit 1 |
-| Build completo | ✓ 11,41 s + 26,39 s |
-| URL do projeto no bundle client | presente |
-| `service_role` no bundle client | ausente |
+| Verificação                             | Resultado            |
+| --------------------------------------- | -------------------- |
+| Guarda com o `.env` real (chave `anon`) | passa                |
+| Guarda com `service_role` injetada      | **bloqueia**, exit 1 |
+| Build completo                          | ✓ 11,41 s + 26,39 s  |
+| URL do projeto no bundle client         | presente             |
+| `service_role` no bundle client         | ausente              |
 
 ## [1.7.0] — 2026-10-28
 
@@ -168,12 +230,12 @@ sinais não fazem média com um CNPJ morto.
 
 ### Verificado contra as fontes reais
 
-| Caso | Resultado |
-| --- | --- |
-| Petrobras (CNPJ ativo desde 1966 + domínio de 1996) | `high`, 100/100 |
+| Caso                                                      | Resultado                             |
+| --------------------------------------------------------- | ------------------------------------- |
+| Petrobras (CNPJ ativo desde 1966 + domínio de 1996)       | `high`, 100/100                       |
 | CNPJ com DV válido mas inexistente (`99.999.999/9999-62`) | `low`, 10/100, sinal `cnpj.not-found` |
-| Domínio não registrado | `low`, 35/100 |
-| Fontes fora do ar | `insufficient` + nota explícita |
+| Domínio não registrado                                    | `low`, 35/100                         |
+| Fontes fora do ar                                         | `insufficient` + nota explícita       |
 
 ### Testes
 
@@ -185,8 +247,8 @@ dossiê ponta a ponta.
 
 ### Adicionado — Coach de reescrita com IA verificada
 
-Item nº 4 do roadmap. O diagnóstico determinístico já responde *o que* está
-errado e *por quê*. O que ele não faz é propor uma frase melhor na voz daquele
+Item nº 4 do roadmap. O diagnóstico determinístico já responde _o que_ está
+errado e _por quê_. O que ele não faz é propor uma frase melhor na voz daquele
 negócio específico — e é só isso que a IA recebe permissão para fazer.
 
 **A invariante do produto: a IA sugere, o motor determinístico decide.**
@@ -231,13 +293,13 @@ melhoria que o próprio motor não reconhece.
 
 ### Degradação honesta
 
-| Situação | O que o usuário vê |
-| --- | --- |
-| Sem `LOVABLE_API_KEY` | "A IA está desligada neste ambiente" + o diagnóstico determinístico completo |
-| Modelo falha / 429 | "O diagnóstico acima continua válido" |
-| Modelo devolve lixo | `all_rejected` — nenhuma sugestão |
-| Rascunho sem problemas | Nenhuma chamada é feita (0 tokens gastos) |
-| Problema é `media.required` | Nunca oferece reescrita de texto — texto não cria imagem |
+| Situação                    | O que o usuário vê                                                           |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| Sem `LOVABLE_API_KEY`       | "A IA está desligada neste ambiente" + o diagnóstico determinístico completo |
+| Modelo falha / 429          | "O diagnóstico acima continua válido"                                        |
+| Modelo devolve lixo         | `all_rejected` — nenhuma sugestão                                            |
+| Rascunho sem problemas      | Nenhuma chamada é feita (0 tokens gastos)                                    |
+| Problema é `media.required` | Nunca oferece reescrita de texto — texto não cria imagem                     |
 
 ### Corrigido no caminho
 
@@ -260,7 +322,7 @@ payload malformado. O objetivo desses testes não é provar que o modelo funcion
 
 Item nº 3 do roadmap. É a **primeira superfície anônima** do produto: até aqui,
 tudo passava por `auth.uid()` e RLS. Uma página pública não tem usuário — o que
-obriga a mover o isolamento do *acesso* para o *dado*.
+obriga a mover o isolamento do _acesso_ para o _dado_.
 
 - **Migration 17** (`bio_pages`, `bio_links`, `bio_link_clicks`), com RLS de
   membro para leitura/escrita autenticada e **nenhuma policy para `anon`**
@@ -296,15 +358,15 @@ precisa ter para responder "de onde vêm os cliques".
 
 Com o PostgREST simulado no nível de rede, o caminho completo foi exercitado:
 
-| Verificação | Resultado |
-| --- | --- |
-| Página publicada renderiza em SSR | 2.366 bytes de HTML |
-| Rascunho (`is_published = false`) | `not_found` |
-| Filtro `is_published=eq.true` na query | ✅ aplicado |
-| URL de destino aparece no HTML | ❌ — só `/bio/click/{id}` |
-| Link inativo / inexistente | sem redirect |
-| `javascript:` gravado no banco | sem redirect (defesa em profundidade) |
-| Analytics guardam e-mail / URL completa | ❌ — só host e device |
+| Verificação                             | Resultado                             |
+| --------------------------------------- | ------------------------------------- |
+| Página publicada renderiza em SSR       | 2.366 bytes de HTML                   |
+| Rascunho (`is_published = false`)       | `not_found`                           |
+| Filtro `is_published=eq.true` na query  | ✅ aplicado                           |
+| URL de destino aparece no HTML          | ❌ — só `/bio/click/{id}`             |
+| Link inativo / inexistente              | sem redirect                          |
+| `javascript:` gravado no banco          | sem redirect (defesa em profundidade) |
+| Analytics guardam e-mail / URL completa | ❌ — só host e device                 |
 
 ### Corrigido no caminho
 
@@ -317,7 +379,7 @@ Com o PostgREST simulado no nível de rede, o caminho completo foi exercitado:
   em `dist/client` tem que voltar vazio.
 - **Erro de infraestrutura virando 500 com detalhe técnico no HTML.** A primeira
   versão derrubava a rota e escrevia `Missing Supabase environment variable(s):
-  SUPABASE_SERVICE_ROLE_KEY` na página. Agora `loadBioPage` distingue
+SUPABASE_SERVICE_ROLE_KEY` na página. Agora `loadBioPage` distingue
   `not_found` de `unavailable`, a mensagem fica só no log do servidor e a tela de
   indisponibilidade é `noindex`.
 - **`throw new Response()` não funciona em server function** (falha no seroval,

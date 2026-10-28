@@ -9,45 +9,49 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BioSlugRouteImport } from './routes/bio/$slug'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as BioSlugRouteImport } from './routes/bio/$slug'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
-import { Route as BioClickLinkIdRouteImport } from './routes/bio/click.$linkId'
-import { Route as ApiReportsWeeklyRouteImport } from './routes/api/reports/weekly'
-import { Route as AuthenticatedAppTrustRouteImport } from './routes/_authenticated/app.trust'
-import { Route as AuthenticatedAppSkillMapRouteImport } from './routes/_authenticated/app.skill-map'
-import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
-import { Route as AuthenticatedAppScoreRouteImport } from './routes/_authenticated/app.score'
-import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/app.scheduler'
-import { Route as AuthenticatedAppOpportunitiesRouteImport } from './routes/_authenticated/app.opportunities'
-import { Route as AuthenticatedAppNavigatorRouteImport } from './routes/_authenticated/app.navigator'
-import { Route as AuthenticatedAppMissionsRouteImport } from './routes/_authenticated/app.missions'
-import { Route as AuthenticatedAppLearningRouteImport } from './routes/_authenticated/app.learning'
-import { Route as AuthenticatedAppJourneyRouteImport } from './routes/_authenticated/app.journey'
-import { Route as AuthenticatedAppHealthRouteImport } from './routes/_authenticated/app.health'
-import { Route as AuthenticatedAppDecisionsRouteImport } from './routes/_authenticated/app.decisions'
-import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
-import { Route as AuthenticatedAppCompetitorsRouteImport } from './routes/_authenticated/app.competitors'
-import { Route as AuthenticatedAppCommerceRouteImport } from './routes/_authenticated/app.commerce'
-import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/app.coach'
-import { Route as AuthenticatedAppChannelsRouteImport } from './routes/_authenticated/app.channels'
-import { Route as AuthenticatedAppBuilderRouteImport } from './routes/_authenticated/app.builder'
-import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authenticated/app.brands'
-import { Route as AuthenticatedAppBrainLabRouteImport } from './routes/_authenticated/app.brain-lab'
-import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
-import { Route as AuthenticatedAppBioRouteImport } from './routes/_authenticated/app.bio'
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/app.analytics'
-import { Route as ApiPublicCronSchedulerTickRouteImport } from './routes/api/public/cron/scheduler-tick'
+import { Route as AuthenticatedAppBioRouteImport } from './routes/_authenticated/app.bio'
+import { Route as AuthenticatedAppBrainRouteImport } from './routes/_authenticated/app.brain'
+import { Route as AuthenticatedAppBrainLabRouteImport } from './routes/_authenticated/app.brain-lab'
+import { Route as AuthenticatedAppBrandsRouteImport } from './routes/_authenticated/app.brands'
+import { Route as AuthenticatedAppBuilderRouteImport } from './routes/_authenticated/app.builder'
+import { Route as AuthenticatedAppChannelsRouteImport } from './routes/_authenticated/app.channels'
+import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/app.coach'
+import { Route as AuthenticatedAppCommerceRouteImport } from './routes/_authenticated/app.commerce'
+import { Route as AuthenticatedAppCompetitorsRouteImport } from './routes/_authenticated/app.competitors'
+import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
+import { Route as AuthenticatedAppDecisionsRouteImport } from './routes/_authenticated/app.decisions'
+import { Route as AuthenticatedAppHealthRouteImport } from './routes/_authenticated/app.health'
+import { Route as AuthenticatedAppJourneyRouteImport } from './routes/_authenticated/app.journey'
+import { Route as AuthenticatedAppLearningRouteImport } from './routes/_authenticated/app.learning'
+import { Route as AuthenticatedAppMissionsRouteImport } from './routes/_authenticated/app.missions'
+import { Route as AuthenticatedAppNavigatorRouteImport } from './routes/_authenticated/app.navigator'
+import { Route as AuthenticatedAppOpportunitiesRouteImport } from './routes/_authenticated/app.opportunities'
+import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/app.scheduler'
+import { Route as AuthenticatedAppScoreRouteImport } from './routes/_authenticated/app.score'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppSkillMapRouteImport } from './routes/_authenticated/app.skill-map'
+import { Route as AuthenticatedAppTrustRouteImport } from './routes/_authenticated/app.trust'
+import { Route as ApiReportsWeeklyRouteImport } from './routes/api/reports/weekly'
+import { Route as BioClickLinkIdRouteImport } from './routes/bio/click.$linkId'
 import { Route as ApiPublicCronAnalyticsSyncRouteImport } from './routes/api/public/cron/analytics-sync'
+import { Route as ApiPublicCronSchedulerTickRouteImport } from './routes/api/public/cron/scheduler-tick'
 import { Route as ApiPublicOauthCallbackProviderRouteImport } from './routes/api/public/oauth/callback/$provider'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -55,18 +59,9 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BioSlugRoute = BioSlugRouteImport.update({
-  id: '/bio/$slug',
-  path: '/bio/$slug',
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
@@ -74,141 +69,14 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const BioSlugRoute = BioSlugRouteImport.update({
+  id: '/bio/$slug',
+  path: '/bio/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const BioClickLinkIdRoute = BioClickLinkIdRouteImport.update({
-  id: '/bio/click/$linkId',
-  path: '/bio/click/$linkId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiReportsWeeklyRoute = ApiReportsWeeklyRouteImport.update({
-  id: '/api/reports/weekly',
-  path: '/api/reports/weekly',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedAppTrustRoute = AuthenticatedAppTrustRouteImport.update({
-  id: '/trust',
-  path: '/trust',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppSkillMapRoute =
-  AuthenticatedAppSkillMapRouteImport.update({
-    id: '/skill-map',
-    path: '/skill-map',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppSettingsRoute =
-  AuthenticatedAppSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppScoreRoute = AuthenticatedAppScoreRouteImport.update({
-  id: '/score',
-  path: '/score',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppSchedulerRoute =
-  AuthenticatedAppSchedulerRouteImport.update({
-    id: '/scheduler',
-    path: '/scheduler',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppOpportunitiesRoute =
-  AuthenticatedAppOpportunitiesRouteImport.update({
-    id: '/opportunities',
-    path: '/opportunities',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppNavigatorRoute =
-  AuthenticatedAppNavigatorRouteImport.update({
-    id: '/navigator',
-    path: '/navigator',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppMissionsRoute =
-  AuthenticatedAppMissionsRouteImport.update({
-    id: '/missions',
-    path: '/missions',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppLearningRoute =
-  AuthenticatedAppLearningRouteImport.update({
-    id: '/learning',
-    path: '/learning',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppJourneyRoute = AuthenticatedAppJourneyRouteImport.update({
-  id: '/journey',
-  path: '/journey',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppHealthRoute = AuthenticatedAppHealthRouteImport.update({
-  id: '/health',
-  path: '/health',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppDecisionsRoute =
-  AuthenticatedAppDecisionsRouteImport.update({
-    id: '/decisions',
-    path: '/decisions',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppContentRoute = AuthenticatedAppContentRouteImport.update({
-  id: '/content',
-  path: '/content',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppCompetitorsRoute =
-  AuthenticatedAppCompetitorsRouteImport.update({
-    id: '/competitors',
-    path: '/competitors',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppCommerceRoute =
-  AuthenticatedAppCommerceRouteImport.update({
-    id: '/commerce',
-    path: '/commerce',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
-  id: '/coach',
-  path: '/coach',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppChannelsRoute =
-  AuthenticatedAppChannelsRouteImport.update({
-    id: '/channels',
-    path: '/channels',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppBuilderRoute = AuthenticatedAppBuilderRouteImport.update({
-  id: '/builder',
-  path: '/builder',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppBrandsRoute = AuthenticatedAppBrandsRouteImport.update({
-  id: '/brands',
-  path: '/brands',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppBrainLabRoute =
-  AuthenticatedAppBrainLabRouteImport.update({
-    id: '/brain-lab',
-    path: '/brain-lab',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppBrainRoute = AuthenticatedAppBrainRouteImport.update({
-  id: '/brain',
-  path: '/brain',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppBioRoute = AuthenticatedAppBioRouteImport.update({
-  id: '/bio',
-  path: '/bio',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppAnalyticsRoute =
@@ -217,16 +85,148 @@ const AuthenticatedAppAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const ApiPublicCronSchedulerTickRoute =
-  ApiPublicCronSchedulerTickRouteImport.update({
-    id: '/api/public/cron/scheduler-tick',
-    path: '/api/public/cron/scheduler-tick',
-    getParentRoute: () => rootRouteImport,
+const AuthenticatedAppBioRoute = AuthenticatedAppBioRouteImport.update({
+  id: '/bio',
+  path: '/bio',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppBrainRoute = AuthenticatedAppBrainRouteImport.update({
+  id: '/brain',
+  path: '/brain',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppBrainLabRoute =
+  AuthenticatedAppBrainLabRouteImport.update({
+    id: '/brain-lab',
+    path: '/brain-lab',
+    getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppBrandsRoute = AuthenticatedAppBrandsRouteImport.update({
+  id: '/brands',
+  path: '/brands',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppBuilderRoute = AuthenticatedAppBuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppChannelsRoute =
+  AuthenticatedAppChannelsRouteImport.update({
+    id: '/channels',
+    path: '/channels',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCommerceRoute =
+  AuthenticatedAppCommerceRouteImport.update({
+    id: '/commerce',
+    path: '/commerce',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppCompetitorsRoute =
+  AuthenticatedAppCompetitorsRouteImport.update({
+    id: '/competitors',
+    path: '/competitors',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppContentRoute = AuthenticatedAppContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppDecisionsRoute =
+  AuthenticatedAppDecisionsRouteImport.update({
+    id: '/decisions',
+    path: '/decisions',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppHealthRoute = AuthenticatedAppHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppJourneyRoute = AuthenticatedAppJourneyRouteImport.update({
+  id: '/journey',
+  path: '/journey',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppLearningRoute =
+  AuthenticatedAppLearningRouteImport.update({
+    id: '/learning',
+    path: '/learning',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppMissionsRoute =
+  AuthenticatedAppMissionsRouteImport.update({
+    id: '/missions',
+    path: '/missions',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppNavigatorRoute =
+  AuthenticatedAppNavigatorRouteImport.update({
+    id: '/navigator',
+    path: '/navigator',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppOpportunitiesRoute =
+  AuthenticatedAppOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSchedulerRoute =
+  AuthenticatedAppSchedulerRouteImport.update({
+    id: '/scheduler',
+    path: '/scheduler',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppScoreRoute = AuthenticatedAppScoreRouteImport.update({
+  id: '/score',
+  path: '/score',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSkillMapRoute =
+  AuthenticatedAppSkillMapRouteImport.update({
+    id: '/skill-map',
+    path: '/skill-map',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppTrustRoute = AuthenticatedAppTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const ApiReportsWeeklyRoute = ApiReportsWeeklyRouteImport.update({
+  id: '/api/reports/weekly',
+  path: '/api/reports/weekly',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BioClickLinkIdRoute = BioClickLinkIdRouteImport.update({
+  id: '/bio/click/$linkId',
+  path: '/bio/click/$linkId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronAnalyticsSyncRoute =
   ApiPublicCronAnalyticsSyncRouteImport.update({
     id: '/api/public/cron/analytics-sync',
     path: '/api/public/cron/analytics-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronSchedulerTickRoute =
+  ApiPublicCronSchedulerTickRouteImport.update({
+    id: '/api/public/cron/scheduler-tick',
+    path: '/api/public/cron/scheduler-tick',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicOauthCallbackProviderRoute =
@@ -471,18 +471,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -492,18 +485,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bio/$slug': {
-      id: '/bio/$slug'
-      path: '/bio/$slug'
-      fullPath: '/bio/$slug'
-      preLoaderRoute: typeof BioSlugRouteImport
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
@@ -513,179 +506,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/bio/$slug': {
+      id: '/bio/$slug'
+      path: '/bio/$slug'
+      fullPath: '/bio/$slug'
+      preLoaderRoute: typeof BioSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/bio/click/$linkId': {
-      id: '/bio/click/$linkId'
-      path: '/bio/click/$linkId'
-      fullPath: '/bio/click/$linkId'
-      preLoaderRoute: typeof BioClickLinkIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/reports/weekly': {
-      id: '/api/reports/weekly'
-      path: '/api/reports/weekly'
-      fullPath: '/api/reports/weekly'
-      preLoaderRoute: typeof ApiReportsWeeklyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/app/trust': {
-      id: '/_authenticated/app/trust'
-      path: '/trust'
-      fullPath: '/app/trust'
-      preLoaderRoute: typeof AuthenticatedAppTrustRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/skill-map': {
-      id: '/_authenticated/app/skill-map'
-      path: '/skill-map'
-      fullPath: '/app/skill-map'
-      preLoaderRoute: typeof AuthenticatedAppSkillMapRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/settings': {
-      id: '/_authenticated/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/score': {
-      id: '/_authenticated/app/score'
-      path: '/score'
-      fullPath: '/app/score'
-      preLoaderRoute: typeof AuthenticatedAppScoreRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/scheduler': {
-      id: '/_authenticated/app/scheduler'
-      path: '/scheduler'
-      fullPath: '/app/scheduler'
-      preLoaderRoute: typeof AuthenticatedAppSchedulerRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/opportunities': {
-      id: '/_authenticated/app/opportunities'
-      path: '/opportunities'
-      fullPath: '/app/opportunities'
-      preLoaderRoute: typeof AuthenticatedAppOpportunitiesRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/navigator': {
-      id: '/_authenticated/app/navigator'
-      path: '/navigator'
-      fullPath: '/app/navigator'
-      preLoaderRoute: typeof AuthenticatedAppNavigatorRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/missions': {
-      id: '/_authenticated/app/missions'
-      path: '/missions'
-      fullPath: '/app/missions'
-      preLoaderRoute: typeof AuthenticatedAppMissionsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/learning': {
-      id: '/_authenticated/app/learning'
-      path: '/learning'
-      fullPath: '/app/learning'
-      preLoaderRoute: typeof AuthenticatedAppLearningRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/journey': {
-      id: '/_authenticated/app/journey'
-      path: '/journey'
-      fullPath: '/app/journey'
-      preLoaderRoute: typeof AuthenticatedAppJourneyRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/health': {
-      id: '/_authenticated/app/health'
-      path: '/health'
-      fullPath: '/app/health'
-      preLoaderRoute: typeof AuthenticatedAppHealthRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/decisions': {
-      id: '/_authenticated/app/decisions'
-      path: '/decisions'
-      fullPath: '/app/decisions'
-      preLoaderRoute: typeof AuthenticatedAppDecisionsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/content': {
-      id: '/_authenticated/app/content'
-      path: '/content'
-      fullPath: '/app/content'
-      preLoaderRoute: typeof AuthenticatedAppContentRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/competitors': {
-      id: '/_authenticated/app/competitors'
-      path: '/competitors'
-      fullPath: '/app/competitors'
-      preLoaderRoute: typeof AuthenticatedAppCompetitorsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/commerce': {
-      id: '/_authenticated/app/commerce'
-      path: '/commerce'
-      fullPath: '/app/commerce'
-      preLoaderRoute: typeof AuthenticatedAppCommerceRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/coach': {
-      id: '/_authenticated/app/coach'
-      path: '/coach'
-      fullPath: '/app/coach'
-      preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/channels': {
-      id: '/_authenticated/app/channels'
-      path: '/channels'
-      fullPath: '/app/channels'
-      preLoaderRoute: typeof AuthenticatedAppChannelsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/builder': {
-      id: '/_authenticated/app/builder'
-      path: '/builder'
-      fullPath: '/app/builder'
-      preLoaderRoute: typeof AuthenticatedAppBuilderRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/brands': {
-      id: '/_authenticated/app/brands'
-      path: '/brands'
-      fullPath: '/app/brands'
-      preLoaderRoute: typeof AuthenticatedAppBrandsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/brain-lab': {
-      id: '/_authenticated/app/brain-lab'
-      path: '/brain-lab'
-      fullPath: '/app/brain-lab'
-      preLoaderRoute: typeof AuthenticatedAppBrainLabRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/brain': {
-      id: '/_authenticated/app/brain'
-      path: '/brain'
-      fullPath: '/app/brain'
-      preLoaderRoute: typeof AuthenticatedAppBrainRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/bio': {
-      id: '/_authenticated/app/bio'
-      path: '/bio'
-      fullPath: '/app/bio'
-      preLoaderRoute: typeof AuthenticatedAppBioRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/analytics': {
@@ -695,11 +527,172 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/api/public/cron/scheduler-tick': {
-      id: '/api/public/cron/scheduler-tick'
-      path: '/api/public/cron/scheduler-tick'
-      fullPath: '/api/public/cron/scheduler-tick'
-      preLoaderRoute: typeof ApiPublicCronSchedulerTickRouteImport
+    '/_authenticated/app/bio': {
+      id: '/_authenticated/app/bio'
+      path: '/bio'
+      fullPath: '/app/bio'
+      preLoaderRoute: typeof AuthenticatedAppBioRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/brain': {
+      id: '/_authenticated/app/brain'
+      path: '/brain'
+      fullPath: '/app/brain'
+      preLoaderRoute: typeof AuthenticatedAppBrainRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/brain-lab': {
+      id: '/_authenticated/app/brain-lab'
+      path: '/brain-lab'
+      fullPath: '/app/brain-lab'
+      preLoaderRoute: typeof AuthenticatedAppBrainLabRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/brands': {
+      id: '/_authenticated/app/brands'
+      path: '/brands'
+      fullPath: '/app/brands'
+      preLoaderRoute: typeof AuthenticatedAppBrandsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/builder': {
+      id: '/_authenticated/app/builder'
+      path: '/builder'
+      fullPath: '/app/builder'
+      preLoaderRoute: typeof AuthenticatedAppBuilderRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/channels': {
+      id: '/_authenticated/app/channels'
+      path: '/channels'
+      fullPath: '/app/channels'
+      preLoaderRoute: typeof AuthenticatedAppChannelsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/coach': {
+      id: '/_authenticated/app/coach'
+      path: '/coach'
+      fullPath: '/app/coach'
+      preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/commerce': {
+      id: '/_authenticated/app/commerce'
+      path: '/commerce'
+      fullPath: '/app/commerce'
+      preLoaderRoute: typeof AuthenticatedAppCommerceRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/competitors': {
+      id: '/_authenticated/app/competitors'
+      path: '/competitors'
+      fullPath: '/app/competitors'
+      preLoaderRoute: typeof AuthenticatedAppCompetitorsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/content': {
+      id: '/_authenticated/app/content'
+      path: '/content'
+      fullPath: '/app/content'
+      preLoaderRoute: typeof AuthenticatedAppContentRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/decisions': {
+      id: '/_authenticated/app/decisions'
+      path: '/decisions'
+      fullPath: '/app/decisions'
+      preLoaderRoute: typeof AuthenticatedAppDecisionsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/health': {
+      id: '/_authenticated/app/health'
+      path: '/health'
+      fullPath: '/app/health'
+      preLoaderRoute: typeof AuthenticatedAppHealthRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/journey': {
+      id: '/_authenticated/app/journey'
+      path: '/journey'
+      fullPath: '/app/journey'
+      preLoaderRoute: typeof AuthenticatedAppJourneyRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/learning': {
+      id: '/_authenticated/app/learning'
+      path: '/learning'
+      fullPath: '/app/learning'
+      preLoaderRoute: typeof AuthenticatedAppLearningRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/missions': {
+      id: '/_authenticated/app/missions'
+      path: '/missions'
+      fullPath: '/app/missions'
+      preLoaderRoute: typeof AuthenticatedAppMissionsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/navigator': {
+      id: '/_authenticated/app/navigator'
+      path: '/navigator'
+      fullPath: '/app/navigator'
+      preLoaderRoute: typeof AuthenticatedAppNavigatorRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/opportunities': {
+      id: '/_authenticated/app/opportunities'
+      path: '/opportunities'
+      fullPath: '/app/opportunities'
+      preLoaderRoute: typeof AuthenticatedAppOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/scheduler': {
+      id: '/_authenticated/app/scheduler'
+      path: '/scheduler'
+      fullPath: '/app/scheduler'
+      preLoaderRoute: typeof AuthenticatedAppSchedulerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/score': {
+      id: '/_authenticated/app/score'
+      path: '/score'
+      fullPath: '/app/score'
+      preLoaderRoute: typeof AuthenticatedAppScoreRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/skill-map': {
+      id: '/_authenticated/app/skill-map'
+      path: '/skill-map'
+      fullPath: '/app/skill-map'
+      preLoaderRoute: typeof AuthenticatedAppSkillMapRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/trust': {
+      id: '/_authenticated/app/trust'
+      path: '/trust'
+      fullPath: '/app/trust'
+      preLoaderRoute: typeof AuthenticatedAppTrustRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/api/reports/weekly': {
+      id: '/api/reports/weekly'
+      path: '/api/reports/weekly'
+      fullPath: '/api/reports/weekly'
+      preLoaderRoute: typeof ApiReportsWeeklyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bio/click/$linkId': {
+      id: '/bio/click/$linkId'
+      path: '/bio/click/$linkId'
+      fullPath: '/bio/click/$linkId'
+      preLoaderRoute: typeof BioClickLinkIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/analytics-sync': {
@@ -707,6 +700,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cron/analytics-sync'
       fullPath: '/api/public/cron/analytics-sync'
       preLoaderRoute: typeof ApiPublicCronAnalyticsSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/scheduler-tick': {
+      id: '/api/public/cron/scheduler-tick'
+      path: '/api/public/cron/scheduler-tick'
+      fullPath: '/api/public/cron/scheduler-tick'
+      preLoaderRoute: typeof ApiPublicCronSchedulerTickRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/oauth/callback/$provider': {

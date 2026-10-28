@@ -75,8 +75,7 @@ function cnpjChecksum(digits: string): boolean {
 /* ------------------------------------------------------------------ */
 
 export type DomainParse =
-  | { ok: true; host: string }
-  | { ok: false; reason: "empty" | "invalid" | "ip" | "free_host" };
+  { ok: true; host: string } | { ok: false; reason: "empty" | "invalid" | "ip" | "free_host" };
 
 /**
  * Platforms where anyone can create a page in seconds. A "site" hosted there

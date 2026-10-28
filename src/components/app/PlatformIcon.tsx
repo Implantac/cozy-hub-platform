@@ -2,12 +2,7 @@ import { Facebook, Instagram, Linkedin, MapPin, Music2, Radio, Youtube } from "l
 import type { LucideIcon } from "lucide-react";
 
 export type PlatformId =
-  | "instagram"
-  | "facebook"
-  | "youtube"
-  | "tiktok"
-  | "linkedin"
-  | "google_business";
+  "instagram" | "facebook" | "youtube" | "tiktok" | "linkedin" | "google_business";
 
 export interface PlatformMeta {
   id: PlatformId;

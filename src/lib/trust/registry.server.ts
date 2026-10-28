@@ -32,9 +32,7 @@ const TIMEOUT_MS = 8_000;
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 export type Lookup<T> =
-  | { status: "ok"; data: T }
-  | { status: "not_found" }
-  | { status: "unavailable"; reason: string };
+  { status: "ok"; data: T } | { status: "not_found" } | { status: "unavailable"; reason: string };
 
 interface CacheEntry {
   at: number;

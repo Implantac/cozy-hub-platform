@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
@@ -37,7 +38,18 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+/**
+ * The router types the caught value as `unknown`, and that is honest: what gets
+ * thrown is not guaranteed to be an `Error`. Reading `.message` straight off it
+ * would crash inside the error boundary — the one place that must never fail.
+ */
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return "";
+}
+
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   const { t } = useTranslation();
@@ -51,7 +63,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           {t("errors.interrupted")}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message || t("errors.unknown")}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {describeError(error) || t("errors.unknown")}
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {

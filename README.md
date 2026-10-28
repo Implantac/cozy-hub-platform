@@ -23,9 +23,9 @@ O diferencial não é ser mais um agendador de posts. É ser a camada de **julga
 | X, Threads, Pinterest                                  | ⛔ Sem publisher — falha explícita         |
 | Commerce Hub                                           | ⛔ Casca — "em breve"                      |
 | IA generativa no Brain                                 | ⚠️ Opcional, requer `LOVABLE_API_KEY`      |
-| Coach de reescrita com IA verificada                    | ✅ Com IA ou fallback determinístico       |
-| Trust OS com fonte externa (CNPJ + domínio)             | ✅ BrasilAPI + RDAP, sem chave             |
-| Relatório semanal em PDF + CSV                          | ✅ Sob demanda, autenticado                |
+| Coach de reescrita com IA verificada                   | ✅ Com IA ou fallback determinístico       |
+| Trust OS com fonte externa (CNPJ + domínio)            | ✅ BrasilAPI + RDAP, sem chave             |
+| Relatório semanal em PDF + CSV                         | ✅ Sob demanda, autenticado                |
 | Busca vetorial / RAG                                   | ⛔ Não implementado (removido da landing)  |
 
 A honestidade é um requisito de produto: a tela de Agendamento mostra, canal por canal, o que realmente está habilitado naquele ambiente (`VELT_PUBLISHER_MODE`, credenciais presentes). Nenhum job entra em fila prometendo publicar o que não publica.
@@ -186,11 +186,11 @@ propor uma frase melhor na voz daquele negócio.
 **A regra: a IA sugere, o motor decide.** Toda proposta volta para o motor puro
 antes de aparecer:
 
-| Verificação | Reprovado se |
-| --- | --- |
-| O problema citado sumiu? | o texto ainda abre com "Oi gente" |
-| Apareceu blocker novo? | passou do limite de caracteres da plataforma |
-| O score caiu? | qualquer queda, mesmo de 1 ponto |
+| Verificação              | Reprovado se                                 |
+| ------------------------ | -------------------------------------------- |
+| O problema citado sumiu? | o texto ainda abre com "Oi gente"            |
+| Apareceu blocker novo?   | passou do limite de caracteres da plataforma |
+| O score caiu?            | qualquer queda, mesmo de 1 ponto             |
 
 Sugestão reprovada é descartada, não exibida com ressalva. O modelo também nunca
 escreve o número do score — ele não é juiz do próprio trabalho.
@@ -208,10 +208,10 @@ CNPJ existe.
 
 Agora:
 
-| Fonte | O que responde | Chave |
-| --- | --- | --- |
+| Fonte                                 | O que responde                                               | Chave   |
+| ------------------------------------- | ------------------------------------------------------------ | ------- |
 | [BrasilAPI](https://brasilapi.com.br) | Situação cadastral, data de abertura, porte, sócios, capital | Nenhuma |
-| [RDAP](https://rdap.org) | Registro e vencimento do domínio (Registro.br para `.br`) | Nenhuma |
+| [RDAP](https://rdap.org)              | Registro e vencimento do domínio (Registro.br para `.br`)    | Nenhuma |
 
 O score é determinístico e cada sinal carrega a evidência e a fonte. O dossiê
 inclui o link para refazer a consulta.
@@ -244,6 +244,29 @@ conta em vez de confiar no documento.
 
 **Envio automático por e-mail não existe.** O card na tela diz isso. Depende de um
 provedor transacional que ainda não está configurado.
+
+---
+
+## Segurança de dependências
+
+`npm audit` em 28/10/2026: **4 vulnerabilidades moderadas, nenhuma crítica ou
+alta** (eram 20, sendo 8 críticas). As 4 restantes estão em `drizzle-kit`, que é
+ferramenta de desenvolvimento e não entra no bundle.
+
+Duas regras que o processo mostrou valerem a pena:
+
+1. **Corrigir na versão que não force migração.** O patch do XSS existia em duas
+   linhas: uma pedia `vite >= 8`. Subir o bundler num patch de segurança
+   transforma uma correção de 20 minutos numa migração de build.
+2. **Versões fixas onde o ecossistema exige.** `@tanstack/react-start` e
+   `@tanstack/react-router` estão **fixados** (`1.168.60` / `1.170.41`), sem
+   `^`: o `react-start` depende de uma versão exata do `react-router`, e um patch
+   a mais cria dois `router-core` na árvore — o que quebra a tipagem de
+   `server.handlers` em todas as rotas.
+
+O lint isenta os arquivos **gerados** (`src/integrations/supabase/types.ts`,
+`previewAuthStorage.ts`): eles são reescritos pelo gerador e reportavam 2.007
+erros de formatação que ninguém pode corrigir à mão.
 
 ---
 
@@ -308,7 +331,7 @@ Rastreado, não escondido:
 - Sem E2E (Playwright) — os testes cobrem lógica pura, não fluxo de UI.
 - `/bio/{slug}` responde 200 quando o banco está inacessível (marcado `noindex`,
   com tela própria). O router não permite definir status por `throw new
-  Response` nem no `beforeLoad`; corrigir exigiria uma rota de servidor crua.
+Response` nem no `beforeLoad`; corrigir exigiria uma rota de servidor crua.
 
 ---
 

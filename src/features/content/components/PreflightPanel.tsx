@@ -16,8 +16,7 @@ interface PreflightPanelProps {
   loading: boolean;
   onUseHook: (text: string) => void;
   hookSuggestions:
-    | Array<{ id: string; label: string; text: string; rationale: string }>
-    | undefined;
+    Array<{ id: string; label: string; text: string; rationale: string }> | undefined;
   platformLabel: (p: string) => string;
 }
 

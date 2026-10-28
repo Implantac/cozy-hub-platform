@@ -54,13 +54,7 @@ export const ADVISOR_META: Record<
 };
 
 export type BrainLabTab =
-  | "twin"
-  | "skills"
-  | "experiments"
-  | "decisions"
-  | "anti_scam"
-  | "council"
-  | "timeline";
+  "twin" | "skills" | "experiments" | "decisions" | "anti_scam" | "council" | "timeline";
 
 export type CouncilOpinion = {
   id: string;

@@ -35,14 +35,7 @@ export type TrustReportRow = {
 };
 
 export type TargetType =
-  | "instagram"
-  | "youtube"
-  | "tiktok"
-  | "website"
-  | "course"
-  | "supplier"
-  | "person"
-  | "other";
+  "instagram" | "youtube" | "tiktok" | "website" | "course" | "supplier" | "person" | "other";
 
 export type ResultSection = {
   title: string;

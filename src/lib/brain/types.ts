@@ -4,11 +4,7 @@
  */
 
 export type BrainQuestion =
-  | "where_am_i"
-  | "where_to_go"
-  | "whats_blocking"
-  | "next_action"
-  | "should_pivot";
+  "where_am_i" | "where_to_go" | "whats_blocking" | "next_action" | "should_pivot";
 
 export type BrainEventKind = "decision" | "result" | "pivot" | "signal" | "reflection";
 

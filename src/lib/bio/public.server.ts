@@ -43,9 +43,7 @@ export type { PublicBioLink, PublicBioPage };
  * The *reason* is logged server-side and never sent to the browser.
  */
 export type BioLoadResult =
-  | { status: "ok"; page: PublicBioPage }
-  | { status: "not_found" }
-  | { status: "unavailable" };
+  { status: "ok"; page: PublicBioPage } | { status: "not_found" } | { status: "unavailable" };
 
 /**
  * Loads a published page. Returns null for missing, unpublished, or malformed

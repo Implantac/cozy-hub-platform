@@ -19,7 +19,6 @@ class InertWebSocket {
 function realtimeTransport(): unknown {
   if (typeof (globalThis as { WebSocket?: unknown }).WebSocket === "function") return undefined;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const req = eval("require") as (id: string) => unknown;
     return req("ws") ?? InertWebSocket;
   } catch {
