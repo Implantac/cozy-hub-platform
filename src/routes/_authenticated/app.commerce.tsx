@@ -1,10 +1,22 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ShoppingBag, Package, Globe, Truck, CheckCircle, Lock } from "lucide-react";
 import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
 import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
+import { isFeatureEnabled } from "@/lib/features/flags";
 
 export const Route = createFileRoute("/_authenticated/app/commerce")({
+  /**
+   * The flag has to be enforced here too, not only in the navigation.
+   *
+   * Hiding a link is not hiding a page: the route is public knowledge, people
+   * bookmark URLs and share them, and a module we are not shipping should not be
+   * reachable by guessing. `notFound()` — not a redirect — because that is the
+   * truth from this build's point of view: the page does not exist.
+   */
+  beforeLoad: () => {
+    if (!isFeatureEnabled("commerce")) throw notFound();
+  },
   component: CommercePage,
 });
 

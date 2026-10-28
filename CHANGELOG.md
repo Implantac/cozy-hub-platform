@@ -1,5 +1,53 @@
 # Changelog
 
+## [1.9.0] — 2026-10-28
+
+### Adicionado — feature flags, começando por esconder o Commerce Hub
+
+O **Commerce Hub** ocupava um grupo inteiro da navegação principal com quatro
+cards "Em breve": fornecedores, dropshipping, marketplaces e validação de
+produto. **Nenhum existe.** É uma promessa que o produto não cumpre, presente em
+toda tela, para todo usuário — e o custo não é só credibilidade: é manutenção de
+uma superfície que não faz nada.
+
+Agora fica atrás de `VITE_FLAG_COMMERCE`, **desligada por padrão**.
+
+### Por que flag de build, e não de runtime
+
+O caminho óbvio seria uma flag por tenant no banco: ligar para um cliente sem
+deploy. Para este caso é pior. Um módulo escondido por flag de runtime **continua
+enviando seu JavaScript para todos os navegadores**, continua tendo sua rota no
+bundle e continua tendo que ser considerado em toda mudança futura. O que se quer
+evitar é _manter_ um produto que não existe — e a flag de runtime não evita isso,
+só esconde.
+
+Com flag de build, ligar um módulo é um ato deliberado, com deploy atrás.
+
+### Três lugares que precisam concordar
+
+Esconder o link não é esconder a página — rotas são conhecimento público e
+pessoas compartilham URLs. Por isso:
+
+1. **Navegação** — o grupo é filtrado na origem (`NAV_GROUPS`), não em cada
+   consumidor.
+2. **Busca** — a paleta de comandos mantinha uma **cópia própria** da árvore de
+   navegação. Duas listas que deveriam concordar, mantidas em arquivos
+   diferentes, é divergência marcada no calendário. Agora ela consome
+   `NAV_GROUPS`.
+3. **Rota** — `beforeLoad` lança `notFound()`, não redirecionamento: do ponto de
+   vista deste build, a página não existe.
+
+### Fecha para fora
+
+O leitor de flag só aceita `"true"` explícito. `1`, `yes`, `on` e `TRUE!` ficam
+desligados — um typo deve fechar a porta, não abri-la. Há teste para cada um.
+
+### Testes
+
+**249 testes (era 244)**: 5 novos cobrindo ausência, string vazia, valores que
+"parecem" verdadeiros, as variações de `true` e a concordância entre `FEATURES` e
+`isFeatureEnabled`.
+
 ## [1.8.0] — 2026-10-28
 
 ### Segurança — 20 vulnerabilidades para 4, nenhuma crítica ou alta

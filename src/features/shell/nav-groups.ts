@@ -1,3 +1,4 @@
+import { isFeatureEnabled, type FeatureName } from "@/lib/features/flags";
 import {
   Activity,
   BarChart3,
@@ -25,9 +26,14 @@ import {
 } from "lucide-react";
 
 export type NavItem = { to: string; labelKey: string; icon: LucideIcon; exact?: boolean };
-export type NavGroup = { labelKey: string; items: NavItem[] };
+/**
+ * `feature` hides the whole group unless the flag is on. Grouping it here means
+ * the sidebar, the command palette and the breadcrumb all agree, because all
+ * three read from this list.
+ */
+export type NavGroup = { labelKey: string; items: NavItem[]; feature?: FeatureName };
 
-export const NAV_GROUPS: NavGroup[] = [
+const ALL_GROUPS: NavGroup[] = [
   {
     labelKey: "nav.group.gps",
     items: [
@@ -80,9 +86,20 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     labelKey: "nav.group.commerce",
+    feature: "commerce",
     items: [{ to: "/app/commerce", labelKey: "nav.commerce", icon: ShoppingBag }],
   },
 ];
+
+/**
+ * Only the groups whose feature is enabled.
+ *
+ * Filtering at the source (rather than in each consumer) is what keeps a hidden
+ * module from still showing up in search or in the breadcrumb of some other page.
+ */
+export const NAV_GROUPS: NavGroup[] = ALL_GROUPS.filter(
+  (g) => !g.feature || isFeatureEnabled(g.feature),
+);
 
 /** Boundary-aware active check: `/app/brain` does not match `/app/brain-lab`. */
 export function isItemActive(path: string, item: NavItem): boolean {

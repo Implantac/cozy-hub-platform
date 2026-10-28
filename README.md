@@ -245,6 +245,20 @@ conta em vez de confiar no documento.
 **Envio automático por e-mail não existe.** O card na tela diz isso. Depende de um
 provedor transacional que ainda não está configurado.
 
+### Feature flags
+
+`src/lib/features/flags.ts`. Desligadas por padrão; só `"true"` liga.
+
+| Flag                 | O que controla                                          | Estado                         |
+| -------------------- | ------------------------------------------------------- | ------------------------------ |
+| `VITE_FLAG_COMMERCE` | Commerce Hub (fornecedores, dropshipping, marketplaces) | **off** — nenhum módulo existe |
+
+São flags de **build**: um módulo desligado não vai para o bundle do cliente e
+sua rota responde como inexistente. A alternativa — flag de runtime por tenant —
+seria melhor para liberar cedo, e pior para o que importa aqui: manter um módulo
+desligado ainda custa caro em toda mudança futura. Ligar exige um deploy, e é
+assim que deve ser enquanto o produto não existe.
+
 ---
 
 ## Segurança de dependências
