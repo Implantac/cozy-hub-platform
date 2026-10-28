@@ -134,6 +134,161 @@ export type Database = {
           },
         ]
       }
+      bio_link_clicks: {
+        Row: {
+          clicked_at: string
+          country: string | null
+          device: string | null
+          id: string
+          link_id: string
+          page_id: string
+          referrer_host: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          country?: string | null
+          device?: string | null
+          id?: string
+          link_id: string
+          page_id: string
+          referrer_host?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          country?: string | null
+          device?: string | null
+          id?: string
+          link_id?: string
+          page_id?: string
+          referrer_host?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bio_link_clicks_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "bio_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bio_link_clicks_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "bio_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bio_links: {
+        Row: {
+          click_count: number
+          created_at: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          label: string
+          page_id: string
+          position: number
+          url: string
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          label: string
+          page_id: string
+          position?: number
+          url: string
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          label?: string
+          page_id?: string
+          position?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bio_links_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "bio_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bio_pages: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          headline: string | null
+          id: string
+          is_published: boolean
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          theme: string
+          updated_at: string
+          view_count: number
+          workspace_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          headline?: string | null
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          theme?: string
+          updated_at?: string
+          view_count?: number
+          workspace_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          headline?: string | null
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          theme?: string
+          updated_at?: string
+          view_count?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bio_pages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "v_workspace_overview"
+            referencedColumns: ["workspace_id"]
+          },
+          {
+            foreignKeyName: "bio_pages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brain_answers: {
         Row: {
           answer: Json
@@ -1898,6 +2053,16 @@ export type Database = {
       }
     }
     Functions: {
+      bio_register_click: {
+        Args: {
+          _country?: string
+          _device?: string
+          _link_id: string
+          _referrer_host?: string
+        }
+        Returns: undefined
+      }
+      bio_register_view: { Args: { _slug: string }; Returns: string }
       claim_scheduler_jobs: {
         Args: { _limit?: number; _lock_seconds?: number }
         Returns: {
