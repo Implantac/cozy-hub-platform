@@ -1,4 +1,5 @@
 import type { BrainContext, EngineReport } from "../types";
+import { priorityPlatformsFor } from "@/lib/platforms";
 
 /** Business Intelligence Engine — understands the business stage and channel priorities. */
 export function analyzeBusiness(ctx: BrainContext): EngineReport {
@@ -64,19 +65,12 @@ export function analyzeBusiness(ctx: BrainContext): EngineReport {
     });
   }
 
-  // Suggest priority channels by business_path
+  // Channels worth recommending, derived from the same platform list the
+  // database enum defines. The previous version listed `whatsapp` and `twitter`,
+  // which the product cannot publish to and the enum does not accept — advice
+  // that could never be followed.
   const path = ctx.profile?.business_path;
-  const priorityByPath: Record<string, string[]> = {
-    local_business: ["google_business", "instagram", "whatsapp"],
-    content_creator: ["instagram", "tiktok", "youtube"],
-    affiliate: ["instagram", "tiktok", "youtube"],
-    digital_services: ["linkedin", "instagram"],
-    saas_builder: ["linkedin", "twitter", "youtube"],
-    agency: ["linkedin", "instagram"],
-    freelancer: ["linkedin", "instagram"],
-    ecommerce: ["instagram", "tiktok", "google_business"],
-  };
-  const priority = path ? (priorityByPath[path] ?? []) : [];
+  const priority = priorityPlatformsFor(path);
 
   // Business Blueprint (Manifesto Builder) — 10 strategic blocks
   const BP_FIELDS = [

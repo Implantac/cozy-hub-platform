@@ -1,5 +1,46 @@
 # Changelog
 
+## [1.9.2] — 2026-10-28
+
+### Corrigido — o Brain recomendava canais que não existem
+
+A pergunta "para quais plataformas o VELT publica?" tinha três respostas no
+código:
+
+| Onde                               | Resposta                                                        |
+| ---------------------------------- | --------------------------------------------------------------- |
+| Enum `social_platform` no banco    | instagram, facebook, youtube, tiktok, linkedin, google_business |
+| `PLATFORMS` no componente de ícone | as mesmas seis                                                  |
+| Motor de negócio do Brain          | as seis **+ `whatsapp` e `twitter`**                            |
+
+A terceira era o defeito. O motor calculava "canais prioritários" para cada tipo
+de negócio e recomendava **WhatsApp e Twitter** — que não existem no enum, não
+têm publisher e não podem ser conectados. O tipo era `string[]`, então nada
+reclamava: a recomendação simplesmente não podia ser seguida.
+
+### A correção não é apagar as duas linhas
+
+Apagar teria resolvido o sintoma e deixado a causa: uma lista de plataformas que
+não é verificada contra a realidade do banco. Agora existe `src/lib/platforms.ts`
+como fonte única, e o tipo é derivado do enum gerado:
+
+```ts
+export type Platform = Database["public"]["Enums"]["social_platform"];
+```
+
+Isso torna o erro **impossível de reescrever**: sugerir uma plataforma que o enum
+não tem passa a ser erro de compilação. `PLATFORMS`, os rótulos e as
+recomendações por tipo de negócio vivem no mesmo lugar, e o componente de ícone
+passa a derivar os ids de lá em vez de declarar os seus.
+
+### Testes
+
+**264 testes (era 257)**: 7 novos, incluindo "nunca recomenda um canal que o
+produto não pode publicar" (iterando todos os tipos de negócio), "não recomenda
+mais whatsapp nem twitter" — nomeados no teste, para que uma edição futura tenha
+que encará-los — e "a lista bate com o enum do banco", que falha de propósito se
+o enum ganhar um valor e alguém esquecer de decidir o que fazer com ele.
+
 ## [1.9.1] — 2026-10-28
 
 ### Corrigido — o seletor oferecia 16 idiomas e entregava 2

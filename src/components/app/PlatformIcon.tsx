@@ -1,8 +1,12 @@
 import { Facebook, Instagram, Linkedin, MapPin, Music2, Radio, Youtube } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { Platform } from "@/lib/platforms";
 
-export type PlatformId =
-  "instagram" | "facebook" | "youtube" | "tiktok" | "linkedin" | "google_business";
+/**
+ * The ids come from `@/lib/platforms`, which derives them from the database enum.
+ * This file owns only how they look.
+ */
+export type PlatformId = Platform;
 
 export interface PlatformMeta {
   id: PlatformId;
