@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 import { getProvider } from "@/lib/oauth/providers.server";
 import { verifyState } from "@/lib/oauth/state.server";
 import { saveToken } from "@/lib/oauth/store.server";
@@ -58,12 +59,25 @@ export const Route = createFileRoute("/api/public/oauth/callback/$provider")({
               {
                 workspace_id: payload.workspaceId,
                 brand_id: payload.brandId ?? null,
-                platform: provider.platform as "facebook" | "instagram" | "linkedin" | "tiktok" | "youtube",
+                platform: provider.platform as Database["public"]["Enums"]["social_platform"],
                 external_id: tokens.externalAccountId ?? `oauth_${Date.now()}`,
                 handle: tokens.externalHandle ?? null,
                 status: "connected",
                 connected_at: new Date().toISOString(),
-                metadata: { provider: params.provider, scope: tokens.scope ?? null },
+                metadata: {
+                  provider: params.provider,
+                  scope: tokens.scope ?? null,
+                  // Google Business: the resource name is
+                  // "accounts/{a}/locations/{l}" — split it so the publisher does
+                  // not have to parse on every publish.
+                  ...(provider.platform === "google_business" && tokens.externalAccountId
+                    ? {
+                        account_id: tokens.externalAccountId.split("/")[1] ?? null,
+                        location_id: tokens.externalAccountId.split("/").pop() ?? null,
+                        location_name: tokens.externalHandle ?? null,
+                      }
+                    : {}),
+                },
               },
               { onConflict: "workspace_id,platform,external_id" },
             )

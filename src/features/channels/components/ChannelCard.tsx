@@ -1,16 +1,28 @@
 import { Link2, Trash2, Unlink } from "lucide-react";
 import { PLATFORMS, getPlatformIcon } from "@/components/app/PlatformIcon";
 import type { Channel } from "@/lib/api/_types";
+import { BusinessLocationPicker } from "./BusinessLocationPicker";
 
 type Props = {
   channel: Channel;
   disabled: boolean;
+  workspaceId: string | null | undefined;
   onDelete: () => void;
   onDisconnect: () => void;
   onConnect: (oauth: string) => void;
 };
 
-export function ChannelCard({ channel: c, disabled, onDelete, onDisconnect, onConnect }: Props) {
+export function ChannelCard({
+  channel: c,
+  disabled,
+  workspaceId,
+  onDelete,
+  onDisconnect,
+  onConnect,
+}: Props) {
+  const isGbp = c.platform === "google_business";
+  const locationName =
+    (c as { metadata?: { location_name?: string } }).metadata?.location_name ?? null;
   const meta = PLATFORMS.find((p) => p.id === c.platform);
   const Icon = getPlatformIcon(c.platform);
   const isConnected = c.status === "connected";
@@ -23,10 +35,10 @@ export function ChannelCard({ channel: c, disabled, onDelete, onDisconnect, onCo
             <Icon className="size-5" />
           </div>
           <div>
-            <div className="font-bold capitalize text-foreground group-hover:text-primary transition-colors">{c.platform}</div>
-            <div className="text-sm text-muted-foreground">
-              {c.handle ?? c.external_id ?? "—"}
+            <div className="font-bold capitalize text-foreground group-hover:text-primary transition-colors">
+              {c.platform}
             </div>
+            <div className="text-sm text-muted-foreground">{c.handle ?? c.external_id ?? "—"}</div>
           </div>
         </div>
         <button
@@ -41,7 +53,9 @@ export function ChannelCard({ channel: c, disabled, onDelete, onDisconnect, onCo
         </button>
       </div>
       <div className="mt-3 flex items-center justify-between text-xs">
-        <span className={`rounded-full px-2 py-0.5 ${isConnected ? "bg-success/20 text-success" : "bg-secondary text-secondary-foreground"}`}>
+        <span
+          className={`rounded-full px-2 py-0.5 ${isConnected ? "bg-success/20 text-success" : "bg-secondary text-secondary-foreground"}`}
+        >
           {c.status}
         </span>
         <div className="flex items-center gap-2">
@@ -65,6 +79,18 @@ export function ChannelCard({ channel: c, disabled, onDelete, onDisconnect, onCo
           )}
         </div>
       </div>
+
+      {/* Google Business: an account can hold many stores. The channel is only
+          usable once a location is bound — never guess on the user's behalf. */}
+      {isGbp && isConnected && workspaceId && (
+        <div className="mt-4">
+          <BusinessLocationPicker
+            workspaceId={workspaceId}
+            channelId={c.id}
+            currentLocationName={locationName}
+          />
+        </div>
+      )}
     </div>
   );
 }

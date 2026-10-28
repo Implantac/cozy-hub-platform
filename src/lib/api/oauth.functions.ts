@@ -28,9 +28,7 @@ function buildCallbackUri(provider: string): string {
 
   const env = process.env.NODE_ENV ?? "development";
   if (env === "production") {
-    throw new Error(
-      "APP_ORIGIN must be configured in production for OAuth callbacks",
-    );
+    throw new Error("APP_ORIGIN must be configured in production for OAuth callbacks");
   }
 
   // Local dev fallback — derive from the request URL only (no forwarded headers).
@@ -46,11 +44,17 @@ function buildCallbackUri(provider: string): string {
 export const startOAuthConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      provider: z.string().min(2).max(40).regex(/^[a-z0-9_-]+$/),
-      brandId: z.string().uuid().optional(),
-    }).parse(input),
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        provider: z
+          .string()
+          .min(2)
+          .max(40)
+          .regex(/^[a-z0-9_-]+$/),
+        brandId: z.string().uuid().optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -88,9 +92,7 @@ export const listOAuthProviders = createServerFn({ method: "GET" })
 
 export const disconnectChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ channelId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => z.object({ channelId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     // Membership/role checked via RLS on channels.update

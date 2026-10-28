@@ -13,14 +13,22 @@ type Props = {
   tickPending: boolean;
 };
 
-export function SchedulerFilters({ filter, setFilter, counts, total, onTick, tickDisabled, tickPending }: Props) {
+export function SchedulerFilters({
+  filter,
+  setFilter,
+  counts,
+  total,
+  onTick,
+  tickDisabled,
+  tickPending,
+}: Props) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-2">
         {STATUSES.map((s) => {
           const active = s === filter;
           const label = s === "all" ? "All" : STATUS_META[s].label;
-          const count = s === "all" ? total : counts[s] ?? 0;
+          const count = s === "all" ? total : (counts[s] ?? 0);
           return (
             <button
               key={s}

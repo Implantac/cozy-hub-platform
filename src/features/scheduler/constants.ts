@@ -19,5 +19,9 @@ export const STATUS_META: Record<
   processing: { icon: Loader2, className: "bg-primary/15 text-primary", label: "Processing" },
   succeeded: { icon: CheckCircle2, className: "bg-success/20 text-success", label: "Succeeded" },
   failed: { icon: XCircle, className: "bg-destructive/15 text-destructive", label: "Failed" },
-  dead_letter: { icon: AlertTriangle, className: "bg-warning/20 text-warning", label: "Dead letter" },
+  dead_letter: {
+    icon: AlertTriangle,
+    className: "bg-warning/20 text-warning",
+    label: "Dead letter",
+  },
 };

@@ -11,11 +11,13 @@ import { throwIfError } from "./_supabase";
 export const enqueuePublication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      contentId: z.string().uuid(),
-      channelIds: z.array(z.string().uuid()).min(1).max(20),
-      scheduledAt: z.string().datetime(),
-    }).parse(input),
+    z
+      .object({
+        contentId: z.string().uuid(),
+        channelIds: z.array(z.string().uuid()).min(1).max(20),
+        scheduledAt: z.string().datetime(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -31,13 +33,13 @@ export const enqueuePublication = createServerFn({ method: "POST" })
 export const listSchedulerJobs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      status: z
-        .enum(["pending", "processing", "succeeded", "failed", "dead_letter"])
-        .optional(),
-      limit: z.number().int().min(1).max(200).default(50),
-    }).parse(input),
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        status: z.enum(["pending", "processing", "succeeded", "failed", "dead_letter"]).optional(),
+        limit: z.number().int().min(1).max(200).default(50),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -56,10 +58,12 @@ export const listSchedulerJobs = createServerFn({ method: "GET" })
 export const cancelSchedulerJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      jobId: z.string().uuid(),
-    }).parse(input),
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        jobId: z.string().uuid(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -87,10 +91,12 @@ export const cancelSchedulerJob = createServerFn({ method: "POST" })
 export const runSchedulerTickManual = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      workspaceId: z.string().uuid(),
-      limit: z.number().int().min(1).max(50).default(10),
-    }).parse(input),
+    z
+      .object({
+        workspaceId: z.string().uuid(),
+        limit: z.number().int().min(1).max(50).default(10),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

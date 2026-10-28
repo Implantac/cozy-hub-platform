@@ -36,8 +36,7 @@ export const Route = createFileRoute("/api/public/cron/scheduler-tick")({
           process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? null;
 
         const ok =
-          safeEqual(expectedSecret, providedSecret) ||
-          safeEqual(expectedApiKey, providedApiKey);
+          safeEqual(expectedSecret, providedSecret) || safeEqual(expectedApiKey, providedApiKey);
 
         if (!ok) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
@@ -55,10 +54,10 @@ export const Route = createFileRoute("/api/public/cron/scheduler-tick")({
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
           console.error("[cron/scheduler-tick] error:", message);
-          return new Response(
-            JSON.stringify({ ok: false, error: message }),
-            { status: 500, headers: JSON_HEADERS },
-          );
+          return new Response(JSON.stringify({ ok: false, error: message }), {
+            status: 500,
+            headers: JSON_HEADERS,
+          });
         }
       },
       // Do not leak the expected header name on unauthenticated GETs.

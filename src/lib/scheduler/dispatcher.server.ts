@@ -10,11 +10,8 @@
  */
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  publishToPlatform,
-  PublisherError,
-  type Platform,
-} from "./publishers.server";
+import { publishToPlatform, PublisherError, type Platform } from "./publishers.server";
+import { getFreshToken } from "@/lib/oauth/refresh.server";
 
 export interface DispatchSummary {
   claimed: number;
@@ -38,19 +35,18 @@ interface SchedulerJobRow {
 }
 
 async function loadContext(job: SchedulerJobRow) {
-  const [{ data: content, error: cErr }, { data: channel, error: chErr }] =
-    await Promise.all([
-      supabaseAdmin
-        .from("content")
-        .select("id, workspace_id, title, body, media, type")
-        .eq("id", job.content_id)
-        .single(),
-      supabaseAdmin
-        .from("channels")
-        .select("id, workspace_id, platform, metadata")
-        .eq("id", job.channel_id)
-        .single(),
-    ]);
+  const [{ data: content, error: cErr }, { data: channel, error: chErr }] = await Promise.all([
+    supabaseAdmin
+      .from("content")
+      .select("id, workspace_id, title, body, media, type")
+      .eq("id", job.content_id)
+      .single(),
+    supabaseAdmin
+      .from("channels")
+      .select("id, workspace_id, platform, metadata, external_id")
+      .eq("id", job.channel_id)
+      .single(),
+  ]);
 
   if (cErr || !content) {
     throw new PublisherError(`content not found: ${cErr?.message ?? "missing"}`, {
@@ -77,6 +73,24 @@ async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"]
     const { content, channel } = await loadContext(job);
     const platform = channel.platform as Platform;
 
+    // Refresh before publishing: a job scheduled weeks ahead will almost never
+    // still hold a valid token. Refresh failures are mapped to the retry
+    // contract so a revoked channel goes to the DLQ instead of retrying forever.
+    let accessToken: string | null = null;
+    try {
+      const fresh = await getFreshToken(job.channel_id, platform);
+      accessToken = fresh.accessToken;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // Channels created manually (no OAuth) have no token; let the publisher
+      // decide whether that is fatal for its platform.
+      if (!/sem token OAuth/i.test(msg)) {
+        throw new PublisherError(`token refresh falhou: ${msg}`, {
+          retryable: !/reconecte|revogad|invalid_grant/i.test(msg),
+        });
+      }
+    }
+
     const result = await publishToPlatform({
       jobId: job.id,
       workspaceId: job.workspace_id,
@@ -88,7 +102,11 @@ async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"]
         body: content.body,
         media_urls: extractMediaUrls(content.media),
       },
-      channelConfig: (channel.metadata as Record<string, unknown> | null) ?? {},
+      channelConfig: {
+        ...((channel.metadata as Record<string, unknown> | null) ?? {}),
+        external_id: channel.external_id ?? undefined,
+        ...(accessToken ? { access_token: accessToken } : {}),
+      },
     });
 
     const { error } = await supabaseAdmin.rpc("complete_scheduler_job", {
@@ -110,10 +128,12 @@ async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"]
   }
 }
 
-export async function runSchedulerTick(opts: {
-  limit?: number;
-  lockSeconds?: number;
-} = {}): Promise<DispatchSummary> {
+export async function runSchedulerTick(
+  opts: {
+    limit?: number;
+    lockSeconds?: number;
+  } = {},
+): Promise<DispatchSummary> {
   const limit = opts.limit ?? 10;
   const lockSeconds = opts.lockSeconds ?? 60;
 

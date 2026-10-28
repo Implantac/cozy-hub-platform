@@ -48,9 +48,7 @@ export function SchedulerTable({ jobs, onCancel, cancelPending }: Props) {
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${meta?.className ?? ""}`}
                   >
-                    <Icon
-                      className={`size-3 ${j.status === "processing" ? "animate-spin" : ""}`}
-                    />
+                    <Icon className={`size-3 ${j.status === "processing" ? "animate-spin" : ""}`} />
                     {meta?.label ?? j.status}
                   </span>
                   {j.last_error ? (
@@ -59,9 +57,7 @@ export function SchedulerTable({ jobs, onCancel, cancelPending }: Props) {
                     </div>
                   ) : null}
                 </td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">
-                  {j.attempts ?? 0}
-                </td>
+                <td className="px-4 py-3 tabular-nums text-muted-foreground">{j.attempts ?? 0}</td>
                 <td className="px-4 py-3 text-right">
                   {j.status === "pending" ? (
                     <button

@@ -19,6 +19,8 @@ export * as DashboardService from "./dashboard.service";
 
 // --- Pass-through service namespaces -------------------------------------
 export * as AnalyticsService from "@/lib/api/analytics.functions";
+export * as AnalyticsSyncService from "@/lib/api/analytics-sync.functions";
+export * as BioService from "@/lib/api/bio.functions";
 export * as BrainCoreService from "@/lib/api/brain-core.functions";
 export * as BrainEvolutionService from "@/lib/api/brain-evolution.functions";
 export * as BuilderService from "@/lib/api/builder.functions";
@@ -27,6 +29,8 @@ export * as ChannelsService from "@/lib/api/channels.functions";
 export * as CoachService from "@/lib/api/coach.functions";
 export * as ContentService from "@/lib/api/content.functions";
 export * as DecisionOSService from "@/lib/api/decision-os.functions";
+export * as GrowthService from "@/lib/api/growth.functions";
+export * as GbpService from "@/lib/api/gbp.functions";
 export * as HealthService from "@/lib/api/health.functions";
 export * as LearningService from "@/lib/api/learning.functions";
 export * as MissionsService from "@/lib/api/missions.functions";

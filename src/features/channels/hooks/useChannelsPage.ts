@@ -45,7 +45,11 @@ export function useChannelsPage() {
 
   const createMut = useWorkspaceMutation(
     () => create({ data: { workspaceId: q.wsId!, platform, handle } }),
-    { invalidate: invalidateKey, successMessage: "Channel registered", onSuccess: () => setHandle("") },
+    {
+      invalidate: invalidateKey,
+      successMessage: "Channel registered",
+      onSuccess: () => setHandle(""),
+    },
   );
 
   const delMut = useWorkspaceMutation(
@@ -60,8 +64,22 @@ export function useChannelsPage() {
 
   const connectMut = useWorkspaceMutation(
     async (providerId: string) => connect({ data: { workspaceId: q.wsId!, provider: providerId } }),
-    { onSuccess: (res) => { window.location.href = res.url; } },
+    {
+      onSuccess: (res) => {
+        window.location.href = res.url;
+      },
+    },
   );
 
-  return { q, platform, setPlatform, handle, setHandle, createMut, delMut, disconnectMut, connectMut };
+  return {
+    q,
+    platform,
+    setPlatform,
+    handle,
+    setHandle,
+    createMut,
+    delMut,
+    disconnectMut,
+    connectMut,
+  };
 }

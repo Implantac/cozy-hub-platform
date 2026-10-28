@@ -111,8 +111,7 @@ const linkedin: Provider = {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
     });
-    if (!res.ok)
-      throw new Error(`linkedin exchange failed: ${res.status} ${await res.text()}`);
+    if (!res.ok) throw new Error(`linkedin exchange failed: ${res.status} ${await res.text()}`);
     const json = (await res.json()) as {
       access_token: string;
       expires_in?: number;
@@ -164,8 +163,7 @@ const google: Provider = {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
     });
-    if (!res.ok)
-      throw new Error(`google exchange failed: ${res.status} ${await res.text()}`);
+    if (!res.ok) throw new Error(`google exchange failed: ${res.status} ${await res.text()}`);
     const json = (await res.json()) as {
       access_token: string;
       refresh_token?: string;
@@ -182,6 +180,165 @@ const google: Provider = {
     };
   },
 };
+
+/**
+ * Google Business Profile.
+ *
+ * Uses the same Google OAuth client as YouTube but a different scope, so the
+ * consent screen clearly states what the user is granting. The dedicated scope
+ * `business.manage` is intentionally broad — Google has no narrower scope for
+ * creating local posts, and requesting it here keeps the grant visible instead
+ * of hiding it inside the YouTube flow.
+ *
+ * Approval requirement: the Google Cloud project must have the Business Profile
+ * APIs enabled and be allowlisted for `business.manage`. Without that, exchange
+ * succeeds but the first API call returns 403 — hence the explicit check in
+ * `discoverLocations` below rather than a silent empty list.
+ */
+const googleBusiness: Provider = {
+  platform: "google_business",
+  authUrl({ state, redirectUri }) {
+    const clientId = requireEnv("GOOGLE_CLIENT_ID");
+    const u = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    u.searchParams.set("client_id", clientId);
+    u.searchParams.set("redirect_uri", redirectUri);
+    u.searchParams.set("response_type", "code");
+    u.searchParams.set("access_type", "offline");
+    u.searchParams.set("prompt", "consent");
+    u.searchParams.set("state", state);
+    u.searchParams.set("scope", "https://www.googleapis.com/auth/business.manage");
+    return u.toString();
+  },
+  async exchange({ code, redirectUri }) {
+    const clientId = requireEnv("GOOGLE_CLIENT_ID");
+    const clientSecret = requireEnv("GOOGLE_CLIENT_SECRET");
+    const body = new URLSearchParams({
+      code,
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    });
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    });
+    if (!res.ok)
+      throw new Error(`google_business exchange failed: ${res.status} ${await res.text()}`);
+    const json = (await res.json()) as {
+      access_token: string;
+      refresh_token?: string;
+      expires_in?: number;
+      scope?: string;
+      token_type?: string;
+    };
+
+    // Discover the first verified location so the channel is usable immediately.
+    // Failure here is not fatal: the user can pick a location later from the UI.
+    let externalAccountId: string | undefined;
+    let externalHandle: string | undefined;
+    try {
+      const locs = await listBusinessLocations(json.access_token);
+      const first = locs[0];
+      if (first) {
+        externalAccountId = first.name;
+        externalHandle = first.locationName;
+      }
+    } catch {
+      /* company without a verified location, or API not yet allowlisted */
+    }
+
+    return {
+      accessToken: json.access_token,
+      refreshToken: json.refresh_token,
+      expiresAt: expiresInToIso(json.expires_in),
+      scope: json.scope,
+      tokenType: json.token_type,
+      externalAccountId,
+      externalHandle,
+    };
+  },
+};
+
+export interface BusinessLocation {
+  /** Resource name: accounts/{a}/locations/{l} */
+  name: string;
+  accountId: string;
+  locationId: string;
+  locationName: string;
+  address?: string;
+  /** False when the listing is not verified — posts are rejected until it is. */
+  verified: boolean;
+}
+
+/**
+ * Lists the locations the authenticated user can manage.
+ *
+ * Google's Business Profile API is a two-step walk: accounts.list, then
+ * locations.list per account. The flat result is what the channel picker needs.
+ */
+export async function listBusinessLocations(accessToken: string): Promise<BusinessLocation[]> {
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const accountsRes = await fetch(
+    "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+    { headers },
+  );
+
+  if (accountsRes.status === 403) {
+    throw new Error(
+      "A API do Google Business Profile não está habilitada ou o projeto não está " +
+        "aprovado para o escopo business.manage. Habilite as Business Profile APIs " +
+        "no Google Cloud e solicite acesso.",
+    );
+  }
+  if (!accountsRes.ok) {
+    throw new Error(`accounts.list falhou: ${accountsRes.status} ${await accountsRes.text()}`);
+  }
+
+  const accountsJson = (await accountsRes.json()) as {
+    accounts?: Array<{ name?: string; accountName?: string; type?: string }>;
+  };
+
+  const out: BusinessLocation[] = [];
+  for (const acc of accountsJson.accounts ?? []) {
+    const accountName = acc.name; // accounts/{id}
+    if (!accountName) continue;
+    const locRes = await fetch(
+      `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations` +
+        `?readMask=name,title,storefrontAddress,metadata`,
+      { headers },
+    );
+    if (!locRes.ok) continue; // a single account failing must not void the rest
+    const locJson = (await locRes.json()) as {
+      locations?: Array<{
+        name?: string;
+        title?: string;
+        storefrontAddress?: { addressLines?: string[]; locality?: string; regionCode?: string };
+        metadata?: { canOperateLocalServices?: boolean; mapsUri?: string };
+      }>;
+    };
+
+    for (const loc of locJson.locations ?? []) {
+      // `name` comes back as "locations/{id}" in this API.
+      const locationId = loc.name?.split("/").pop() ?? "";
+      if (!locationId) continue;
+      const addr = loc.storefrontAddress;
+      out.push({
+        name: `${accountName}/locations/${locationId}`,
+        accountId: accountName.split("/").pop() ?? "",
+        locationId,
+        locationName: loc.title ?? `Location ${locationId}`,
+        address: [addr?.addressLines?.join(", "), addr?.locality, addr?.regionCode]
+          .filter(Boolean)
+          .join(" · "),
+        verified: loc.metadata?.canOperateLocalServices !== false,
+      });
+    }
+  }
+
+  return out;
+}
 
 /** TikTok (Login Kit / Content Posting API) */
 const tiktok: Provider = {
@@ -211,8 +368,7 @@ const tiktok: Provider = {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
     });
-    if (!res.ok)
-      throw new Error(`tiktok exchange failed: ${res.status} ${await res.text()}`);
+    if (!res.ok) throw new Error(`tiktok exchange failed: ${res.status} ${await res.text()}`);
     const json = (await res.json()) as {
       access_token: string;
       refresh_token?: string;
@@ -237,6 +393,7 @@ export type SupportedProvider =
   | "linkedin"
   | "google"
   | "youtube"
+  | "google_business"
   | "tiktok";
 
 const REGISTRY: Record<SupportedProvider, Provider> = {
@@ -246,6 +403,7 @@ const REGISTRY: Record<SupportedProvider, Provider> = {
   linkedin,
   google,
   youtube: google,
+  google_business: googleBusiness,
   tiktok,
 };
 

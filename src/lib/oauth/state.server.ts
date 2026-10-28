@@ -39,9 +39,7 @@ function fromB64url(s: string): Buffer {
   return Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64");
 }
 
-export function signState(
-  input: Omit<StatePayload, "nonce" | "exp">,
-): string {
+export function signState(input: Omit<StatePayload, "nonce" | "exp">): string {
   const payload: StatePayload = {
     ...input,
     nonce: randomBytes(8).toString("hex"),

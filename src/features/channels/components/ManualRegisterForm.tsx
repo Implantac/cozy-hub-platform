@@ -10,12 +10,24 @@ type Props = {
   isPending: boolean;
 };
 
-export function ManualRegisterForm({ platform, setPlatform, handle, setHandle, onSubmit, isPending }: Props) {
+export function ManualRegisterForm({
+  platform,
+  setPlatform,
+  handle,
+  setHandle,
+  onSubmit,
+  isPending,
+}: Props) {
   return (
     <div className="section-card p-5 sm:p-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Or register a handle manually</h3>
+      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        Or register a handle manually
+      </h3>
       <form
-        onSubmit={(e) => { e.preventDefault(); if (handle.length > 0) onSubmit(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (handle.length > 0) onSubmit();
+        }}
         className="grid gap-3 md:grid-cols-[auto_1fr_auto]"
       >
         <select
@@ -24,7 +36,9 @@ export function ManualRegisterForm({ platform, setPlatform, handle, setHandle, o
           className="h-10 rounded-xl border border-input bg-background/50 px-3 py-2 text-sm transition-all focus:border-primary/50"
         >
           {PLATFORMS.map((p) => (
-            <option key={p.id} value={p.id}>{p.label}</option>
+            <option key={p.id} value={p.id}>
+              {p.label}
+            </option>
           ))}
         </select>
         <input

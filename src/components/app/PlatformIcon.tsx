@@ -1,11 +1,4 @@
-import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  Music2,
-  Radio,
-  Youtube,
-} from "lucide-react";
+import { Facebook, Instagram, Linkedin, MapPin, Music2, Radio, Youtube } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type PlatformId =
@@ -13,7 +6,8 @@ export type PlatformId =
   | "facebook"
   | "youtube"
   | "tiktok"
-  | "linkedin";
+  | "linkedin"
+  | "google_business";
 
 export interface PlatformMeta {
   id: PlatformId;
@@ -29,6 +23,8 @@ export const PLATFORMS: readonly PlatformMeta[] = [
   { id: "youtube", label: "YouTube", Icon: Youtube, oauth: "google" },
   { id: "tiktok", label: "TikTok", Icon: Music2, oauth: "tiktok" },
   { id: "linkedin", label: "LinkedIn", Icon: Linkedin, oauth: "linkedin" },
+  // Único canal de busca local: decisivo para negócio com endereço físico.
+  { id: "google_business", label: "Google Business", Icon: MapPin, oauth: "google_business" },
 ] as const;
 
 export function getPlatformMeta(id: string | null | undefined): PlatformMeta | undefined {

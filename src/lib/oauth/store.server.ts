@@ -49,9 +49,6 @@ export async function getToken(channelId: string): Promise<StoredToken | null> {
 }
 
 export async function deleteToken(channelId: string): Promise<void> {
-  const { error } = await supabaseAdmin
-    .from("oauth_tokens")
-    .delete()
-    .eq("channel_id", channelId);
+  const { error } = await supabaseAdmin.from("oauth_tokens").delete().eq("channel_id", channelId);
   if (error) throw new Error(`deleteToken: ${error.message}`);
 }
