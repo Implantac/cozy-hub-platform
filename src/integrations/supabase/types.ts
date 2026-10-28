@@ -2171,6 +2171,7 @@ export type Database = {
         | "youtube"
         | "tiktok"
         | "linkedin"
+        | "google_business"
       workspace_plan: "free" | "pro" | "business" | "enterprise"
     }
     CompositeTypes: {
@@ -2420,6 +2421,7 @@ export const Constants = {
         "youtube",
         "tiktok",
         "linkedin",
+        "google_business",
       ],
       workspace_plan: ["free", "pro", "business", "enterprise"],
     },
