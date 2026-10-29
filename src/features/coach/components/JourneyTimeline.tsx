@@ -1,9 +1,10 @@
 import { History } from "lucide-react";
 import { ListSkeleton } from "@/components/app/Skeletons";
+import type { Row } from "@/lib/brain/types";
 import { MEMORY_META, SENTIMENT_ICON, formatWhen } from "../constants";
 
 type Props = {
-  events: any[];
+  events: Row<"brain_memory_events">[];
   isLoading: boolean;
 };
 
@@ -28,7 +29,7 @@ export function JourneyTimeline({ events, isLoading }: Props) {
       )}
 
       <ol className="relative space-y-3 border-l border-border/70 pl-4">
-        {events.map((evt: any) => {
+        {events.map((evt) => {
           const meta = MEMORY_META[evt.kind] ?? MEMORY_META.signal;
           const Icon = meta.icon;
           const sentiment = evt.sentiment ? SENTIMENT_ICON[evt.sentiment] : null;

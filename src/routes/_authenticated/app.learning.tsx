@@ -1,3 +1,4 @@
+import { readMilestones } from "@/lib/json";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -26,7 +27,7 @@ function LearningPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const progressMap = new Map((progress.data ?? []).map((p: any) => [p.path_id, p]));
+  const progressMap = new Map((progress.data ?? []).map((p) => [p.path_id, p]));
 
   return (
     <PageTransition>
@@ -39,8 +40,8 @@ function LearningPage() {
         />
 
         <div className="grid gap-4 lg:grid-cols-2">
-          {(paths.data ?? []).map((p: any) => {
-            const prog: any = progressMap.get(p.id);
+          {(paths.data ?? []).map((p) => {
+            const prog = progressMap.get(p.id);
             const completed: string[] = prog?.completed_milestones ?? [];
             const pct = prog?.progress_pct ?? 0;
             return (
@@ -74,7 +75,7 @@ function LearningPage() {
                   />
                 </div>
                 <ul className="mt-4 space-y-2">
-                  {(Array.isArray(p.milestones) ? p.milestones : []).map((m: any) => {
+                  {readMilestones(p.milestones).map((m) => {
                     const done = completed.includes(m.id);
                     return (
                       <li key={m.id}>

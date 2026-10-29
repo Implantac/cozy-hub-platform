@@ -3,6 +3,7 @@
  * Never throws: timeline enrichment must not break the originating mutation.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 export type BrainEventKind = "decision" | "result" | "pivot" | "signal" | "reflection";
 export type BrainSentiment = "positive" | "negative" | "neutral";
@@ -12,12 +13,18 @@ export interface MemoryEventInput {
   userId: string;
   kind: BrainEventKind;
   subject: string;
-  payload?: Record<string, unknown>;
+  /**
+   * Free-form context stored as JSON. Typed as `Json` rather than
+   * `Record<string, unknown>` because the column is JSON: the looser type lets a
+   * caller pass a `Date` or a class instance that cannot be serialised, and the
+   * insert then fails (or worse, writes `{}` silently).
+   */
+  payload?: Json;
   sentiment?: BrainSentiment;
 }
 
 export async function emitMemoryEvent(
-  supabase: SupabaseClient<any>,
+  supabase: SupabaseClient<Database>,
   evt: MemoryEventInput,
 ): Promise<void> {
   try {
@@ -39,7 +46,7 @@ export async function emitMemoryEvent(
  * against fresh context. Best-effort; never throws.
  */
 export async function invalidateBrainCache(
-  supabase: SupabaseClient<any>,
+  supabase: SupabaseClient<Database>,
   workspaceId: string,
 ): Promise<void> {
   try {

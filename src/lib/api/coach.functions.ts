@@ -40,7 +40,7 @@ export const generateRecommendations = createServerFn({ method: "POST" })
       severity: "info" | "low" | "medium" | "high" | "critical";
       title: string;
       body?: string;
-      cta?: any;
+      cta?: { label: string; href: string };
       score?: number;
     }> = [];
 
@@ -68,7 +68,7 @@ export const generateRecommendations = createServerFn({ method: "POST" })
         score: 90,
       });
     }
-    const disconnected = channelRows.filter((c: any) => c.status !== "connected").length;
+    const disconnected = channelRows.filter((c) => c.status !== "connected").length;
     if (disconnected > 0) {
       recs.push({
         kind: "warning",
@@ -80,7 +80,7 @@ export const generateRecommendations = createServerFn({ method: "POST" })
       });
     }
     const cutoff = Date.now() - 7 * 86400_000;
-    const recent = contentRows.filter((c: any) => new Date(c.created_at).getTime() > cutoff).length;
+    const recent = contentRows.filter((c) => new Date(c.created_at).getTime() > cutoff).length;
     if (recent === 0 && contentRows.length > 0) {
       recs.push({
         kind: "warning",
@@ -101,7 +101,7 @@ export const generateRecommendations = createServerFn({ method: "POST" })
         score: 70,
       });
     }
-    if (brandRows.length > 0 && !brandRows.some((b: any) => b.logo_url)) {
+    if (brandRows.length > 0 && !brandRows.some((b) => b.logo_url)) {
       recs.push({
         kind: "suggestion",
         severity: "low",

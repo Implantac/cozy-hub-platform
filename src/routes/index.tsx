@@ -31,15 +31,35 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+/**
+ * Reads a feature's `{ title, desc }` pair from the translation files.
+ *
+ * `returnObjects: true` gives `unknown`, and casting it to `any` meant a missing
+ * or renamed key rendered as `undefined` on the marketing page — the first thing
+ * a visitor sees. Validating here turns that into empty strings the layout can
+ * survive, and keeps the cast out of the component.
+ */
+type FeatureCopy = { title: string; desc: string };
+
+function featureCopy(t: (key: string, opts?: { returnObjects: boolean }) => unknown, key: string) {
+  const raw = t(key, { returnObjects: true });
+  if (!raw || typeof raw !== "object") return { title: "", desc: "" } satisfies FeatureCopy;
+  const source = raw as { title?: unknown; desc?: unknown };
+  return {
+    title: typeof source.title === "string" ? source.title : "",
+    desc: typeof source.desc === "string" ? source.desc : "",
+  } satisfies FeatureCopy;
+}
+
 function Landing() {
   const { t } = useTranslation();
   const features = [
-    { icon: Network, ...(t("landing.features.multichannel", { returnObjects: true }) as any) },
-    { icon: Calendar, ...(t("landing.features.scheduler", { returnObjects: true }) as any) },
-    { icon: BarChart3, ...(t("landing.features.analytics", { returnObjects: true }) as any) },
-    { icon: Brain, ...(t("landing.features.brain", { returnObjects: true }) as any) },
-    { icon: Target, ...(t("landing.features.missions", { returnObjects: true }) as any) },
-    { icon: Layers, ...(t("landing.features.tenant", { returnObjects: true }) as any) },
+    { icon: Network, ...featureCopy(t, "landing.features.multichannel") },
+    { icon: Calendar, ...featureCopy(t, "landing.features.scheduler") },
+    { icon: BarChart3, ...featureCopy(t, "landing.features.analytics") },
+    { icon: Brain, ...featureCopy(t, "landing.features.brain") },
+    { icon: Target, ...featureCopy(t, "landing.features.missions") },
+    { icon: Layers, ...featureCopy(t, "landing.features.tenant") },
   ];
 
   const steps = [

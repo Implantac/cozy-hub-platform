@@ -2,18 +2,21 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { fadeUp } from "@/components/app/Motion";
+import type { Row } from "@/lib/brain/types";
+import { readCta } from "@/lib/json";
 import { KIND_META } from "../constants";
 
 type Props = {
-  recs: any[];
+  recs: Row<"coach_recommendations">[];
   onAct: (v: { id: string; action: "dismiss" | "complete" }) => void;
 };
 
 export function RecommendationsList({ recs, onAct }: Props) {
   return (
     <>
-      {recs.map((r: any) => {
+      {recs.map((r) => {
         const meta = KIND_META[r.kind] ?? KIND_META.suggestion;
+        const cta = readCta(r.cta);
         const Icon = meta.icon;
         return (
           <motion.div
@@ -39,12 +42,12 @@ export function RecommendationsList({ recs, onAct }: Props) {
               </div>
               <h3 className="mt-1 font-medium">{r.title}</h3>
               {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
-              {r.cta?.href && r.cta?.label && (
+              {cta?.href && cta.label && (
                 <Link
-                  to={r.cta.href}
+                  to={cta.href}
                   className="mt-3 inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
                 >
-                  {r.cta.label} →
+                  {cta.label} →
                 </Link>
               )}
             </div>
