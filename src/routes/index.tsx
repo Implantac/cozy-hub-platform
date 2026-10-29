@@ -31,8 +31,8 @@ const LANDING_SEO_FALLBACK = {
 };
 
 export const Route = createFileRoute("/")({
-  head: () => {
-    const lang = requestLang();
+  head: async () => {
+    const lang = await requestLang();
     const title = translateServer(lang, "seo", "title", LANDING_SEO_FALLBACK.title);
     const description = translateServer(
       lang,

@@ -97,8 +97,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => {
-    const lang = requestLang();
+  head: async () => {
+    const lang = await requestLang();
     const title = translateServer(lang, "root", "title", ROOT_SEO_FALLBACK.title);
     const description = translateServer(lang, "root", "description", ROOT_SEO_FALLBACK.description);
     return {

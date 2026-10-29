@@ -1,4 +1,4 @@
-import { getRequest } from "@tanstack/react-start/server";
+import { createIsomorphicFn } from "@tanstack/react-start";
 
 import enUS from "./locales/en-US.json";
 import ptBR from "./locales/pt-BR.json";
@@ -49,9 +49,19 @@ export function translateServer(
  * `auth-middleware.ts` reads the request. Outside a request (client navigation,
  * tests) there is no header and the client-side detection decides.
  */
-export function requestLang(): LanguageCode {
-  const header = getRequest()?.headers?.get("accept-language") ?? null;
-  return resolveLang(header);
+const acceptLanguageHeader = createIsomorphicFn()
+  .client(() => null)
+  // Dynamic import, not a static one: `@tanstack/react-start/server` is
+  // server-only and this module reaches the *browser* bundle through the route
+  // files' `head()`. A top-level import fails the build with an import-protection
+  // error — the dev server never shows it, because it does not enforce it.
+  .server(async () => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    return getRequest()?.headers?.get("accept-language") ?? null;
+  });
+
+export async function requestLang(): Promise<LanguageCode> {
+  return resolveLang(await acceptLanguageHeader());
 }
 
 /** Open Graph wants `pt_BR`, not `pt-BR`. */

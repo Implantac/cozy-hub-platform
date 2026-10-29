@@ -9,8 +9,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { requestLang, translateServer } from "@/lib/i18n/translate";
 
 export const Route = createFileRoute("/login")({
-  head: () => {
-    const lang = requestLang();
+  head: async () => {
+    const lang = await requestLang();
     return {
       meta: [{ title: translateServer(lang, "routes", "login", "Sign in · VELT") }],
     };
