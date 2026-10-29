@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import type { Row } from "@/lib/brain/types";
+import { readChecks } from "./checks";
 import { BarChart3 } from "lucide-react";
 import {
   createDueDiligenceReport,
@@ -11,7 +13,7 @@ import { EmptyState } from "@/components/app/EmptyState";
 export function AntiScamPanel() {
   const list = useServerFn(listDueDiligenceReports);
   const create = useServerFn(createDueDiligenceReport);
-  const repQ = useWorkspaceQuery<any[]>(
+  const repQ = useWorkspaceQuery<Row<"due_diligence_reports">[]>(
     (ws) => ["dd", ws],
     ({ workspaceId }) => list({ data: { workspaceId } }),
   );
@@ -98,7 +100,7 @@ export function AntiScamPanel() {
         <h3 className="mb-3 text-sm font-medium">Análises</h3>
         <div className="space-y-2">
           {(repQ.data ?? []).map((r) => {
-            const c = (r.checks ?? {}) as any;
+            const c = readChecks(r.checks);
             const color =
               r.verdict === "high_risk"
                 ? "text-destructive"

@@ -231,7 +231,11 @@ export const updateExperimentStatus = createServerFn({ method: "POST" })
       .object({
         workspaceId: z.string().uuid(),
         id: z.string().uuid(),
-        status: z.enum(["proposed", "running", "completed", "abandoned"]),
+        // Mirrors the `experiment_status` enum in the database. The previous list
+        // (`running`, `completed`, `abandoned`) was invented: three of its four
+        // values do not exist, so every attempt to start, finish or drop an
+        // experiment was rejected by Postgres.
+        status: z.enum(["proposed", "active", "succeeded", "neutral", "failed", "cancelled"]),
         metric_result: z.number().optional(),
         insights: z.string().max(1000).optional(),
       })
@@ -243,8 +247,10 @@ export const updateExperimentStatus = createServerFn({ method: "POST" })
       status: data.status,
       updated_at: new Date().toISOString(),
     };
-    if (data.status === "running") patch.starts_at = new Date().toISOString();
-    if (data.status === "completed" || data.status === "abandoned") {
+    if (data.status === "active") patch.starts_at = new Date().toISOString();
+    // `cancelled` closes an experiment without a verdict; `succeeded`, `neutral`
+    // and `failed` close it with one. All of them are terminal.
+    if (["succeeded", "neutral", "failed", "cancelled"].includes(data.status)) {
       patch.ends_at = new Date().toISOString();
     }
     if (data.metric_result !== undefined) patch.metric_result = data.metric_result;

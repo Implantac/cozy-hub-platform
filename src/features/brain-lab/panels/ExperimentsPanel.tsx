@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import type { Row } from "@/lib/brain/types";
 import { FlaskConical } from "lucide-react";
 import {
   createExperiment,
@@ -14,7 +15,7 @@ export function ExperimentsPanel() {
   const list = useServerFn(listExperiments);
   const create = useServerFn(createExperiment);
   const update = useServerFn(updateExperimentStatus);
-  const expQ = useWorkspaceQuery<any[]>(
+  const expQ = useWorkspaceQuery<Row<"brain_experiments">[]>(
     (ws) => ["experiments", ws],
     ({ workspaceId }) => list({ data: { workspaceId } }),
   );
@@ -47,7 +48,8 @@ export function ExperimentsPanel() {
     },
   );
 
-  const setStatus = (id: string, status: "running" | "completed" | "abandoned") => {
+  type ExperimentStatus = Row<"brain_experiments">["status"];
+  const setStatus = (id: string, status: ExperimentStatus) => {
     if (!wsId) return;
     update({ data: { workspaceId: wsId, id, status } }).then(() => expQ.refetch());
   };
@@ -128,22 +130,22 @@ export function ExperimentsPanel() {
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
                 {x.status === "proposed" && (
                   <button
-                    onClick={() => setStatus(x.id, "running")}
+                    onClick={() => setStatus(x.id, "active")}
                     className="rounded-md bg-primary/20 px-2 py-1 text-primary"
                   >
                     Iniciar
                   </button>
                 )}
-                {x.status === "running" && (
+                {x.status === "active" && (
                   <>
                     <button
-                      onClick={() => setStatus(x.id, "completed")}
+                      onClick={() => setStatus(x.id, "succeeded")}
                       className="rounded-md bg-success/20 px-2 py-1 text-success"
                     >
                       Concluir
                     </button>
                     <button
-                      onClick={() => setStatus(x.id, "abandoned")}
+                      onClick={() => setStatus(x.id, "cancelled")}
                       className="rounded-md bg-secondary px-2 py-1"
                     >
                       Abandonar

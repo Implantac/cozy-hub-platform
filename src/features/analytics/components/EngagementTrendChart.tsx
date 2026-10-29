@@ -11,7 +11,14 @@ import {
 import { SectionCard } from "@/components/app/SectionCard";
 import { TOOLTIP_STYLE } from "../constants";
 
-export function EngagementTrendChart({ daily }: { daily: any[] }) {
+/**
+ * The series this chart renders. Declared from the `dataKey`s below, so a change
+ * to the aggregator that renames or drops one becomes a compile error instead of
+ * an empty chart that nobody notices.
+ */
+export type DailyPoint = { date: string; engagement: number };
+
+export function EngagementTrendChart({ daily }: { daily: DailyPoint[] }) {
   return (
     <SectionCard title="Tendência de engajamento" icon={TrendingUp}>
       <div className="h-72">

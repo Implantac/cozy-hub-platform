@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import type { Row } from "@/lib/brain/types";
 import { Scale } from "lucide-react";
 import {
   createDecision,
@@ -13,7 +14,7 @@ export function DecisionsPanel() {
   const list = useServerFn(listDecisions);
   const create = useServerFn(createDecision);
   const exec = useServerFn(markDecisionExecuted);
-  const decQ = useWorkspaceQuery<any[]>(
+  const decQ = useWorkspaceQuery<Row<"brain_decisions">[]>(
     (ws) => ["decisions", ws],
     ({ workspaceId }) => list({ data: { workspaceId } }),
   );

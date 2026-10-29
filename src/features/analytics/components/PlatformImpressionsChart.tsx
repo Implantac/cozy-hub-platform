@@ -3,7 +3,10 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { SectionCard } from "@/components/app/SectionCard";
 import { TOOLTIP_STYLE } from "../constants";
 
-export function PlatformImpressionsChart({ byPlatform }: { byPlatform: any[] }) {
+/** See the note on `DailyPoint`: the shape is the chart's own contract. */
+export type PlatformImpressions = { platform: string; impressions: number };
+
+export function PlatformImpressionsChart({ byPlatform }: { byPlatform: PlatformImpressions[] }) {
   return (
     <SectionCard title="Impressões por plataforma" icon={BarChart3}>
       <div className="h-64">

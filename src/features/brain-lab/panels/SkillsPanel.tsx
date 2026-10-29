@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import type { Row } from "@/lib/brain/types";
 import { listSkillAssessments, upsertSkillAssessment } from "@/lib/api/brain-evolution.functions";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import { SKILL_AREAS, type SkillArea } from "../constants";
@@ -7,13 +8,13 @@ import { SKILL_AREAS, type SkillArea } from "../constants";
 export function SkillsPanel() {
   const list = useServerFn(listSkillAssessments);
   const save = useServerFn(upsertSkillAssessment);
-  const skillsQ = useWorkspaceQuery<any[]>(
+  const skillsQ = useWorkspaceQuery<Row<"skill_assessments">[]>(
     (ws) => ["skills", ws],
     ({ workspaceId }) => list({ data: { workspaceId } }),
   );
   const wsId = skillsQ.wsId;
 
-  const latest = new Map<string, any>();
+  const latest = new Map<string, Row<"skill_assessments">>();
   for (const row of skillsQ.data ?? []) {
     if (!latest.has(row.area)) latest.set(row.area, row);
   }
