@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Minus, TrendingUp } from "lucide-react";
-import { fadeUp, stagger } from "@/components/app/Motion";
+import { fadeUp, stagger } from "@/components/app/motion-presets";
 import type { Period } from "../types";
 import { Mini } from "./atoms";
 

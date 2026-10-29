@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-ro
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Brain } from "lucide-react";
-import { hasSeenTour, ProductTour } from "@/components/app/ProductTour";
+import { ProductTour } from "@/components/app/ProductTour";
+import { hasSeenTour } from "@/components/app/tour-storage";
 import { signOut } from "@/lib/auth/use-auth";
 import { CommandPalette } from "@/components/app/CommandPalette";
 import { OnboardingWizard } from "@/components/app/OnboardingWizard";

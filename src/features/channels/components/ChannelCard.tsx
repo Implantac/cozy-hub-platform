@@ -1,5 +1,5 @@
 import { Link2, Trash2, Unlink } from "lucide-react";
-import { PLATFORMS, getPlatformIcon } from "@/components/app/PlatformIcon";
+import { PLATFORMS, getPlatformIcon } from "@/components/app/platform-meta";
 import type { Channel } from "@/lib/api/_types";
 import { BusinessLocationPicker } from "./BusinessLocationPicker";
 

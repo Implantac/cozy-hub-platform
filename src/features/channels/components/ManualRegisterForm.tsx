@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { PLATFORMS, type PlatformId } from "@/components/app/PlatformIcon";
+import { PLATFORMS, type PlatformId } from "@/components/app/platform-meta";
 
 type Props = {
   platform: PlatformId;

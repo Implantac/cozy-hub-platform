@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Flame, Heart } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
 import { Empty } from "../components/atoms";
 import type { Row } from "@/lib/brain/types";

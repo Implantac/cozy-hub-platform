@@ -5,7 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { GraduationCap, Check } from "lucide-react";
 import { toast } from "sonner";
 import { LearningService } from "@/lib/services";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageTransition } from "@/components/app/Motion";
+import { fadeUp, stagger } from "@/components/app/motion-presets";
 import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
 

@@ -5,6 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { markTourSeen } from "./tour-storage";
 
 type Step = {
   selector: string;
@@ -16,25 +17,6 @@ type Step = {
 };
 
 type Rect = { top: number; left: number; width: number; height: number };
-
-const TOUR_KEY = "use-os:product-tour-completed";
-
-export function hasSeenTour() {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(TOUR_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function resetTour() {
-  try {
-    window.localStorage.removeItem(TOUR_KEY);
-  } catch {
-    /* localStorage indisponível (modo privado) — tour reinicia só nesta sessão */
-  }
-}
 
 export function ProductTour({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
@@ -165,11 +147,7 @@ export function ProductTour({ open, onClose }: { open: boolean; onClose: () => v
 
   const finish = () => {
     setStep(0);
-    try {
-      window.localStorage.setItem(TOUR_KEY, "1");
-    } catch {
-      /* localStorage indisponível — tour pode reaparecer na próxima visita */
-    }
+    markTourSeen();
     onClose();
   };
 

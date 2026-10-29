@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import type { ElementType } from "react";
-import { fadeUp } from "@/components/app/Motion";
-
+import { fadeUp } from "@/components/app/motion-presets";
 type Props = {
   label: string;
   value: string | number;

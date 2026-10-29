@@ -40,7 +40,7 @@ import {
   PanelLeftClose,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/use-auth";
-import { resetTour } from "@/components/app/ProductTour";
+import { resetTour } from "@/components/app/tour-storage";
 import { toast } from "sonner";
 import { NAV_GROUPS } from "@/features/shell/nav-groups";
 

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { EASE } from "./Motion";
-
+import { EASE } from "./motion-presets";
 /** Animated radial gauge for Digital Score (0-100). */
 export function ScoreGauge({
   value,

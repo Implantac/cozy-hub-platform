@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { MapPin, Sparkles } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import type { Mentor, Period } from "../types";
 import { Metric } from "./atoms";
 

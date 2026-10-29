@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.10.3] — 2026-10-29
+
+### Lint zerado — 12 → 0 `react-refresh/only-export-components`
+
+O aviso não é cosmético. O React Refresh decide se um módulo pode ser recarregado
+isoladamente pelos **exports**: um arquivo que exporta componente _e_ constante
+não tem hot-reload confiável. Na prática, cada edição virava recarga de página e
+**resetava o estado de todo componente montado no arquivo** — durante o
+desenvolvimento, justamente onde estado importa.
+
+O `allowConstantExport: true` do config não resolvia: ele só libera literais
+(`string`, `number`, `boolean`, arrays desses). Os presets são objetos calculados.
+
+| arquivo                       | o que vazava                         | para onde foi                                |
+| ----------------------------- | ------------------------------------ | -------------------------------------------- |
+| `Motion.tsx`                  | `EASE`, `fadeUp`, `stagger`          | `motion-presets.ts` (35 imports atualizados) |
+| `ProductTour.tsx`             | `hasSeenTour`, `resetTour`           | `tour-storage.ts`                            |
+| `badge` / `button` / `toggle` | `*Variants` (cva)                    | `*-variants.ts`                              |
+| `form.tsx`                    | `useFormField`                       | `form-context.ts`                            |
+| `navigation-menu`             | `navigationMenuTriggerStyle`         | `navigation-menu-variants.ts`                |
+| `sidebar`                     | `useSidebar` + contexto + constantes | `sidebar-context.ts`                         |
+| `PlatformIcon.tsx`            | **nenhum componente**                | renomeado para `platform-meta.ts`            |
+
+`PlatformIcon.tsx` era o caso mais honesto: um `.tsx` que não renderizava nada —
+só dados e dois lookups. O aviso estava certo; o nome é que estava errado.
+
+### Regressão evitada (e verificada)
+
+Tailwind descobre classes **varrendo arquivos**. Mover strings de classe para
+novos `.ts` poderia sumir com estilos sem quebrar `tsc` nem teste nenhum. O CSS
+construído foi conferido: `min-w-9`, `min-w-8` (toggle), `[state=open]`
+(navigation-menu) e `hover:bg-primary/80` (badge) continuam presentes no bundle.
+
+### Números
+
+- `eslint .`: **0 problemas** (era 12)
+- `tsc --noEmit`: 0 erros · testes: 288/288 · `vite build`: verde
+
 ## [1.10.2] — 2026-10-29
 
 ### Corrigido — o produto se apresentava em inglês para quem fala português

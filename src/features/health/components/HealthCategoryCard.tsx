@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Check, AlertTriangle } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import { CAT_META } from "../constants";
 import type { Row } from "@/lib/brain/types";
 

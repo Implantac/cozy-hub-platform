@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Brain, Sparkles } from "lucide-react";
-import { PageTransition, stagger } from "@/components/app/Motion";
+import { PageTransition } from "@/components/app/Motion";
+import { stagger } from "@/components/app/motion-presets";
 import { PageHeader } from "@/components/app/PageHeader";
 import {
   addMemory,

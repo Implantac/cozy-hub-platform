@@ -10,8 +10,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { fadeUp, stagger } from "@/components/app/Motion";
-
+import { fadeUp, stagger } from "@/components/app/motion-presets";
 type FiveQ = {
   question: string;
   headline?: string | null;

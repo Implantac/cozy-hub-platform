@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
 import type { Row } from "@/lib/brain/types";
 import { PILLARS } from "../constants";

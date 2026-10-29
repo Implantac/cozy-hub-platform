@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Brain, Compass, Rocket, Shield, type LucideIcon } from "lucide-react";
-import { fadeUp, stagger } from "@/components/app/Motion";
+import { fadeUp, stagger } from "@/components/app/motion-presets";
 import type { Row } from "@/lib/brain/types";
 
 interface OsLayersSectionProps {

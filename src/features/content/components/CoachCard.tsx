@@ -1,6 +1,6 @@
 import { BadgeCheck, Loader2, Sparkles, Wand2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import type { useCoach } from "../hooks/useCoach";
 
 /**

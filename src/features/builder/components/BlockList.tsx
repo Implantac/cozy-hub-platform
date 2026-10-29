@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Circle } from "lucide-react";
-import { fadeUp, stagger } from "@/components/app/Motion";
+import { fadeUp, stagger } from "@/components/app/motion-presets";
 import { BLOCKS, CATEGORIES, type BlockId, type Blueprint } from "../constants";
 
 type Props = {

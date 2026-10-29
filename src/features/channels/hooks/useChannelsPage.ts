@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import type { PlatformId } from "@/components/app/PlatformIcon";
+import type { PlatformId } from "@/components/app/platform-meta";
 import { createChannel, deleteChannel, listChannels } from "@/lib/api/channels.functions";
 import { disconnectChannel, startOAuthConnect } from "@/lib/api/oauth.functions";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";

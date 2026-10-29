@@ -1,5 +1,5 @@
 import { Link2 } from "lucide-react";
-import { PLATFORMS } from "@/components/app/PlatformIcon";
+import { PLATFORMS } from "@/components/app/platform-meta";
 
 type Props = {
   disabled: boolean;

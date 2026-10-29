@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { stagger } from "@/components/app/Motion";
+import { stagger } from "@/components/app/motion-presets";
 import { BUSINESS_PATHS } from "../constants";
 import { NavigatorHeader, Stat } from "./atoms";
 import type { Row } from "@/lib/brain/types";

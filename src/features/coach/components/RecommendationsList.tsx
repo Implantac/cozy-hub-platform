@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import type { Row } from "@/lib/brain/types";
 import { readCta } from "@/lib/json";
 import { KIND_META } from "../constants";

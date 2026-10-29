@@ -9,8 +9,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { fadeUp, MotionCard } from "@/components/app/Motion";
-
+import { MotionCard } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 export function RecIcon({ kind }: { kind: string }) {
   const map: Record<string, { icon: LucideIcon; color: string }> = {
     warning: { icon: AlertTriangle, color: "text-destructive" },

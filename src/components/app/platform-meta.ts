@@ -5,6 +5,13 @@ import type { Platform } from "@/lib/platforms";
 /**
  * The ids come from `@/lib/platforms`, which derives them from the database enum.
  * This file owns only how they look.
+ *
+ * This module exports **no component** — it is data plus two lookups — so it is
+ * named `platform-meta.ts`, not `PlatformIcon.tsx`. A `.tsx` name promises a
+ * component that does not exist and misleads every reader (and the fast-refresh
+ * rule, which used to flag it for exporting non-components from a component
+ * file). The lookups return a `LucideIcon`, which *is* a component, but the
+ * module itself renders nothing.
  */
 export type PlatformId = Platform;
 

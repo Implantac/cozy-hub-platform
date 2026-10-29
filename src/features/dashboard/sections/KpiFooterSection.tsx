@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Calendar, FileText, Palette, Radio } from "lucide-react";
-import { stagger } from "@/components/app/Motion";
+import { stagger } from "@/components/app/motion-presets";
 import { KpiCard } from "../components/atoms";
 
 type Props = {

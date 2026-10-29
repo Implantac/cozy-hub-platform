@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NotificationDrawer } from "@/components/app/NotificationDrawer";
-import { resetTour } from "@/components/app/ProductTour";
+import { resetTour } from "@/components/app/tour-storage";
 import {
   DropdownMenu,
   DropdownMenuContent,

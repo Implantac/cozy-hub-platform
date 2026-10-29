@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Brain, Compass } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
-
+import { fadeUp } from "@/components/app/motion-presets";
 type Props = { onRefresh: () => void; isPending: boolean };
 
 export function DashboardHeader({ onRefresh, isPending }: Props) {

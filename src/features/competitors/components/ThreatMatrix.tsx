@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import type { Competitor } from "../types";
 
 export function ThreatMatrix({ items }: { items: Competitor[] }) {

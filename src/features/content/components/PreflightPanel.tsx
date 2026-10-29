@@ -7,7 +7,7 @@ import {
   Target,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import type { QualityIssue } from "@/lib/growth/post-quality";
 import type { ChannelResult } from "../hooks/usePreflight";
 

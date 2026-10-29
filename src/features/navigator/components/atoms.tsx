@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Compass } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import { PageHeader } from "@/components/app/PageHeader";
 
 export function NavigatorHeader() {

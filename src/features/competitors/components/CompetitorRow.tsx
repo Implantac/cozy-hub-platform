@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Eye, Lightbulb, Minus, Trash2, TrendingDown, TrendingUp } from "lucide-react";
-import { fadeUp } from "@/components/app/Motion";
+import { fadeUp } from "@/components/app/motion-presets";
 import { Block, Stat } from "./atoms";
 import type { Competitor } from "../types";
 

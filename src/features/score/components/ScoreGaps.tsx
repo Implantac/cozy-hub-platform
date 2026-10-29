@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { fadeUp } from "@/components/app/Motion";
-
+import { fadeUp } from "@/components/app/motion-presets";
 export function ScoreGaps({ gaps }: { gaps: string[] }) {
   if (!gaps?.length) return null;
   return (

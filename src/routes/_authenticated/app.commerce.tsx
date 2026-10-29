@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ShoppingBag, Package, Globe, Truck, CheckCircle, Lock } from "lucide-react";
-import { PageTransition, fadeUp, stagger } from "@/components/app/Motion";
+import { PageTransition } from "@/components/app/Motion";
+import { fadeUp, stagger } from "@/components/app/motion-presets";
 import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
 import { isFeatureEnabled } from "@/lib/features/flags";
