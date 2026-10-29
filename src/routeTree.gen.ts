@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as ApiCspReportRouteImport } from './routes/api/csp-report'
 import { Route as BioSlugRouteImport } from './routes/bio/$slug'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/app.analytics'
@@ -68,6 +69,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ApiCspReportRoute = ApiCspReportRouteImport.update({
+  id: '/api/csp-report',
+  path: '/api/csp-report',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BioSlugRoute = BioSlugRouteImport.update({
   id: '/bio/$slug',
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/api/csp-report': typeof ApiCspReportRoute
   '/bio/$slug': typeof BioSlugRoute
   '/app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/app/bio': typeof AuthenticatedAppBioRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/api/csp-report': typeof ApiCspReportRoute
   '/bio/$slug': typeof BioSlugRoute
   '/app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/app/bio': typeof AuthenticatedAppBioRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/api/csp-report': typeof ApiCspReportRoute
   '/bio/$slug': typeof BioSlugRoute
   '/_authenticated/app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/_authenticated/app/bio': typeof AuthenticatedAppBioRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/app'
+    | '/api/csp-report'
     | '/bio/$slug'
     | '/app/analytics'
     | '/app/bio'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/api/csp-report'
     | '/bio/$slug'
     | '/app/analytics'
     | '/app/bio'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authenticated/app'
+    | '/api/csp-report'
     | '/bio/$slug'
     | '/_authenticated/app/analytics'
     | '/_authenticated/app/bio'
@@ -461,6 +473,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  ApiCspReportRoute: typeof ApiCspReportRoute
   BioSlugRoute: typeof BioSlugRoute
   ApiReportsWeeklyRoute: typeof ApiReportsWeeklyRoute
   BioClickLinkIdRoute: typeof BioClickLinkIdRoute
@@ -505,6 +518,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/csp-report': {
+      id: '/api/csp-report'
+      path: '/api/csp-report'
+      fullPath: '/api/csp-report'
+      preLoaderRoute: typeof ApiCspReportRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/bio/$slug': {
       id: '/bio/$slug'
@@ -793,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  ApiCspReportRoute: ApiCspReportRoute,
   BioSlugRoute: BioSlugRoute,
   ApiReportsWeeklyRoute: ApiReportsWeeklyRoute,
   BioClickLinkIdRoute: BioClickLinkIdRoute,

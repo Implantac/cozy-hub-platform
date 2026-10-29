@@ -1,5 +1,67 @@
 # Changelog
 
+## [1.11.1] — 2026-10-29
+
+### O coletor que transforma Report-Only em decisão
+
+A CSP entrou em `Report-Only` sem ter onde os relatórios chegarem: a policy
+apontava para `/api/csp-report`, que **não existia**. Isso deixava o próximo passo
+— ligar `CSP_MODE=enforce` — como ato de fé.
+
+Agora existe o endpoint (`POST /api/csp-report`) e a leitura
+(`node scripts/csp-report.mjs [dias]`), que responde à única pergunta útil:
+_quais diretivas quebrariam, para quais hosts, com que frequência_ — e já sugere
+a diretiva pronta para colar se a violação for legítima.
+
+#### Endpoint público exige cuidado
+
+Browsers postam nele sem credenciais. Daí: corpo limitado a 8 KB (rejeitado
+**antes** de parsear), só campos da spec, throttle por IP, e a URL gravada
+**sem query string** — o relatório é justamente sobre uma URL que o atacante
+controla, e persistir isso inteira é repetir o erro do advisory uma camada abaixo.
+
+#### A falha que faz o relatório mentir
+
+Primeira versão: `try { insert } catch { console.error }` e sempre `204`. O dev
+não tinha `SUPABASE_SERVICE_ROLE_KEY`, o insert falhou em **28 relatórios**, e o
+endpoint respondeu 204 — indistinguível de "gravou". O script então imprimiria
+"nenhuma violação, seguro para enforcer" sobre um banco vazio.
+
+Duas correções:
+
+- escrita que falha agora é **500**, não 204;
+- o script **não confia no silêncio**: sem violações ele testa o coletor e, se
+  não conseguir provar que grava, sai com "Zero pode significar _política limpa_
+  ou _nada foi coletado_. NÃO ligue enforce".
+
+Ausência de dado nunca pode ser lida como aprovação.
+
+#### Bug pego pelo teste
+
+`suggestionFor("script-src-elem", ["inline"])` gerava `script-src inline` —
+sintaticamente válido, mas o token `inline` não é source expression: a violação
+continuaria e o conselho pareceria seguido. `inline`/`eval`/`wasm-eval` passaram a
+ser reconhecidos como não-hosts e o caso vira uma explicação ("provavelmente falta
+'unsafe-inline' ou um nonce").
+
+### A armadilha do ambiente (custou 8 builds)
+
+O build passou a morrer por OOM e o suspeito óbvio era o código novo. **Não era.**
+Isolando por remoção — rota, arquivos, teste, script — o build continuou
+quebrando, até sobrar apenas `package-lock.json` modificado.
+
+O `npm install` sem lock re-resolveu a árvore (o lock estava fora de sincronia com
+o `package.json`) e mudou o perfil de memória o suficiente para estourar o passo do
+Nitro. `git checkout package-lock.json && npm ci` devolveu o build a 49 s.
+
+Regra: **nunca `npm install` neste repo sem conferir o diff do lock depois.** Aqui,
+`npm ci` é o único jeito de instalar sem alterar o perfil do build.
+
+### Números
+
+- testes: **307 em 22 arquivos** (+8: `hostOf`, injeção de diretiva, resumo)
+- `tsc` 0 · `eslint` 0 · `vite build` verde (8,3 M, 49 s)
+
 ## [1.11.0] — 2026-10-29
 
 ### Segurança — CSP com nonce e fechamento do XSS refletido em server functions
