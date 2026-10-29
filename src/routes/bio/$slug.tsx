@@ -1,7 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { loadBioPage, registerPageView } from "@/lib/bio/public.server";
+import { loadBio } from "@/lib/bio/public.functions";
 import type { PublicBioPage } from "@/lib/bio/types";
 import { themeFor } from "@/lib/bio/theme";
 import { PublicBioView } from "@/features/bio/components/PublicBioView";
@@ -17,17 +15,6 @@ import { PublicBioView } from "@/features/bio/components/PublicBioView";
 
 /** Sentinel for "the database is down", distinct from "this page does not exist". */
 type LoaderData = PublicBioPage | { unavailable: true };
-
-const loadBio = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string().min(1).max(64) }).parse(input))
-  .handler(async ({ data }) => {
-    // The handler must return plain serialisable data. Throwing a `Response`
-    // from inside a server function goes through seroval and fails, which is why
-    // the HTTP status is not decided here.
-    const result = await loadBioPage(data.slug);
-    if (result.status === "ok") await registerPageView(result.page.slug);
-    return result;
-  });
 
 export const Route = createFileRoute("/bio/$slug")({
   loader: async ({ params }): Promise<LoaderData> => {
