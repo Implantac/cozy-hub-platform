@@ -155,9 +155,21 @@ export const listBusinessValidations = createServerFn({ method: "GET" })
 /* ============================================================
  * Reality Check Engine
  * ============================================================ */
+/** The change types the reality check accepts. Single source for validator and UI. */
+export const REALITY_CHANGE_TYPES = [
+  "pivot",
+  "new_channel",
+  "new_offer",
+  "scale_up",
+  "stop",
+  "investment",
+] as const;
+
+export type RealityChangeType = (typeof REALITY_CHANGE_TYPES)[number];
+
 const realityInput = z.object({
   workspaceId: z.string().uuid(),
-  change_type: z.enum(["pivot", "new_channel", "new_offer", "scale_up", "stop", "investment"]),
+  change_type: z.enum(REALITY_CHANGE_TYPES),
   current_state: z.string().min(20).max(2000),
   proposed_change: z.string().min(20).max(2000),
 });

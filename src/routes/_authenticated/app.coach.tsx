@@ -36,7 +36,7 @@ function CoachPage() {
 
   const gen = useWorkspaceMutation(() => brainRecommend({ data: { workspaceId: wsId! } }), {
     invalidate: coachKey,
-    successMessage: (r: any) => `${r.generated} recomendações geradas pelo Brain`,
+    successMessage: (r) => `${r.generated} recomendações geradas pelo Brain`,
   });
   const act = useWorkspaceMutation(
     (v: { id: string; action: "dismiss" | "complete" }) =>

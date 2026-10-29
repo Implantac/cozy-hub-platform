@@ -121,7 +121,7 @@ export function BusinessValidatorTab() {
             text="Use o formulário acima para validar sua primeira ideia com IA."
           />
         ) : (
-          list.data.map((v: any) => <ValidationCard key={v.id} v={v} />)
+          list.data.map((v) => <ValidationCard key={v.id} v={v} />)
         )}
       </div>
     </div>

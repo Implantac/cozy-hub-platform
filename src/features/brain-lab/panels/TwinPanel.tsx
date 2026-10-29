@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getDigitalTwin, upsertDigitalTwin } from "@/lib/api/brain-evolution.functions";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
+import type { Row } from "@/lib/brain/types";
 
 export function TwinPanel() {
   const get = useServerFn(getDigitalTwin);
   const save = useServerFn(upsertDigitalTwin);
 
-  const twinQ = useWorkspaceQuery<any>(
+  const twinQ = useWorkspaceQuery<Row<"digital_twins"> | null>(
     (ws) => ["twin", ws],
     ({ workspaceId }) => get({ data: { workspaceId } }),
   );

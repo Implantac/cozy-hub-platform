@@ -1,6 +1,8 @@
 import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ListBlock, ScorePill } from "./atoms";
+import type { Row } from "@/lib/brain/types";
+import { readStrings, readSummary } from "@/lib/json";
 
 const VERDICT_MAP: Record<string, { label: string; tone: string }> = {
   strong: { label: "Forte", tone: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
@@ -9,8 +11,9 @@ const VERDICT_MAP: Record<string, { label: string; tone: string }> = {
   weak: { label: "Fraca", tone: "bg-red-500/15 text-red-600 border-red-500/30" },
 };
 
-export function ValidationCard({ v }: { v: any }) {
+export function ValidationCard({ v }: { v: Row<"business_validations"> }) {
   const verdict = VERDICT_MAP[v.verdict] ?? VERDICT_MAP.challenging;
+  const summary = readSummary(v.ai_analysis);
 
   return (
     <div className="section-card p-5 space-y-4 animate-rise-in">
@@ -31,10 +34,8 @@ export function ValidationCard({ v }: { v: any }) {
         <ScorePill label="Complexidade" value={v.complexity_score} invert />
       </div>
 
-      {v.ai_analysis?.summary && (
-        <p className="text-sm leading-relaxed border-l-2 border-primary/40 pl-3">
-          {v.ai_analysis.summary}
-        </p>
+      {summary && (
+        <p className="text-sm leading-relaxed border-l-2 border-primary/40 pl-3">{summary}</p>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -42,19 +43,24 @@ export function ValidationCard({ v }: { v: any }) {
           icon={CheckCircle2}
           title="Forças"
           tone="text-emerald-600"
-          items={v.strengths ?? []}
+          items={readStrings(v.strengths)}
         />
-        <ListBlock icon={AlertCircle} title="Riscos" tone="text-amber-600" items={v.risks ?? []} />
+        <ListBlock
+          icon={AlertCircle}
+          title="Riscos"
+          tone="text-amber-600"
+          items={readStrings(v.risks)}
+        />
       </div>
 
-      {v.next_steps?.length > 0 && (
+      {readStrings(v.next_steps).length > 0 && (
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
           <div className="flex items-center gap-2 mb-2">
             <ArrowRight className="size-4 text-primary" />
             <span className="text-xs font-semibold uppercase tracking-wide">Próximos passos</span>
           </div>
           <ol className="space-y-1.5 text-sm">
-            {v.next_steps.map((s: string, i: number) => (
+            {readStrings(v.next_steps).map((s, i) => (
               <li key={i} className="flex gap-2">
                 <span className="text-primary font-semibold">{i + 1}.</span>
                 <span>{s}</span>

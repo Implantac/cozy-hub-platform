@@ -1,7 +1,18 @@
 import { FileText, Zap } from "lucide-react";
 import { Empty, Panel } from "../components/atoms";
+import type { Row } from "@/lib/brain/types";
 
-type Props = { events: any[]; contentByStatus: Record<string, number> };
+/**
+ * The dashboard query selects four columns, not the whole row — so the prop
+ * declares the projection. Typing it as the full row would promise
+ * `workspace_id` and `processed_at`, which never arrive.
+ */
+export type ActivityEvent = Pick<
+  Row<"domain_events">,
+  "id" | "event_type" | "payload" | "created_at"
+>;
+
+type Props = { events: ActivityEvent[]; contentByStatus: Record<string, number> };
 
 export function ActivityPipelineSection({ events, contentByStatus }: Props) {
   const total = Object.values(contentByStatus).reduce((a: number, b) => a + (b as number), 0);
@@ -12,7 +23,7 @@ export function ActivityPipelineSection({ events, contentByStatus }: Props) {
           <Empty text="Sem eventos ainda." />
         ) : (
           <ul className="divide-y divide-border/40">
-            {events.slice(0, 8).map((e: any) => (
+            {events.slice(0, 8).map((e) => (
               <li
                 key={e.id}
                 className="flex items-center justify-between py-2.5 sm:py-3 text-sm transition-colors hover:bg-white/5 px-2 rounded-lg"

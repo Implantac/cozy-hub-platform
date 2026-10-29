@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/app/EmptyState";
 import { Button } from "@/components/ui/button";
 import { ScoreOverview } from "@/features/score/components/ScoreOverview";
 import { ScoreGaps } from "@/features/score/components/ScoreGaps";
+import { readGaps } from "@/lib/json";
 
 export const Route = createFileRoute("/_authenticated/app/score")({
   component: ScorePage,
@@ -28,8 +29,8 @@ function ScorePage() {
     successMessage: "Score recalculado",
   });
 
-  const score = q.data as any;
-  const gaps = Array.isArray(score?.breakdown?.gaps) ? (score.breakdown.gaps as string[]) : [];
+  const score = q.data;
+  const gaps = readGaps(score?.breakdown);
 
   return (
     <PageTransition>

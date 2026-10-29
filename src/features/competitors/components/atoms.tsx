@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function Stat({ label, value }: { label: string; value: ReactNode }) {
@@ -15,7 +16,7 @@ export function Block({
   body,
   accent,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   body: string;
   accent?: boolean;

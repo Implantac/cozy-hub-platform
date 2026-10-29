@@ -4,8 +4,16 @@ import { useNavigate } from "@tanstack/react-router";
 import { stagger } from "@/components/app/Motion";
 import { BUSINESS_PATHS } from "../constants";
 import { NavigatorHeader, Stat } from "./atoms";
+import type { Row } from "@/lib/brain/types";
+import { readTitledActions } from "@/lib/json";
 
-export function ProfileSummary({ profile, onRetake }: { profile: any; onRetake: () => void }) {
+export function ProfileSummary({
+  profile,
+  onRetake,
+}: {
+  profile: Row<"user_profile_digital">;
+  onRetake: () => void;
+}) {
   const navigate = useNavigate();
   const p = profile;
   return (
@@ -39,29 +47,27 @@ export function ProfileSummary({ profile, onRetake }: { profile: any; onRetake: 
           <Sparkles className="size-4 text-accent" /> Suas próximas ações
         </div>
         <ul className="space-y-2">
-          {((p.recommended_actions as Array<{ title: string; href?: string }> | null) ?? []).map(
-            (a, i) => (
-              <li
-                key={i}
-                className="hover-lift flex items-center justify-between rounded-xl border border-border bg-background/40 p-4 transition hover:border-primary/40"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="grid size-8 place-items-center rounded-lg bg-primary/15 text-sm font-semibold text-primary">
-                    {i + 1}
-                  </div>
-                  <span className="text-sm font-medium">{a.title}</span>
+          {readTitledActions(p.recommended_actions).map((a, i) => (
+            <li
+              key={i}
+              className="hover-lift flex items-center justify-between rounded-xl border border-border bg-background/40 p-4 transition hover:border-primary/40"
+            >
+              <div className="flex items-center gap-3">
+                <div className="grid size-8 place-items-center rounded-lg bg-primary/15 text-sm font-semibold text-primary">
+                  {i + 1}
                 </div>
-                {a.href && (
-                  <button
-                    onClick={() => navigate({ to: a.href! })}
-                    className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
-                  >
-                    Ir <ChevronRight className="size-3" />
-                  </button>
-                )}
-              </li>
-            ),
-          )}
+                <span className="text-sm font-medium">{a.title}</span>
+              </div>
+              {a.href && (
+                <button
+                  onClick={() => navigate({ to: a.href! })}
+                  className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
+                >
+                  Ir <ChevronRight className="size-3" />
+                </button>
+              )}
+            </li>
+          ))}
         </ul>
       </div>
 

@@ -48,7 +48,7 @@ function HealthPage() {
         />
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {(q.data ?? []).map((h: any) => (
+          {(q.data ?? []).map((h) => (
             <HealthCategoryCard key={h.id} h={h} />
           ))}
         </div>

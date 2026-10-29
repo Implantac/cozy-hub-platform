@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createBrand } from "@/lib/api/brands.functions";
 import { completeOnboarding, updateMyProfile } from "@/lib/api/notifications.functions";
 import { toast } from "sonner";
+import { errorMessage } from "@/lib/json";
 
 export function OnboardingWizard({
   open,
@@ -83,8 +84,8 @@ export function OnboardingWizard({
         return;
       }
       setStep((s) => s + 1);
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (e) {
+      toast.error(errorMessage(e));
     } finally {
       setLoading(false);
     }

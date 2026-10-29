@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { Check, AlertTriangle } from "lucide-react";
 import { fadeUp } from "@/components/app/Motion";
 import { CAT_META } from "../constants";
+import type { Row } from "@/lib/brain/types";
 
-export function HealthCategoryCard({ h }: { h: any }) {
+export function HealthCategoryCard({ h }: { h: Row<"health_metrics"> }) {
   const meta = CAT_META[h.category];
   const Icon = meta.icon;
   const tone = h.score >= 70 ? "text-success" : h.score >= 40 ? "text-primary" : "text-destructive";

@@ -1,3 +1,21 @@
+import type { Row } from "@/lib/brain/types";
+import { readLabels } from "@/lib/json";
+
+/**
+ * An opportunity as the Brain ranks it: the row plus the two fields the ranking
+ * adds. Declared here rather than inlined so the card and the list agree.
+ */
+/**
+ * Two sources feed this card: `brainOpportunities` (ranked, so it carries
+ * `_compatibility` and `_aiRationale`) and `listOpportunities` (the plain
+ * catalogue). The score fields are therefore optional — the card must render a
+ * row that never went through the ranking.
+ */
+export type OpportunityWithScore = Row<"opportunities"> & {
+  _compatibility?: number;
+  _aiRationale?: string | null;
+};
+
 function Metric({ label, value }: { label: string; value: "low" | "medium" | "high" }) {
   const tone =
     value === "high"
@@ -18,7 +36,9 @@ import { Brain } from "lucide-react";
 import { MotionCard } from "@/components/app/Motion";
 import { STATUS_META } from "../constants";
 
-export function OpportunityCard({ o }: { o: any }) {
+export function OpportunityCard({ o }: { o: OpportunityWithScore }) {
+  // `actions` is a JSON column; narrowing once keeps the cast out of the JSX.
+  const actions = readLabels(o.actions);
   const meta = STATUS_META[o.status];
   const Icon = meta.icon;
   return (
@@ -60,9 +80,9 @@ export function OpportunityCard({ o }: { o: any }) {
           <Metric label="Competição" value={o.competition} />
           <Metric label="Potencial" value={o.growth_potential} />
         </div>
-        {Array.isArray(o.actions) && o.actions.length > 0 && (
+        {actions.length > 0 && (
           <ul className="space-y-1 border-t border-border/60 pt-3">
-            {o.actions.map((a: any, i: number) => (
+            {actions.map((a, i) => (
               <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="size-1 rounded-full bg-primary" /> {a.label}
               </li>

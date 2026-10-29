@@ -14,10 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { REALITY_CHANGE_TYPES, type RealityChangeType } from "@/lib/api/decision-os.functions";
+
+const isChangeType = (v: string): v is RealityChangeType =>
+  (REALITY_CHANGE_TYPES as readonly string[]).includes(v);
 import { RealityCard } from "../components/RealityCard";
 
 export function RealityCheckTab() {
-  const [changeType, setChangeType] = useState<string>("pivot");
+  const [changeType, setChangeType] = useState<RealityChangeType>("pivot");
   const [currentState, setCurrentState] = useState("");
   const [proposed, setProposed] = useState("");
 
@@ -35,7 +39,7 @@ export function RealityCheckTab() {
       runFn({
         data: {
           workspaceId: wsId!,
-          change_type: changeType as any,
+          change_type: changeType,
           current_state: currentState,
           proposed_change: proposed,
         },
@@ -63,7 +67,7 @@ export function RealityCheckTab() {
 
           <div className="space-y-2">
             <Label>Tipo de mudança</Label>
-            <Select value={changeType} onValueChange={setChangeType}>
+            <Select value={changeType} onValueChange={(v) => isChangeType(v) && setChangeType(v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -132,7 +136,7 @@ export function RealityCheckTab() {
             text="Submeta um plano acima para receber uma análise crítica de riscos e premissas."
           />
         ) : (
-          list.data.map((r: any) => <RealityCard key={r.id} r={r} />)
+          list.data.map((r) => <RealityCard key={r.id} r={r} />)
         )}
       </div>
     </div>

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ListBlock } from "./atoms";
+import type { Row } from "@/lib/brain/types";
+import { readStrings } from "@/lib/json";
 
 const CAUTION_MAP: Record<
   string,
@@ -37,7 +39,7 @@ const CAUTION_MAP: Record<
   },
 };
 
-export function RealityCard({ r }: { r: any }) {
+export function RealityCard({ r }: { r: Row<"reality_checks"> }) {
   const cau = CAUTION_MAP[r.caution_level] ?? CAUTION_MAP.yellow;
   const CauIcon = cau.icon;
 
@@ -68,23 +70,23 @@ export function RealityCard({ r }: { r: any }) {
           icon={TrendingUp}
           title="Indicadores positivos"
           tone="text-emerald-600"
-          items={r.indicators_positive ?? []}
+          items={readStrings(r.indicators_positive)}
         />
         <ListBlock
           icon={AlertCircle}
           title="Sinais de alerta"
           tone="text-amber-600"
-          items={r.indicators_warning ?? []}
+          items={readStrings(r.indicators_warning)}
         />
       </div>
 
-      {r.questions_to_answer?.length > 0 && (
+      {readStrings(r.questions_to_answer).length > 0 && (
         <div className="rounded-lg bg-muted/40 p-3">
           <div className="text-xs font-semibold uppercase tracking-wide mb-2">
             Perguntas a responder antes de decidir
           </div>
           <ul className="space-y-1.5 text-sm">
-            {r.questions_to_answer.map((q: string, i: number) => (
+            {readStrings(r.questions_to_answer).map((q, i) => (
               <li key={i} className="flex gap-2">
                 <span className="text-primary">?</span>
                 <span>{q}</span>
@@ -94,14 +96,14 @@ export function RealityCard({ r }: { r: any }) {
         </div>
       )}
 
-      {r.recommendations?.length > 0 && (
+      {readStrings(r.recommendations).length > 0 && (
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
           <div className="flex items-center gap-2 mb-2">
             <ArrowRight className="size-4 text-primary" />
             <span className="text-xs font-semibold uppercase tracking-wide">Recomendações</span>
           </div>
           <ul className="space-y-1.5 text-sm">
-            {r.recommendations.map((s: string, i: number) => (
+            {readStrings(r.recommendations).map((s, i) => (
               <li key={i} className="flex gap-2">
                 <span className="text-primary">→</span>
                 <span>{s}</span>

@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { fadeUp } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
+import type { Row } from "@/lib/brain/types";
 import { PILLARS } from "../constants";
 
-export function ScoreOverview({ score }: { score: any }) {
+export function ScoreOverview({ score }: { score: Row<"digital_scores"> | null | undefined }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[auto,1fr]">
       <motion.div variants={fadeUp} className="section-card grid place-items-center p-8">

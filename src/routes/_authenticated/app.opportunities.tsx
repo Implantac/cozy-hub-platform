@@ -26,8 +26,8 @@ function OpportunitiesPage() {
     queryKey: ["opps", wsId, status],
     queryFn: () =>
       wsId
-        ? listBrain({ data: { workspaceId: wsId, status: status as any } })
-        : listGeneric({ data: { workspaceId: undefined, status: status as any } }),
+        ? listBrain({ data: { workspaceId: wsId, status } })
+        : listGeneric({ data: { workspaceId: undefined, status } }),
   });
 
   return (
@@ -43,7 +43,7 @@ function OpportunitiesPage() {
         <OpportunityStatusFilters value={status} onChange={setStatus} />
 
         <motion.div variants={stagger} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {(q.data ?? []).map((o: any) => (
+          {(q.data ?? []).map((o) => (
             <OpportunityCard key={o.id} o={o} />
           ))}
         </motion.div>

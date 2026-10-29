@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { readCta, readMilestones } from "@/lib/json";
+import {
+  errorMessage,
+  readCta,
+  readGaps,
+  readLabels,
+  readMilestones,
+  readStrings,
+  readSummary,
+  readTitledActions,
+} from "@/lib/json";
 
 /**
  * These read `json` columns, which is data the type system deliberately refuses
@@ -75,6 +84,102 @@ describe("readMilestones", () => {
   it("returns an empty array for anything that is not a list", () => {
     for (const value of [null, undefined, {}, "x", 42, { id: "a" }]) {
       expect(readMilestones(value)).toEqual([]);
+    }
+  });
+});
+
+describe("readLabels", () => {
+  it("keeps only entries that carry a label", () => {
+    expect(readLabels([{ label: "Ver" }, { href: "/x" }, { label: "" }, { label: 7 }])).toEqual([
+      { label: "Ver" },
+    ]);
+  });
+
+  it("returns an empty list for anything that is not an array", () => {
+    for (const value of [null, undefined, {}, "x", 42]) {
+      expect(readLabels(value)).toEqual([]);
+    }
+  });
+});
+
+describe("readGaps", () => {
+  it("reads the gaps of a score breakdown", () => {
+    expect(readGaps({ score: 71, gaps: ["Sem SEO", "Pouca prova social"] })).toEqual([
+      "Sem SEO",
+      "Pouca prova social",
+    ]);
+  });
+
+  it("ignores a breakdown without gaps or of the wrong shape", () => {
+    for (const value of [null, undefined, {}, "x", 42, [1, 2], { gaps: "nenhum" }]) {
+      expect(readGaps(value)).toEqual([]);
+    }
+  });
+});
+
+describe("readStrings", () => {
+  it("drops non-string entries instead of stringifying them", () => {
+    expect(readStrings(["a", 3, null, { b: 1 }, "c"])).toEqual(["a", "c"]);
+  });
+
+  it("returns an empty list when the column holds something else", () => {
+    for (const value of [null, undefined, { a: 1 }, "texto", 0]) {
+      expect(readStrings(value)).toEqual([]);
+    }
+  });
+});
+
+describe("readSummary", () => {
+  it("reads a summary and trims empty ones away", () => {
+    expect(readSummary({ summary: "Cenário viável." })).toBe("Cenário viável.");
+    expect(readSummary({ summary: "   " })).toBeNull();
+  });
+
+  it("returns null for a column without a usable summary", () => {
+    for (const value of [null, undefined, {}, { summary: 12 }, ["x"], "texto"]) {
+      expect(readSummary(value)).toBeNull();
+    }
+  });
+});
+
+describe("readTitledActions", () => {
+  it("keeps titled actions and only string hrefs", () => {
+    expect(
+      readTitledActions([
+        { title: "Conectar canal", href: "/app/channels" },
+        { title: "Refazer diagnóstico" },
+        { title: "", href: "/x" },
+        { href: "/sem-titulo" },
+        null,
+        "texto",
+      ]),
+    ).toEqual([
+      { title: "Conectar canal", href: "/app/channels" },
+      { title: "Refazer diagnóstico", href: undefined },
+    ]);
+  });
+
+  it("returns an empty list when the column is not an array", () => {
+    for (const value of [null, undefined, {}, "x", 3]) {
+      expect(readTitledActions(value)).toEqual([]);
+    }
+  });
+});
+
+describe("errorMessage", () => {
+  it("uses the message of a real error", () => {
+    expect(errorMessage(new Error("Rede indisponível"))).toBe("Rede indisponível");
+  });
+
+  it("recovers a message from thrown non-errors", () => {
+    expect(errorMessage("Falha direta")).toBe("Falha direta");
+    expect(errorMessage({ message: "Do servidor" })).toBe("Do servidor");
+    expect(errorMessage({ error: "Do corpo" })).toBe("Do corpo");
+  });
+
+  it("falls back instead of showing undefined", () => {
+    for (const value of [null, undefined, {}, new Error(""), 42, []]) {
+      expect(errorMessage(value)).toBe("Algo deu errado. Tente novamente.");
     }
   });
 });

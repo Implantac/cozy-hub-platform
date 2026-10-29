@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth/use-auth";
 import { updateMyProfile } from "@/lib/api/notifications.functions";
+import { errorMessage } from "@/lib/json";
 
 export function ProfileTab() {
   const { t } = useTranslation();
@@ -24,8 +25,8 @@ export function ProfileTab() {
       await updateProfile({ data: { display_name: displayName.trim() } });
       qc.invalidateQueries({ queryKey: ["my-profile"] });
       toast.success(t("settings.saved", "Salvo"));
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (e) {
+      toast.error(errorMessage(e));
     } finally {
       setSaving(false);
     }

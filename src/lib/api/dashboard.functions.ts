@@ -53,8 +53,7 @@ export const getDashboard = createServerFn({ method: "GET" })
       counts: {
         brands: brands.count ?? 0,
         channels: channels.count ?? 0,
-        channelsConnected: (channels.data ?? []).filter((c: any) => c.status === "connected")
-          .length,
+        channelsConnected: (channels.data ?? []).filter((c) => c.status === "connected").length,
         content: content.data?.length ?? 0,
       },
       contentByStatus,
