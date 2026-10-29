@@ -1,5 +1,51 @@
 # Changelog
 
+## [1.10.4] — 2026-10-29
+
+### `npm audit`: 4 moderados → **0**
+
+A cadeia toda vinha de `drizzle-kit`, e nenhuma delas era corrigível por upgrade:
+`drizzle-kit@0.31.11` **ainda é a última versão publicada** e continua declarando
+`@esbuild-kit/esm-loader@^2.5.5`, um pacote parado em 2022 que por sua vez fixa
+`esbuild@0.18.20` — abaixo do `0.24.2` que corrige o advisory (dev server do
+esbuild aceita requests de qualquer origem e devolve a resposta).
+
+O `npm audit fix` propunha um "fix" que era **downgrade** para `drizzle-kit@0.18.1`.
+Recusado: trocar um dev dependency inteiro de versão para calar um aviso moderado,
+em código que gera migrations, é pior que o aviso.
+
+Correção por override do transitivo:
+
+```json
+"overrides": {
+  "@esbuild-kit/core-utils": { "esbuild": "^0.25.12" }
+}
+```
+
+O advisory é da API de **serviço** do esbuild (`serve`). `core-utils` só usa
+`transform`, então a faixa vulnerável não é alcançável por este caminho; a versão
+nova resolve o aviso e mantém o loader funcionando.
+
+### Provado que não quebrou
+
+Override de transitivo falha em silêncio, então:
+
+- `npx drizzle-kit check` → lê `drizzle.config.ts` e valida ("Everything's fine")
+- `@esbuild-kit/core-utils` importa, 8 exports, `transform` presente
+- `npx tsx` roda TypeScript normalmente
+- `npm ls brace-expansion` confirma `1.1.21` (o override do bloco de segurança
+  continua valendo — os dois convivem)
+
+**Armadilha encontrada no caminho:** reescrever o `package.json` com
+`json.dumps` a partir do objeto carregado **apagou o override existente do
+`brace-expansion`**, que corrigia um advisory real. Restaurado e conferido no
+`npm ls`.
+
+### Números
+
+- `npm audit`: **0 vulnerabilidades** (era 4 moderate)
+- `tsc` 0 · `eslint` 0 · testes 288/288
+
 ## [1.10.3] — 2026-10-29
 
 ### Lint zerado — 12 → 0 `react-refresh/only-export-components`

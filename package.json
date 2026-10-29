@@ -104,6 +104,9 @@
     "node": ">=20"
   },
   "overrides": {
-    "brace-expansion@^1.0.0": "1.1.21"
+    "brace-expansion@^1.0.0": "1.1.21",
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.25.12"
+    }
   }
 }
