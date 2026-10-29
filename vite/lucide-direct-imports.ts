@@ -63,8 +63,10 @@ export function lucideDirectImports(): Plugin {
           if (direct.length === 0) return full;
           changed = true;
           const lines = [...direct];
-          if (keepTypes.length) lines.push(`import type { ${keepTypes.join(", ")} } from "lucide-react";`);
-          if (keepValues.length) lines.push(`import { ${keepValues.join(", ")} } from "lucide-react";`);
+          if (keepTypes.length)
+            lines.push(`import type { ${keepTypes.join(", ")} } from "lucide-react";`);
+          if (keepValues.length)
+            lines.push(`import { ${keepValues.join(", ")} } from "lucide-react";`);
           return lines.join(" ");
         },
       );
