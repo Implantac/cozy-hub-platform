@@ -99,5 +99,9 @@ export const getLatestHealth = createServerFn({ method: "GET" })
         return r;
       }),
     );
-    return results.filter(Boolean);
+    // `filter(Boolean)` returns the same `(T | null)[]` type to TypeScript — it
+    // does not narrow — so consumers kept receiving `null` entries and the
+    // compiler could not warn them. The explicit predicate both narrows the type
+    // and states the intent.
+    return results.filter((r): r is NonNullable<typeof r> => r !== null);
   });

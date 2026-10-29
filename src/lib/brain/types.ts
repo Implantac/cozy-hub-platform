@@ -27,11 +27,18 @@ export interface BrainAction {
   engine: string;
 }
 
+/**
+ * Free-form facts an engine reports about its own analysis. Open by nature —
+ * each engine decides what is worth surfacing — but `unknown` rather than `any`,
+ * so a consumer has to narrow before using a value.
+ */
+export type EngineFacts = Record<string, unknown>;
+
 export interface EngineReport {
   scores?: Record<string, number>;
   signals: BrainSignal[];
   actions: BrainAction[];
-  facts?: Record<string, unknown>;
+  facts?: EngineFacts;
 }
 
 /**
@@ -88,15 +95,20 @@ export interface BrainContext {
   reports?: Record<string, EngineReport>;
 }
 
+/**
+ * The persisted snapshot stores each engine's `facts` verbatim, so it uses the
+ * same open record the engines produce — not `any`, which would let a reader
+ * assume any shape it likes and turn a missing key into `undefined` at runtime.
+ */
 export interface BrainSnapshot {
   workspace_id: string;
   snapshot: {
-    user: any;
-    business: any;
-    growth: any;
-    market: any;
-    opportunity: any;
-    trust: any;
+    user: EngineFacts;
+    business: EngineFacts;
+    growth: EngineFacts;
+    market: EngineFacts;
+    opportunity: EngineFacts;
+    trust: EngineFacts;
     memory_size: number;
   };
   scores: Record<string, number>;

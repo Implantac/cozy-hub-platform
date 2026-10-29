@@ -72,12 +72,20 @@ const PARAMS = {
   additionalProperties: false,
 } as const;
 
+/**
+ * `facts` is an open record, so anything read from it is `unknown`. A missing or
+ * malformed list must become an empty array, not a crash on `.slice`.
+ */
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
 function buildPrompt(
   ctx: BrainContext,
   reports: Record<string, EngineReport>,
   scores: Record<string, number>,
 ): string {
-  const topOpps = (reports.opportunity?.facts?.top as any[] | undefined)?.slice(0, 5) ?? [];
+  const topOpps = asArray(reports.opportunity?.facts?.top).slice(0, 5);
   return JSON.stringify({
     score_overall: scores.overall,
     scores,
@@ -107,19 +115,19 @@ function buildPrompt(
           metric: ctx.blueprint.metric,
         }
       : null,
-    brands: ctx.brands.map((b: any) => ({
+    brands: ctx.brands.map((b) => ({
       name: b.name,
       has_logo: !!b.logo_url,
       has_voice: !!(b.voice && Object.keys(b.voice).length),
       has_palette: !!(b.palette && Object.keys(b.palette).length),
     })),
-    channels: ctx.channels.map((c: any) => ({ platform: c.platform, status: c.status })),
+    channels: ctx.channels.map((c) => ({ platform: c.platform, status: c.status })),
     top_opportunities: topOpps,
     skills_avg: reports.user?.facts?.avgSkill,
     weak_areas: reports.user?.facts?.weakAreas,
     recent_memory: ctx.memory
       .slice(0, 8)
-      .map((m: any) => ({ kind: m.kind, subject: m.subject, when: m.created_at })),
+      .map((m) => ({ kind: m.kind, subject: m.subject, when: m.created_at })),
   });
 }
 
@@ -134,7 +142,7 @@ export async function runAIInsights(
       user: `Analise este contexto e produza insights estruturados:\n${buildPrompt(ctx, reports, scores)}`,
       toolName: "emit_brain_insights",
       toolDescription: "Devolve insights estruturados do VELT Brain em PT-BR.",
-      parameters: PARAMS as any,
+      parameters: PARAMS,
     });
     return { ...data, model };
   } catch (e) {

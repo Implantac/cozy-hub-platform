@@ -4,12 +4,13 @@ import { ArrowUpRight, Flame, Heart } from "lucide-react";
 import { fadeUp } from "@/components/app/Motion";
 import { ScoreGauge } from "@/components/app/ScoreGauge";
 import { Empty } from "../components/atoms";
+import type { Row } from "@/lib/brain/types";
 
 type Props = {
   scoreOverall: number;
   healthAvg: number | null;
-  health: any[];
-  trending: any[];
+  health: Row<"health_metrics">[];
+  trending: Row<"opportunities">[];
 };
 
 export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Props) {
@@ -54,7 +55,7 @@ export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Pro
               <span className="text-xs text-muted-foreground">/ 100 — média geral</span>
             </div>
             <div className="space-y-2.5">
-              {health.map((h: any) => (
+              {health.map((h) => (
                 <div key={h.id}>
                   <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="capitalize text-muted-foreground">{h.category}</span>
@@ -89,7 +90,7 @@ export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Pro
           <Empty text="Sem tendências capturadas ainda." />
         ) : (
           <ul className="space-y-2">
-            {trending.map((o: any) => (
+            {trending.map((o) => (
               <li
                 key={o.id}
                 className="rounded-lg border border-border/70 bg-background/40 p-3 transition hover:border-primary/30"

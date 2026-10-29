@@ -86,8 +86,15 @@ export function analyzeBusiness(ctx: BrainContext): EngineReport {
     "metric",
   ] as const;
   const bp = ctx.blueprint;
-  const bpFilled = bp
-    ? BP_FIELDS.filter((f) => (bp as any)[f] && String((bp as any)[f]).trim().length > 0).length
+  // `BP_FIELDS` is a fixed list of blueprint columns, but the row type cannot
+  // pin a dynamic key — so the read goes through an explicit index signature
+  // rather than `any`, which would also hide a typo in a field name.
+  const bpRecord = bp as Record<string, unknown> | null;
+  const bpFilled = bpRecord
+    ? BP_FIELDS.filter((f) => {
+        const value = bpRecord[f];
+        return value != null && String(value).trim().length > 0;
+      }).length
     : 0;
   const bpPct = Math.round((bpFilled / BP_FIELDS.length) * 100);
   if (!bp || bpFilled === 0) {

@@ -24,6 +24,7 @@ import { analyzeGrowth } from "./engines/growth.engine";
 import { analyzeMarket } from "./engines/market.engine";
 import { analyzeOpportunity } from "./engines/opportunity.engine";
 import { analyzeTrust } from "./engines/trust.engine";
+import type { Database } from "@/integrations/supabase/types";
 
 const ENGINES = {
   user: analyzeUser,
@@ -35,7 +36,7 @@ const ENGINES = {
 } as const;
 
 export async function loadContext(
-  supabase: SupabaseClient<any>,
+  supabase: SupabaseClient<Database>,
   workspaceId: string,
   userId: string,
 ): Promise<BrainContext> {
@@ -135,7 +136,7 @@ export function computeScores(ctx: BrainContext, reports: Record<string, EngineR
     brands === 0
       ? 0
       : Math.round(
-          ctx.brands.reduce((s, b: any) => {
+          ctx.brands.reduce((s, b) => {
             const v = b.voice && Object.keys(b.voice).length ? 35 : 0;
             const p = b.palette && Object.keys(b.palette).length ? 35 : 0;
             const l = b.logo_url ? 30 : 0;
@@ -172,7 +173,7 @@ export function aggregateActions(reports: Record<string, EngineReport>): BrainAc
 }
 
 export async function buildSnapshot(
-  supabase: SupabaseClient<any>,
+  supabase: SupabaseClient<Database>,
   workspaceId: string,
   userId: string,
 ): Promise<BrainSnapshot> {
@@ -183,12 +184,14 @@ export async function buildSnapshot(
   return {
     workspace_id: workspaceId,
     snapshot: {
-      user: reports.user.facts,
-      business: reports.business.facts,
-      growth: reports.growth.facts,
-      market: reports.market.facts,
-      opportunity: reports.opportunity.facts,
-      trust: reports.trust.facts,
+      // An engine that reports no facts persists an empty object, not `undefined`
+      // — a stored snapshot should have a stable shape whatever the engines did.
+      user: reports.user.facts ?? {},
+      business: reports.business.facts ?? {},
+      growth: reports.growth.facts ?? {},
+      market: reports.market.facts ?? {},
+      opportunity: reports.opportunity.facts ?? {},
+      trust: reports.trust.facts ?? {},
       memory_size: ctx.memory.length,
     },
     scores,
