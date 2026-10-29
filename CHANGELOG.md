@@ -57,6 +57,13 @@ Nitro. `git checkout package-lock.json && npm ci` devolveu o build a 49 s.
 Regra: **nunca `npm install` neste repo sem conferir o diff do lock depois.** Aqui,
 `npm ci` é o único jeito de instalar sem alterar o perfil do build.
 
+**Nota sobre o teto de heap (`--max-old-space-size=1300`)**: ele continua sendo
+necessário _neste ambiente de 2 GB_. Um commit posterior trouxe a causa raiz
+parcial — `lucide-direct-imports`, que mantém ~1.900 módulos de ícone não usados
+fora do grafo — mas `vite build` puro ainda morre por OOM aqui; `npm run build`
+(com o teto) fecha em 33 s. O teto é paliativo, a correção do lucide é estrutural:
+as duas convivem.
+
 ### Números
 
 - testes: **307 em 22 arquivos** (+8: `hostOf`, injeção de diretiva, resumo)
