@@ -5,6 +5,7 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { lucideDirectImports } from "./vite/lucide-direct-imports";
 
 export default defineConfig({
   tanstackStart: {
@@ -13,6 +14,9 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    // Build-only: keeps ~1,900 unused icon modules out of the graph so the
+    // production build fits in the deploy machine's memory.
+    plugins: [lucideDirectImports()],
     server: {
       // The app is developed in hosted preview environments where the origin is
       // not localhost (e.g. *.e2b.app). Vite blocks unknown hosts by default,
