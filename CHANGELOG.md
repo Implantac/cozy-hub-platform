@@ -1,5 +1,74 @@
 # Changelog
 
+## [1.10.1] — 2026-10-29
+
+### Corrigido — 76 `any` a menos, e o que eles escondiam
+
+O bloco anterior tipou o motor do Brain. Este fechou o resto: `no-explicit-any`
+saiu de 76 para **zero** no repositório inteiro. O padrão que apareceu em quase
+todos os arquivos era o mesmo — leitura de coluna `json` por acesso direto:
+
+```tsx
+items={v.strengths ?? []}          // Json | null nunca é string[]
+{v.next_steps?.length > 0 && …}    // .length em Json: compila, quebra em runtime
+```
+
+Isso não falha no `tsc` (a coluna é `Json`), falha na tela: `[object Object]` na
+lista, ou `TypeError` que derruba a página inteira do card. Quatro helpers novos
+em `src/lib/json.ts` fecham o buraco, todos **totais** (nunca lançam):
+
+| helper              | coluna                                                                                       | contrato                                              |
+| ------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `readStrings`       | `strengths`, `risks`, `indicators_*`, `questions_to_answer`, `next_steps`, `recommendations` | descarta entradas que não são string em vez de coagir |
+| `readSummary`       | `ai_analysis`                                                                                | `null` quando não há resumo utilizável                |
+| `readTitledActions` | `user_profile_digital.recommended_actions`                                                   | mantém `{ title, href? }`, exige `title`              |
+| `errorMessage`      | qualquer `catch`                                                                             | nunca devolve `undefined`                             |
+
+### Corrigido — toast vazio no momento da falha
+
+```tsx
+} catch (e: any) {
+  toast.error(e.message);
+```
+
+`throw` não exige `Error`. Um reject com string, com `{ error }` do corpo de uma
+resposta, ou com nada, fazia `e.message` ser `undefined` — o usuário via um toast
+**em branco** exatamente quando algo dava errado. `errorMessage(e)` recupera a
+mensagem de `Error`, string, `{ message }` e `{ error }`, e só então usa o texto
+padrão.
+
+### Melhorado — a UI não consegue mais enviar um `change_type` que o validador rejeita
+
+`RealityCheckTab` fazia `change_type: changeType as any`. A lista do `<Select>`
+era digitada à mão e podia divergir do `z.enum` do servidor sem ninguém notar.
+Agora existe uma fonte única:
+
+```ts
+export const REALITY_CHANGE_TYPES = ["pivot", "new_channel", …, "investment"] as const;
+```
+
+O zod usa `z.enum(REALITY_CHANGE_TYPES)` e o `<Select>` estreita o valor com um
+type guard. Adicionar uma opção na tela e esquecer o validador passou a ser erro
+de compilação.
+
+### Corrigido — `npm run build` não rodava no ambiente de 2 GB
+
+O passo do Nitro (bundle do servidor) estabiliza em ~1,3 GB residentes. Com o
+padrão do V8 o processo era morto pelo kernel sem mensagem útil (`Killed`), e o
+`.output/` ficava **parcial** — o que é pior que falhar, porque parece ter dado
+certo. O script agora fixa o teto:
+
+```json
+"build": "node scripts/check-env.mjs && node --max-old-space-size=1300 node_modules/vite/bin/vite.js build"
+```
+
+### Números
+
+- `tsc --noEmit`: 0 erros · `eslint`: 0 `no-explicit-any` (restam 12
+  `react-refresh` pré-existentes em componentes shadcn)
+- testes: **285 em 20 arquivos** (+13, cobrindo os helpers novos e `errorMessage`)
+- `npm run build`: verde, `.output/` completo
+
 ## [1.10.0] — 2026-10-28
 
 ### Corrigido — "melhor horário para publicar" nunca funcionou
