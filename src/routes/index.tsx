@@ -16,18 +16,40 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ogLocale, requestLang, translateServer } from "@/lib/i18n/translate";
+
+/**
+ * English copy used when neither dictionary has the key.
+ *
+ * It duplicates `seo.*` on purpose: this is the last line of defence, and a
+ * fallback that reads the thing it is falling back from is not a fallback.
+ */
+const LANDING_SEO_FALLBACK = {
+  title: "VELT — AI-native operating system for your digital presence",
+  description:
+    "Launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn.",
+};
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "VELT — AI-native operating system for your digital presence" },
-      {
-        name: "description",
-        content:
-          "Launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn.",
-      },
-    ],
-  }),
+  head: () => {
+    const lang = requestLang();
+    const title = translateServer(lang, "seo", "title", LANDING_SEO_FALLBACK.title);
+    const description = translateServer(
+      lang,
+      "seo",
+      "description",
+      LANDING_SEO_FALLBACK.description,
+    );
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:locale", content: ogLocale(lang) },
+      ],
+    };
+  },
   component: Landing,
 });
 

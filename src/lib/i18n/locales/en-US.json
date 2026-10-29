@@ -230,5 +230,18 @@
     "unknown": "Unknown error",
     "notFoundTitle": "Page not found",
     "notFoundDesc": "This route doesn't exist in your VELT."
+  },
+  "seo": {
+    "title": "VELT — The operating system for your digital presence",
+    "description": "Publish, operate and grow on Instagram, Facebook, YouTube, TikTok and LinkedIn — with a brain that tells you why a post won't work before you publish it.",
+    "ogLocale": "en_US"
+  },
+  "routes": {
+    "login": "Sign in · VELT",
+    "signup": "Create account · VELT"
+  },
+  "root": {
+    "title": "VELT — Operating system for your digital presence",
+    "description": "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn."
   }
 }

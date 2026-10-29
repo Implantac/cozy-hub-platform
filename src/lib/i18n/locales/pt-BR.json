@@ -230,5 +230,18 @@
     "unknown": "Erro desconhecido",
     "notFoundTitle": "Página não encontrada",
     "notFoundDesc": "Esta rota não existe no seu VELT."
+  },
+  "seo": {
+    "title": "VELT — O sistema operacional da sua presença digital",
+    "description": "Publique, opere e cresça no Instagram, Facebook, YouTube, TikTok e LinkedIn — com um cérebro que te diz por que um post não vai funcionar antes de você publicar.",
+    "ogLocale": "pt_BR"
+  },
+  "routes": {
+    "login": "Entrar · VELT",
+    "signup": "Criar conta · VELT"
+  },
+  "root": {
+    "title": "VELT — O sistema operacional da sua presença digital",
+    "description": "A VELT é uma plataforma de IA para lançar, operar e crescer a sua marca no Instagram, Facebook, YouTube, TikTok e LinkedIn."
   }
 }

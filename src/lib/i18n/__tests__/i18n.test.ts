@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * The case that matters is the stored code: a user who picked `de` back when the
@@ -91,5 +91,43 @@ describe("i18n language resolution", () => {
     expect(isRtl("ar-SA")).toBe(true);
     expect(isRtl("pt-BR")).toBe(false);
     expect(isRtl("en-US")).toBe(false);
+  });
+});
+
+describe("resolveLang (server side)", () => {
+  /**
+   * A server is not "a browser with no header": it is an environment with no
+   * `window` at all. The tests above install a stubbed `window`, and the module
+   * checks `window` before the header, so without this the assertions below
+   * would silently exercise the client path instead of the one under test.
+   */
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /**
+   * `head()` runs during SSR, where `window` does not exist, so the decision is
+   * made over the `Accept-Language` header. Every branch here was a real request
+   * shape: a browser sending a list with q-values, a bare base language, a
+   * language we do not ship, and no header at all.
+   */
+  it("reads the first supported language of the header", async () => {
+    const { resolveLang } = await import("@/lib/i18n");
+    expect(resolveLang("pt-BR,pt;q=0.9,en;q=0.8")).toBe("pt-BR");
+    expect(resolveLang("en-US,en;q=0.9")).toBe("en-US");
+  });
+
+  it("falls back to the base language before giving up", async () => {
+    const { resolveLang } = await import("@/lib/i18n");
+    expect(resolveLang("pt-PT")).toBe("pt-BR");
+    expect(resolveLang("en-GB,en;q=0.9")).toBe("en-US");
+  });
+
+  it("uses pt-BR for an unsupported or absent header", async () => {
+    const { resolveLang } = await import("@/lib/i18n");
+    expect(resolveLang("de-DE,de;q=0.9,fr;q=0.8")).toBe("pt-BR");
+    expect(resolveLang(null)).toBe("pt-BR");
+    expect(resolveLang("")).toBe("pt-BR");
+    expect(resolveLang("*")).toBe("pt-BR");
   });
 });

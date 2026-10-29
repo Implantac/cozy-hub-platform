@@ -79,6 +79,35 @@ export function detectInitialLang(): LanguageCode {
   return DEFAULT_LANGUAGE;
 }
 
+/**
+ * Language resolution that works on both sides of the wire.
+ *
+ * On the client it is `detectInitialLang`. On the server there is no
+ * `localStorage` and no `navigator`, so the route handler's `match` passes the
+ * request's `Accept-Language` instead. Without this, every document was
+ * server-rendered with the hardcoded `<title>` and description, and a Brazilian
+ * visitor got English metadata in the tab, in search results and in link
+ * previews — the first impression of the product, in the wrong language.
+ */
+export function resolveLang(acceptLanguage?: string | null): LanguageCode {
+  if (typeof window !== "undefined") return detectInitialLang();
+  if (!acceptLanguage) return DEFAULT_LANGUAGE;
+
+  // "pt-BR,pt;q=0.9,en;q=0.8" -> ["pt-BR", "pt", "en"]
+  const tags = acceptLanguage
+    .split(",")
+    .map((part) => part.split(";")[0].trim())
+    .filter(Boolean);
+
+  for (const tag of tags) {
+    if (VALID_CODES.has(tag)) return tag as LanguageCode;
+    const base = tag.split("-")[0];
+    if (base === "pt") return "pt-BR";
+    if (base === "en") return "en-US";
+  }
+  return DEFAULT_LANGUAGE;
+}
+
 function applyDirection(lang: string) {
   if (typeof document === "undefined") return;
   const base = lang.split("-")[0];

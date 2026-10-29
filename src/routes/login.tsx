@@ -6,9 +6,15 @@ import { Brain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { requestLang, translateServer } from "@/lib/i18n/translate";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in · VELT" }] }),
+  head: () => {
+    const lang = requestLang();
+    return {
+      meta: [{ title: translateServer(lang, "routes", "login", "Sign in · VELT") }],
+    };
+  },
   component: LoginPage,
 });
 

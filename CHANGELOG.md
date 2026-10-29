@@ -1,5 +1,61 @@
 # Changelog
 
+## [1.10.2] — 2026-10-29
+
+### Corrigido — o produto se apresentava em inglês para quem fala português
+
+O `head()` das rotas é estático, e a landing anunciava:
+
+```tsx
+{
+  title: "VELT — AI-native operating system for your digital presence";
+}
+```
+
+Enquanto o app inteiro é pt-BR por padrão. O título aparece na aba, no resultado
+de busca e no preview de todo link compartilhado no WhatsApp — a primeira
+impressão do produto, na língua errada, para 100% dos usuários brasileiros.
+
+A causa é estrutural: `useTranslation` é um hook e `head()` não é componente;
+ele roda durante o SSR, onde não existe `localStorage` nem `navigator`. Sem ler o
+`Accept-Language` da requisição, não há como saber a língua.
+
+Agora existe:
+
+- `resolveLang(acceptLanguage)` em `src/lib/i18n/index.ts` — a mesma resolução do
+  cliente (`pt-BR`, `en-US`, base `pt`/`en`, senão o padrão), aplicada ao header;
+  q-values são descartados (`pt-BR,pt;q=0.9` → `pt-BR`).
+- `requestLang()` em `src/lib/i18n/translate.ts` — lê o header via `getRequest()`
+  do start server. Nesta versão do router, `head(ctx)` recebe um `RouteMatch`,
+  que **não** carrega o `Request`.
+- `translateServer(lang, section, key, fallback)` — lookups no dicionário JSON,
+  com o mesmo fallback do cliente (`en-US`) e uma cópia de emergência por rota.
+
+Fallback duplicado de propósito: um fallback que lê a chave da qual está caindo
+não é fallback.
+
+Verificado contra o SSR real:
+
+| `Accept-Language`   | `<title>`                                                     |
+| ------------------- | ------------------------------------------------------------- |
+| `pt-BR`             | VELT — O sistema operacional da sua presença digital          |
+| `en-US`             | VELT — The operating system for your digital presence         |
+| `de-DE`             | VELT — O sistema operacional da sua presença digital (padrão) |
+| ausente             | VELT — O sistema operacional da sua presença digital (padrão) |
+| `pt-BR` em `/login` | Entrar · VELT                                                 |
+| `en-US` em `/login` | Sign in · VELT                                                |
+
+`og:locale`, `og:title` e `og:description` seguem a mesma decisão, e o root
+(herdado por `/bio/*`) também. O `<html lang>` continua `pt-BR` no HTML inicial:
+`manifest`/`htmlAttrs` não existem nesta versão do router, então o cliente
+corrige o atributo ao hidratar (`applyDirection`).
+
+### Números
+
+- testes: **288 em 20 arquivos** (+3, cobrindo q-values, idioma não suportado e
+  header ausente)
+- `tsc --noEmit`: 0 erros
+
 ## [1.10.1] — 2026-10-29
 
 ### Corrigido — 76 `any` a menos, e o que eles escondiam
