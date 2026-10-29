@@ -1,5 +1,70 @@
 # Changelog
 
+## [1.11.0] — 2026-10-29
+
+### Segurança — CSP com nonce e fechamento do XSS refletido em server functions
+
+Último item da dívida de segurança: o GHSA-qx66-fv34-fjm8 (CVSS 9.3) estava
+**documentado** desde o relatório e não mitigado. Verificado neste app antes de
+escrever qualquer linha — `GET /_serverFn/abc` com `Accept: text/html`
+devolvia **500 com HTML renderizado**.
+
+#### Duas defesas independentes
+
+1. **Navegação para server function é recusada antes do handler** (`src/server.ts`).
+   O transporte existe para `fetch` com `x-tsr-serverFn: true`; uma navegação
+   nunca manda esse header. Requisições com cara de navegador (`Sec-Fetch-Mode:
+navigate`, `Sec-Fetch-Dest: document` ou `Accept: text/html`) recebem
+   **404 text/plain**. Um segundo cinto recusa qualquer resposta `text/html`
+   nesse caminho quando o marcador do transporte está ausente.
+
+   O filtro exige marcador de navegador de propósito: um probe de monitoramento
+   (curl puro) não manda nenhum deles e não é um ataque.
+
+2. **CSRF no transporte** (`src/start.ts`). O framework avisava a cada boot que
+   `requestMiddleware` não tinha CSRF: server functions são RPC de mesma origem,
+   e sem isso uma página terceira pode postar em `/_serverFn/<id>` com a sessão
+   da vítima. Usa o `createCsrfMiddleware` oficial (Origin / Sec-Fetch-Site /
+   Referer), filtrado por `handlerType === "serverFn"`.
+
+#### CSP com nonce por requisição
+
+Em **Report-Only** por padrão; `CSP_MODE=enforce` para bloquear:
+
+```
+default-src 'self'; script-src 'self' 'nonce-<32 hex>';
+style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:;
+connect-src 'self' https://<projeto>.supabase.co wss://...;
+form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+```
+
+O `connect-src` sai do `SUPABASE_URL` real — sem isso o app funciona em dev e
+morre em produção, porque toda tela autenticada fala direto com o Supabase.
+
+O nonce tem que casar entre o header e **cada** `<script>` inline do SSR, senão
+a hidratação não roda e a página fica branca. Verificado: `nonce` do header
+idêntico ao de todos os scripts, e **0 scripts sem nonce**.
+
+#### Quatro becos sem saída, todos encontrados por teste e não por leitura
+
+O caminho até aqui teve quatro hipóteses erradas, cada uma com sintoma diferente:
+
+| tentativa                                                          | sintoma                                                 |
+| ------------------------------------------------------------------ | ------------------------------------------------------- |
+| nonce via `middleware` + `result.context`                          | `result.context` é contexto, não o router               |
+| `getRouter` **async**                                              | build morre por heap OOM (e parece problema de tamanho) |
+| `createIsomorphicFn` dentro de `router.tsx`                        | mesmo OOM, **sem** async                                |
+| import `.server` ou `@tanstack/react-start/server` em `router.tsx` | import-protection: o router é entry do build de cliente |
+
+O que funciona: **`createServerOnlyFn`** — o bundler remove o stub do cliente e
+`getRequest()` é síncrono. Síncrono importa: `async` em `getRouter()` estoura o
+passo do Nitro.
+
+#### Números
+
+- testes: **299 em 21 arquivos** (+11: matriz do guard, CSRF de navegação, CSP)
+- `tsc` 0 · `eslint` 0 · `vite build` verde (8,3 M)
+
 ## [1.10.4] — 2026-10-29
 
 ### `npm audit`: 4 moderados → **0**
