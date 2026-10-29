@@ -29,7 +29,7 @@ function ctx(over: Partial<BrainContext> = {}): BrainContext {
 describe("growth engine — consistency", () => {
   it("raises a high-severity signal when publishing stopped", () => {
     const report = analyzeGrowth(
-      ctx({ content: [{ id: "1", status: "published", created_at: iso(20) }] }),
+      ctx({ content: [{ id: "1", status: "published", created_at: iso(20), title: "Post" }] }),
     );
     const s = report.signals.find((x) => /últimos 7 dias/.test(x.message));
     expect(s).toBeDefined();
@@ -40,8 +40,9 @@ describe("growth engine — consistency", () => {
   it("praises a healthy cadence", () => {
     const content = Array.from({ length: 10 }, (_, i) => ({
       id: String(i),
-      status: "published",
+      status: "published" as const,
       created_at: iso(i % 5),
+      title: `Post ${i}`,
     }));
     const report = analyzeGrowth(ctx({ content }));
     expect(report.signals.some((s) => s.kind === "positive")).toBe(true);
@@ -160,11 +161,12 @@ describe("growth engine — measured data (post analytics sync)", () => {
     const days = [7, 14, 21, 9, 16, 23];
     const jobs = days.map((daysAgo, i) => ({
       id: String(i),
-      status: "succeeded",
+      status: "succeeded" as const,
       scheduled_at: iso(daysAgo),
       content_id: `c${i}`,
     }));
-    const analytics = jobs.map((j) => ({
+    const analytics = jobs.map((j, i) => ({
+      id: `s${i}`,
       content_id: j.content_id,
       metrics: { engagement: 400, impressions: 4000 },
       captured_at: iso(1),
@@ -172,8 +174,8 @@ describe("growth engine — measured data (post analytics sync)", () => {
     const report = analyzeGrowth(
       ctx({
         channels: [{ platform: "instagram" } as never],
-        jobs: jobs as never,
-        analytics: analytics as never,
+        jobs,
+        analytics,
       }),
     );
     expect(report.facts?.timingSource).not.toBe("baseline");
@@ -184,7 +186,7 @@ describe("growth engine — measured data (post analytics sync)", () => {
     const report = analyzeGrowth(
       ctx({
         channels: [{ platform: "instagram" } as never],
-        jobs: [{ id: "1", status: "succeeded", scheduled_at: iso(3), content_id: "c1" }] as never,
+        jobs: [{ id: "1", status: "succeeded" as const, scheduled_at: iso(3), content_id: "c1" }],
         analytics: [
           { content_id: "c1", metrics: { engagement: 20, impressions: 5000 }, captured_at: iso(1) },
         ] as never,
@@ -200,7 +202,7 @@ describe("growth engine — measured data (post analytics sync)", () => {
     const report = analyzeGrowth(
       ctx({
         channels: [{ platform: "instagram" } as never],
-        jobs: [{ id: "1", status: "succeeded", scheduled_at: iso(3), content_id: "c1" }] as never,
+        jobs: [{ id: "1", status: "succeeded" as const, scheduled_at: iso(3), content_id: "c1" }],
         analytics: [
           {
             content_id: "c1",

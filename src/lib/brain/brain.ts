@@ -69,7 +69,10 @@ export async function loadContext(
       .limit(500),
     supabase
       .from("analytics_snapshots")
-      .select("id, metrics, captured_at")
+      // `content_id` is required: the growth engine groups by post to pick the
+      // latest metrics. Without it the map is always empty and best-time-to-post
+      // silently degrades to baselines.
+      .select("id, metrics, captured_at, content_id")
       .eq("workspace_id", workspaceId)
       .order("captured_at", { ascending: false })
       .limit(100),

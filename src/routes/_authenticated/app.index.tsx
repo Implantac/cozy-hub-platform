@@ -46,7 +46,7 @@ function GPSDashboard() {
 
   const overview = useQuery({
     queryKey: ["dashboard", wsId],
-    queryFn: () => (fetchOverview as any)({ data: { workspaceId: wsId! } }),
+    queryFn: () => fetchOverview({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
     refetchInterval: 30_000,
   });
@@ -81,17 +81,17 @@ function GPSDashboard() {
   });
   const competitors = useQuery({
     queryKey: ["competitors-mini", wsId],
-    queryFn: () => listCompetitors({ data: { workspaceId: wsId! } }) as Promise<any[]>,
+    queryFn: () => listCompetitors({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
   });
   const skills = useQuery({
     queryKey: ["skills-mini", wsId],
-    queryFn: () => listSkills({ data: { workspaceId: wsId! } }) as Promise<any[]>,
+    queryFn: () => listSkills({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
   });
   const journey = useQuery({
     queryKey: ["journey-mini", wsId],
-    queryFn: () => getTimeline({ data: { workspaceId: wsId! } }) as Promise<any>,
+    queryFn: () => getTimeline({ data: { workspaceId: wsId! } }),
     enabled: !!wsId,
   });
 
@@ -114,17 +114,17 @@ function GPSDashboard() {
   }
 
   const d = overview.data!;
-  const s = brain.data?.scores as any;
+  const s = brain.data?.scores;
   const topRecs = (recs.data ?? []).slice(0, 4);
   const trending = (opps.data ?? [])
-    .filter((o: any) => o.status === "exploding" || o.status === "growing")
+    .filter((o) => o.status === "exploding" || o.status === "growing")
     .slice(0, 3);
   const healthList = health.data ?? [];
   const healthAvg =
     healthList.length > 0
-      ? Math.round(healthList.reduce((a: number, h: any) => a + h.score, 0) / healthList.length)
+      ? Math.round(healthList.reduce((a, h) => a + (h?.score ?? 0), 0) / healthList.length)
       : null;
-  const priorityMissions = (d.missions ?? []).filter((m: any) => m.status !== "done").slice(0, 4);
+  const priorityMissions = (d.missions ?? []).filter((m) => m.status !== "done").slice(0, 4);
 
   return (
     <PageTransition>

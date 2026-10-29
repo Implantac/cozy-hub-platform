@@ -70,7 +70,7 @@ export function analyzeBusiness(ctx: BrainContext): EngineReport {
   // which the product cannot publish to and the enum does not accept — advice
   // that could never be followed.
   const path = ctx.profile?.business_path;
-  const priority = priorityPlatformsFor(path);
+  const priority = priorityPlatformsFor(path ?? undefined);
 
   // Business Blueprint (Manifesto Builder) — 10 strategic blocks
   const BP_FIELDS = [

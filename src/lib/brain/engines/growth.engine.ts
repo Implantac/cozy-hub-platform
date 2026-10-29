@@ -13,6 +13,22 @@ import { cadenceTarget, rankSlots, type SlotObservation } from "@/lib/growth/sch
  *   - cadence vs. sustainable target, derived from the user's own time budget
  *   - drafts that would fail their platform's hard limits if scheduled today
  */
+/**
+ * Reads known numeric keys out of the JSON `metrics` column.
+ *
+ * Anything that is not a finite number becomes 0 rather than `NaN`: a missing
+ * key and a stringly-typed value are both "no measurement", and a report that
+ * averages `NaN` tells the user nothing.
+ */
+function numericMetrics(raw: unknown): Record<"engagement" | "impressions" | "reach", number> {
+  const source = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  const pick = (key: string): number => {
+    const value = Number(source[key]);
+    return Number.isFinite(value) ? value : 0;
+  };
+  return { engagement: pick("engagement"), impressions: pick("impressions"), reach: pick("reach") };
+}
+
 export function analyzeGrowth(ctx: BrainContext): EngineReport {
   const signals: EngineReport["signals"] = [];
   const actions: EngineReport["actions"] = [];
@@ -130,16 +146,20 @@ export function analyzeGrowth(ctx: BrainContext): EngineReport {
   // by the analytics sync). Before the sync existed this list was always empty,
   // which is why best-time-to-post could only ever return baselines.
   const latestByContent = new Map<string, { engagement: number; impressions: number }>();
-  const snaps = (ctx.analytics ?? []) as Array<{
-    content_id?: string | null;
-    metrics?: Record<string, unknown> | null;
-  }>;
+  // No cast: `BrainContext.analytics` is typed with `content_id` required, and
+  // the query selects it. The cast that used to be here hid the fact that the
+  // column was never fetched.
+  const snaps = ctx.analytics ?? [];
   for (const snap of snaps) {
     if (!snap.content_id || latestByContent.has(snap.content_id)) continue; // newest first
-    const m = snap.metrics ?? {};
+    // `metrics` is a JSON column, so its shape is a promise the writer makes,
+    // not something the type system knows. Reading it defensively is the point:
+    // `Number({})` silently becomes `NaN`, and `NaN` propagates through every
+    // average that follows.
+    const m = numericMetrics(snap.metrics);
     latestByContent.set(snap.content_id, {
-      engagement: Number(m.engagement ?? 0),
-      impressions: Number(m.impressions ?? m.reach ?? 0),
+      engagement: m.engagement,
+      impressions: m.impressions || m.reach,
     });
   }
 

@@ -2,12 +2,26 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Brain, Compass, Rocket, Shield, type LucideIcon } from "lucide-react";
 import { fadeUp, stagger } from "@/components/app/Motion";
+import type { Row } from "@/lib/brain/types";
 
 interface OsLayersSectionProps {
   blueprint: Record<string, string | null> | null | undefined;
-  competitors: any[] | undefined;
-  skills: any[] | undefined;
-  journey: any;
+  competitors: Row<"competitors">[] | undefined;
+  skills: Row<"skill_assessments">[] | undefined;
+  /**
+   * Journey periods come from an RPC/aggregate, not a table, so the shape is
+   * declared here. Only the two counters are read.
+   */
+  journey:
+    | {
+        periods?: Array<{
+          key: string;
+          events_count: number;
+          decisions_count: number;
+        }>;
+      }
+    | null
+    | undefined;
 }
 
 const BP_FIELDS = [
@@ -29,18 +43,15 @@ export function OsLayersSection({ blueprint, competitors, skills, journey }: OsL
   const bpPct = Math.round((bpFilled / BP_FIELDS.length) * 100);
 
   const comps = competitors ?? [];
-  const compHigh = comps.filter((c: any) => c.threat === "high").length;
+  const compHigh = comps.filter((c) => c.threat === "high").length;
 
   const sk = skills ?? [];
-  const skMastered = sk.filter((s: any) => (s.level ?? s.score ?? 0) >= 80).length;
-  const skAvg =
-    sk.length > 0
-      ? Math.round(sk.reduce((a: number, s: any) => a + (s.level ?? s.score ?? 0), 0) / sk.length)
-      : 0;
+  const skMastered = sk.filter((s) => s.score >= 80).length;
+  const skAvg = sk.length > 0 ? Math.round(sk.reduce((a, s) => a + s.score, 0) / sk.length) : 0;
 
   const periods = journey?.periods ?? [];
   const current =
-    [...periods].reverse().find((p: any) => p.events_count > 0 || p.decisions_count > 0) ??
+    [...periods].reverse().find((p) => p.events_count > 0 || p.decisions_count > 0) ??
     periods[periods.length - 1];
 
   const cards: {

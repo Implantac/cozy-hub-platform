@@ -1,5 +1,70 @@
 # Changelog
 
+## [1.10.0] — 2026-10-28
+
+### Corrigido — "melhor horário para publicar" nunca funcionou
+
+O motor de crescimento agrupa `analytics_snapshots` por `content_id` para achar a
+métrica mais recente de cada post publicado, e disso deriva o horário ideal. A
+consulta era:
+
+```ts
+.select("id, metrics, captured_at")   // content_id nunca foi buscado
+```
+
+O agrupamento fazia `if (!snap.content_id) continue` — ou seja, **todos** os
+snapshots eram descartados. O mapa ficava vazio, `timingSource` ficava em
+`"baseline"` para sempre, e o recurso respondia com médias de mercado em vez dos
+dados do próprio usuário.
+
+O pior detalhe: a correção disso já estava escrita e comentada no código
+("_antes do sync de métricas esta lista era sempre vazia, por isso o melhor
+horário só podia retornar baselines_"). A lista continuou vazia porque a coluna
+que a alimenta nunca foi pedida. E `analytics: any[]` garantia que nada
+reclamasse.
+
+### A causa: `BrainContext` era 100% `any`
+
+Todas as fatias de dados do cérebro — `profile`, `workspace`, `brands`,
+`channels`, `content`, `jobs`, `analytics`, `opportunities`, `memory`,
+`blueprint`, `competitors`, `skills` — eram `any`. Cada motor lia campos
+arbitrários, e um campo inexistente virava `undefined` em runtime em vez de erro
+de compilação.
+
+Agora os tipos são **derivados do schema gerado**:
+
+```ts
+export type Row<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Row"];
+```
+
+E as três fatias carregadas com projeção declaram exatamente o que é buscado —
+`content_id` é obrigatório em `AnalyticsSlice` porque é disso que o agrupamento
+depende. Reintroduzir o bug agora **não compila**: verificado revertendo o
+`select` de propósito, o compilador aponta três erros.
+
+### Outros três achados do mesmo tipo
+
+1. **`skill_assessments` não tem coluna `level`.** O dashboard lia
+   `s.level ?? s.score`, então a primeira metade nunca existia; a média de
+   skills só funcionava por causa do fallback. Corrigido para `score`, que é a
+   coluna real.
+2. **`healthList` pode conter `null`.** A média somava `h.score` direto; com
+   `any` o compilador não via, e um item nulo derrubaria o cálculo no render.
+3. **O motor recomendava canais inexistentes** (`whatsapp`, `twitter`) — já
+   corrigido em 1.9.2, mas o tipo `string[]` era a razão de passar despercebido.
+
+### Testes
+
+**264 testes**, verdes. Os casts `as never` / `as any` que existiam nos testes do
+Brain para "fazer compilar" foram removidos: eles eram o sintoma de que o tipo
+real não casava com o que os motores liam.
+
+### Lint
+
+**111 → 76 erros de `any`**. O restante está em componentes de UI e rotas de
+dashboard, mesmo padrão, ainda por converter.
+
 ## [1.9.2] — 2026-10-28
 
 ### Corrigido — o Brain recomendava canais que não existem

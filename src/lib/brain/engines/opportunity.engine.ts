@@ -18,7 +18,7 @@ export function analyzeOpportunity(ctx: BrainContext): EngineReport {
     profile?.business_path,
   ]
     .filter(Boolean)
-    .map((s: string) => String(s).toLowerCase());
+    .map((s) => String(s).toLowerCase());
 
   const difficultyPenalty: Record<string, number> = { low: 0, medium: 10, high: 25 };
   const userTolerance =

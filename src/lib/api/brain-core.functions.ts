@@ -17,9 +17,30 @@ import {
 import { runAIInsights } from "@/lib/brain/ai-insights.server";
 import type { BrainAnswer, BrainQuestion } from "@/lib/brain/types";
 import { throwIfError } from "./_supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+
+/**
+ * The AI note persisted alongside a snapshot (Brain-3 enrichment).
+ *
+ * Typed explicitly because the column is `Json`: without a declared shape, every
+ * `ai.something` below is unchecked, and a renamed key becomes `undefined`
+ * instead of a compile error.
+ */
+export type PersistedAI = {
+  narrative?: string | null;
+  blueprintGaps?: string[] | null;
+  /** Per-opportunity justification; shape declared by `ai-insights.server.ts`. */
+  opportunityRationales?: Array<{ id: string; why: string }> | null;
+  pivotAdvice?: string | null;
+  trustNotes?: string[] | null;
+};
 
 /** Pull AI insights from the latest persisted snapshot (cheap read, no Gateway call). */
-async function readAIFromLatest(supabase: any, workspaceId: string) {
+async function readAIFromLatest(
+  supabase: SupabaseClient<Database>,
+  workspaceId: string,
+): Promise<PersistedAI | null> {
   const { data } = await supabase
     .from("brain_snapshots")
     .select("snapshot")
@@ -27,12 +48,14 @@ async function readAIFromLatest(supabase: any, workspaceId: string) {
     .order("computed_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  const ai = data?.snapshot?.ai;
-  return ai && typeof ai === "object" ? ai : null;
+  const snapshot = data?.snapshot;
+  if (!snapshot || typeof snapshot !== "object") return null;
+  const ai = (snapshot as { ai?: unknown }).ai;
+  return ai && typeof ai === "object" ? (ai as PersistedAI) : null;
 }
 
 /** Brain-3: enrich a rule-based answer with the AI note relevant to its question. */
-function enrichWithAI(answer: BrainAnswer, ai: any | null): BrainAnswer {
+function enrichWithAI(answer: BrainAnswer, ai: PersistedAI | null): BrainAnswer {
   if (!ai) return { ...answer, source: "rules" };
   let aiNote: string | null = null;
   switch (answer.question as BrainQuestion) {
@@ -207,7 +230,7 @@ export const brainRecommend = createServerFn({ method: "POST" })
     const signals = aggregateSignals(reports);
 
     // Map top actions + top negative signals into coach_recommendations
-    const recs: Array<any> = [];
+    const recs: Array<Database["public"]["Tables"]["coach_recommendations"]["Insert"]> = [];
     for (const a of actions.slice(0, 6)) {
       recs.push({
         workspace_id: data.workspaceId,
@@ -358,7 +381,7 @@ export const brainOpportunities = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const ctx = await loadContext(supabase, data.workspaceId, userId);
 
-    const profile = ctx.profile as any;
+    const profile = ctx.profile;
     const userTags: string[] = [
       ...(profile?.preferred_channels ?? []),
       ...(profile?.content_preferences ?? []),
@@ -366,7 +389,7 @@ export const brainOpportunities = createServerFn({ method: "GET" })
       profile?.business_path,
     ]
       .filter(Boolean)
-      .map((s: string) => String(s).toLowerCase());
+      .map((s) => String(s).toLowerCase());
     const difficultyPenalty: Record<string, number> = { low: 0, medium: 10, high: 25 };
     const userTolerance =
       profile?.experience_level === "advanced"
@@ -384,7 +407,7 @@ export const brainOpportunities = createServerFn({ method: "GET" })
       ]),
     );
 
-    const scored = (ctx.opportunities ?? []).map((o: any) => {
+    const scored = (ctx.opportunities ?? []).map((o) => {
       let s = 50;
       if (o.status === "exploding") s += 25;
       else if (o.status === "growing") s += 15;
@@ -394,7 +417,7 @@ export const brainOpportunities = createServerFn({ method: "GET" })
       if (o.competition === "low") s += 10;
       if (o.competition === "high") s -= 10;
       s -= Math.max(0, (difficultyPenalty[o.difficulty] ?? 10) - userTolerance);
-      const tags: string[] = (o.tags ?? []).map((t: string) => String(t).toLowerCase());
+      const tags: string[] = (o.tags ?? []).map((t) => String(t).toLowerCase());
       s += tags.filter((t) => userTags.includes(t)).length * 8;
       return {
         ...o,
@@ -404,8 +427,8 @@ export const brainOpportunities = createServerFn({ method: "GET" })
     });
 
     const ranked = scored
-      .filter((o: any) => !data.status || o.status === data.status)
-      .sort((a: any, b: any) => b._compatibility - a._compatibility)
+      .filter((o) => !data.status || o.status === data.status)
+      .sort((a, b) => b._compatibility - a._compatibility)
       .slice(0, data.limit ?? 60);
 
     return ranked;
