@@ -116,7 +116,10 @@ function applyDirection(lang: string) {
 }
 
 if (!i18n.isInitialized) {
-  const initial = detectInitialLang();
+  // SSR always renders the UI in Portuguese. Start the browser with that same
+  // language to avoid a hydration mismatch; restore the user's preference only
+  // after React has hydrated (see restoreBrowserLanguage in the route language switcher).
+  const initial = DEFAULT_LANGUAGE;
 
   i18n.use(initReactI18next).init({
     resources: {
@@ -128,8 +131,14 @@ if (!i18n.isInitialized) {
     interpolation: { escapeValue: false },
     returnNull: false,
   });
+}
 
-  applyDirection(initial);
+/** Restore browser preference only after the SSR markup has hydrated. */
+export function restoreBrowserLanguage() {
+  if (typeof window === "undefined") return;
+  const preferred = detectInitialLang();
+  void i18n.changeLanguage(preferred);
+  applyDirection(preferred);
 }
 
 export function setLanguage(lang: LanguageCode) {

@@ -16,8 +16,8 @@
  *     report is that the URL was attacker-influenced. Persisting a full attacker
  *     URL puts it in our logs and dashboards — the same mistake the XSS advisory
  *     is about, one layer down;
- *   - every write is best-effort: a broken database must not make a browser
- *     retry, and a monitoring client must still get 204;
+ *   - a failed write returns 500, so missing telemetry cannot be mistaken for a
+ *     clean policy; the browser can ignore the response, but operators must not;
  *   - per-IP throttle so one caller cannot flood the table.
  *
  * Rate limiting is in-process. That is honest for a single runtime and wrong for
@@ -27,21 +27,14 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { toCspAuditRows, type CspViolation } from "@/lib/security/csp-collector";
 
 const MAX_BODY_BYTES = 8 * 1024;
 const MAX_REPORTS_PER_BODY = 5;
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS_PER_WINDOW = 30;
 
-type Violation = {
-  blockedURI: string | null;
-  violatedDirective: string | null;
-  effectiveDirective: string | null;
-  documentURI: string | null;
-  sourceFile: string | null;
-  lineNumber: number | null;
-  disposition: string | null;
-};
+type Violation = CspViolation;
 
 /**
  * Per-isolate request counter, keyed by IP.
@@ -173,18 +166,9 @@ export const Route = createFileRoute("/api/csp-report")({
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const { error } = await supabaseAdmin.from("audit_logs").insert(
-            reports.map((report) => ({
-              action: "csp.violation",
-              resource_type: "csp",
-              resource_id: report.violatedDirective ?? report.effectiveDirective,
-              user_agent: asString(request.headers.get("user-agent"), 400),
-              metadata: {
-                ...report,
-                // Not the IP: it identifies a person and adds nothing to a
-                // policy decision. The count is what matters.
-                via: "csp-report",
-              },
-            })),
+            // `resource_id` is UUID, so a textual directive belongs only in
+            // metadata. Never persist IP addresses or the URL query string.
+            toCspAuditRows(reports, asString(request.headers.get("user-agent"), 400)),
           );
           if (error) throw error;
         } catch (error) {

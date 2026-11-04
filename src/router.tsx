@@ -5,10 +5,10 @@ import { routeTree } from "./routeTree.gen";
 /**
  * CSP nonce for the current render, or `undefined` when there is no request.
  *
- * `createServerOnlyFn` is the sanctioned seam: the bundler strips the throwing
- * stub from the client build, so `@tanstack/react-start/server` never reaches the
- * browser. The function passed to it is only ever invoked on the server, inside
- * `getRouter()`, which the start runtime calls per request.
+ * `createServerOnlyFn` strips the server implementation from the client bundle,
+ * but its browser stub deliberately throws if called. The router factory runs
+ * both during SSR and browser hydration, so the call must be guarded. On the
+ * server the Start runtime creates the router per request.
  *
  * It must stay **synchronous**: an `async` `getRouter()` blows past the memory the
  * Nitro bundling step can use and the production build dies with a heap OOM.
@@ -24,7 +24,7 @@ const requestNonce = createServerOnlyFn((): string | undefined => {
 
 export const getRouter = () => {
   const queryClient = new QueryClient();
-  const nonce = requestNonce();
+  const nonce = typeof window === "undefined" ? requestNonce() : undefined;
 
   const router = createRouter({
     routeTree,

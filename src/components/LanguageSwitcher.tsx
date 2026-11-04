@@ -1,6 +1,12 @@
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { Languages } from "lucide-react";
-import { SUPPORTED_LANGUAGES, setLanguage, type LanguageCode } from "@/lib/i18n";
+import {
+  SUPPORTED_LANGUAGES,
+  setLanguage,
+  restoreBrowserLanguage,
+  type LanguageCode,
+} from "@/lib/i18n";
 
 /**
  * VELT — Language switcher.
@@ -8,6 +14,12 @@ import { SUPPORTED_LANGUAGES, setLanguage, type LanguageCode } from "@/lib/i18n"
  * The wrapper styling mirrors a sidebar nav item so it fits the AppShell.
  */
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
+  // This component mounts inside the rendered route, not above the lazy route
+  // Suspense boundary. Changing language in the root effect can run before the
+  // route has hydrated and produce a Portuguese/English text mismatch.
+  useEffect(() => {
+    restoreBrowserLanguage();
+  }, []);
   const { i18n, t } = useTranslation();
   const current = (i18n.language as LanguageCode) || "pt-BR";
 
