@@ -50,3 +50,7 @@ dist-ssr
 # Test / coverage artifacts
 coverage
 .vitest
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]

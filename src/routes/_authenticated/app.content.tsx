@@ -11,6 +11,7 @@ import { usePreflight } from "@/features/content/hooks/usePreflight";
 import { PreflightPanel } from "@/features/content/components/PreflightPanel";
 import { CoachCard } from "@/features/content/components/CoachCard";
 import { useCoach } from "@/features/content/hooks/useCoach";
+import { StudioPanel } from "@/features/content/components/StudioPanel";
 
 export const Route = createFileRoute("/_authenticated/app/content")({
   component: ContentPage,
@@ -30,6 +31,8 @@ function ContentPage() {
           title="Content"
           subtitle="Drafts, templates and AI-assisted creation."
         />
+
+        <StudioPanel key={p.q.wsId ?? "no-workspace"} workspaceId={p.q.wsId} items={p.items} />
 
         {/* Composer + live preflight: the audit runs while you type, so the
             draft never reaches the queue with a limit violation. */}
