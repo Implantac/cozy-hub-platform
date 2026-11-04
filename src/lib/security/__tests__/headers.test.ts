@@ -81,12 +81,15 @@ describe("nonceForRequest", () => {
 });
 
 describe("buildCsp", () => {
-  it("authorises only the nonce for scripts and blocks framing", () => {
+  it("allows the nonce and exact Lovable badge hash, without allowing arbitrary inline scripts", () => {
     const csp = buildCsp("abc123", true);
-    expect(csp).toContain("script-src 'self' 'nonce-abc123'");
+    const scriptSrc = csp.split("; ").find((directive) => directive.startsWith("script-src "));
+    expect(scriptSrc).toBe(
+      "script-src 'self' 'nonce-abc123' 'sha256-rMtRCeJ4Yk5jpztC+/jaFtDclFbMT/8S0iypUz9686Q='",
+    );
+    expect(scriptSrc).not.toContain("'unsafe-inline'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
-    expect(csp).not.toContain("'unsafe-inline'; script");
     expect(csp).toContain("report-uri /api/csp-report");
   });
 

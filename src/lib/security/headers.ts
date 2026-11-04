@@ -23,6 +23,14 @@
 /** Length of the hex nonce, in bytes of randomness. 16 bytes = 128 bits. */
 const NONCE_BYTES = 16;
 
+/**
+ * Lovable's published-site badge injects this exact inline script after our SSR
+ * response, outside our control and without the per-request nonce. Trust only
+ * the observed script bytes, never arbitrary inline JavaScript. If Lovable
+ * changes the badge script, the CSP report will recur until this is reviewed.
+ */
+const LOVABLE_BADGE_SCRIPT_HASH = "sha256-rMtRCeJ4Yk5jpztC+/jaFtDclFbMT/8S0iypUz9686Q=";
+
 function randomNonce(): string {
   const bytes = new Uint8Array(NONCE_BYTES);
   crypto.getRandomValues(bytes);
@@ -116,7 +124,7 @@ export function buildCsp(nonce: string, reportOnly: boolean): string {
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'nonce-${nonce}' '${LOVABLE_BADGE_SCRIPT_HASH}'`,
     // Tailwind and the app ship inline styles; there is no inline-style sink that
     // matters for escaping HTML, so this stays permissive instead of fighting it.
     "style-src 'self' 'unsafe-inline'",
