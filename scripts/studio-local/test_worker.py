@@ -1,4 +1,6 @@
 import base64
+from contextlib import redirect_stderr
+import io
 import json
 import os
 from pathlib import Path
@@ -19,6 +21,27 @@ SECRET = "s" * 40
 
 
 class WorkerTest(unittest.TestCase):
+    def test_failure_logs_type_without_private_exception_message(self):
+        def fail(_args):
+            raise ValueError("private narration and secret")
+
+        log = io.StringIO()
+        with redirect_stderr(log):
+            queue = worker.LocalQueue(Path("unused"), Path("unused"), render_fn=fail)
+            try:
+                job_id = queue.submit(USER, WORKSPACE, "Title", "Narration")
+                for _ in range(100):
+                    state = queue.status(job_id, USER, WORKSPACE)
+                    if state == "failed":
+                        break
+                    time.sleep(.01)
+                self.assertEqual(state, "failed")
+            finally:
+                queue.close()
+        self.assertIn("ValueError", log.getvalue())
+        self.assertNotIn("private narration", log.getvalue())
+        self.assertNotIn("secret", log.getvalue())
+
     def test_auth_isolation_and_real_video_pipeline_with_fake_voice(self):
         try:
             worker.render.get_ffmpeg()

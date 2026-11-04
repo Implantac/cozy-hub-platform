@@ -80,3 +80,19 @@ Teste da integração local (usa uma voz simulada, não valida a qualidade do Pi
 ```bash
 python scripts/studio-local/test_worker.py
 ```
+
+### Verificação opcional com voz real
+
+Com Piper, FFmpeg e uma voz ONNX autorizada já instalados, é possível exercitar
+worker HTTP, geração e download de um MP4 e verificar que o áudio não é silêncio:
+
+```bash
+VELT_TEST_PIPER_MODEL=/caminho/voz.onnx python scripts/studio-local/test_real_voice.py
+```
+
+O teste usa um roteiro fictício, não se conecta ao Supabase nem publica nada. Ele
+verifica o sinal de áudio, não a qualidade, a pronúncia ou os direitos da voz.
+Pillow é necessário para carregar o renderizador; ausência de voz, Piper, fonte
+ou FFmpeg faz o teste ser ignorado. Para uso comercial, revise as
+licenças do Piper, FFmpeg, modelo e dados de treinamento. O worker segue sendo um
+protótipo local, não um serviço hospedado na Lovable.

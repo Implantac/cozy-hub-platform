@@ -294,6 +294,10 @@
     "renderDownloading": "Preparing download…",
     "renderSnapshot": "The video uses the title and narration as submitted. Later edits do not change the job.",
     "renderLimit": "Narration must be at most 3,000 characters.",
-    "renderRetry": "Retry status check"
+    "renderRetry": "Retry status check",
+    "scriptLanguage": "Script language",
+    "narrationEstimate": "Estimated speaking time: {{seconds}} s (target: {{target}} s). Actual timing varies by voice and pauses.",
+    "renderOutdated": "The title or narration changed since rendering. The available video still contains the previous version.",
+    "renderDownloadOutdated": "This video uses an earlier version of the title or narration. Download it anyway?"
   }
 }

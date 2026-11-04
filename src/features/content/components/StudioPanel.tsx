@@ -12,6 +12,11 @@ import {
 } from "@/lib/api/studio.functions";
 import { studioMetadataSchema, type StudioBrief, type StudioScript } from "@/lib/studio/schema";
 import type { Content } from "@/lib/api/_types";
+import {
+  estimateNarrationSeconds,
+  isRenderOutdated,
+  type RenderSnapshot,
+} from "@/lib/studio/editor";
 
 const control = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const button =
@@ -43,6 +48,7 @@ export function StudioPanel({
   const [selected, setSelected] = useState("");
   const [saved, setSaved] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [renderSnapshot, setRenderSnapshot] = useState<RenderSnapshot | null>(null);
   const runGenerate = useServerFn(generateStudioScript);
   const runSave = useServerFn(saveStudioDraft);
   const runRender = useServerFn(createStudioVideo);
@@ -50,11 +56,12 @@ export function StudioPanel({
   const runDownload = useServerFn(downloadStudioVideo);
   const qc = useQueryClient();
   const generate = useMutation({
-    mutationFn: () => runGenerate({ data: { ...brief, workspaceId: workspaceId!, language } }),
+    mutationFn: () => runGenerate({ data: { ...brief, workspaceId: workspaceId! } }),
     onSuccess: (result) => {
       setScript(result);
       setDraftId(undefined);
       setJobId(null);
+      setRenderSnapshot(null);
       setSaved(false);
     },
     retry: false,
@@ -65,7 +72,7 @@ export function StudioPanel({
         data: {
           workspaceId: workspaceId!,
           draftId,
-          brief: { ...brief, workspaceId: workspaceId!, language },
+          brief: { ...brief, workspaceId: workspaceId! },
           script: script!,
         },
       }),
@@ -77,11 +84,12 @@ export function StudioPanel({
     retry: false,
   });
   const createVideo = useMutation({
-    mutationFn: () =>
-      runRender({
-        data: { workspaceId: workspaceId!, title: script!.title, narration: script!.narration },
-      }),
-    onSuccess: (result) => setJobId(result.jobId),
+    mutationFn: (snapshot: RenderSnapshot) =>
+      runRender({ data: { workspaceId: workspaceId!, ...snapshot } }),
+    onSuccess: (result, snapshot) => {
+      setJobId(result.jobId);
+      setRenderSnapshot(snapshot);
+    },
     retry: false,
   });
   const status = useQuery({
@@ -109,6 +117,7 @@ export function StudioPanel({
     },
     retry: false,
   });
+  const videoOutdated = script ? isRenderOutdated(renderSnapshot, script) : false;
   const busy = generate.isPending || save.isPending || createVideo.isPending || download.isPending;
   const drafts = items.filter(
     (item) => item.status === "draft" && studioMetadataSchema.safeParse(item.metadata).success,
@@ -130,6 +139,7 @@ export function StudioPanel({
     setScript(parsed.data.studio.script);
     setDraftId(item.id);
     setJobId(null);
+    setRenderSnapshot(null);
     setSaved(true);
     generate.reset();
     save.reset();
@@ -141,6 +151,7 @@ export function StudioPanel({
     setDraftId(undefined);
     setSelected("");
     setJobId(null);
+    setRenderSnapshot(null);
     setSaved(false);
     generate.reset();
     save.reset();
@@ -300,6 +311,20 @@ export function StudioPanel({
             </select>,
           )}
         </div>
+        {label(
+          "studio-language",
+          t("studio.scriptLanguage"),
+          <select
+            id="studio-language"
+            className={control}
+            value={brief.language}
+            onChange={(e) => updateBrief("language", e.target.value as StudioBrief["language"])}
+            disabled={busy}
+          >
+            <option value="pt-BR">Português (Brasil)</option>
+            <option value="en-US">English</option>
+          </select>,
+        )}
         <button
           className={button}
           type="submit"
@@ -340,6 +365,12 @@ export function StudioPanel({
               />,
             ),
           )}
+          <p className="text-xs text-muted-foreground">
+            {t("studio.narrationEstimate", {
+              seconds: estimateNarrationSeconds(script.narration),
+              target: brief.duration,
+            })}
+          </p>
           <p className="text-xs text-muted-foreground">{t("studio.unsaved")}</p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -402,7 +433,8 @@ export function StudioPanel({
                     status.data?.status === "processing"))
               }
               onClick={() => {
-                if (window.confirm(t("studio.renderConfirm"))) createVideo.mutate();
+                if (window.confirm(t("studio.renderConfirm")))
+                  createVideo.mutate({ title: script.title, narration: script.narration });
               }}
             >
               {t("studio.render")}
@@ -411,6 +443,11 @@ export function StudioPanel({
               <p className="text-sm text-amber-600">{t("studio.renderLimit")}</p>
             )}
             {jobId && <p className="text-xs text-muted-foreground">{t("studio.renderSnapshot")}</p>}
+            {videoOutdated && (
+              <p role="status" className="text-sm text-amber-600">
+                {t("studio.renderOutdated")}
+              </p>
+            )}
             {status.data?.status && (
               <p role="status" className="text-sm">
                 {t(
@@ -441,7 +478,10 @@ export function StudioPanel({
                 type="button"
                 className={button}
                 disabled={busy}
-                onClick={() => download.mutate()}
+                onClick={() => {
+                  if (!videoOutdated || window.confirm(t("studio.renderDownloadOutdated")))
+                    download.mutate();
+                }}
               >
                 {download.isPending ? t("studio.renderDownloading") : t("studio.renderDownload")}
               </button>

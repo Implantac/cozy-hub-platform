@@ -294,6 +294,10 @@
     "renderDownloading": "Preparando download…",
     "renderSnapshot": "O vídeo usa a versão do título e da narração no momento da solicitação. Alterações posteriores não atualizam o trabalho.",
     "renderLimit": "A narração deve ter até 3.000 caracteres.",
-    "renderRetry": "Tentar consultar novamente"
+    "renderRetry": "Tentar consultar novamente",
+    "scriptLanguage": "Idioma do roteiro",
+    "narrationEstimate": "Estimativa de fala: {{seconds}} s (meta: {{target}} s). O tempo real varia conforme a voz e as pausas.",
+    "renderOutdated": "O título ou a narração mudou desde a renderização. O vídeo disponível ainda contém a versão anterior.",
+    "renderDownloadOutdated": "Este vídeo usa uma versão anterior do título ou da narração. Deseja baixá-lo mesmo assim?"
   }
 }

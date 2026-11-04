@@ -75,7 +75,10 @@ class LocalQueue:
                 raise ValueError("output too large")
             with self.lock:
                 job["status"], job["updated"] = "completed", time.time()
-        except Exception:
+        except Exception as exc:
+            # Log the class only: exception messages may include user text, file
+            # paths, credentials or other private runtime details.
+            print(f"[studio-worker] render failed ({type(exc).__name__})", file=sys.stderr, flush=True)
             shutil.rmtree(folder, ignore_errors=True)
             with self.lock:
                 job["status"], job["updated"] = "failed", time.time()
