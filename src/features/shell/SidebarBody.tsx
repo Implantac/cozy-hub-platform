@@ -1,13 +1,26 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LogOut, PanelLeftClose, PanelLeftOpen, Settings, Sparkles } from "lucide-react";
+import {
+  ChevronDown,
+  LogOut,
+  MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings,
+  Sparkles,
+} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { NAV_GROUPS, isItemActive, type Workspace } from "./nav-groups";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const TOUR_KEYS: Record<string, string> = {
   "/app": "dashboard",
+  "/app/channels": "channels",
+  "/app/scheduler": "scheduler",
+  "/app/analytics": "analytics",
   "/app/brain": "brain",
   "/app/builder": "builder",
   "/app/content": "content",
@@ -35,6 +48,69 @@ export function SidebarBody({
   onToggleCollapse,
 }: SidebarBodyProps) {
   const { t } = useTranslation();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const coreGroups = NAV_GROUPS.filter((group) => group.core);
+  const moreGroups = NAV_GROUPS.filter((group) => !group.core);
+
+  useEffect(() => {
+    if (
+      NAV_GROUPS.some(
+        (group) => !group.core && group.items.some((item) => isItemActive(path, item)),
+      )
+    ) {
+      setMoreOpen(true);
+    }
+  }, [path]);
+
+  const renderGroup = (group: (typeof NAV_GROUPS)[number]) => (
+    <div key={group.labelKey}>
+      {!collapsed && (
+        <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/60">
+          {t(group.labelKey)}
+        </div>
+      )}
+      {collapsed && <div className="mx-2 mb-1.5 h-px bg-sidebar-border/60" />}
+      <div className="space-y-0.5">
+        {group.items.map((item) => {
+          const active = isItemActive(path, item);
+          const link = (
+            <Link
+              key={item.to}
+              to={item.to}
+              data-tour={TOUR_KEYS[item.to]}
+              className={cn(
+                "group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                collapsed ? "justify-center px-2 py-2" : "gap-3 px-3.5 py-2.5 min-h-10",
+                active
+                  ? "bg-primary/10 text-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.05),0_4px_12px_-4px_oklch(0.72_0.2_285_/_0.3)] ring-1 ring-primary/25"
+                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground hover:translate-x-1",
+              )}
+              aria-current={active ? "page" : undefined}
+            >
+              {active && !collapsed && (
+                <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-gradient-brand shadow-glow-sm" />
+              )}
+              <item.icon
+                className={cn(
+                  "size-4 transition-colors",
+                  active ? "text-primary" : "group-hover:text-foreground",
+                )}
+              />
+              {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
+            </Link>
+          );
+          return collapsed ? (
+            <Tooltip key={item.to}>
+              <TooltipTrigger asChild>{link}</TooltipTrigger>
+              <TooltipContent side="right">{t(item.labelKey)}</TooltipContent>
+            </Tooltip>
+          ) : (
+            link
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -94,56 +170,44 @@ export function SidebarBody({
           collapsed ? "px-2 space-y-3" : "px-3 space-y-5",
         )}
       >
-        {NAV_GROUPS.map((group) => (
-          <div key={group.labelKey}>
-            {!collapsed && (
-              <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/60">
-                {t(group.labelKey)}
-              </div>
-            )}
-            {collapsed && <div className="mx-2 mb-1.5 h-px bg-sidebar-border/60" />}
-            <div className="space-y-0.5">
-              {group.items.map((item) => {
-                const active = isItemActive(path, item);
-                const link = (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    data-tour={TOUR_KEYS[item.to]}
-                    className={cn(
-                      "group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                      collapsed ? "justify-center px-2 py-2" : "gap-3 px-3.5 py-2.5 min-h-10",
-                      active
-                        ? "bg-primary/10 text-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.05),0_4px_12px_-4px_oklch(0.72_0.2_285_/_0.3)] ring-1 ring-primary/25"
-                        : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground hover:translate-x-1",
-                    )}
-                    aria-current={active ? "page" : undefined}
-                  >
-                    {active && !collapsed && (
-                      <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-gradient-brand shadow-glow-sm" />
-                    )}
-                    <item.icon
-                      className={cn(
-                        "size-4 transition-colors",
-                        active ? "text-primary" : "group-hover:text-foreground",
-                      )}
-                    />
-                    {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
-                  </Link>
-                );
-                return collapsed ? (
-                  <Tooltip key={item.to}>
-                    <TooltipTrigger asChild>{link}</TooltipTrigger>
-                    <TooltipContent side="right">{t(item.labelKey)}</TooltipContent>
-                  </Tooltip>
-                ) : (
-                  link
-                );
-              })}
-            </div>
-          </div>
-        ))}
+        {coreGroups.map(renderGroup)}
+        <div className="pt-1">
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-expanded={moreOpen}
+                  aria-label={t("nav.moreTools")}
+                  onClick={() => setMoreOpen((value) => !value)}
+                  className="flex w-full items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                >
+                  <MoreHorizontal className="size-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">{t("nav.moreTools")}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              aria-expanded={moreOpen}
+              onClick={() => setMoreOpen((value) => !value)}
+              className="flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            >
+              <MoreHorizontal className="size-4" />
+              <span className="flex-1 text-left">{t("nav.moreTools")}</span>
+              <ChevronDown
+                className={cn("size-4 transition-transform", moreOpen && "rotate-180")}
+              />
+            </button>
+          )}
+          {moreOpen && <div className="mt-4 space-y-5">{moreGroups.map(renderGroup)}</div>}
+        </div>
       </nav>
+
+      <div className="px-5 py-2 sm:hidden">
+        <LanguageSwitcher />
+      </div>
 
       <div className={cn("space-y-0.5 border-t border-sidebar-border p-3", collapsed && "px-2")}>
         {collapsed ? (

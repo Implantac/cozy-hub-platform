@@ -85,16 +85,20 @@ function Landing() {
   ];
 
   const steps = [
-    { icon: Compass, title: "Conecte", desc: "Plugue suas redes, marcas e canais em segundos." },
+    {
+      icon: Compass,
+      title: t("landing.steps.connect.title"),
+      desc: t("landing.steps.connect.desc"),
+    },
     {
       icon: Brain,
-      title: "Aprende",
-      desc: "O Cérebro Cognitivo absorve contexto, métricas e memória.",
+      title: t("landing.steps.learn.title"),
+      desc: t("landing.steps.learn.desc"),
     },
     {
       icon: Rocket,
-      title: "Executa",
-      desc: "Receba missões, conteúdos e decisões prontas para agir.",
+      title: t("landing.steps.execute.title"),
+      desc: t("landing.steps.execute.desc"),
     },
   ];
 
@@ -122,10 +126,8 @@ function Landing() {
           </div>
           <span className="text-lg font-semibold tracking-tight">VELT</span>
         </div>
-        <nav className="flex items-center gap-2 text-sm">
-          <div className="hidden sm:block">
-            <LanguageSwitcher compact />
-          </div>
+        <nav className="flex flex-wrap items-center justify-end gap-2 text-sm">
+          <LanguageSwitcher compact />
           <Link
             to="/login"
             className="rounded-md px-3 py-2 text-muted-foreground transition hover:text-foreground"
@@ -190,10 +192,11 @@ function Landing() {
         <section className="pb-20">
           <div className="mb-10 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-              <Workflow className="size-3.5" /> Como funciona
+              <Workflow className="size-3.5" /> {t("landing.howLabel")}
             </div>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
-              Do caos digital a um <span className="text-gradient-brand">sistema operacional</span>
+              {t("landing.howTitleStart")}{" "}
+              <span className="text-gradient-brand">{t("landing.howTitleHighlight")}</span>
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
@@ -220,10 +223,10 @@ function Landing() {
         <section className="pb-24">
           <div className="mb-10 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-              <Sparkles className="size-3.5 text-accent" /> Plataforma
+              <Sparkles className="size-3.5 text-accent" /> {t("landing.featuresLabel")}
             </div>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
-              Tudo o que sua operação digital precisa
+              {t("landing.featuresHeading")}
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -252,11 +255,10 @@ function Landing() {
               <Shield className="size-6 text-primary-foreground" />
             </div>
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              Pronto para operar como um <span className="text-gradient-brand">sistema</span>?
+              {t("landing.ctaTitleStart")}{" "}
+              <span className="text-gradient-brand">{t("landing.ctaTitleHighlight")}</span>?
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-              Crie seu workspace em 60 segundos. Sem cartão. Migre quando quiser.
-            </p>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">{t("landing.ctaDesc")}</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link
                 to="/signup"

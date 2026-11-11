@@ -14,6 +14,7 @@
  */
 
 import { composeCaption, detectMediaKind, isFetchableUrl } from "../media";
+import { downloadPublicMedia } from "../media-download.server";
 import { PublisherError } from "../contracts";
 import type { PublishInput, PublishResult } from "../contracts";
 
@@ -45,25 +46,16 @@ export async function publishYouTube(input: PublishInput): Promise<PublishResult
     });
   }
 
-  // 1. Download the asset.
-  const asset = await fetch(videoUrl);
-  if (!asset.ok) {
-    throw new PublisherError(
-      `Não foi possível baixar o vídeo do storage (${asset.status}). Verifique se o arquivo é público.`,
-      { retryable: asset.status >= 500 },
-    );
-  }
-  const declared = Number(asset.headers.get("content-length") ?? 0);
-  if (declared > MAX_UPLOAD_BYTES) {
-    throw new PublisherError(
-      `Vídeo com ${(declared / 1024 / 1024).toFixed(1)} MB excede o limite de upload deste worker (${MAX_UPLOAD_BYTES / 1024 / 1024} MB). ` +
-        "Comprima o arquivo ou envie pelo YouTube Studio.",
-      { retryable: false },
-    );
-  }
-  const bytes = new Uint8Array(await asset.arrayBuffer());
-  if (bytes.byteLength > MAX_UPLOAD_BYTES) {
-    throw new PublisherError("Vídeo maior que o limite de upload do worker.", { retryable: false });
+  // 1. Bounded download: validates the URL, rejects redirects and enforces the
+  // byte limit while streaming, before allocating the full asset in memory.
+  let bytes: Uint8Array<ArrayBuffer>;
+  try {
+    bytes = await downloadPublicMedia(videoUrl, { maxBytes: MAX_UPLOAD_BYTES });
+  } catch (error) {
+    const failure = error as { message?: string; retryable?: boolean };
+    throw new PublisherError(failure.message ?? "Falha ao baixar o vídeo.", {
+      retryable: failure.retryable ?? true,
+    });
   }
 
   // 2. Start a resumable session.

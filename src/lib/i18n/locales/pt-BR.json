@@ -19,35 +19,35 @@
     "language": "Idioma"
   },
   "landing": {
-    "badge": "Cérebro Cognitivo Nativo · multi-tenant",
-    "title1": "O sistema operacional para sua",
-    "titleHighlight": "presença digital",
-    "subtitle": "Conecte cada canal, agende cada post, monitore cada sinal — e deixe um Cérebro Cognitivo Nativo transformar tudo em recomendações e missões.",
+    "badge": "Planeje. Publique. Aprenda.",
+    "title1": "Organize sua presença",
+    "titleHighlight": "digital com confiança",
+    "subtitle": "Conecte suas redes, prepare uma publicação, revise antes de publicar e acompanhe os resultados — tudo em um só lugar.",
     "startFree": "Começar grátis",
     "features": {
       "multichannel": {
-        "title": "Multi-canal",
-        "desc": "Instagram, Facebook, YouTube, TikTok, LinkedIn — unificados."
+        "title": "Canais sociais",
+        "desc": "Organize Instagram, Facebook, YouTube, TikTok, LinkedIn e Google Business em um só lugar."
       },
       "scheduler": {
-        "title": "Agendador",
-        "desc": "Planeje, agende e publique em todos os canais com filas e DLQ."
+        "title": "Publicações",
+        "desc": "Prepare e agende conteúdo; veja claramente quais canais estão prontos para publicar."
       },
       "analytics": {
-        "title": "Analytics",
-        "desc": "Métricas em tempo real e séries históricas por canal e marca."
+        "title": "Resultados",
+        "desc": "Acompanhe as métricas disponíveis por canal e marca, sem promessas de atualização em tempo real."
       },
       "brain": {
-        "title": "Brain (IA)",
-        "desc": "Diagnóstico, prioridades e memória das suas decisões — com pré-voo de cada post."
+        "title": "Sugestões práticas",
+        "desc": "Veja prioridades e próximos passos com base nas informações da sua operação."
       },
       "missions": {
-        "title": "Missões",
-        "desc": "Kanban de execução com SLA, donos e prazos."
+        "title": "Próximas ações",
+        "desc": "Transforme recomendações em tarefas com responsáveis e prazos."
       },
       "tenant": {
-        "title": "Multi-tenant",
-        "desc": "Workspaces isolados com RLS, RBAC e auditoria."
+        "title": "Espaços de trabalho",
+        "desc": "Mantenha marcas, canais e acessos separados para cada negócio ou projeto."
       },
       "growth": {
         "title": "Motor de crescimento",
@@ -57,36 +57,71 @@
     "steps": {
       "connect": {
         "title": "Conecte",
-        "desc": "Plugue suas redes, marcas e canais em segundos."
+        "desc": "Adicione seus canais e escolha por onde começar."
       },
       "learn": {
-        "title": "Aprende",
-        "desc": "O Brain absorve contexto, métricas e memória das suas decisões."
+        "title": "Prepare",
+        "desc": "Crie ou envie um conteúdo e revise antes de publicar."
       },
       "execute": {
-        "title": "Executa",
-        "desc": "Receba missões, conteúdos e decisões prontas para agir."
+        "title": "Acompanhe",
+        "desc": "Agende publicações e veja os resultados quando as métricas chegarem."
       }
     },
     "proof": {
-      "multichannel": "Multi-canal nativo",
-      "preflight": "Pré-voo de conteúdo antes de publicar",
-      "rls": "RLS e auditoria por workspace",
-      "reality": "Decisões com reality-check"
-    }
+      "multichannel": "Canais em um só lugar",
+      "preflight": "Revise antes de publicar",
+      "rls": "Dados separados por espaço de trabalho",
+      "reality": "Sugestões para a sua realidade"
+    },
+    "howLabel": "COMO FUNCIONA",
+    "howTitleStart": "Do planejamento à publicação, sem perder",
+    "howTitleHighlight": "o que funciona",
+    "featuresLabel": "O QUE VOCÊ PODE FAZER",
+    "featuresHeading": "As ferramentas para publicar e acompanhar resultados",
+    "ctaTitleStart": "Comece a organizar sua presença",
+    "ctaTitleHighlight": "digital",
+    "ctaDesc": "Conecte um canal, prepare seu primeiro conteúdo e veja os resultados. Sem cartão de crédito."
   },
   "auth": {
     "loginTitle": "Bem-vindo de volta",
-    "loginSubtitle": "Entre no seu sistema operacional.",
+    "loginSubtitle": "Acesse seus canais, conteúdos e resultados.",
     "signupTitle": "Crie seu workspace",
-    "signupSubtitle": "Inicie sua operação digital AI-native em 60 segundos.",
+    "signupSubtitle": "Crie sua conta e dê o primeiro passo para organizar seus canais.",
     "signingIn": "Entrando...",
     "creating": "Criando...",
     "noAccount": "Não tem conta?",
     "createOne": "Crie uma",
     "alreadyOnboard": "Já está a bordo?",
-    "accountCreated": "Conta criada. Bem-vindo ao VELT.",
-    "googleFailed": "Falha no login com Google"
+    "accountCreated": "Conta criada.",
+    "googleFailed": "Falha no login com Google",
+    "forgotPassword": "Esqueci minha senha",
+    "sendReset": "Enviar link de recuperação",
+    "resetEmailSent": "Se este e-mail estiver cadastrado, enviaremos um link para redefinir sua senha.",
+    "resetEmailFailed": "Não foi possível enviar o link agora. Tente novamente.",
+    "backToLogin": "Voltar para entrar",
+    "checkEmailTitle": "Confirme seu e-mail",
+    "checkEmailBody": "Enviamos um link para {email}. Abra sua caixa de entrada para confirmar a conta e continuar.",
+    "resendConfirmation": "Reenviar e-mail de confirmação",
+    "confirmationResent": "Se este e-mail estiver aguardando confirmação, enviaremos um novo link.",
+    "invalidCredentials": "E-mail ou senha incorretos. Confira os dados e tente novamente.",
+    "authUnavailable": "Não foi possível concluir o acesso agora. Tente novamente em instantes.",
+    "weakPassword": "Escolha uma senha mais forte, com pelo menos 8 caracteres.",
+    "emailAlreadyRegistered": "Este e-mail já tem uma conta. Entre ou recupere sua senha.",
+    "resetInstructions": "Informe o e-mail da sua conta para receber um link seguro de redefinição.",
+    "invalidEmail": "Confira se o endereço de e-mail está correto.",
+    "sendingReset": "Enviando...",
+    "confirmationHelp": "Acesse sua caixa de entrada para concluir o cadastro.",
+    "resendingConfirmation": "Enviando...",
+    "namePlaceholder": "Seu nome",
+    "emailPlaceholder": "seu@email.com",
+    "passwordPlaceholder": "No mínimo 8 caracteres",
+    "resetPasswordTitle": "Defina uma nova senha",
+    "newPasswordInstructions": "Escolha uma senha nova para voltar à sua conta.",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirme a nova senha",
+    "passwordMismatch": "As senhas não coincidem.",
+    "passwordUpdated": "Senha atualizada. Você já pode continuar."
   },
   "nav": {
     "dashboard": "Painel",
@@ -118,18 +153,20 @@
       "command": "Central de Comando",
       "overview": "Visão geral",
       "gps": "Business GPS",
-      "decision": "Decision OS",
-      "trust": "Trust OS",
-      "execution": "Execution OS",
-      "growth": "Growth OS",
-      "brain": "USE Brain",
+      "decision": "Planejamento",
+      "trust": "Confiança",
+      "execution": "Operação",
+      "growth": "Crescimento",
+      "brain": "Assistente",
       "operation": "Operação",
       "content": "Conteúdo",
       "intelligence": "Inteligência",
       "commerce": "Commerce Hub",
-      "settings": "Configurações"
+      "settings": "Configurações",
+      "core": "Comece por aqui"
     },
-    "bio": "Link na bio"
+    "bio": "Link na bio",
+    "moreTools": "Mais ferramentas"
   },
   "palette": {
     "placeholder": "Buscar páginas, ações...",
@@ -229,11 +266,14 @@
     "interrupted": "Algo interrompeu o VELT",
     "unknown": "Erro desconhecido",
     "notFoundTitle": "Página não encontrada",
-    "notFoundDesc": "Esta rota não existe no seu VELT."
+    "notFoundDesc": "Esta rota não existe no seu VELT.",
+    "dashboardUnavailable": "Não foi possível carregar o painel.",
+    "workspaceUnavailable": "Não foi possível carregar seus espaços de trabalho. Verifique sua conexão e tente novamente.",
+    "retryHint": "Confira sua conexão e tente carregar o painel novamente."
   },
   "seo": {
     "title": "VELT — O sistema operacional da sua presença digital",
-    "description": "Publique, opere e cresça no Instagram, Facebook, YouTube, TikTok e LinkedIn — com um cérebro que te diz por que um post não vai funcionar antes de você publicar.",
+    "description": "Organize seus canais, prepare e agende conteúdos e acompanhe as métricas disponíveis para decidir o próximo passo.",
     "ogLocale": "pt_BR"
   },
   "routes": {
@@ -242,7 +282,7 @@
   },
   "root": {
     "title": "VELT — O sistema operacional da sua presença digital",
-    "description": "A VELT é uma plataforma de IA para lançar, operar e crescer a sua marca no Instagram, Facebook, YouTube, TikTok e LinkedIn."
+    "description": "Organize seus canais, prepare e agende conteúdos e acompanhe as métricas disponíveis para decidir o próximo passo."
   },
   "studio": {
     "title": "VELT Studio · roteiro para vídeo",
@@ -299,5 +339,24 @@
     "narrationEstimate": "Estimativa de fala: {{seconds}} s (meta: {{target}} s). O tempo real varia conforme a voz e as pausas.",
     "renderOutdated": "O título ou a narração mudou desde a renderização. O vídeo disponível ainda contém a versão anterior.",
     "renderDownloadOutdated": "Este vídeo usa uma versão anterior do título ou da narração. Deseja baixá-lo mesmo assim?"
+  },
+  "tour": {
+    "coreDashboardTitle": "Visão geral",
+    "coreDashboardDesc": "Veja o que precisa de atenção e escolha sua próxima ação.",
+    "coreContentTitle": "Conteúdo",
+    "coreContentDesc": "Prepare uma publicação e revise antes de agendar.",
+    "coreScheduleTitle": "Agendamento",
+    "coreScheduleDesc": "Confira os horários e canais disponíveis para publicar.",
+    "coreResultsTitle": "Resultados",
+    "coreResultsDesc": "Acompanhe as métricas que chegaram dos seus canais.",
+    "mobileMenuTitle": "Navegação",
+    "mobileMenuDesc": "Abra o menu para encontrar suas áreas de trabalho.",
+    "mobileSearchTitle": "Busca rápida",
+    "mobileSearchDesc": "Encontre páginas e ações sem percorrer o menu.",
+    "mobileNotificationsTitle": "Notificações",
+    "mobileNotificationsDesc": "Veja avisos e atualizações da sua operação.",
+    "mobileAccountTitle": "Sua conta",
+    "mobileAccountDesc": "Acesse configurações, ajuda e opções da conta.",
+    "coreChannelsDesc": "Conecte as redes em que você publica e confira o que está habilitado."
   }
 }

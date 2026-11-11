@@ -13,7 +13,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * that can actually be wrong.
  */
 
-function stubBrowser(stored: string | null, navigatorLanguage: string) {
+function stubBrowser(stored: string | null, navigatorLanguage: string, cookie = "") {
   const store = new Map<string, string>();
   if (stored !== null) store.set("use-os:lang", stored);
 
@@ -24,11 +24,11 @@ function stubBrowser(stored: string | null, navigatorLanguage: string) {
     },
     navigator: { language: navigatorLanguage },
   });
-  vi.stubGlobal("document", { documentElement: { lang: "", dir: "" } });
+  vi.stubGlobal("document", { documentElement: { lang: "", dir: "" }, cookie });
 }
 
-async function resolveLanguage(stored: string | null, navigatorLanguage: string) {
-  stubBrowser(stored, navigatorLanguage);
+async function resolveLanguage(stored: string | null, navigatorLanguage: string, cookie = "") {
+  stubBrowser(stored, navigatorLanguage, cookie);
   vi.resetModules();
   const mod = await import("@/lib/i18n");
   return { language: mod.detectInitialLang(), supported: mod.SUPPORTED_LANGUAGES };
@@ -65,6 +65,12 @@ describe("i18n language resolution", () => {
 
   it("prefers the stored choice over the browser preference", async () => {
     expect((await resolveLanguage("pt-BR", "en-US")).language).toBe("pt-BR");
+  });
+
+  it("uses the SSR-readable language cookie when localStorage is unavailable", async () => {
+    expect((await resolveLanguage(null, "pt-BR", "other=x; velt_lang=en-US")).language).toBe(
+      "en-US",
+    );
   });
 
   it("resolves actual strings for a sample of keys in both languages", async () => {
@@ -129,5 +135,21 @@ describe("resolveLang (server side)", () => {
     expect(resolveLang(null)).toBe("pt-BR");
     expect(resolveLang("")).toBe("pt-BR");
     expect(resolveLang("*")).toBe("pt-BR");
+  });
+
+  it("prefers a supported saved cookie over the browser Accept-Language header", async () => {
+    const { resolveLang } = await import("@/lib/i18n");
+    expect(resolveLang("en-US,en;q=0.9", "pt-BR")).toBe("pt-BR");
+    expect(resolveLang("en-US,en;q=0.9", "de")).toBe("en-US");
+  });
+
+  it("creates isolated instances with the requested language for SSR", async () => {
+    const { createI18nInstance } = await import("@/lib/i18n");
+    const english = createI18nInstance("en-US");
+    const portuguese = createI18nInstance("pt-BR");
+    expect(english.language).toBe("en-US");
+    expect(portuguese.language).toBe("pt-BR");
+    expect(english.t("common.signIn")).toBe("Sign in");
+    expect(portuguese.t("common.signIn")).toBe("Entrar");
   });
 });

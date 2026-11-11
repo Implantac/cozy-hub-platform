@@ -11,12 +11,14 @@
  */
 
 import { composeCaption, detectMediaKind, isFetchableUrl } from "../media";
+import { downloadPublicMedia } from "../media-download.server";
 import { PublisherError } from "../contracts";
 import type { PublishInput, PublishResult } from "../contracts";
 
 const LINKEDIN_API = "https://api.linkedin.com/rest";
 /** Bump deliberately: LinkedIn retires versions roughly yearly. */
 const LINKEDIN_VERSION = "202601";
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
 function token(input: PublishInput): string {
   const t =
@@ -74,13 +76,15 @@ async function uploadImage(accessToken: string, owner: string, imageUrl: string)
     throw new PublisherError("LinkedIn não retornou uploadUrl/image URN.", { retryable: true });
   }
 
-  const asset = await fetch(imageUrl);
-  if (!asset.ok) {
-    throw new PublisherError(`Não foi possível baixar a imagem do storage (${asset.status}).`, {
-      retryable: asset.status >= 500,
+  let bytes: Uint8Array<ArrayBuffer>;
+  try {
+    bytes = await downloadPublicMedia(imageUrl, { maxBytes: MAX_IMAGE_BYTES });
+  } catch (error) {
+    const failure = error as { message?: string; retryable?: boolean };
+    throw new PublisherError(failure.message ?? "Falha ao baixar a imagem.", {
+      retryable: failure.retryable ?? true,
     });
   }
-  const bytes = new Uint8Array(await asset.arrayBuffer());
 
   const put = await fetch(uploadUrl, {
     method: "PUT",

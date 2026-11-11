@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Brain } from "lucide-react";
 import { ProductTour } from "@/components/app/ProductTour";
-import { hasSeenTour } from "@/components/app/tour-storage";
 import { signOut } from "@/lib/auth/use-auth";
 import { CommandPalette } from "@/components/app/CommandPalette";
 import { OnboardingWizard } from "@/components/app/OnboardingWizard";
@@ -44,16 +43,6 @@ function AppShell() {
   const { auth, wsQuery, profileQuery, workspaces, currentWs, handleSelectWs, handleCreateWs } =
     useWorkspaceBootstrap();
 
-  useEffect(() => {
-    const p = profileQuery.data;
-    if (!p?.onboarding_completed) return;
-    if (hasSeenTour()) return;
-    const id = window.setTimeout(() => setTourOpen(true), 600);
-    return () => window.clearTimeout(id);
-    // Depende do objeto inteiro: o tour deve abrir quando o onboarding conclui,
-    // mesmo que o restante do perfil mude na mesma resposta.
-  }, [profileQuery.data]);
-
   if (auth.loading || wsQuery.isLoading) {
     return (
       <div className="grid min-h-dvh place-items-center bg-background">
@@ -63,6 +52,24 @@ function AppShell() {
           </div>
           <p className="text-sm text-muted-foreground">{t("common.booting")}</p>
         </div>
+      </div>
+    );
+  }
+
+  if (wsQuery.isError) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-background px-4">
+        <section role="alert" aria-live="polite" className="w-full max-w-md space-y-4 text-center">
+          <h1 className="text-xl font-semibold">{t("errors.workspaceUnavailable")}</h1>
+          <button
+            type="button"
+            onClick={() => void wsQuery.refetch()}
+            disabled={wsQuery.isFetching}
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {wsQuery.isFetching ? t("common.loading") : t("common.tryAgain")}
+          </button>
+        </section>
       </div>
     );
   }

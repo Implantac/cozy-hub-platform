@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Brain } from "lucide-react";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { requestLang, translateServer } from "@/lib/i18n/translate";
+import { authErrorTranslationKey } from "@/lib/auth/auth-error-message";
 
 export const Route = createFileRoute("/login")({
   head: async () => {
@@ -24,19 +25,38 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetMode, setResetMode] = useState<"login" | "request" | "update">("login");
+  const [resetNotice, setResetNotice] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const recoveryFlow = useRef(false);
 
   useEffect(() => {
     let active = true;
-    // Initial check (handles arriving at /login with a live session).
+    const recoveryInUrl =
+      window.location.hash.includes("type=recovery") ||
+      new URLSearchParams(window.location.search).get("mode") === "reset";
+    if (recoveryInUrl) {
+      recoveryFlow.current = true;
+      setResetMode("update");
+    }
+
     supabase.auth.getSession().then(({ data }) => {
-      if (active && data.session?.user) navigate({ to: "/app", replace: true });
+      if (!active || recoveryFlow.current) return;
+      if (data.session?.user) navigate({ to: "/app", replace: true });
     });
-    // React only to a real sign-in transition — never INITIAL_SESSION /
-    // TOKEN_REFRESHED, which fire on mount and would re-trigger navigation.
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session?.user) navigate({ to: "/app", replace: true });
+      if (event === "PASSWORD_RECOVERY") {
+        recoveryFlow.current = true;
+        setResetMode("update");
+        return;
+      }
+      if (event === "SIGNED_IN" && session?.user && !recoveryFlow.current) {
+        navigate({ to: "/app", replace: true });
+      }
     });
     return () => {
       active = false;
@@ -47,16 +67,68 @@ function LoginPage() {
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) toast.error(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) toast.error(t(authErrorTranslationKey(error)));
+    } catch (error) {
+      toast.error(t(authErrorTranslationKey(error)));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setResetNotice(false);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login?mode=reset`,
+      });
+      if (error) {
+        toast.error(t("auth.resetEmailFailed"));
+      } else {
+        setResetNotice(true);
+      }
+    } catch {
+      toast.error(t("auth.resetEmailFailed"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleUpdatePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error(t("auth.passwordMismatch"));
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        toast.error(t(authErrorTranslationKey(error)));
+        return;
+      }
+      recoveryFlow.current = false;
+      toast.success(t("auth.passwordUpdated"));
+      navigate({ to: "/app", replace: true });
+    } catch (error) {
+      toast.error(t(authErrorTranslationKey(error)));
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) toast.error(t("auth.googleFailed"));
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) toast.error(t("auth.googleFailed"));
+    } catch {
+      toast.error(t("auth.googleFailed"));
+    }
   }
 
   return (
@@ -74,71 +146,215 @@ function LoginPage() {
           <LanguageSwitcher compact />
         </div>
 
-        <div className="space-y-1 mb-8">
+        <div className="mb-8 space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {t("auth.loginTitle")}
+            {resetMode === "update"
+              ? t("auth.resetPasswordTitle")
+              : resetMode === "request"
+                ? t("auth.forgotPassword")
+                : t("auth.loginTitle")}
           </h1>
-          <p className="text-sm text-muted-foreground">{t("auth.loginSubtitle")}</p>
+          <p className="text-sm text-muted-foreground">
+            {resetMode === "update"
+              ? t("auth.newPasswordInstructions")
+              : resetMode === "request"
+                ? t("auth.resetInstructions")
+                : t("auth.loginSubtitle")}
+          </p>
         </div>
 
-        <button
-          onClick={handleGoogle}
-          className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card/40 px-4 py-3 text-sm font-semibold transition-all hover:bg-card hover:border-primary/30 hover:shadow-soft active:scale-[0.98]"
+        {resetMode === "login" && (
+          <>
+            <button
+              type="button"
+              onClick={handleGoogle}
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card/40 px-4 py-3 text-sm font-semibold transition-all hover:bg-card hover:border-primary/30 hover:shadow-soft active:scale-[0.98]"
+            >
+              <GoogleIcon />
+              <span>{t("common.continueWithGoogle")}</span>
+            </button>
+
+            <div className="my-7 flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+              <div className="h-px flex-1 bg-border/50" />
+              {t("common.or")}
+              <div className="h-px flex-1 bg-border/50" />
+            </div>
+          </>
+        )}
+
+        <form
+          onSubmit={
+            resetMode === "request"
+              ? handleReset
+              : resetMode === "update"
+                ? handleUpdatePassword
+                : handleEmail
+          }
+          className="space-y-4"
         >
-          <GoogleIcon />
-          <span>{t("common.continueWithGoogle")}</span>
-        </button>
+          {resetMode !== "update" && (
+            <div className="space-y-1.5">
+              <label
+                htmlFor="login-email"
+                className="ml-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80"
+              >
+                {t("common.email")}
+              </label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("auth.emailPlaceholder")}
+                className="w-full rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm transition-all focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/40"
+              />
+            </div>
+          )}
 
-        <div className="my-7 flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-          <div className="h-px flex-1 bg-border/50" />
-          {t("common.or")}
-          <div className="h-px flex-1 bg-border/50" />
-        </div>
+          {resetMode === "request" && (
+            <>
+              {resetNotice && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="rounded-lg border border-success/30 bg-success/10 p-3 text-sm"
+                >
+                  {t("auth.resetEmailSent")}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
+              >
+                {loading ? t("auth.sendingReset") : t("auth.sendReset")}
+              </button>
+            </>
+          )}
 
-        <form onSubmit={handleEmail} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
-              {t("common.email")}
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className="w-full rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm transition-all focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/40"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
-              {t("common.password")}
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm transition-all focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/40"
-            />
-          </div>
-          <button
-            disabled={loading}
-            className="w-full mt-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:translate-y-0"
-          >
-            {loading ? t("auth.signingIn") : t("common.signIn")}
-          </button>
+          {resetMode === "update" && (
+            <>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="new-password"
+                  className="ml-1 text-[11px] font-bold uppercase tracking-wider"
+                >
+                  {t("auth.newPassword")}
+                </label>
+                <input
+                  id="new-password"
+                  name="new-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={t("auth.passwordPlaceholder")}
+                  className="w-full rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/10"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="confirm-password"
+                  className="ml-1 text-[11px] font-bold uppercase tracking-wider"
+                >
+                  {t("auth.confirmPassword")}
+                </label>
+                <input
+                  id="confirm-password"
+                  name="confirm-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t("auth.passwordPlaceholder")}
+                  className="w-full rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/10"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground disabled:opacity-50"
+              >
+                {loading ? t("auth.creating") : t("auth.resetPasswordTitle")}
+              </button>
+            </>
+          )}
+
+          {resetMode === "login" && (
+            <>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="login-password"
+                  className="ml-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80"
+                >
+                  {t("common.password")}
+                </label>
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-border bg-background/50 px-4 py-2.5 text-sm transition-all focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/40"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetMode("request");
+                    setResetNotice(false);
+                  }}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  {t("auth.forgotPassword")}
+                </button>
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-all hover:-translate-y-0.5 hover:opacity-95 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-50"
+              >
+                {loading ? t("auth.signingIn") : t("common.signIn")}
+              </button>
+            </>
+          )}
+
+          {resetMode === "request" && (
+            <button
+              type="button"
+              onClick={() => {
+                setResetMode("login");
+                setResetNotice(false);
+              }}
+              className="w-full rounded-xl border border-border px-4 py-3 text-sm font-semibold hover:bg-secondary"
+            >
+              {t("auth.backToLogin")}
+            </button>
+          )}
         </form>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          {t("auth.noAccount")}{" "}
-          <Link
-            to="/signup"
-            className="font-semibold text-primary hover:underline underline-offset-4"
-          >
-            {t("auth.createOne")}
-          </Link>
-        </p>
+        {resetMode === "login" && (
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            {t("auth.noAccount")}{" "}
+            <Link
+              to="/signup"
+              className="font-semibold text-primary hover:underline underline-offset-4"
+            >
+              {t("auth.createOne")}
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );

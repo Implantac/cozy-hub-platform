@@ -16,19 +16,30 @@ import { routeTree } from "./routeTree.gen";
 import { createServerOnlyFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { nonceForRequest } from "./lib/security/headers";
+import { languagePreferenceFromCookie, resolveLang } from "./lib/i18n";
 
 const requestNonce = createServerOnlyFn((): string | undefined => {
   const request = getRequest();
   return request ? nonceForRequest(request) : undefined;
 });
 
+const requestLanguage = createServerOnlyFn(() => {
+  const request = getRequest();
+  return resolveLang(
+    request?.headers.get("accept-language"),
+    languagePreferenceFromCookie(request?.headers.get("cookie")),
+  );
+});
+
 export const getRouter = () => {
   const queryClient = new QueryClient();
-  const nonce = typeof window === "undefined" ? requestNonce() : undefined;
+  const isServer = typeof window === "undefined";
+  const nonce = isServer ? requestNonce() : undefined;
+  const language = isServer ? requestLanguage() : resolveLang();
 
   const router = createRouter({
     routeTree,
-    context: { queryClient },
+    context: { queryClient, language },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     ...(nonce ? { ssr: { nonce } } : {}),

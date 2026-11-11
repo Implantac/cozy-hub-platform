@@ -1,4 +1,4 @@
-import i18n from "i18next";
+import i18n, { createInstance } from "i18next";
 import { initReactI18next } from "react-i18next";
 import ptBR from "./locales/pt-BR.json";
 import enUS from "./locales/en-US.json";
@@ -46,51 +46,88 @@ export const SUPPORTED_LANGUAGES: ReadonlyArray<LanguageMeta> = [
 ] as const;
 
 const STORAGE_KEY = "use-os:lang";
+const COOKIE_KEY = "velt_lang";
 const VALID_CODES = new Set<string>(SUPPORTED_LANGUAGES.map((l) => l.code));
 const DEFAULT_LANGUAGE: LanguageCode = "pt-BR";
+const resources = {
+  "pt-BR": { translation: ptBR },
+  "en-US": { translation: enUS },
+};
 
-/**
- * Picks the starting language.
- *
- * Exported for tests: it is a pure decision over storage and the browser, and it
- * is the part that has to be right. Testing it through i18next instead would test
- * the singleton's initialisation order, which is not what we care about.
- *
- * A previously stored choice wins, but only if it is still offered — a user who
- * had selected `de` before the list shrank must land on a real translation, not
- * on a dead code. Then the browser preference is honoured by base language, so
- * `pt-PT` and `en-GB` still resolve sensibly.
- */
-export function detectInitialLang(): LanguageCode {
-  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
-
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored && VALID_CODES.has(stored)) return stored as LanguageCode;
-
-  const nav = window.navigator?.language;
-  if (!nav) return DEFAULT_LANGUAGE;
-
-  if (VALID_CODES.has(nav)) return nav as LanguageCode;
-
-  const base = nav.split("-")[0];
+function supportedLanguage(value?: string | null): LanguageCode | undefined {
+  if (!value) return undefined;
+  if (VALID_CODES.has(value)) return value as LanguageCode;
+  const base = value.split("-")[0].toLowerCase();
   if (base === "pt") return "pt-BR";
   if (base === "en") return "en-US";
+  return undefined;
+}
 
-  return DEFAULT_LANGUAGE;
+function cookieValue(cookieHeader: string | null | undefined, name: string): string | undefined {
+  const part = cookieHeader
+    ?.split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${name}=`));
+  if (!part) return undefined;
+  try {
+    return decodeURIComponent(part.slice(name.length + 1));
+  } catch {
+    return undefined;
+  }
+}
+
+export function languagePreferenceFromCookie(cookieHeader?: string | null): string | undefined {
+  return cookieValue(cookieHeader, COOKIE_KEY);
+}
+
+function browserCookieValue(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  return cookieValue(document.cookie, name);
 }
 
 /**
- * Language resolution that works on both sides of the wire.
- *
- * On the client it is `detectInitialLang`. On the server there is no
- * `localStorage` and no `navigator`, so the route handler's `match` passes the
- * request's `Accept-Language` instead. Without this, every document was
- * server-rendered with the hardcoded `<title>` and description, and a Brazilian
- * visitor got English metadata in the tab, in search results and in link
- * previews — the first impression of the product, in the wrong language.
+ * Creates a request-scoped instance for SSR and hydration. This avoids changing
+ * the process-wide i18next singleton while concurrent requests use different
+ * languages.
  */
-export function resolveLang(acceptLanguage?: string | null): LanguageCode {
+export function createI18nInstance(language: LanguageCode) {
+  const instance = createInstance();
+  void instance.use(initReactI18next).init({
+    resources,
+    lng: language,
+    fallbackLng: "en-US",
+    interpolation: { escapeValue: false },
+    returnNull: false,
+    initAsync: false,
+  });
+  return instance;
+}
+
+/** Picks saved choice first, then browser preference; unsupported choices are ignored. */
+export function detectInitialLang(): LanguageCode {
+  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+
+  try {
+    const stored = supportedLanguage(window.localStorage.getItem(STORAGE_KEY));
+    if (stored) return stored;
+  } catch {
+    // Storage may be blocked by a strict browser privacy setting.
+  }
+
+  const cookie = supportedLanguage(browserCookieValue(COOKIE_KEY));
+  if (cookie) return cookie;
+  return supportedLanguage(window.navigator?.language) ?? DEFAULT_LANGUAGE;
+}
+
+/** Resolves a server request by saved cookie, then Accept-Language. */
+export function resolveLang(
+  acceptLanguage?: string | null,
+  preferredLanguage?: string | null,
+): LanguageCode {
   if (typeof window !== "undefined") return detectInitialLang();
+
+  const preferred = supportedLanguage(preferredLanguage);
+  if (preferred) return preferred;
   if (!acceptLanguage) return DEFAULT_LANGUAGE;
 
   // "pt-BR,pt;q=0.9,en;q=0.8" -> ["pt-BR", "pt", "en"]
@@ -100,10 +137,8 @@ export function resolveLang(acceptLanguage?: string | null): LanguageCode {
     .filter(Boolean);
 
   for (const tag of tags) {
-    if (VALID_CODES.has(tag)) return tag as LanguageCode;
-    const base = tag.split("-")[0];
-    if (base === "pt") return "pt-BR";
-    if (base === "en") return "en-US";
+    const language = supportedLanguage(tag);
+    if (language) return language;
   }
   return DEFAULT_LANGUAGE;
 }
@@ -116,37 +151,26 @@ function applyDirection(lang: string) {
 }
 
 if (!i18n.isInitialized) {
-  // SSR always renders the UI in Portuguese. Start the browser with that same
-  // language to avoid a hydration mismatch; restore the user's preference only
-  // after React has hydrated (see restoreBrowserLanguage in the route language switcher).
-  const initial = DEFAULT_LANGUAGE;
-
   i18n.use(initReactI18next).init({
-    resources: {
-      "pt-BR": { translation: ptBR },
-      "en-US": { translation: enUS },
-    },
-    lng: initial,
+    resources,
+    lng: DEFAULT_LANGUAGE,
     fallbackLng: "en-US",
     interpolation: { escapeValue: false },
     returnNull: false,
   });
 }
 
-/** Restore browser preference only after the SSR markup has hydrated. */
-export function restoreBrowserLanguage() {
+/** Saves a non-sensitive preference to localStorage and an SSR-readable cookie. */
+export function persistLanguagePreference(lang: LanguageCode) {
   if (typeof window === "undefined") return;
-  const preferred = detectInitialLang();
-  void i18n.changeLanguage(preferred);
-  applyDirection(preferred);
-}
-
-export function setLanguage(lang: LanguageCode) {
-  i18n.changeLanguage(lang);
-  if (typeof window !== "undefined") {
+  try {
     window.localStorage.setItem(STORAGE_KEY, lang);
-    applyDirection(lang);
+  } catch {
+    // The cookie still lets SSR and the next visit retain the selection.
   }
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${COOKIE_KEY}=${encodeURIComponent(lang)}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+  applyDirection(lang);
 }
 
 export function isRtl(lang: string): boolean {

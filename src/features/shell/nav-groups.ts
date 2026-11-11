@@ -31,13 +31,28 @@ export type NavItem = { to: string; labelKey: string; icon: LucideIcon; exact?: 
  * the sidebar, the command palette and the breadcrumb all agree, because all
  * three read from this list.
  */
-export type NavGroup = { labelKey: string; items: NavItem[]; feature?: FeatureName };
+export type NavGroup = {
+  labelKey: string;
+  items: NavItem[];
+  feature?: FeatureName;
+  core?: boolean;
+};
 
 const ALL_GROUPS: NavGroup[] = [
   {
-    labelKey: "nav.group.gps",
+    labelKey: "nav.group.core",
+    core: true,
     items: [
       { to: "/app", labelKey: "nav.dashboard", icon: LayoutDashboard, exact: true },
+      { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
+      { to: "/app/content", labelKey: "nav.content", icon: FileText },
+      { to: "/app/scheduler", labelKey: "nav.scheduler", icon: Calendar },
+      { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    labelKey: "nav.group.gps",
+    items: [
       { to: "/app/score", labelKey: "nav.score", icon: TrendingUp },
       { to: "/app/health", labelKey: "nav.health", icon: Activity },
     ],
@@ -61,9 +76,6 @@ const ALL_GROUPS: NavGroup[] = [
     labelKey: "nav.group.execution",
     items: [
       { to: "/app/brands", labelKey: "nav.brands", icon: Palette },
-      { to: "/app/channels", labelKey: "nav.channels", icon: Radio },
-      { to: "/app/content", labelKey: "nav.content", icon: FileText },
-      { to: "/app/scheduler", labelKey: "nav.scheduler", icon: Calendar },
       { to: "/app/bio", labelKey: "nav.bio", icon: Link2 },
     ],
   },
@@ -74,7 +86,6 @@ const ALL_GROUPS: NavGroup[] = [
       { to: "/app/missions", labelKey: "nav.missions", icon: Target },
       { to: "/app/skill-map", labelKey: "nav.skill_map", icon: BrainIcon },
       { to: "/app/learning", labelKey: "nav.learning", icon: GraduationCap },
-      { to: "/app/analytics", labelKey: "nav.analytics", icon: BarChart3 },
     ],
   },
   {

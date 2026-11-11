@@ -15,6 +15,7 @@
  */
 
 import { composeCaption, detectMediaKind, isFetchableUrl } from "../media";
+import { downloadPublicMedia } from "../media-download.server";
 import { PublisherError } from "../contracts";
 import type { PublishInput, PublishResult } from "../contracts";
 
@@ -54,19 +55,14 @@ export async function publishTikTok(input: PublishInput): Promise<PublishResult>
     });
   }
 
-  const asset = await fetch(videoUrl);
-  if (!asset.ok) {
-    throw new PublisherError(`Não foi possível baixar o vídeo do storage (${asset.status}).`, {
-      retryable: asset.status >= 500,
+  let bytes: Uint8Array<ArrayBuffer>;
+  try {
+    bytes = await downloadPublicMedia(videoUrl, { maxBytes: MAX_BYTES });
+  } catch (error) {
+    const failure = error as { message?: string; retryable?: boolean };
+    throw new PublisherError(failure.message ?? "Falha ao baixar o vídeo.", {
+      retryable: failure.retryable ?? true,
     });
-  }
-  const bytes = new Uint8Array(await asset.arrayBuffer());
-  if (bytes.byteLength > MAX_BYTES) {
-    throw new PublisherError(
-      `Vídeo com ${(bytes.byteLength / 1024 / 1024).toFixed(1)} MB excede o limite do worker ` +
-        `(${MAX_BYTES / 1024 / 1024} MB). Comprima antes de publicar.`,
-      { retryable: false },
-    );
   }
 
   const mode = postingMode(input);
