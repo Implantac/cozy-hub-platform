@@ -19,11 +19,40 @@ export function detectMediaKind(url: string): MediaKindDetected {
   return "unknown";
 }
 
-/** Providers that fetch media by URL require a public HTTPS resource. */
+/**
+ * Fast, conservative URL check for media that will be fetched by a provider or
+ * by our server. This rejects obvious local targets; server-side downloads also
+ * disable redirects and enforce time/size bounds. Network egress rules are still
+ * required to fully defend against DNS rebinding to private addresses.
+ */
 export function isFetchableUrl(url: string): boolean {
   try {
     const u = new URL(url);
-    return u.protocol === "https:";
+    const hostname = u.hostname.toLowerCase().replace(/\.$/, "");
+    const localSuffixes = [
+      ".localhost",
+      ".local",
+      ".internal",
+      ".lan",
+      ".home",
+      ".test",
+      ".invalid",
+      ".example",
+    ];
+    const isIpLiteral = hostname.startsWith("[") || /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    const isLocalName =
+      !hostname.includes(".") ||
+      hostname === "localhost" ||
+      localSuffixes.some((suffix) => hostname.endsWith(suffix));
+
+    return (
+      u.protocol === "https:" &&
+      !u.username &&
+      !u.password &&
+      (!u.port || u.port === "443") &&
+      !isIpLiteral &&
+      !isLocalName
+    );
   } catch {
     return false;
   }

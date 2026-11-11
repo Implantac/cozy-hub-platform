@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,8 +10,6 @@ type Step = {
   selector: string;
   title: string;
   desc: string;
-  /** Optional route to navigate to before showing this step. */
-  to?: string;
   placement?: "auto" | "right" | "bottom" | "left" | "top";
 };
 
@@ -20,84 +17,84 @@ type Rect = { top: number; left: number; width: number; height: number };
 
 export function ProductTour({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
+  const [compact, setCompact] = useState(false);
 
-  const steps: Step[] = [
-    {
-      selector: '[data-tour="brand"]',
-      title: t("tour.brand.title", "Bem-vindo ao VELT"),
-      desc: t(
-        "tour.brand.desc",
-        "Seu sistema operacional para crescimento digital. Vamos fazer um tour rápido.",
-      ),
-      placement: "right",
-    },
-    {
-      selector: '[data-tour="workspace"]',
-      title: t("tour.workspace.title", "Seu workspace"),
-      desc: t("tour.workspace.desc", "Troque entre workspaces e crie novos a qualquer momento."),
-      placement: "right",
-    },
+  useEffect(() => {
+    if (!open) return;
+    const media = window.matchMedia("(max-width: 1023px)");
+    const update = () => {
+      setCompact(media.matches);
+      setStep(0);
+    };
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [open]);
+
+  const desktopSteps: Step[] = [
     {
       selector: '[data-tour="dashboard"]',
-      title: t("tour.dashboard.title", "Dashboard"),
-      desc: t("tour.dashboard.desc", "Sua central com indicadores, missões e atalhos do dia."),
-      placement: "right",
-      to: "/app",
-    },
-    {
-      selector: '[data-tour="brain"]',
-      title: t("tour.brain.title", "Brain — IA Nativa"),
-      desc: t(
-        "tour.brain.desc",
-        "O cérebro cognitivo gera recomendações, missões e respostas com contexto da sua operação.",
-      ),
+      title: t("tour.coreDashboardTitle"),
+      desc: t("tour.coreDashboardDesc"),
       placement: "right",
     },
     {
-      selector: '[data-tour="builder"]',
-      title: t("tour.builder.title", "Builder"),
-      desc: t("tour.builder.desc", "Construa marcas, canais e jornadas com assistência da IA."),
+      selector: '[data-tour="channels"]',
+      title: t("nav.channels"),
+      desc: t("tour.coreChannelsDesc"),
       placement: "right",
     },
     {
       selector: '[data-tour="content"]',
-      title: t("tour.content.title", "Conteúdo"),
-      desc: t(
-        "tour.content.desc",
-        "Crie, agende e publique em múltiplos canais a partir de um único lugar.",
-      ),
+      title: t("tour.coreContentTitle"),
+      desc: t("tour.coreContentDesc"),
       placement: "right",
     },
     {
-      selector: '[data-tour="search"]',
-      title: t("tour.search.title", "Busca rápida (⌘K)"),
-      desc: t(
-        "tour.search.desc",
-        "Use o command palette para navegar e executar ações em segundos.",
-      ),
+      selector: '[data-tour="scheduler"]',
+      title: t("tour.coreScheduleTitle"),
+      desc: t("tour.coreScheduleDesc"),
+      placement: "right",
+    },
+    {
+      selector: '[data-tour="analytics"]',
+      title: t("tour.coreResultsTitle"),
+      desc: t("tour.coreResultsDesc"),
+      placement: "right",
+    },
+  ];
+
+  const mobileSteps: Step[] = [
+    {
+      selector: '[data-tour="mobile-navigation"]',
+      title: t("tour.mobileMenuTitle"),
+      desc: t("tour.mobileMenuDesc"),
+      placement: "bottom",
+    },
+    {
+      selector: '[data-tour="search-mobile"]',
+      title: t("tour.mobileSearchTitle"),
+      desc: t("tour.mobileSearchDesc"),
       placement: "bottom",
     },
     {
       selector: '[data-tour="notifications"]',
-      title: t("tour.notifications.title", "Notificações"),
-      desc: t(
-        "tour.notifications.desc",
-        "Acompanhe sinais, alertas e atualizações do Brain em tempo real.",
-      ),
+      title: t("tour.mobileNotificationsTitle"),
+      desc: t("tour.mobileNotificationsDesc"),
+      placement: "bottom",
+    },
+    {
+      selector: '[data-tour="account"]',
+      title: t("tour.mobileAccountTitle"),
+      desc: t("tour.mobileAccountDesc"),
       placement: "bottom",
     },
   ];
 
-  const current = steps[step];
-
-  // Navigate when step has a target route.
-  useEffect(() => {
-    if (!open || !current?.to) return;
-    navigate({ to: current.to }).catch(() => {});
-  }, [open, current?.to, navigate]);
+  const steps = compact ? mobileSteps : desktopSteps;
+  const current = steps[Math.min(step, steps.length - 1)];
 
   const measure = useCallback(() => {
     if (!current) return;
@@ -169,8 +166,12 @@ export function ProductTour({ open, onClose }: { open: boolean; onClose: () => v
       }
     : null;
 
+  // Keep the first render safe on the server; viewport measurements are client-only.
+  const viewportWidth = typeof window === "undefined" ? 1024 : window.innerWidth;
+  const viewportHeight = typeof window === "undefined" ? 768 : window.innerHeight;
+
   // Position the popover card.
-  const cardWidth = 340;
+  const cardWidth = Math.min(340, viewportWidth - 32);
   const cardGap = 16;
   let cardStyle: React.CSSProperties = {
     position: "fixed",
@@ -180,8 +181,8 @@ export function ProductTour({ open, onClose }: { open: boolean; onClose: () => v
     width: cardWidth,
   };
   if (spotlight) {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const vw = viewportWidth;
+    const vh = viewportHeight;
     const placement = current.placement ?? "auto";
     const spaceRight = vw - (spotlight.left + spotlight.width);
     const spaceBottom = vh - (spotlight.top + spotlight.height);

@@ -1,12 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
 import { Languages } from "lucide-react";
-import {
-  SUPPORTED_LANGUAGES,
-  setLanguage,
-  restoreBrowserLanguage,
-  type LanguageCode,
-} from "@/lib/i18n";
+import { SUPPORTED_LANGUAGES, persistLanguagePreference, type LanguageCode } from "@/lib/i18n";
 
 /**
  * VELT — Language switcher.
@@ -14,14 +8,8 @@ import {
  * The wrapper styling mirrors a sidebar nav item so it fits the AppShell.
  */
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
-  // This component mounts inside the rendered route, not above the lazy route
-  // Suspense boundary. Changing language in the root effect can run before the
-  // route has hydrated and produce a Portuguese/English text mismatch.
-  useEffect(() => {
-    restoreBrowserLanguage();
-  }, []);
   const { i18n, t } = useTranslation();
-  const current = (i18n.language as LanguageCode) || "pt-BR";
+  const current = (i18n.resolvedLanguage ?? i18n.language) as LanguageCode;
 
   return (
     <label
@@ -32,7 +20,11 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       {!compact && <span className="sr-only">{t("common.language")}</span>}
       <select
         value={current}
-        onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+        onChange={(e) => {
+          const language = e.target.value as LanguageCode;
+          void i18n.changeLanguage(language);
+          persistLanguagePreference(language);
+        }}
         className="flex-1 cursor-pointer bg-transparent text-sm outline-none"
         aria-label={t("common.language")}
       >

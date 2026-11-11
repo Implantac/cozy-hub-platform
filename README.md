@@ -42,23 +42,33 @@ npm install
 npm run dev               # http://localhost:8080
 ```
 
-O `.env` **é versionado neste projeto** e isso é intencional: o cliente Vite
-resolve as variáveis do Supabase em tempo de build, então sem o arquivo o bundle
-publicado sobe sem configuração e quebra no navegador. A chave contida nele é
-`anon`, pública por design.
+O `.env` permanece versionado por compatibilidade com a configuração Vite deste
+projeto e deve conter **somente configuração pública** do Supabase. A chave
+publishable/anon é pública por desenho e sujeita às políticas RLS.
 
-O risco real é uma `service_role` acabar dentro desse arquivo — ela ignora RLS.
-`npm run build` executa `scripts/check-env.mjs`, que decodifica o `role` de
-qualquer JWT em arquivo versionado e falha se encontrar uma chave privilegiada.
-Chaves de servidor (`SUPABASE_SERVICE_ROLE_KEY`, `OAUTH_TOKEN_ENC_KEY`, segredos
-de OAuth) ficam no ambiente de deploy, nunca no repositório.
+Nunca coloque segredos nesse arquivo: use apenas variáveis protegidas no ambiente
+do servidor/deploy para service role, OAuth, IA, worker local e cron. `npm run
+build` executa `scripts/check-env.mjs`, que bloqueia chaves Supabase privilegiadas
+e nomes conhecidos de segredos de servidor em arquivos de ambiente versionados.
+Esse guard é limitado a credenciais e nomes conhecidos; ainda recomendamos adicionar um scanner genérico de segredos ao CI.
+
+### Segredos dos endpoints de cron
+
+`POST /api/public/cron/scheduler-tick` e `POST /api/public/cron/analytics-sync`
+aceitam **somente** `x-cron-secret`; uma chave publishable/anon nunca autentica
+cron. Gere um valor aleatório com pelo menos 32 caracteres (por exemplo,
+`openssl rand -hex 32`) e configure o mesmo valor como `CRON_SECRET` no ambiente
+do servidor e como `app.settings.cron_secret` no banco. A migration
+`20261111090000_cron_secret_only.sql` remove o agendamento de analytics se o
+segredo não estiver configurado; após configurar, reaplique essa migration. Não
+inclua o valor em SQL versionado, no `.env` ou em `VITE_*`.
 
 Idiomas: **pt-BR** (padrão e língua de autoria) e **en-US**. O seletor mostra
 apenas os que têm tradução — listar um idioma sem arquivo de tradução faz a
 interface cair no inglês sem avisar. Para adicionar outro: um JSON em
 `src/lib/i18n/locales/` e uma linha em `SUPPORTED_LANGUAGES`.
 
-Requisitos: **Node 22+** (recomendado) ou Node 20 com a dependência `ws` já incluída. O projeto declara engine `>=20` para não quebrar CI antigo, mas o Supabase Realtime só usa WebSocket nativo a partir do Node 22 — o client já resolve isso via transporte `ws`.
+Requisitos: **Node 22.13+**. A versão do projeto e as dependências TanStack são verificadas nessa faixa; Node 20 pode emitir avisos `EBADENGINE` mesmo quando certas tarefas ainda funcionam.
 
 ### Scripts
 
@@ -67,9 +77,12 @@ npm run dev         # servidor de desenvolvimento
 npm run build       # build de produção
 npm run typecheck   # tsc --noEmit
 npm run lint        # eslint
-npm run test        # vitest (244 testes)
+npm run test        # vitest (339 testes no snapshot de 2026-11-11)
 npm run verify      # typecheck + lint + test + build
 ```
+
+O [plano de melhorias e correções](./PLANO_MELHORIAS.md) registra o que já foi
+aplicado e o que ainda depende de configuração de infraestrutura.
 
 ---
 
@@ -268,9 +281,10 @@ assim que deve ser enquanto o produto não existe.
 
 ## Segurança de dependências
 
-`npm audit` em 28/10/2026: **4 vulnerabilidades moderadas, nenhuma crítica ou
-alta** (eram 20, sendo 8 críticas). As 4 restantes estão em `drizzle-kit`, que é
-ferramenta de desenvolvimento e não entra no bundle.
+Verificação local em 11/11/2026: `npm audit --omit=dev` encontrou **0 vulnerabilidades
+em dependências de produção**; a auditoria completa encontrou 7 moderadas em
+ferramentas de desenvolvimento (TypeScript ESLint/minimatch), sem alta ou crítica.
+O resultado muda com o lockfile; reexecute a auditoria no CI em cada atualização.
 
 Duas regras que o processo mostrou valerem a pena:
 
@@ -295,7 +309,7 @@ erros de formatação que ninguém pode corrigir à mão.
 npm run test
 ```
 
-244 testes cobrindo as partes em que um bug é invisível em produção: limites de plataforma, análise de gancho, timezone e slots, normalização por impressões, decaimento por espera, classificação de mídia, montagem de legenda, os motores do Brain, o contrato do Google Business e a exposição pública do link na bio (rascunho invisível, slug malformado, referrer reduzido a host, protocolo perigoso).
+333 testes no snapshot de 2026-11-11 cobrindo limites de plataforma, análise de gancho, timezone e slots, normalização de métricas, classificação e download seguro de mídia, motores do Brain, OAuth, relatórios, contratos de publicação e exposição pública do link na bio. A suíte atual privilegia lógica isolada; ainda não substitui testes de integração com Supabase/RLS nem E2E.
 
 ---
 
@@ -306,7 +320,7 @@ src/
 ├── routes/                 TanStack Start (file-based); 24 rotas autenticadas
 ├── features/<dominio>/     components · hooks · constants por domínio (22)
 ├── lib/
-│   ├── api/                22 arquivos de server functions (auth + Zod)
+│   ├── api/                server functions (auth + Zod)
 │   ├── brain/              orquestrador + 6 engines puras
 │   ├── growth/             motor de crescimento (puro + testado)
 │   ├── scheduler/          dispatcher, publishers, mídia, contratos
@@ -331,9 +345,9 @@ Convenções que não devem ser quebradas:
 
 - RLS habilitada em todas as tabelas, escopo por workspace; eventos pessoais do Brain restritos ao próprio `user_id`.
 - Tokens OAuth cifrados em repouso (AES-256-GCM, `OAUTH_TOKEN_ENC_KEY`).
-- State de OAuth assinado por HMAC, com proteção contra injeção de host.
-- `.env` versionado por necessidade de build (ver "Começando"). Guarda apenas a
-  chave `anon`; o build falha se uma `service_role` aparecer ali.
+- State de OAuth assinado por HMAC; cron autenticado exclusivamente por segredo dedicado, não pela chave publicável.
+- `.env` versionado por compatibilidade deve conter só configuração pública; o guard bloqueia service-role e nomes conhecidos de segredos do servidor.
+- Downloads server-side de mídia recusam hostnames locais/IP literais, redirecionamentos e corpos acima dos limites configurados. A defesa contra DNS rebinding depende também de regras de egress da infraestrutura.
 
 ---
 

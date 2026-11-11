@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] — 2026-11-11
+
+### Segurança e operação
+
+- Cron público agora aceita apenas `x-cron-secret` server-side com no mínimo 32 caracteres; a chave publishable/anon deixou de autenticar chamadas. Erros internos não são devolvidos ao chamador.
+- Migration `20261111090000_cron_secret_only.sql` reconfigura o agendamento de analytics e desativa-o de forma segura quando o segredo não está configurado.
+- Downloads server-side de mídia recusam redirects, aplicam timeout e limite de bytes durante o streaming. A validação rápida bloqueia IPs literais e nomes locais; a infraestrutura ainda precisa negar egress para ranges privados para cobrir DNS rebinding.
+- Guard de ambiente também bloqueia nomes conhecidos de credenciais server-only em arquivos versionados.
+- CI executa `npm run verify` em Node 22.13+ e audita dependências de produção.
+
+### Experiência de primeiro acesso
+
+- SSR e cliente agora usam locale consistente por request; a preferência é salva em cookie e storage, e a landing está traduzida também para inglês com linguagem focada em resultados.
+- Navegação principal foi reduzida ao fluxo Dashboard → Canais → Conteúdo → Agendamento → Análises; ferramentas especializadas ficam em “Mais ferramentas”.
+- Tour deixou de abrir automaticamente depois do onboarding; o guia manual foi encurtado e tem passos próprios para telas menores.
+- Login ganhou recuperação e atualização de senha, mensagens de erro amigáveis, rótulos associados e preenchimento automático; cadastro informa confirmação por e-mail quando não existe sessão.
+- Estados de erro no carregamento do workspace e da dashboard agora oferecem nova tentativa.
+
+### Testes
+
+- Adicionados testes de autenticação/handler HTTP de cron, downloads de mídia limitados, resolução de idioma SSR e navegação principal; suíte passou com 339 testes em 32 arquivos.
+- Smoke HTTP local confirmou 405 para GET e 401 para POST sem segredo, com segredo incorreto ou somente `apikey` nos dois endpoints de cron; não foi executada tarefa nem acessado Supabase.
+- `createServerFn` da bio pública migrou para `.validator()`; ainda há outros usos de `.inputValidator()` a migrar.
+
 ## [1.11.1] — 2026-10-29
 
 ### O coletor que transforma Report-Only em decisão

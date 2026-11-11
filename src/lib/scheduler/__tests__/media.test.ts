@@ -29,9 +29,15 @@ describe("isFetchableUrl", () => {
   it("accepts only public HTTPS", () => {
     expect(isFetchableUrl("https://cdn.x.com/a.jpg")).toBe(true);
   });
-  it("rejects http, localhost and garbage", () => {
+  it("rejects non-HTTPS, local, IP-literal, credentialed and nonstandard-port URLs", () => {
     expect(isFetchableUrl("http://cdn.x.com/a.jpg")).toBe(false);
     expect(isFetchableUrl("not-a-url")).toBe(false);
+    expect(isFetchableUrl("https://localhost/a.jpg")).toBe(false);
+    expect(isFetchableUrl("https://127.0.0.1/a.jpg")).toBe(false);
+    expect(isFetchableUrl("https://[::1]/a.jpg")).toBe(false);
+    expect(isFetchableUrl("https://files.internal/a.jpg")).toBe(false);
+    expect(isFetchableUrl("https://user:pass@cdn.x.com/a.jpg")).toBe(false);
+    expect(isFetchableUrl("https://cdn.x.com:8443/a.jpg")).toBe(false);
   });
 });
 

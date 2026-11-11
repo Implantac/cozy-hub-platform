@@ -52,6 +52,7 @@ export function AppHeader({
     <header className="sticky top-0 z-30 flex h-18 items-center justify-between gap-3 border-b border-border/40 bg-background/60 px-4 backdrop-blur-2xl backdrop-saturate-150 lg:px-8">
       <div className="flex min-w-0 items-center gap-3 text-sm">
         <button
+          data-tour="mobile-navigation"
           onClick={onOpenMobileNav}
           className="press inline-flex size-9 items-center justify-center rounded-xl border border-border/60 bg-card/60 text-muted-foreground transition-all hover:border-primary/40 hover:bg-card hover:text-foreground lg:hidden"
           aria-label="Open navigation"
@@ -82,6 +83,7 @@ export function AppHeader({
           </kbd>
         </button>
         <button
+          data-tour="search-mobile"
           onClick={onOpenPalette}
           className="press inline-flex size-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition hover:border-primary/30 hover:bg-card hover:text-foreground sm:hidden"
           aria-label={t("palette.placeholder", "Buscar")}
@@ -109,6 +111,7 @@ export function AppHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
+              data-tour="account"
               aria-label={t("nav.account", "Conta")}
               className="press grid size-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary/20 transition hover:shadow-glow"
             >
@@ -134,7 +137,7 @@ export function AppHeader({
                 onOpenTour();
               }}
             >
-              <RefreshCw className="mr-2 size-4" /> {t("tour.restart", "Reiniciar tour")}
+              <RefreshCw className="mr-2 size-4" /> {t("tour.start", "Iniciar tour")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

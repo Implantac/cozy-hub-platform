@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Refuses to build with a privileged Supabase key in a committed env file.
+ * Refuses to build when a server-only credential is present in a tracked env file.
  *
  * Why this exists: `.env` is versioned in this repository on purpose. The Vite
  * client resolves `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` at BUILD
@@ -9,9 +9,8 @@
  * exactly what happened when `.env` was briefly removed from version control.
  *
  * The publishable (`anon`) key is public by design: it ships in every browser
- * bundle already and is constrained by RLS. A `service_role` key is not — it
- * bypasses RLS entirely. If one ever lands in a tracked file, every clone, fork
- * and backup contains a key that can read and write every tenant's data.
+ * bundle already and is constrained by RLS. Server-only credentials (service
+ * role, OAuth clients, cron and encryption keys) must never enter a tracked file.
  *
  * This check runs before the build so that mistake fails loudly, at the moment
  * it is introduced, instead of shipping quietly.
@@ -24,6 +23,17 @@ import { readFileSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
 
 const TRACKED_ENV_FILES = [".env", ".env.local", ".env.development", ".env.production"];
+const SERVER_ONLY_SECRET_NAMES = new Set([
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "OAUTH_TOKEN_ENC_KEY",
+  "CRON_SECRET",
+  "META_APP_SECRET",
+  "GOOGLE_CLIENT_SECRET",
+  "LINKEDIN_CLIENT_SECRET",
+  "TIKTOK_CLIENT_SECRET",
+  "LOVABLE_API_KEY",
+  "STUDIO_WORKER_SECRET",
+]);
 
 /** Decodes the `role` claim of a Supabase JWT. Returns null for opaque formats. */
 function jwtRole(value) {
@@ -72,34 +82,43 @@ for (const file of TRACKED_ENV_FILES) {
     const match = /^\s*([A-Z0-9_]+)\s*=\s*(.*)$/.exec(line);
     if (!match) return;
     const [, name, rawValue] = match;
-    if (!rawValue) return;
+    const value = rawValue
+      .trim()
+      .replace(/^(['"])(.*)\1$/, "$2")
+      .trim();
+    if (!value) return;
 
-    const role = jwtRole(rawValue);
-    const kind = prefixedKeyKind(rawValue);
+    const role = jwtRole(value);
+    const kind = prefixedKeyKind(value);
+    const sensitiveName = SERVER_ONLY_SECRET_NAMES.has(name);
 
-    if (role === "service_role" || kind === "secret") {
+    if (role === "service_role" || kind === "secret" || sensitiveName) {
       problems.push({
         file,
         line: i + 1,
         name,
-        what: role === "service_role" ? "service_role JWT" : "sb_secret_ key",
+        what:
+          role === "service_role"
+            ? "service_role JWT"
+            : kind === "secret"
+              ? "sb_secret_ key"
+              : "segredo exclusivo do servidor",
       });
     }
   });
 }
 
 if (problems.length > 0) {
-  console.error("\n[env-guard] Build bloqueado: chave privilegiada em arquivo versionado.\n");
+  console.error("\n[env-guard] Build bloqueado: credencial de servidor em arquivo versionado.\n");
   for (const p of problems) {
     console.error(`  ${p.file}:${p.line} — ${p.name} parece ser uma ${p.what}`);
   }
   console.error(
-    "\nUma service_role key ignora RLS: qualquer clone ou fork do repositório passaria a\n" +
-      "ler e escrever dados de todos os tenants. Mova-a para o ambiente do servidor\n" +
-      "(variável de deploy), nunca para um arquivo versionado.\n" +
+    "\nCredenciais de servidor não podem ser versionadas: podem ignorar RLS, publicar em nome dos\n" +
+      "usuários ou acessar provedores externos. Mova-as para variáveis protegidas do deploy.\n" +
       "A chave publicável (`anon` / `sb_publishable_`) é pública por design e pode ficar.\n",
   );
   process.exit(1);
 }
 
-console.log("[env-guard] ok — nenhuma chave privilegiada em arquivos versionados.");
+console.log("[env-guard] ok — nenhum segredo de servidor conhecido em arquivos versionados.");

@@ -19,35 +19,35 @@
     "language": "Language"
   },
   "landing": {
-    "badge": "Native Cognitive Brain · multi-tenant",
-    "title1": "The operating system for your",
-    "titleHighlight": "digital presence",
-    "subtitle": "Connect every channel, schedule every post, monitor every signal — and let a Native Cognitive Brain turn it into recommendations and missions.",
+    "badge": "Plan. Publish. Learn.",
+    "title1": "Organize your",
+    "titleHighlight": "digital presence with confidence",
+    "subtitle": "Connect your channels, prepare a post, review it before publishing, and track results — all in one place.",
     "startFree": "Start free",
     "features": {
       "multichannel": {
-        "title": "Multi-channel",
-        "desc": "Instagram, Facebook, YouTube, TikTok, LinkedIn — unified."
+        "title": "Social channels",
+        "desc": "Organize Instagram, Facebook, YouTube, TikTok, LinkedIn, and Google Business in one place."
       },
       "scheduler": {
-        "title": "Scheduler",
-        "desc": "Plan, schedule and publish across all channels with queues and DLQ."
+        "title": "Publishing",
+        "desc": "Prepare and schedule content; see clearly which channels are ready to publish."
       },
       "analytics": {
-        "title": "Analytics",
-        "desc": "Real-time metrics and historical series per channel and brand."
+        "title": "Results",
+        "desc": "Track available metrics by channel and brand, without promising real-time updates."
       },
       "brain": {
-        "title": "Brain (AI)",
-        "desc": "Diagnosis, priorities and the memory of your decisions — with a preflight for every post."
+        "title": "Practical suggestions",
+        "desc": "See priorities and next steps based on the information in your operation."
       },
       "missions": {
-        "title": "Missions",
-        "desc": "Execution kanban with SLAs, owners and deadlines."
+        "title": "Next actions",
+        "desc": "Turn recommendations into tasks with owners and due dates."
       },
       "tenant": {
-        "title": "Multi-tenant",
-        "desc": "Isolated workspaces with RLS, RBAC and auditing."
+        "title": "Workspaces",
+        "desc": "Keep brands, channels, and access separate for each business or project."
       },
       "growth": {
         "title": "Growth engine",
@@ -57,36 +57,71 @@
     "steps": {
       "connect": {
         "title": "Connect",
-        "desc": "Plug in your networks, brands and channels in seconds."
+        "desc": "Add your channels and choose where to begin."
       },
       "learn": {
-        "title": "Learns",
-        "desc": "The Brain absorbs context, metrics and the memory of your decisions."
+        "title": "Prepare",
+        "desc": "Create or upload content and review it before publishing."
       },
       "execute": {
-        "title": "Executes",
-        "desc": "Get missions, content and decisions ready to act on."
+        "title": "Track",
+        "desc": "Schedule posts and see results as metrics arrive."
       }
     },
     "proof": {
-      "multichannel": "Native multi-channel",
-      "preflight": "Content preflight before publishing",
-      "rls": "RLS and audit per workspace",
-      "reality": "Decisions with reality-check"
-    }
+      "multichannel": "Channels in one place",
+      "preflight": "Review before publishing",
+      "rls": "Separate data for each workspace",
+      "reality": "Suggestions grounded in your business"
+    },
+    "howLabel": "HOW IT WORKS",
+    "howTitleStart": "Plan and publish without losing sight of",
+    "howTitleHighlight": "what works",
+    "featuresLabel": "WHAT YOU CAN DO",
+    "featuresHeading": "Tools to publish and track results",
+    "ctaTitleStart": "Start organizing your",
+    "ctaTitleHighlight": "digital presence",
+    "ctaDesc": "Connect a channel, prepare your first post, and see the results. No credit card required."
   },
   "auth": {
     "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your operating system.",
+    "loginSubtitle": "Access your channels, content, and results.",
     "signupTitle": "Create your workspace",
-    "signupSubtitle": "Boot your AI-native digital operation in 60 seconds.",
+    "signupSubtitle": "Create an account and take the first step toward organizing your channels.",
     "signingIn": "Signing in...",
     "creating": "Creating...",
     "noAccount": "No account?",
     "createOne": "Create one",
     "alreadyOnboard": "Already on board?",
-    "accountCreated": "Account created. Welcome to VELT.",
-    "googleFailed": "Google sign-in failed"
+    "accountCreated": "Account created.",
+    "googleFailed": "Google sign-in failed",
+    "forgotPassword": "Forgot password?",
+    "sendReset": "Send recovery link",
+    "resetEmailSent": "If this email is registered, we’ll send a link to reset your password.",
+    "resetEmailFailed": "We couldn’t send the link right now. Please try again.",
+    "backToLogin": "Back to sign in",
+    "checkEmailTitle": "Confirm your email",
+    "checkEmailBody": "We sent a link to {email}. Open your inbox to confirm your account and continue.",
+    "resendConfirmation": "Resend confirmation email",
+    "confirmationResent": "If this email is awaiting confirmation, we’ll send a new link.",
+    "invalidCredentials": "Email or password is incorrect. Check your details and try again.",
+    "authUnavailable": "We couldn’t complete sign-in right now. Please try again shortly.",
+    "weakPassword": "Choose a stronger password with at least 8 characters.",
+    "emailAlreadyRegistered": "This email already has an account. Sign in or reset your password.",
+    "resetInstructions": "Enter your account email to receive a secure password reset link.",
+    "invalidEmail": "Please check that the email address is correct.",
+    "sendingReset": "Sending...",
+    "confirmationHelp": "Check your inbox to finish creating your account.",
+    "resendingConfirmation": "Sending...",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "At least 8 characters",
+    "resetPasswordTitle": "Set a new password",
+    "newPasswordInstructions": "Choose a new password to get back into your account.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "passwordMismatch": "The passwords do not match.",
+    "passwordUpdated": "Password updated. You can continue."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -118,18 +153,20 @@
       "command": "Command Center",
       "overview": "Overview",
       "gps": "Business GPS",
-      "decision": "Decision OS",
-      "trust": "Trust OS",
-      "execution": "Execution OS",
-      "growth": "Growth OS",
-      "brain": "USE Brain",
+      "decision": "Planning",
+      "trust": "Trust",
+      "execution": "Operations",
+      "growth": "Growth",
+      "brain": "Assistant",
       "operation": "Operation",
       "content": "Content",
       "intelligence": "Intelligence",
       "commerce": "Commerce Hub",
-      "settings": "Settings"
+      "settings": "Settings",
+      "core": "Start here"
     },
-    "bio": "Link in bio"
+    "bio": "Link in bio",
+    "moreTools": "More tools"
   },
   "palette": {
     "placeholder": "Search pages, actions...",
@@ -229,11 +266,14 @@
     "interrupted": "Something interrupted VELT",
     "unknown": "Unknown error",
     "notFoundTitle": "Page not found",
-    "notFoundDesc": "This route doesn't exist in your VELT."
+    "notFoundDesc": "This route doesn't exist in your VELT.",
+    "dashboardUnavailable": "We couldn’t load your dashboard.",
+    "workspaceUnavailable": "We couldn’t load your workspaces. Check your connection and try again.",
+    "retryHint": "Check your connection and try loading the dashboard again."
   },
   "seo": {
     "title": "VELT — The operating system for your digital presence",
-    "description": "Publish, operate and grow on Instagram, Facebook, YouTube, TikTok and LinkedIn — with a brain that tells you why a post won't work before you publish it.",
+    "description": "Organize your channels, prepare and schedule content, and track available metrics to decide what to do next.",
     "ogLocale": "en_US"
   },
   "routes": {
@@ -242,7 +282,7 @@
   },
   "root": {
     "title": "VELT — Operating system for your digital presence",
-    "description": "VELT is an AI-native platform to launch, operate and grow your brand across Instagram, Facebook, YouTube, TikTok and LinkedIn."
+    "description": "Organize your channels, prepare and schedule content, and track available metrics to decide what to do next."
   },
   "studio": {
     "title": "VELT Studio · video script",
@@ -299,5 +339,24 @@
     "narrationEstimate": "Estimated speaking time: {{seconds}} s (target: {{target}} s). Actual timing varies by voice and pauses.",
     "renderOutdated": "The title or narration changed since rendering. The available video still contains the previous version.",
     "renderDownloadOutdated": "This video uses an earlier version of the title or narration. Download it anyway?"
+  },
+  "tour": {
+    "coreDashboardTitle": "Overview",
+    "coreDashboardDesc": "See what needs attention and choose your next action.",
+    "coreContentTitle": "Content",
+    "coreContentDesc": "Prepare a post and review it before scheduling.",
+    "coreScheduleTitle": "Scheduling",
+    "coreScheduleDesc": "Check the available times and channels for publishing.",
+    "coreResultsTitle": "Results",
+    "coreResultsDesc": "Track the metrics received from your channels.",
+    "mobileMenuTitle": "Navigation",
+    "mobileMenuDesc": "Open the menu to find your work areas.",
+    "mobileSearchTitle": "Quick search",
+    "mobileSearchDesc": "Find pages and actions without browsing the menu.",
+    "mobileNotificationsTitle": "Notifications",
+    "mobileNotificationsDesc": "See updates and alerts from your operation.",
+    "mobileAccountTitle": "Your account",
+    "mobileAccountDesc": "Open settings, help, and account options.",
+    "coreChannelsDesc": "Connect the networks you publish to and check what is currently available."
   }
 }

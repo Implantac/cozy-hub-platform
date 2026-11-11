@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Activity } from "lucide-react";
 import {
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function GPSDashboard() {
   const [wsId] = useCurrentWorkspaceId();
+  const { t } = useTranslation();
   useBrainRealtime(wsId);
   const fetchOverview = useServerFn(getDashboard);
   const brainAskAll = useServerFn(BrainCoreService.brainAskAll);
@@ -114,7 +116,28 @@ function GPSDashboard() {
     return <PageSkeleton stats={4} rows={4} />;
   }
 
-  const d = overview.data!;
+  if (overview.isError || !overview.data) {
+    return (
+      <section
+        role="alert"
+        aria-live="polite"
+        className="mx-auto max-w-lg space-y-4 py-16 text-center"
+      >
+        <h1 className="text-xl font-semibold">{t("errors.dashboardUnavailable")}</h1>
+        <p className="text-sm text-muted-foreground">{t("errors.retryHint")}</p>
+        <button
+          type="button"
+          onClick={() => void overview.refetch()}
+          disabled={overview.isFetching}
+          className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          {overview.isFetching ? t("common.loading") : t("common.tryAgain")}
+        </button>
+      </section>
+    );
+  }
+
+  const d = overview.data;
   const s = brain.data?.scores;
   const topRecs = (recs.data ?? []).slice(0, 4);
   const trending = (opps.data ?? [])

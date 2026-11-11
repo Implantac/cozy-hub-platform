@@ -8,14 +8,14 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "../integrations/supabase/client";
-import { useTranslation } from "react-i18next";
-import "../lib/i18n";
+import { I18nextProvider, useTranslation } from "react-i18next";
+import { createI18nInstance, type LanguageCode } from "@/lib/i18n";
 import { ogLocale, requestLang, translateServer } from "@/lib/i18n/translate";
 
 /** Last-resort copy when neither dictionary has the key. */
@@ -96,7 +96,10 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  language: LanguageCode;
+}>()({
   head: async () => {
     const lang = await requestLang();
     const title = translateServer(lang, "root", "title", ROOT_SEO_FALLBACK.title);
@@ -151,8 +154,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const { language } = Route.useRouteContext();
   return (
-    <html lang="pt-BR" className="dark">
+    <html lang={language} className="dark">
       <head>
         <HeadContent />
       </head>
@@ -184,13 +188,16 @@ function AuthInvalidator() {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, language } = Route.useRouteContext();
+  const [i18n] = useState(() => createI18nInstance(language));
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthInvalidator />
-      <Outlet />
-      <Toaster theme="dark" position="top-right" richColors closeButton />
-    </QueryClientProvider>
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={queryClient}>
+        <AuthInvalidator />
+        <Outlet />
+        <Toaster theme="dark" position="top-right" richColors closeButton />
+      </QueryClientProvider>
+    </I18nextProvider>
   );
 }
