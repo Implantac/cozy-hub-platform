@@ -44,7 +44,18 @@ A suíte cobre contexto novo, retorno de login, acesso direto, recarga de cinco 
 
 Em 12/11/2026, após autorização pelo navegador com o GitHub CLI oficial, os dois commits de melhorias (`6a01104` e `4a60a71`) foram enviados ao `main` de `Implantac/velt-hub-platform`. O SHA remoto foi conferido depois do push. Não houve force-push nem reescrita do histórico.
 
-Para as próximas publicações, use o código do repositório e fixe o SHA a publicar na Vercel. O checkout contém o `package.json` e o lockfile completos: a instalação normal é `npm ci --no-audit --no-fund`, seguida do build com Node 22 LTS e heap de até 4 GB. O resultado do deploy Git e o smoke público ficam registrados separadamente no relatório operacional da entrega; não são presumidos pelo sucesso dos testes unitários.
+As próximas publicações usam o código de `Implantac/velt-hub-platform`: um push no `main` aciona a integração Git nativa da Vercel no projeto existente. O checkout contém o `package.json` e o lockfile completos: a instalação normal é `npm ci --no-audit --no-fund`, seguida do build com Node 22 LTS e heap de até 4 GB. O resultado do deploy Git e o smoke público ficam registrados separadamente no relatório operacional da entrega; não são presumidos pelo sucesso dos testes unitários.
+
+### Deploy automático do `main`
+
+- O repositório conectado e a branch de produção continuam sendo `Implantac/velt-hub-platform` e `main`. O domínio público continua `https://velt-hub-platform.vercel.app`.
+- A opção de criação de deploys pelo Git está habilitada no projeto. Eventos `repository_dispatch` continuam desabilitados; o fluxo usa o evento normal de push.
+- `vercel.json` permite deploy automático somente para `main`: `"**": false` desabilita as demais branches, inclusive nomes com `/`, e `"main": true` libera a branch de produção. A regra verdadeira prevalece quando os padrões coincidem. Para habilitar previews no futuro, revise essa configuração explicitamente.
+- O CI do GitHub continua executando typecheck, lint, testes, build e auditoria de dependências em paralelo ao deploy. **Esta configuração não faz a Vercel aguardar o CI** nem adiciona proteção de branch. Antes de liberar versões para clientes, homologue proteção do `main`, checks obrigatórios e promoção condicionada à aprovação.
+- Confirme que o SHA no deploy concluído corresponde ao `main`, que o estado é `READY / PROMOTED` e que o domínio está associado. Faça o smoke público após a publicação. A ativação não é considerada validada apenas por salvar a configuração do projeto.
+- Para interromper o gatilho, desabilite a criação de deploys Git no projeto. Um rollback emergencial pela Vercel não desfaz o Git: alinhe o repositório com um commit de reversão revisado, sem force-push, para que o próximo push não reintroduza a versão problemática.
+
+A configuração usa a integração nativa; não adiciona token permanente ao GitHub Actions, deploy hook público ou segredo ao repositório.
 
 ### Histórico da publicação inicial por arquivos
 
@@ -56,7 +67,7 @@ O bucket `velt-deploy-sources` mantém os pacotes imutáveis necessários a rebu
 
 A configuração condicional de instalação aceita os dois caminhos: quando existe `restore-velt-source.mjs`, ele precisa concluir com sucesso; em um checkout Git normal, sem esse arquivo, executa somente `npm ci`. Um deploy Git do repositório sincronizado não depende desse bucket.
 
-A sincronização do `main` não significa que deploys automáticos por push estejam habilitados. Essa configuração deve ser conferida na Vercel. A publicação explícita pelo SHA do repositório funciona independentemente desse gatilho.
+Na sincronização inicial, o deploy pelo SHA foi disparado explicitamente, pois o gatilho automático estava desabilitado. A ativação do deploy automático foi autorizada em uma etapa posterior e usa o fluxo descrito acima. Publicações explícitas por SHA continuam possíveis e não comprovam, por si só, o funcionamento do gatilho.
 
 ## Banco e automações existentes
 
