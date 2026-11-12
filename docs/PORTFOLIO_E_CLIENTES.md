@@ -40,17 +40,23 @@ Use conta de teste com onboarding concluído. `VELT_QA_DEVICE=desktop` ou `mobil
 
 A suíte cobre contexto novo, retorno de login, acesso direto, recarga de cinco módulos, títulos, largura e axe em desktop/mobile. A auditoria de um estado vazio não cobre formulários preenchidos, todos os diálogos nem certifica WCAG. Uma jornada adicional de QA com usuário temporário foi usada para testar onboarding, CRUD, troca em duas abas e troca de conta; os recursos temporários foram removidos.
 
-## Publicação desta rodada
+## Publicação e sincronização
 
-O acesso GitHub disponível na sessão não permitiu enviar commits. Para não afirmar uma sincronização inexistente, a entrega inclui um ZIP do código e um patch a partir do commit-base do repositório. Os commits locais e o estado de push são registrados separadamente no arquivo de proveniência da entrega.
+Em 12/11/2026, após autorização pelo navegador com o GitHub CLI oficial, os dois commits de melhorias (`6a01104` e `4a60a71`) foram enviados ao `main` de `Implantac/velt-hub-platform`. O SHA remoto foi conferido depois do push. Não houve force-push nem reescrita do histórico.
 
-A publicação por arquivos na Vercel usa um bootstrap mínimo: ele restaura um arquivo de fontes em um bucket **privado** do Supabase exclusivo e confere seu SHA-256 antes de instalar o lockfile. O instalador recebe as credenciais somente do ambiente protegido existente; o pacote de código não contém credenciais de servidor. A URL de storage é fixa no projeto VELT.
+Para as próximas publicações, use o código do repositório e fixe o SHA a publicar na Vercel. O checkout contém o `package.json` e o lockfile completos: a instalação normal é `npm ci --no-audit --no-fund`, seguida do build com Node 22 LTS e heap de até 4 GB. O resultado do deploy Git e o smoke público ficam registrados separadamente no relatório operacional da entrega; não são presumidos pelo sucesso dos testes unitários.
 
-O bucket `velt-deploy-sources` guarda os pacotes imutáveis necessários a um novo build dessa publicação. Não o remova enquanto houver dependência de rebuild/rollback desse caminho. Ele não é uma biblioteca pública de mídia nem um recurso do produto.
+### Histórico da publicação inicial por arquivos
 
-O comando de instalação é condicional: se houver `restore-velt-source.mjs`, o bootstrap precisa concluir com sucesso; em um checkout normal do repositório, sem esse arquivo, executa apenas `npm ci`. Assim, a configuração não exige o bootstrap depois que o código estiver sincronizado no GitHub.
+Antes dessa autorização, a publicação inicial utilizou um snapshot de fontes, acompanhado de ZIP, patch e proveniência. Esse material é um registro histórico: a indicação de GitHub pendente naquele pacote antecede o push confirmado acima.
 
-Não religue automações Git antes de sincronizar a versão entregue: o `main` remoto ainda pode conter a versão anterior. O smoke público pós-build é registrado no relatório da entrega, não presumido pelo sucesso dos testes unitários.
+O bootstrap dessa publicação inicial restaura um arquivo de fontes em um bucket **privado** do Supabase exclusivo e confere seu SHA-256 antes de instalar o lockfile. As credenciais vêm somente do ambiente protegido da Vercel, nunca do pacote de código, e a URL de storage é fixa no projeto VELT.
+
+O bucket `velt-deploy-sources` mantém os pacotes imutáveis necessários a rebuilds desse caminho antigo. Preserve-o enquanto houver dependência de rebuild/rollback dessas publicações. Ele não é uma biblioteca pública de mídia nem um recurso do produto.
+
+A configuração condicional de instalação aceita os dois caminhos: quando existe `restore-velt-source.mjs`, ele precisa concluir com sucesso; em um checkout Git normal, sem esse arquivo, executa somente `npm ci`. Um deploy Git do repositório sincronizado não depende desse bucket.
+
+A sincronização do `main` não significa que deploys automáticos por push estejam habilitados. Essa configuração deve ser conferida na Vercel. A publicação explícita pelo SHA do repositório funciona independentemente desse gatilho.
 
 ## Banco e automações existentes
 
@@ -68,7 +74,8 @@ Há uma limitação histórica de instalação: uma migration antiga tenta `ALTE
 ## Checklist antes de distribuir a clientes
 
 - [ ] Executar regressão pós-deploy, sem workarounds, em produção e em homologação isolada.
-- [ ] Sincronizar o código entregue com o GitHub e confirmar que um deploy normal do repositório reproduz a mesma versão.
+- [x] Sincronizar no GitHub os dois commits da primeira rodada; `main` conferido após o push em 12/11/2026.
+- [ ] Homologar continuamente o fluxo completo de CI, instalação limpa e regressão pós-deploy para cada versão destinada a clientes.
 - [ ] Validar instalação limpa das migrations e processo de backup/restauração.
 - [ ] Completar RBAC/RLS com fixtures de dois clientes, conteúdo existente, convites e todos os papéis. Testes selecionados não são pentest.
 - [ ] Configurar e testar SMTP próprio, confirmação e recuperação de senha, limites e mensagens de abuso.
