@@ -1,8 +1,7 @@
 /**
  * VELT — Google Business Profile: location discovery and selection.
  *
- * The OAuth callback stores the token and picks the first verified location as a
- * convenience, but a company can have 2, 20 or 200 stores. Guessing is wrong: a
+ * The OAuth callback stores credentials but never selects a location. A company can have 2, 20 or 200 stores. Guessing is wrong: a
  * post published to the wrong unit is visible to real customers. This module
  * lets the user see the discovered locations and explicitly bind a channel to
  * one of them.
@@ -11,6 +10,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError } from "./_supabase";
+import { requireWorkspaceRole } from "./_workspace";
+import { WORKSPACE_MANAGE_ROLES } from "@/lib/workspace/permissions";
 import { getFreshToken } from "@/lib/oauth/refresh.server";
 import { listBusinessLocations, type BusinessLocation } from "@/lib/oauth/providers.server";
 
@@ -24,7 +25,8 @@ export const listBusinessLocationsForChannel = createServerFn({ method: "GET" })
     z.object({ workspaceId: z.string().uuid(), channelId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_MANAGE_ROLES);
 
     const { data: channel, error } = await supabase
       .from("channels")
@@ -64,7 +66,8 @@ export const selectBusinessLocation = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_MANAGE_ROLES);
 
     const { data: channel, error } = await supabase
       .from("channels")
@@ -94,18 +97,24 @@ export const selectBusinessLocation = createServerFn({ method: "POST" })
 
     const metadata = {
       ...((channel.metadata as Record<string, unknown> | null) ?? {}),
+      requires_location_selection: false,
+      location_confirmed: true,
       account_id: chosen.accountId,
       location_id: chosen.locationId,
       location_name: chosen.locationName,
       address: chosen.address ?? null,
     };
 
-    const { error: upErr } = await supabase
+    const { data: updated, error: upErr } = await supabase
       .from("channels")
       .update({ external_id: chosen.name, handle: chosen.locationName, metadata })
       .eq("id", data.channelId)
-      .eq("workspace_id", data.workspaceId);
+      .eq("workspace_id", data.workspaceId)
+      .select("id, external_id")
+      .maybeSingle();
     throwIfError(upErr);
+    if (!updated || updated.external_id !== chosen.name)
+      throw new Error("Alteração da unidade não confirmada.");
 
     return { ok: true, location: chosen };
   });

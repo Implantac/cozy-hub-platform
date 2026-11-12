@@ -38,9 +38,12 @@ export interface PublishResult {
  */
 export class PublisherError extends Error {
   readonly retryable: boolean;
-  constructor(message: string, opts: { retryable?: boolean } = {}) {
+  /** An upstream resource/tracking reference, not a statement that it is publicly live. */
+  readonly externalPostId?: string;
+  constructor(message: string, opts: { retryable?: boolean; externalPostId?: string } = {}) {
     super(message);
     this.name = "PublisherError";
-    this.retryable = opts.retryable ?? true;
+    this.retryable = opts.retryable ?? false;
+    this.externalPostId = opts.externalPostId;
   }
 }

@@ -15,7 +15,12 @@ type Props = {
 export function SchedulerTable({ jobs, onCancel, cancelPending }: Props) {
   const { t, i18n } = useTranslation();
   return (
-    <div className="section-card overflow-x-auto p-0">
+    <div
+      role="region"
+      aria-label={t("scheduler.title")}
+      tabIndex={0}
+      className="section-card overflow-x-auto p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
       <table className="w-full min-w-[650px] text-sm">
         <thead className="border-b border-border bg-background/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
           <tr>
@@ -58,6 +63,14 @@ export function SchedulerTable({ jobs, onCancel, cancelPending }: Props) {
                     <Icon className={`size-3 ${j.status === "processing" ? "animate-spin" : ""}`} />
                     {t(`scheduler.${j.status}`, { defaultValue: j.status })}
                   </span>
+                  {j.status === "processing" &&
+                    j.locked_until &&
+                    Date.parse(j.locked_until) < Date.now() && (
+                      <p className="mt-1 text-xs text-warning">{t("scheduler.outcomeUnknown")}</p>
+                    )}
+                  {j.status === "dead_letter" && j.external_post_id && (
+                    <p className="mt-1 text-xs text-warning">{t("scheduler.providerAckPending")}</p>
+                  )}
                   {j.last_error ? (
                     <div className="mt-1 truncate text-xs text-destructive" title={j.last_error}>
                       {j.last_error}

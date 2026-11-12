@@ -7,7 +7,9 @@ import {
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { normalizeMutationError } from "./errors";
 
 /**
  * Reusable wrapper for workspace-scoped queries.
@@ -66,8 +68,16 @@ export function useWorkspaceMutation<TVars, TData>(
   opts: WorkspaceMutationOptions<TData> = {},
 ): UseMutationResult<TData, Error, TVars> {
   const qc = useQueryClient();
+  const { t } = useTranslation();
+  const fallback = t("common.mutationError");
   return useMutation<TData, Error, TVars>({
-    mutationFn: fn,
+    mutationFn: async (vars) => {
+      try {
+        return await fn(vars);
+      } catch (reason) {
+        throw normalizeMutationError(reason, fallback);
+      }
+    },
     onSuccess: (data) => {
       const raw = opts.invalidate;
       const keys: QueryKey[] = !raw ? [] : isQueryKeyArray(raw) ? raw : [raw];

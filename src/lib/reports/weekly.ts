@@ -23,6 +23,7 @@ export interface ReportWindow {
 
 export interface PublishedPost {
   contentId: string;
+  channelId?: string;
   title: string | null;
   platform: string;
   publishedAt: string;
@@ -30,6 +31,9 @@ export interface PublishedPost {
 
 export interface PostMetrics {
   contentId: string;
+  channelId?: string;
+  platform?: string;
+  title?: string | null;
   metrics: Partial<CanonicalMetrics>;
 }
 
@@ -100,9 +104,23 @@ export function sumMetrics(items: PostMetrics[]): CanonicalMetrics {
   for (const item of items) {
     for (const [k, v] of Object.entries(item.metrics)) {
       const key = k as keyof CanonicalMetrics;
-      if (typeof v === "number" && Number.isFinite(v)) acc[key] += v;
+      if (
+        key !== "followers" &&
+        key in acc &&
+        typeof v === "number" &&
+        Number.isFinite(v) &&
+        v >= 0
+      )
+        acc[key] += v;
     }
   }
+  const followers = new Map<string, number>();
+  for (const item of items) {
+    const n = item.metrics.followers;
+    if (typeof n === "number" && Number.isFinite(n) && n >= 0)
+      followers.set(item.channelId ?? "unknown", n);
+  }
+  acc.followers = [...followers.values()].reduce((a, b) => a + b, 0);
   // Rate is derived, never summed: adding two percentages is meaningless.
   const denominator = acc.impressions || acc.reach;
   acc.engagement_rate =
@@ -159,19 +177,18 @@ export function buildReportData(input: {
   const previous = sumMetrics(input.metricsPrevious);
   const movements = compareMetrics(current, previous);
 
-  const channels = buildChannelLines(input.published, input.metricsCurrent);
-
-  const metricsByContent = new Map(input.metricsCurrent.map((m) => [m.contentId, m]));
-  const topPosts = input.published
-    .map((p) => {
-      const m = metricsByContent.get(p.contentId)?.metrics ?? {};
-      const engagement = Number(m.engagement ?? 0);
-      const denom = Number(m.impressions ?? m.reach ?? 0);
+  const publishedCurrent = input.published.filter((p) => inWindow(p, input.window));
+  const channels = buildChannelLines(publishedCurrent, input.metricsCurrent);
+  const topPosts = input.metricsCurrent
+    .map((m) => {
+      const post = matchingPost(input.published, m);
+      const engagement = metricValue(m.metrics.engagement);
+      const denominator = metricValue(m.metrics.impressions) || metricValue(m.metrics.reach);
       return {
-        title: p.title?.trim() || "Post sem título",
-        platform: p.platform,
+        title: m.title?.trim() || post?.title?.trim() || "Post sem título",
+        platform: m.platform ?? post?.platform ?? "desconhecido",
         engagement,
-        rate: denom > 0 ? Math.round((engagement / denom) * 10000) / 10000 : 0,
+        rate: denominator > 0 ? Math.round((engagement / denominator) * 10_000) / 100 : 0,
       };
     })
     .filter((p) => p.engagement > 0)
@@ -184,7 +201,7 @@ export function buildReportData(input: {
     input.metricsPrevious.length === 0;
 
   const highlights = buildHighlights({
-    publishedCount: input.published.length,
+    publishedCount: publishedCurrent.length,
     previousPublishedCount: input.previousWindow
       ? countInWindow(input.published, input.previousWindow)
       : 0,
@@ -208,39 +225,49 @@ export function buildReportData(input: {
   };
 }
 
-function countInWindow(posts: PublishedPost[], window: ReportWindow): number {
-  const start = Date.parse(window.start);
-  const end = Date.parse(window.end);
-  return posts.filter((p) => {
-    const t = Date.parse(p.publishedAt);
-    return Number.isFinite(t) && t >= start && t < end;
-  }).length;
+function metricValue(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
 }
-
+function inWindow(post: PublishedPost, window: ReportWindow) {
+  const time = Date.parse(post.publishedAt);
+  return Number.isFinite(time) && time >= Date.parse(window.start) && time < Date.parse(window.end);
+}
+function countInWindow(posts: PublishedPost[], window: ReportWindow): number {
+  return posts.filter((post) => inWindow(post, window)).length;
+}
+function matchingPost(posts: PublishedPost[], metric: PostMetrics) {
+  return posts.find(
+    (post) =>
+      post.contentId === metric.contentId &&
+      (!metric.channelId || post.channelId === metric.channelId),
+  );
+}
 function buildChannelLines(published: PublishedPost[], metrics: PostMetrics[]): ChannelLine[] {
-  const byPlatform = new Map<string, { published: number; ids: Set<string> }>();
-
-  for (const p of published) {
-    const entry = byPlatform.get(p.platform) ?? { published: 0, ids: new Set<string>() };
-    entry.published += 1;
-    entry.ids.add(p.contentId);
-    byPlatform.set(p.platform, entry);
-  }
-
-  const lines: ChannelLine[] = [];
-  for (const [platform, entry] of byPlatform) {
-    const relevant = metrics.filter((m) => entry.ids.has(m.contentId));
-    const total = sumMetrics(relevant);
-    lines.push({
+  const lines = new Map<string, ChannelLine>();
+  const get = (platform: string) => {
+    const line = lines.get(platform) ?? {
       platform,
-      published: entry.published,
-      engagement: total.engagement,
-      impressions: total.impressions,
-      rate: total.engagement_rate,
-    });
+      published: 0,
+      engagement: 0,
+      impressions: 0,
+      rate: 0,
+    };
+    lines.set(platform, line);
+    return line;
+  };
+  for (const post of published) get(post.platform).published++;
+  for (const metric of metrics) {
+    const platform = metric.platform ?? matchingPost(published, metric)?.platform ?? "desconhecido";
+    const line = get(platform);
+    line.engagement += metricValue(metric.metrics.engagement);
+    line.impressions += metricValue(metric.metrics.impressions);
   }
-
-  return lines.sort((a, b) => b.engagement - a.engagement);
+  for (const line of lines.values())
+    line.rate =
+      line.impressions > 0 ? Math.round((line.engagement / line.impressions) * 10_000) / 100 : 0;
+  return [...lines.values()].sort(
+    (a, b) => b.engagement - a.engagement || a.platform.localeCompare(b.platform),
+  );
 }
 
 /**
@@ -255,8 +282,11 @@ function buildHighlights(input: {
   current: CanonicalMetrics;
   channels: ChannelLine[];
 }): string[] {
-  const out: string[] = [];
+  const out: string[] = [
+    "Métricas acumuladas: última coleta de cada publicação por canal na semana. Coletas repetidas não são somadas; alcance agregado não representa pessoas únicas.",
+  ];
 
+  const measurementNote = out.pop()!;
   if (input.publishedCount === 0) {
     out.push("Nenhuma publicação nesta semana — o relatório mede o que já está no ar.");
   } else if (input.publishedCount > input.previousPublishedCount) {
@@ -275,10 +305,12 @@ function buildHighlights(input: {
   if (engagement && engagement.direction !== "flat" && engagement.deltaPct !== null) {
     const verb = engagement.direction === "up" ? "subiu" : "caiu";
     out.push(
-      `O engajamento ${verb} ${Math.abs(engagement.deltaPct)}% em relação à semana anterior.`,
+      `O engajamento acumulado observado ${verb} ${Math.abs(engagement.deltaPct)}% frente à coleta da semana anterior; isso não mede apenas interações da semana.`,
     );
   } else if (engagement && engagement.previous === 0 && engagement.current > 0) {
-    out.push("Primeira semana com engajamento medido — não há base de comparação ainda.");
+    out.push(
+      "Primeira semana com engajamento acumulado observado — não há base de comparação ainda.",
+    );
   }
 
   if (input.channels.length > 0) {
@@ -294,6 +326,7 @@ function buildHighlights(input: {
     );
   }
 
+  out.push(measurementNote);
   return out;
 }
 
@@ -324,7 +357,11 @@ export function defaultWindows(now: Date = new Date()): {
  * data is the workspace's own.
  */
 export function reportToCsv(data: WeeklyReportData): string {
-  const escape = (v: string) => (/[",\n;]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const escape = (raw: string) => {
+    // Prevent a title/handle from becoming a formula when opened in a spreadsheet.
+    const value = /^[\s]*[=+@-]/.test(raw) || /^[\t\r]/.test(raw) ? "'" + raw : raw;
+    return /[",\n;\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  };
   const rows: string[] = [];
 
   rows.push("secao,metrica,valor_semana,valor_semana_anterior,variacao_pct");
@@ -354,5 +391,10 @@ export function reportToCsv(data: WeeklyReportData): string {
     rows.push(["post", escape(p.title), escape(p.platform), p.engagement, p.rate].join(","));
   }
 
+  rows.push(
+    "",
+    "secao,base_metrica",
+    "metodologia,acumulado da ultima coleta por publicacao e canal; nao representa apenas interacoes ocorridas na semana",
+  );
   return rows.join("\n");
 }

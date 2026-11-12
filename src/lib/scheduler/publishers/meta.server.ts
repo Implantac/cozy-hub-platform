@@ -15,10 +15,11 @@
  * synchronously — one call with the photo or feed edge.
  *
  * Both paths require a Page/IG access token, which is NOT the user token:
- * the user token must be exchanged for the page token first. We look it up from
- * the channel's stored metadata and fail loudly with actionable text if absent.
+ * the user token is resolved to the selected Page token during connection.
+ * The dispatcher injects the decrypted token privately; it never falls back after an OAuth failure.
  */
 
+import { metaGraphBase } from "@/lib/oauth/meta-version.server";
 import { composeCaption, detectMediaKind, isFetchableUrl, pickPrimaryMedia } from "../media";
 import type { PublishInput, PublishResult } from "../contracts";
 
@@ -33,8 +34,6 @@ export class MetaError extends Error {
   }
 }
 
-const GRAPH = "https://graph.facebook.com/v19.0";
-
 /** Polling budget for the Instagram container. */
 const CONTAINER_POLL_TIMEOUT_MS = 120_000;
 const CONTAINER_POLL_INTERVAL_MS = 4_000;
@@ -47,7 +46,7 @@ async function graphFetch<T>(
   path: string,
   init: RequestInit & { query?: Record<string, string> } = {},
 ): Promise<T> {
-  const url = new URL(`${GRAPH}/${path.replace(/^\//, "")}`);
+  const url = new URL(`${metaGraphBase()}/${path.replace(/^\//, "")}`);
   for (const [k, v] of Object.entries(init.query ?? {})) url.searchParams.set(k, v);
 
   const res = await fetch(url, init);
@@ -64,7 +63,8 @@ async function graphFetch<T>(
     const msg = err?.message ?? text.slice(0, 300);
     // 190 = invalid/expired token (not retryable), 4/17 = rate limit (retryable)
     const retryable =
-      err?.is_transient === true || err?.code === 4 || err?.code === 17 || res.status >= 500;
+      res.status < 500 &&
+      (err?.is_transient === true || err?.code === 4 || err?.code === 17 || res.status === 429);
     throw new MetaError(`Meta ${res.status}: ${msg}`, { retryable, code: err?.code });
   }
   return json as T;
@@ -73,6 +73,7 @@ async function graphFetch<T>(
 /** Resolves the page/IG token from channel metadata, with a clear failure. */
 function resolvePageToken(channelConfig: Record<string, unknown>): string {
   const token =
+    (channelConfig.access_token as string | undefined) ??
     (channelConfig.page_access_token as string | undefined) ??
     (channelConfig.pageAccessToken as string | undefined);
   if (!token) {
@@ -170,7 +171,10 @@ export async function publishInstagram(input: PublishInput): Promise<PublishResu
     query: { creation_id: created.id, access_token: token },
   });
   if (!published?.id)
-    throw new MetaError("Instagram não retornou o id da publicação.", { retryable: true });
+    throw new MetaError(
+      "Instagram não retornou o id da publicação. Verifique o provedor antes de tentar novamente.",
+      { retryable: false },
+    );
 
   return { externalPostId: published.id, raw: { container_id: created.id } };
 }

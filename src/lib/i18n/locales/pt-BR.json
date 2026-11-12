@@ -16,7 +16,9 @@
     "goHome": "Ir para o início",
     "viewAll": "Ver tudo",
     "manage": "Gerenciar",
-    "language": "Idioma"
+    "language": "Idioma",
+    "cancel": "Cancelar",
+    "mutationError": "Não foi possível confirmar a alteração. Verifique o estado atual antes de repetir a ação."
   },
   "landing": {
     "badge": "Planeje. Publique. Aprenda.",
@@ -167,13 +169,16 @@
     },
     "bio": "Link na bio",
     "moreTools": "Mais ferramentas",
-    "openNavigation": "Abrir navegação"
+    "openNavigation": "Abrir navegação",
+    "account": "Conta",
+    "profile": "Perfil e conta"
   },
   "palette": {
     "placeholder": "Buscar páginas, ações...",
     "empty": "Nada encontrado.",
     "navigate": "Navegar",
-    "actions": "Ações"
+    "actions": "Ações",
+    "toggleSidebar": "Recolher/expandir menu"
   },
   "notifications": {
     "title": "Notificações",
@@ -376,7 +381,16 @@
     "mobileNotificationsDesc": "Veja avisos e atualizações da sua operação.",
     "mobileAccountTitle": "Sua conta",
     "mobileAccountDesc": "Acesse configurações, ajuda e opções da conta.",
-    "coreChannelsDesc": "Conecte as redes em que você publica e confira o que está habilitado."
+    "coreChannelsDesc": "Conecte as redes em que você publica e confira o que está habilitado.",
+    "step": "Passo",
+    "close": "Fechar",
+    "skip": "Pular tour",
+    "prev": "Voltar",
+    "finish": "Concluir",
+    "next": "Próximo",
+    "restarted": "Tour reiniciado",
+    "restart": "Reiniciar tour do produto",
+    "start": "Iniciar tour"
   },
   "portfolio": {
     "title": "Versão de portfólio",
@@ -452,7 +466,16 @@
     "short": "Vídeo curto",
     "video": "Vídeo",
     "article": "Artigo",
-    "carousel": "Carrossel"
+    "carousel": "Carrossel",
+    "partial": "{{count}} item(ns) alterado(s); {{missing}} não encontrado(s) ou sem permissão. A lista foi atualizada.",
+    "mediaLabel": "URLs de mídia (opcional)",
+    "mediaHint": "Uma URL HTTPS pública por linha, até 20 para organizar o rascunho. O agendamento atual aceita um anexo por conteúdo; carrossel não está implementado. Não faz upload nem confirma a disponibilidade do arquivo.",
+    "edit": "Editar",
+    "editItem": "Editar {{title}}",
+    "editTitle": "Editar conteúdo",
+    "editHint": "Salva texto e referências de mídia no workspace. Cancele agendamentos ativos antes de editar.",
+    "saved": "Conteúdo salvo.",
+    "saveChanges": "Salvar alterações"
   },
   "channels": {
     "title": "Canais",
@@ -480,7 +503,17 @@
     "registered": "Perfil cadastrado; nenhuma conexão foi autorizada",
     "disconnectedNotice": "Canal desconectado",
     "connectedNotice": "{{platform}} conectado",
-    "oauthError": "Falha na autorização: {{message}}"
+    "oauthError": "Falha na autorização: {{message}}",
+    "selectLocation": "OAuth autorizado · selecione uma unidade",
+    "oauthErrors": {
+      "provider_denied": "A autorização foi cancelada no provedor.",
+      "connection_failed": "Não foi possível confirmar a conexão. Inicie a autorização novamente.",
+      "account_selection_required": "O provedor retornou várias contas. Para evitar publicar na conta errada, autorize somente a conta desejada e tente novamente.",
+      "no_eligible_account": "Nenhuma conta publicável foi retornada pelo provedor. Confira o tipo de conta e as permissões concedidas.",
+      "provider_unavailable": "O provedor não permitiu consultar as contas ou unidades. Confira as APIs e permissões da aplicação e tente novamente."
+    },
+    "confirmDisconnect": "Desconectar este canal e remover as credenciais salvas? Agendamentos pendentes não serão publicados enquanto ele estiver desconectado.",
+    "confirmDelete": "Excluir o canal e seu histórico associado? Cancele os agendamentos pendentes antes de excluir. Esta ação não remove publicações já feitas no provedor."
   },
   "brands": {
     "title": "Marcas",
@@ -507,7 +540,7 @@
     "dead_letter": "Requer atenção",
     "run": "Executar fila agora",
     "running": "Executando...",
-    "ran": "Fila verificada · {{count}} processado(s)",
+    "ran": "Fila verificada · {{count}} processado(s), {{succeeded}} concluído(s), {{failed}} com falha",
     "canceled": "Agendamento cancelado",
     "emptyTitle": "Nenhuma publicação na fila",
     "emptyText": "Salvar um rascunho não cria um agendamento. A publicação requer canal autorizado e as condições indicadas acima.",
@@ -519,7 +552,36 @@
     "attempts": "Tentativas",
     "actions": "Ações",
     "cancel": "Cancelar",
-    "untitled": "Sem título"
+    "untitled": "Sem título",
+    "cancelled": "Cancelado",
+    "composeTitle": "Novo agendamento",
+    "composeHint": "Selecione um rascunho, os canais e um horário futuro. O agendamento só é confirmado depois que todos os itens forem gravados; não significa que o provedor já publicou.",
+    "chooseContent": "Conteúdo para agendar",
+    "contentPlaceholder": "Selecione um rascunho",
+    "chooseTime": "Data e hora",
+    "localTimezone": "Horário local deste navegador; salvo em UTC.",
+    "chooseChannels": "Canais (até 20)",
+    "reason_oauth": "OAuth necessário",
+    "reason_unsupported": "Publicação não implementada",
+    "reason_environment": "Configuração do provedor pendente",
+    "noEligibleChannels": "Nenhum canal está disponível para agendamento.",
+    "openChannels": "Ver Canais",
+    "noDrafts": "Nenhum rascunho disponível.",
+    "enqueue": "Confirmar agendamento",
+    "enqueueing": "Agendando…",
+    "enqueued": "{{count}} agendamento(s) confirmado(s) na fila.",
+    "scheduleInvalid": "Selecione um rascunho, de 1 a 20 canais disponíveis e um horário futuro válido.",
+    "reason_location": "Selecione uma unidade em Canais",
+    "outcomeUnknown": "Execução sem confirmação final. Verifique o provedor antes de republicar.",
+    "providerAckPending": "Existe um identificador externo; este item não será republicado automaticamente. Confira o provedor.",
+    "capabilityError": "Não foi possível verificar a configuração de publicação.",
+    "capabilityLoading": "Verificando configuração de publicação…",
+    "capabilityLabel": "Configuração de publicação (não confirma aprovação nem validade do OAuth):",
+    "simulatedWarning": "modo simulado — nada é publicado de fato",
+    "missingEnvironment": "Configuração pendente: {{variables}}",
+    "configurationPending": "(configuração pendente)",
+    "notImplemented": "(não implementado)",
+    "reason_direct_post": "Direct Post necessário; caixa de entrada não publica"
   },
   "opportunitySource": {
     "title": "Catálogo de exemplos, não pesquisa de mercado ao vivo",
@@ -568,7 +630,7 @@
     "lastRun": "Última execução — publicações medidas: {{posts}} · registros gravados: {{records}}",
     "weeklyTitle": "Relatório semanal",
     "weeklyDescription": "Sete dias comparados com os sete anteriores.",
-    "weeklyContents": "PDF com publicações, impressões, engajamento por canal e os três melhores posts. O CSV traz os mesmos números para conferência.",
+    "weeklyContents": "PDF e CSV com publicações efetivamente concluídas por canal, métricas acumuladas da última coleta na semana e comparação com a coleta da semana anterior. Não somamos coletas repetidas nem tratamos acumulados como interações ocorridas na semana.",
     "downloadPdf": "Baixar PDF",
     "downloadCsv": "Baixar CSV",
     "reportLanguage": "Os arquivos PDF e CSV são gerados em português nesta versão.",
@@ -580,14 +642,33 @@
     "impressions": "Impressões",
     "engagement": "Engajamento",
     "reach": "Alcance",
-    "snapshots": "Snapshots coletados",
-    "snapshotCaveat": "Os valores somam os registros coletados no período. A mesma publicação pode aparecer em mais de uma coleta; os totais não representam pessoas únicas nem crescimento exclusivo do período.",
-    "engagementTrend": "Engajamento por dia de coleta",
+    "snapshots": "Publicações medidas por canal",
+    "snapshotCaveat": "Totais acumulados da última coleta de cada publicação por canal no período. Coletas repetidas não são somadas. A série diária mostra o acumulado observado em cada data, não novas interações do dia; alcance agregado não representa pessoas únicas.",
+    "engagementTrend": "Engajamento acumulado por data de coleta",
     "platformImpressions": "Impressões por plataforma",
     "dailyTableSummary": "Ver engajamento em tabela",
     "platformTableSummary": "Ver impressões em tabela",
     "collectionDate": "Dia da coleta (UTC)",
     "platform": "Plataforma",
-    "otherPlatform": "Outras plataformas"
+    "otherPlatform": "Outras plataformas",
+    "syncError": "Não foi possível coletar métricas de {{count}} item(ns). Confira os detalhes e tente novamente."
+  },
+  "access": {
+    "checking": "Verificando permissões…",
+    "readOnly": "Somente leitura: seu papel permite consultar, mas não alterar este workspace.",
+    "manageOnly": "O gerenciamento de canais requer o papel de proprietário ou administrador.",
+    "queueHelp": "Somente proprietários e administradores podem executar a fila. Editores podem agendar e cancelar publicações pendentes."
+  },
+  "shortcuts": {
+    "palette": "Abrir busca rápida",
+    "help": "Mostrar atalhos",
+    "tourNext": "Próximo passo no tour",
+    "tourPrev": "Passo anterior no tour",
+    "close": "Fechar painel ou tour",
+    "title": "Atalhos de teclado",
+    "desc": "Acelere sua navegação pelo VELT."
+  },
+  "a11y": {
+    "skipToContent": "Pular para o conteúdo"
   }
 }

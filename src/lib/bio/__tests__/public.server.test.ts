@@ -16,7 +16,16 @@ const state: {
   filters: Record<string, unknown>;
   rpcCalls: Array<{ fn: string; args: Record<string, unknown> }>;
   failRpc: boolean;
-  linkRow: { url: string; is_active: boolean } | null;
+  linkRow: {
+    url: string;
+    kind: string;
+    is_active: boolean;
+    bio_pages: { is_published: boolean };
+  } | null;
+  linkFilters: Record<string, unknown>;
+  linkError: { message: string } | null;
+  linksError: { message: string } | null;
+  workspaceError: { message: string } | null;
 } = {
   pageRow: null,
   links: [],
@@ -25,6 +34,10 @@ const state: {
   rpcCalls: [],
   failRpc: false,
   linkRow: null,
+  linkFilters: {},
+  linkError: null,
+  linksError: null,
+  workspaceError: null,
 };
 
 vi.mock("@/integrations/supabase/client.server", () => {
@@ -44,10 +57,14 @@ vi.mock("@/integrations/supabase/client.server", () => {
   const buildLinksQuery = () => {
     const q: Record<string, unknown> = {
       select: () => q,
-      eq: () => q,
+      eq: (column: string, value: unknown) => {
+        state.linkFilters[column] = value;
+        return q;
+      },
       order: () => q,
-      maybeSingle: async () => ({ data: state.linkRow, error: null }),
-      then: (resolve: (v: unknown) => void) => resolve({ data: state.links, error: null }),
+      maybeSingle: async () => ({ data: state.linkRow, error: state.linkError }),
+      then: (resolve: (v: unknown) => void) =>
+        resolve({ data: state.links, error: state.linksError }),
     };
     return q;
   };
@@ -59,7 +76,9 @@ vi.mock("@/integrations/supabase/client.server", () => {
         if (table === "bio_links") return buildLinksQuery();
         return {
           select: () => ({
-            eq: () => ({ maybeSingle: async () => ({ data: state.workspace, error: null }) }),
+            eq: () => ({
+              maybeSingle: async () => ({ data: state.workspace, error: state.workspaceError }),
+            }),
           }),
         };
       },
@@ -72,7 +91,7 @@ vi.mock("@/integrations/supabase/client.server", () => {
   };
 });
 
-const { getPublicBioPage, registerPageView, resolveAndTrackClick } =
+const { loadBioPage, getPublicBioPage, registerPageView, resolveAndTrackClick } =
   await import("@/lib/bio/public.server");
 
 beforeEach(() => {
@@ -83,6 +102,10 @@ beforeEach(() => {
   state.rpcCalls = [];
   state.failRpc = false;
   state.linkRow = null;
+  state.linkFilters = {};
+  state.linkError = null;
+  state.linksError = null;
+  state.workspaceError = null;
 });
 
 describe("getPublicBioPage", () => {
@@ -171,8 +194,13 @@ describe("registerPageView", () => {
 
 describe("resolveAndTrackClick", () => {
   it("returns the stored URL by id, never a client-supplied one", async () => {
-    state.linkRow = { url: "https://exemplo.com/promo", is_active: true };
-    const target = await resolveAndTrackClick("link-1", {
+    state.linkRow = {
+      url: "https://exemplo.com/promo",
+      kind: "link",
+      is_active: true,
+      bio_pages: { is_published: true },
+    };
+    const target = await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {
       referrer: "https://instagram.com/someone",
       userAgent: "Mozilla/5.0 (iPhone)",
     });
@@ -180,8 +208,13 @@ describe("resolveAndTrackClick", () => {
   });
 
   it("stores only the referrer host and the device family, never raw values", async () => {
-    state.linkRow = { url: "https://exemplo.com", is_active: true };
-    await resolveAndTrackClick("link-1", {
+    state.linkRow = {
+      url: "https://exemplo.com",
+      kind: "link",
+      is_active: true,
+      bio_pages: { is_published: true },
+    };
+    await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {
       referrer: "https://instagram.com/someone?utm_source=x&email=cliente@x.com",
       userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)",
     });
@@ -195,25 +228,103 @@ describe("resolveAndTrackClick", () => {
   });
 
   it("refuses inactive links", async () => {
-    state.linkRow = { url: "https://exemplo.com", is_active: false };
-    expect(await resolveAndTrackClick("link-1", {})).toBeNull();
+    state.linkRow = {
+      url: "https://exemplo.com",
+      kind: "link",
+      is_active: false,
+      bio_pages: { is_published: true },
+    };
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBeNull();
     expect(state.rpcCalls).toHaveLength(0);
   });
 
   it("refuses unknown links", async () => {
     state.linkRow = null;
-    expect(await resolveAndTrackClick("link-1", {})).toBeNull();
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBeNull();
   });
 
   it("refuses non-http protocols even if they reached the database", async () => {
     // Defence in depth: the DB check constraint is not the last line of defence.
-    state.linkRow = { url: "javascript:alert(1)", is_active: true };
-    expect(await resolveAndTrackClick("link-1", {})).toBeNull();
+    state.linkRow = {
+      url: "javascript:alert(1)",
+      kind: "link",
+      is_active: true,
+      bio_pages: { is_published: true },
+    };
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBeNull();
+  });
+
+  it("never resolves a link from an unpublished page", async () => {
+    state.linkRow = {
+      url: "https://exemplo.com",
+      kind: "link",
+      is_active: true,
+      bio_pages: { is_published: false },
+    };
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBeNull();
+    expect(state.linkFilters["bio_pages.is_published"]).toBe(true);
+    expect(state.rpcCalls).toEqual([]);
+  });
+
+  it.each([
+    ["email", "mailto:qa@example.invalid"],
+    ["phone", "tel:+5543999990000"],
+  ])("resolves only a safe stored %s destination", async (kind, url) => {
+    state.linkRow = { url, kind, is_active: true, bio_pages: { is_published: true } };
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBe(url);
+    expect(state.rpcCalls).toHaveLength(1);
+  });
+
+  it("refuses a destination whose kind does not match", async () => {
+    state.linkRow = {
+      url: "mailto:qa@example.invalid",
+      kind: "link",
+      is_active: true,
+      bio_pages: { is_published: true },
+    };
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBeNull();
+  });
+
+  it("distinguishes a database error from a missing target", async () => {
+    state.linkError = { message: "database down" };
+    await expect(resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).rejects.toThrow(
+      "could not be loaded",
+    );
+  });
+
+  it("rejects malformed IDs before querying", async () => {
+    expect(await resolveAndTrackClick("not-a-uuid", {})).toBeNull();
+    expect(state.linkFilters).toEqual({});
   });
 
   it("still redirects when the click counter fails", async () => {
-    state.linkRow = { url: "https://exemplo.com", is_active: true };
+    state.linkRow = {
+      url: "https://exemplo.com",
+      kind: "link",
+      is_active: true,
+      bio_pages: { is_published: true },
+    };
     state.failRpc = true;
-    expect(await resolveAndTrackClick("link-1", {})).toBe("https://exemplo.com");
+    expect(await resolveAndTrackClick("10000000-0000-4000-8000-000000000001", {})).toBe(
+      "https://exemplo.com/",
+    );
   });
+});
+
+describe("public secondary read failures are unavailable, not an empty published page", () => {
+  it.each(["linksError", "workspaceError"] as const)(
+    "preserves %s as unavailable",
+    async (field) => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      state.pageRow = {
+        id: "page-1",
+        workspace_id: "ws-1",
+        slug: "minha-loja",
+        is_published: true,
+      };
+      state[field] = { message: "secondary query unavailable" };
+      expect(await loadBioPage("minha-loja")).toEqual({ status: "unavailable" });
+      log.mockRestore();
+    },
+  );
 });

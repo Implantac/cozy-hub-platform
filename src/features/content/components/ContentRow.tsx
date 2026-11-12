@@ -7,19 +7,29 @@ import { STATUS_STYLES, type ContentStatus } from "../constants";
 interface ContentRowProps {
   item: Content;
   selected: boolean;
+  disabled?: boolean;
   onToggle: () => void;
+  onEdit: () => void;
   onStatusChange: (status: ManualContentStatus) => void;
 }
 
-export function ContentRow({ item: c, selected, onToggle, onStatusChange }: ContentRowProps) {
+export function ContentRow({
+  item: c,
+  selected,
+  disabled = false,
+  onToggle,
+  onEdit,
+  onStatusChange,
+}: ContentRowProps) {
   const { t } = useTranslation();
   return (
     <div
-      className={`section-card hover-lift flex items-center gap-3 p-4 transition ${
+      className={`section-card hover-lift flex flex-wrap items-center gap-3 p-4 transition ${
         selected ? "border-primary ring-1 ring-primary/30" : ""
       }`}
     >
       <button
+        disabled={disabled || c.status === "scheduled" || c.status === "publishing"}
         onClick={onToggle}
         className="text-muted-foreground hover:text-foreground"
         aria-label={t(selected ? "content.unselect" : "content.select", {
@@ -43,7 +53,17 @@ export function ContentRow({ item: c, selected, onToggle, onStatusChange }: Cont
       >
         {t(`content.${c.status}`, { defaultValue: c.status })}
       </span>
+      <button
+        type="button"
+        disabled={disabled || c.status === "scheduled" || c.status === "publishing"}
+        onClick={onEdit}
+        aria-label={t("content.editItem", { title: c.title || t("content.untitled") })}
+        className="min-h-11 rounded-md border border-input px-3 py-2 text-xs disabled:opacity-50"
+      >
+        {t("content.edit")}
+      </button>
       <select
+        disabled={disabled || c.status === "scheduled" || c.status === "publishing"}
         aria-label={t("content.status", { title: c.title || t("content.untitled") })}
         value={c.status}
         onChange={(e) => onStatusChange(e.target.value as ManualContentStatus)}

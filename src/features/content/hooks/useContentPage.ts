@@ -1,4 +1,6 @@
+import { parseMediaInput } from "@/lib/content/media";
 import { type ManualContentStatus } from "@/lib/content/status";
+import { useWorkspaceAccess } from "@/lib/workspace/use-workspace-access";
 import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,6 +19,7 @@ import { STATUSES, type FilterValue } from "../constants";
 
 export function useContentPage() {
   const { t } = useTranslation();
+  const access = useWorkspaceAccess();
   const qc = useQueryClient();
   const list = useServerFn(listContent);
   const create = useServerFn(createContent);
@@ -29,12 +32,22 @@ export function useContentPage() {
     ({ workspaceId }) => list({ data: { workspaceId } }),
   );
   const invalidateKey = q.wsId ? ["content", q.wsId] : ["content"];
+  const relatedKeys = [
+    invalidateKey,
+    ...["scheduler-options", "scheduler", "analytics"].map((key) =>
+      q.wsId ? [key, q.wsId] : [key],
+    ),
+  ];
+  const invalidateViews = () =>
+    Promise.all(relatedKeys.map((queryKey) => qc.invalidateQueries({ queryKey })));
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [mediaInput, setMediaInput] = useState("");
   const [filter, setFilter] = useState<FilterValue>("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkPending, setBulkPending] = useState(false);
 
   // Memoized so downstream useMemo deps stay referentially stable across renders.
   const items = useMemo(() => q.data ?? [], [q.data]);
@@ -58,13 +71,14 @@ export function useContentPage() {
     return c;
   }, [items]);
 
-  const allVisibleSelected = filtered.length > 0 && filtered.every((c) => selected.has(c.id));
+  const selectable = filtered.filter((c) => c.status !== "scheduled" && c.status !== "publishing");
+  const allVisibleSelected = selectable.length > 0 && selectable.every((c) => selected.has(c.id));
 
   const toggleAll = () =>
     setSelected((prev) => {
       const next = new Set(prev);
-      if (allVisibleSelected) filtered.forEach((c) => next.delete(c.id));
-      else filtered.forEach((c) => next.add(c.id));
+      if (allVisibleSelected) selectable.forEach((c) => next.delete(c.id));
+      else selectable.forEach((c) => next.add(c.id));
       return next;
     });
 
@@ -77,45 +91,69 @@ export function useContentPage() {
     });
 
   const createMut = useWorkspaceMutation(
-    () => create({ data: { workspaceId: q.wsId!, title: title.trim(), body, type: "post" } }),
+    () =>
+      create({
+        data: {
+          workspaceId: q.wsId!,
+          title: title.trim(),
+          body,
+          type: "post",
+          mediaUrls: parseMediaInput(mediaInput),
+        },
+      }),
     {
-      invalidate: invalidateKey,
+      invalidate: relatedKeys,
       successMessage: t("content.created"),
       onSuccess: () => {
         setTitle("");
         setBody("");
+        setMediaInput("");
       },
     },
   );
 
   const changeStatus = (id: string, status: ManualContentStatus) => {
-    if (!q.wsId) return;
+    if (!q.wsId || !access.canEdit) return;
     updateStatus({ data: { id, status, workspaceId: q.wsId } })
-      .then(() => qc.invalidateQueries({ queryKey: invalidateKey }))
+      .then(() => invalidateViews())
       .catch((e: Error) => toast.error(e.message));
   };
 
   const runBulkStatus = (status: ManualContentStatus) => {
-    if (!q.wsId || selected.size === 0) return;
+    if (!q.wsId || !access.canEdit || bulkPending || selected.size === 0) return;
+    setBulkPending(true);
     bulkStatus({ data: { workspaceId: q.wsId, ids: [...selected], status } })
       .then((r) => {
-        toast.success(t("content.moved", { count: r.count, status: t(`content.${status}`) }));
+        if (r.missingCount)
+          toast.warning(t("content.partial", { count: r.count, missing: r.missingCount }));
+        else toast.success(t("content.moved", { count: r.count, status: t(`content.${status}`) }));
         setSelected(new Set());
-        qc.invalidateQueries({ queryKey: invalidateKey });
+        invalidateViews();
       })
-      .catch((e: Error) => toast.error(e.message));
+      .catch((e: Error) => {
+        toast.error(e.message);
+        void invalidateViews();
+      })
+      .finally(() => setBulkPending(false));
   };
 
   const runBulkDelete = () => {
-    if (!q.wsId || selected.size === 0) return;
+    if (!q.wsId || !access.canEdit || bulkPending || selected.size === 0) return;
     if (!confirm(t("content.confirmDelete", { count: selected.size }))) return;
+    setBulkPending(true);
     bulkDelete({ data: { workspaceId: q.wsId, ids: [...selected] } })
       .then((r) => {
-        toast.success(t("content.deleted", { count: r.count }));
+        if (r.missingCount)
+          toast.warning(t("content.partial", { count: r.count, missing: r.missingCount }));
+        else toast.success(t("content.deleted", { count: r.count }));
         setSelected(new Set());
-        qc.invalidateQueries({ queryKey: invalidateKey });
+        invalidateViews();
       })
-      .catch((e: Error) => toast.error(e.message));
+      .catch((e: Error) => {
+        toast.error(e.message);
+        void invalidateViews();
+      })
+      .finally(() => setBulkPending(false));
   };
 
   const clearFilters = () => {
@@ -124,6 +162,8 @@ export function useContentPage() {
   };
 
   return {
+    access,
+    bulkPending,
     q,
     items,
     filtered,
@@ -132,6 +172,8 @@ export function useContentPage() {
     setTitle,
     body,
     setBody,
+    mediaInput,
+    setMediaInput,
     filter,
     setFilter,
     search,

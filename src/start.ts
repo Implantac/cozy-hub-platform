@@ -1,7 +1,13 @@
 import { createStart, createMiddleware, createCsrfMiddleware } from "@tanstack/react-start";
 
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { checkedServerFnFetch } from "@/lib/query/errors";
 import { renderErrorPage } from "./lib/error-page";
+
+const reliableServerFnTransport = createMiddleware({ type: "function" }).client(
+  ({ next, fetch: fetchImpl }) =>
+    next({ fetch: checkedServerFnFetch(fetchImpl ?? globalThis.fetch) }),
+);
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -37,5 +43,5 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   requestMiddleware: [csrfMiddleware, errorMiddleware],
-  functionMiddleware: [attachSupabaseAuth],
+  functionMiddleware: [attachSupabaseAuth, reliableServerFnTransport],
 }));

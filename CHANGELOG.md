@@ -1,5 +1,29 @@
 # Changelog
 
+## [Integridade funcional — terceira rodada] — 2026-11-12
+
+### Fluxo real e persistência
+
+- Editor de título/texto/mídia por URL, agendamento futuro e cancelamento atômico. Conteúdo e canais com jobs ativos protegidos; cache relacionado e drafts isolados por workspace.
+- Erros HTTP não serializados, inclusive JSON vazio, deixam de poder resolver como sucesso vazio. Rejeições desconhecidas recebem mensagem não vazia; falhas preservam campos e não repetem automaticamente operações ambíguas.
+- UI aplica RBAC com owner/admin/editor/viewer; API/RLS revalidam permissões. Proteções Postgres para owner primário, plano, relações entre workspaces e estados de entrega.
+- Conclusão idempotente com referência externa obrigatória; resultado permanente ou referência upstream conhecida não gera republicação automática. Avisos de execução sem confirmação, sem alegar reconciliação durável implementada.
+
+### OAuth, publicadores, Bio e métricas
+
+- State assinado com TTL/cookie de navegador; callback com permissão revalidada, persistência atômica e erros sem refletir tokens. Desconexão remove ciphertext. Discovery ambíguo falha fechado; Graph Meta explícito, padrão v24.0.
+- Contratos conservadores LinkedIn/TikTok/Google Business: sem ID local inventado, inbox não é publicação, aceitação/processamento não é visibilidade. Validação e respostas de providers cobertas por mocks, não por homologação externa.
+- Contatos `mailto:`/`tel:`, append/reorder de Bio atômicos e página/redirect indisponíveis após despublicar.
+- Analytics/relatórios passam a usar a última coleta cumulativa por conteúdo × canal. Leituras paginadas, falha explícita em truncamento e metodologia/limites dos totais nos arquivos. Contraste corrigido nos rótulos de capacidade de publicação.
+
+### Validação e operação
+
+- Sete migrations aplicadas e versionadas; 116 checks Postgres/RLS aprovados com rollback no schema instalado.
+- Typecheck/lint/build Node 22/Vercel, 712 testes em 56 arquivos e auditoria de produção sem vulnerabilidades reportadas.
+- Artefato compilado local: 22 checks HTTP com Auth real e 31 de navegador, 16 análises Axe sem violações detectadas, larguras 320/360/390 px verificadas nos fluxos selecionados.
+- Dados e conexões explicitamente sintéticos, bloqueio de fetch externo no harness e limpeza confirmada. Owner/workspace reais preservados; nenhuma conexão/publicação social real. Publicação remota é evidência separada; CI/main-only preservados.
+- Consulte `docs/QA_FUNCIONAL_RODADA_3.md`. Homologação de provedores, reconciliação durável e liberação comercial continuam pendentes.
+
 ## [Portfólio — segunda rodada] — 2026-11-12
 
 ### Perfil e equipe

@@ -1,3 +1,5 @@
+import { WorkspaceAccessNotice } from "@/features/shell/components/WorkspaceAccessNotice";
+import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
 import { useState } from "react";
 import {
   ArrowDown,
@@ -42,6 +44,10 @@ import { BioPhonePreview } from "./BioPhonePreview";
 export function BioEditor() {
   const {
     q,
+    access,
+    dirty,
+    statsQ,
+    reorderMut,
     page,
     links,
     draft,
@@ -66,10 +72,18 @@ export function BioEditor() {
   const isPublished = page?.is_published ?? false;
   const publicUrl = page ? `/bio/${page.slug}` : null;
   const slugBlocked = Boolean(slugErrors) || slugState.available === false;
+  const editingDisabled =
+    !access.canEdit ||
+    saveMut.isPending ||
+    publishMut.isPending ||
+    addLinkMut.isPending ||
+    updateLinkMut.isPending ||
+    removeLinkMut.isPending ||
+    reorderMut.isPending;
 
   function submitLink(e: React.FormEvent) {
     e.preventDefault();
-    if (!newLabel.trim() || !newRaw.trim()) return;
+    if (editingDisabled || !newLabel.trim() || !newRaw.trim()) return;
     addLinkMut.mutate(
       { label: newLabel.trim(), kind: newKind, raw: newRaw.trim() },
       {
@@ -106,222 +120,245 @@ export function BioEditor() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="space-y-6">
-        {/* ---------------- Identification ---------------- */}
-        <SectionCard title="Endereço da página" icon={Globe} description="Um por workspace.">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="bio-slug">Link</Label>
-              <div className="flex items-center gap-2">
-                <span className="shrink-0 rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-                  /bio/
-                </span>
-                <Input
-                  id="bio-slug"
-                  value={draft.slug}
-                  placeholder="seu-negocio"
-                  maxLength={32}
-                  onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
-                  aria-invalid={slugBlocked}
+      <div className="min-w-0 space-y-6">
+        <WorkspaceAccessNotice access={access} />
+        <fieldset disabled={editingDisabled} className="min-w-0 space-y-6">
+          {/* ---------------- Identification ---------------- */}
+          <SectionCard title="Endereço da página" icon={Globe} description="Um por workspace.">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="bio-slug">Link</Label>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                    /bio/
+                  </span>
+                  <Input
+                    id="bio-slug"
+                    value={draft.slug}
+                    placeholder="seu-negocio"
+                    maxLength={32}
+                    onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
+                    aria-invalid={slugBlocked}
+                  />
+                </div>
+                <SlugFeedback
+                  raw={draft.slug}
+                  preview={slugPreview}
+                  error={slugErrors}
+                  state={slugState}
+                  currentSlug={page?.slug ?? null}
                 />
               </div>
-              <SlugFeedback
-                raw={draft.slug}
-                preview={slugPreview}
-                error={slugErrors}
-                state={slugState}
-                currentSlug={page?.slug ?? null}
-              />
-            </div>
 
-            {publicUrl && (
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => void copyLink()}
-                  className="gap-1.5"
-                >
-                  <Copy className="h-3.5 w-3.5" /> Copiar link
-                </Button>
-                {isPublished ? (
-                  <Button asChild variant="outline" size="sm" className="gap-1.5">
-                    <a href={publicUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-3.5 w-3.5" /> Abrir página
-                    </a>
+              {publicUrl && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void copyLink()}
+                    className="gap-1.5"
+                  >
+                    <Copy className="h-3.5 w-3.5" /> Copiar link
                   </Button>
-                ) : (
-                  <span className="text-xs text-muted-foreground">
-                    Publique para liberar o link público.
-                  </span>
+                  {isPublished ? (
+                    <Button asChild variant="outline" size="sm" className="gap-1.5">
+                      <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-3.5 w-3.5" /> Abrir página
+                      </a>
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      Publique para liberar o link público.
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
+          {/* ---------------- Content ---------------- */}
+          <SectionCard title="Conteúdo" icon={Eye}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="bio-headline">Título</Label>
+                <Input
+                  id="bio-headline"
+                  value={draft.headline}
+                  maxLength={80}
+                  placeholder="Ex.: Padaria Vila Nova"
+                  onChange={(e) => setDraft({ ...draft, headline: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">{draft.headline.length}/80</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio-text">Descrição</Label>
+                <textarea
+                  id="bio-text"
+                  value={draft.bio}
+                  maxLength={500}
+                  rows={3}
+                  placeholder="Uma frase que diz o que você faz e para quem."
+                  onChange={(e) => setDraft({ ...draft, bio: e.target.value })}
+                  className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+                <p className="text-xs text-muted-foreground">{draft.bio.length}/500</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio-avatar">URL da foto</Label>
+                <Input
+                  id="bio-avatar"
+                  value={draft.avatarUrl}
+                  placeholder="https://..."
+                  onChange={(e) => setDraft({ ...draft, avatarUrl: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio-theme">Tema</Label>
+                <Select
+                  value={draft.theme}
+                  onValueChange={(v) => setDraft({ ...draft, theme: v as typeof draft.theme })}
+                >
+                  <SelectTrigger id="bio-theme">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="aurora">Aurora (escuro)</SelectItem>
+                    <SelectItem value="minimal">Minimal (claro)</SelectItem>
+                    <SelectItem value="sunset">Sunset (quente)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <p role="status" className="text-xs text-muted-foreground">
+                {dirty
+                  ? "Alterações não salvas. Salve antes de publicar."
+                  : "Dados salvos no workspace."}
+              </p>
+              <div className="flex flex-wrap gap-2 border-t pt-4">
+                <Button
+                  onClick={() => saveMut.mutate()}
+                  disabled={
+                    editingDisabled || slugBlocked || !draft.slug || (Boolean(page) && !dirty)
+                  }
+                >
+                  {saveMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {page ? "Salvar alterações" : "Criar página"}
+                </Button>
+
+                {page && (
+                  <Button
+                    variant={isPublished ? "outline" : "default"}
+                    onClick={() => publishMut.mutate(!isPublished)}
+                    disabled={editingDisabled || dirty}
+                  >
+                    {publishMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isPublished ? "Despublicar" : "Publicar"}
+                  </Button>
+                )}
+
+                {page && (
+                  <Badge variant={isPublished ? "default" : "secondary"} className="self-center">
+                    {isPublished ? "No ar" : "Rascunho"}
+                  </Badge>
                 )}
               </div>
+            </div>
+          </SectionCard>
+
+          {/* ---------------- Links ---------------- */}
+          <SectionCard
+            title="Links"
+            description="Cada link passa por /bio/click para contar cliques."
+            icon={ExternalLink}
+          >
+            {!page ? (
+              <p className="text-sm text-muted-foreground">Crie a página para adicionar links.</p>
+            ) : (
+              <div className="space-y-4">
+                <ul className="space-y-2">
+                  {links.map((link, i) => (
+                    <LinkRow
+                      key={link.id}
+                      link={link}
+                      first={i === 0}
+                      last={i === links.length - 1}
+                      onMove={move}
+                      onToggle={(isActive) => updateLinkMut.mutate({ id: link.id, isActive })}
+                      onRemove={() => removeLinkMut.mutate(link.id)}
+                    />
+                  ))}
+                  {links.length === 0 && (
+                    <li className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
+                      Nenhum link ainda. Adicione o primeiro abaixo.
+                    </li>
+                  )}
+                </ul>
+
+                <form onSubmit={submitLink} className="space-y-3 rounded-lg border p-3">
+                  <div className="grid gap-2 sm:grid-cols-[110px_1fr]">
+                    <Select value={newKind} onValueChange={(v) => setNewKind(v as LinkKind)}>
+                      <SelectTrigger aria-label="Tipo de link">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LINK_KINDS.map((k) => (
+                          <SelectItem key={k.value} value={k.value}>
+                            {k.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      aria-label="Rótulo do link"
+                      value={newLabel}
+                      onChange={(e) => setNewLabel(e.target.value)}
+                      placeholder="Rótulo (ex.: Fale no WhatsApp)"
+                      maxLength={60}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      aria-label="Destino do link"
+                      value={newRaw}
+                      onChange={(e) => setNewRaw(e.target.value)}
+                      placeholder={kindPlaceholder(newKind)}
+                    />
+                    <Button
+                      type="submit"
+                      aria-label="Adicionar link"
+                      disabled={
+                        editingDisabled ||
+                        addLinkMut.isPending ||
+                        !newLabel.trim() ||
+                        !newRaw.trim()
+                      }
+                    >
+                      {addLinkMut.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{kindHint(newKind)}</p>
+                </form>
+              </div>
             )}
-          </div>
-        </SectionCard>
-
-        {/* ---------------- Content ---------------- */}
-        <SectionCard title="Conteúdo" icon={Eye}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="bio-headline">Título</Label>
-              <Input
-                id="bio-headline"
-                value={draft.headline}
-                maxLength={80}
-                placeholder="Ex.: Padaria Vila Nova"
-                onChange={(e) => setDraft({ ...draft, headline: e.target.value })}
-              />
-              <p className="text-xs text-muted-foreground">{draft.headline.length}/80</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio-text">Descrição</Label>
-              <textarea
-                id="bio-text"
-                value={draft.bio}
-                maxLength={500}
-                rows={3}
-                placeholder="Uma frase que diz o que você faz e para quem."
-                onChange={(e) => setDraft({ ...draft, bio: e.target.value })}
-                className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-              <p className="text-xs text-muted-foreground">{draft.bio.length}/500</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio-avatar">URL da foto</Label>
-              <Input
-                id="bio-avatar"
-                value={draft.avatarUrl}
-                placeholder="https://..."
-                onChange={(e) => setDraft({ ...draft, avatarUrl: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Tema</Label>
-              <Select
-                value={draft.theme}
-                onValueChange={(v) => setDraft({ ...draft, theme: v as typeof draft.theme })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="aurora">Aurora (escuro)</SelectItem>
-                  <SelectItem value="minimal">Minimal (claro)</SelectItem>
-                  <SelectItem value="sunset">Sunset (quente)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-wrap gap-2 border-t pt-4">
-              <Button
-                onClick={() => saveMut.mutate()}
-                disabled={saveMut.isPending || slugBlocked || !draft.slug}
-              >
-                {saveMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {page ? "Salvar alterações" : "Criar página"}
-              </Button>
-
-              {page && (
-                <Button
-                  variant={isPublished ? "outline" : "default"}
-                  onClick={() => publishMut.mutate(!isPublished)}
-                  disabled={publishMut.isPending}
-                >
-                  {publishMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isPublished ? "Despublicar" : "Publicar"}
-                </Button>
-              )}
-
-              {page && (
-                <Badge variant={isPublished ? "default" : "secondary"} className="self-center">
-                  {isPublished ? "No ar" : "Rascunho"}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </SectionCard>
-
-        {/* ---------------- Links ---------------- */}
-        <SectionCard
-          title="Links"
-          description="Cada link passa por /bio/click para contar cliques."
-          icon={ExternalLink}
-        >
-          {!page ? (
-            <p className="text-sm text-muted-foreground">Crie a página para adicionar links.</p>
-          ) : (
-            <div className="space-y-4">
-              <ul className="space-y-2">
-                {links.map((link, i) => (
-                  <LinkRow
-                    key={link.id}
-                    link={link}
-                    first={i === 0}
-                    last={i === links.length - 1}
-                    onMove={move}
-                    onToggle={(isActive) => updateLinkMut.mutate({ id: link.id, isActive })}
-                    onRemove={() => removeLinkMut.mutate(link.id)}
-                  />
-                ))}
-                {links.length === 0 && (
-                  <li className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-                    Nenhum link ainda. Adicione o primeiro abaixo.
-                  </li>
-                )}
-              </ul>
-
-              <form onSubmit={submitLink} className="space-y-3 rounded-lg border p-3">
-                <div className="grid gap-2 sm:grid-cols-[110px_1fr]">
-                  <Select value={newKind} onValueChange={(v) => setNewKind(v as LinkKind)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LINK_KINDS.map((k) => (
-                        <SelectItem key={k.value} value={k.value}>
-                          {k.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    value={newLabel}
-                    onChange={(e) => setNewLabel(e.target.value)}
-                    placeholder="Rótulo (ex.: Fale no WhatsApp)"
-                    maxLength={60}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    value={newRaw}
-                    onChange={(e) => setNewRaw(e.target.value)}
-                    placeholder={kindPlaceholder(newKind)}
-                  />
-                  <Button
-                    type="submit"
-                    disabled={addLinkMut.isPending || !newLabel.trim() || !newRaw.trim()}
-                  >
-                    {addLinkMut.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">{kindHint(newKind)}</p>
-              </form>
-            </div>
-          )}
-        </SectionCard>
-
+          </SectionCard>
+        </fieldset>
         {/* ---------------- Stats ---------------- */}
+        {statsQ.isError && (
+          <QueryErrorState onRetry={() => void statsQ.refetch()} pending={statsQ.isFetching} />
+        )}
         {stats?.page && (
-          <SectionCard title="Últimos 30 dias" description="Sem cookies, sem dado pessoal.">
+          <SectionCard
+            title="Totais da página"
+            description="Contadores acumulados desde a criação, não apenas dos últimos 30 dias."
+          >
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <StatBox label="Visitas" value={stats.page.view_count} />
               <StatBox
@@ -402,7 +439,7 @@ function SlugFeedback({
   return (
     <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
       <Check className="h-3 w-3 text-emerald-500" />
-      velt.app/bio/<span className="font-medium text-foreground">{preview}</span>
+      /bio/<span className="font-medium text-foreground">{preview}</span>
       {isCurrent && <span className="ml-1">(atual)</span>}
     </p>
   );
@@ -431,7 +468,7 @@ function LinkRow({
           onClick={() => onMove(link.id, -1)}
           disabled={first}
           className="text-muted-foreground transition hover:text-foreground disabled:opacity-30"
-          aria-label="Mover para cima"
+          aria-label={`Mover ${link.label} para cima`}
         >
           <ArrowUp className="h-3.5 w-3.5" />
         </button>
@@ -440,7 +477,7 @@ function LinkRow({
           onClick={() => onMove(link.id, 1)}
           disabled={last}
           className="text-muted-foreground transition hover:text-foreground disabled:opacity-30"
-          aria-label="Mover para baixo"
+          aria-label={`Mover ${link.label} para baixo`}
         >
           <ArrowDown className="h-3.5 w-3.5" />
         </button>
@@ -474,6 +511,7 @@ function LinkRow({
         size="icon"
         className="h-7 w-7 shrink-0"
         onClick={() => onToggle(!link.is_active)}
+        aria-label={`${link.is_active ? "Ocultar" : "Mostrar"} ${link.label}`}
         title={link.is_active ? "Ocultar da página" : "Mostrar na página"}
       >
         <Eye className={link.is_active ? "h-3.5 w-3.5" : "h-3.5 w-3.5 opacity-40"} />
@@ -485,6 +523,7 @@ function LinkRow({
         size="icon"
         className="h-7 w-7 shrink-0 text-destructive hover:text-destructive"
         onClick={onRemove}
+        aria-label={`Remover ${link.label}`}
         title="Remover"
       >
         <Trash2 className="h-3.5 w-3.5" />

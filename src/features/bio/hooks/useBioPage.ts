@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWorkspaceAccess } from "@/lib/workspace/use-workspace-access";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -55,6 +57,8 @@ export interface BioDraft {
 const EMPTY: BioDraft = { slug: "", headline: "", bio: "", avatarUrl: "", theme: "aurora" };
 
 export function useBioPage() {
+  const access = useWorkspaceAccess();
+  const qc = useQueryClient();
   const fetchPage = useServerFn(getBioPage);
   const savePage = useServerFn(upsertBioPage);
   const publish = useServerFn(setBioPagePublished);
@@ -76,25 +80,24 @@ export function useBioPage() {
   // callback that depends on `links` re-create itself and defeat memoisation.
   const links = useMemo(() => q.data?.links ?? [], [q.data]);
 
-  const [draft, setDraft] = useState<BioDraft>(EMPTY);
+  // Local edits take precedence over refetches. The route keys this form by workspace.
+  const [localDraft, setDraft] = useState<BioDraft | null>(null);
+  const savedDraft: BioDraft = page
+    ? {
+        slug: page.slug,
+        headline: page.headline ?? "",
+        bio: page.bio ?? "",
+        avatarUrl: page.avatar_url ?? "",
+        theme: (page.theme as BioDraft["theme"]) ?? "aurora",
+      }
+    : EMPTY;
+  const draft = localDraft ?? savedDraft;
+  const dirty = JSON.stringify(draft) !== JSON.stringify(savedDraft);
   const [slugState, setSlugState] = useState<{
     checking: boolean;
     available: boolean | null;
     message: string | null;
   }>({ checking: false, available: null, message: null });
-
-  // Hydrate the form once the row arrives, and re-hydrate after a save returns a
-  // normalised slug (the server lowercases and strips accents).
-  useEffect(() => {
-    if (!page) return;
-    setDraft({
-      slug: page.slug,
-      headline: page.headline ?? "",
-      bio: page.bio ?? "",
-      avatarUrl: page.avatar_url ?? "",
-      theme: (page.theme as BioDraft["theme"]) ?? "aurora",
-    });
-  }, [page]);
 
   // Always fetched: the server short-circuits and returns empty series when the
   // workspace has no page yet, so there is nothing to save by skipping it.
@@ -112,8 +115,8 @@ export function useBioPage() {
 
   /** Debounced availability check — one request per pause, not per keystroke. */
   const verifySlug = useCallback(
-    async (raw: string) => {
-      if (!raw) return;
+    async (raw: string, signal: AbortSignal) => {
+      if (!raw || signal.aborted) return;
       const v = validateSlug(raw);
       if (!v.ok) {
         // `error` is optional on the failure branch of the union.
@@ -128,12 +131,14 @@ export function useBioPage() {
       setSlugState({ checking: true, available: null, message: null });
       try {
         const res = await checkSlug({ data: { slug: raw } });
+        if (signal.aborted) return;
         setSlugState({
           checking: false,
           available: res.available,
           message: res.available ? null : (res.error ?? "Indisponível."),
         });
       } catch {
+        if (signal.aborted) return;
         setSlugState({ checking: false, available: null, message: "Não foi possível verificar." });
       }
     },
@@ -141,10 +146,15 @@ export function useBioPage() {
   );
 
   useEffect(() => {
-    if (!draft.slug || draft.slug.length < 3) return;
-    const t = setTimeout(() => void verifySlug(draft.slug), 450);
-    return () => clearTimeout(t);
-  }, [draft.slug, verifySlug]);
+    setSlugState({ checking: false, available: null, message: null });
+    if (!draft.slug || draft.slug.length < 3 || !access.canEdit) return;
+    const controller = new AbortController();
+    const t = setTimeout(() => void verifySlug(draft.slug, controller.signal), 450);
+    return () => {
+      clearTimeout(t);
+      controller.abort();
+    };
+  }, [draft.slug, verifySlug, access.canEdit]);
 
   const saveMut = useWorkspaceMutation(
     () =>
@@ -158,7 +168,20 @@ export function useBioPage() {
           theme: draft.theme,
         },
       }),
-    { invalidate, successMessage: "Página salva" },
+    {
+      invalidate,
+      successMessage: "Página salva",
+      onSuccess: (row) => {
+        qc.setQueryData<{ page: BioPageRow | null; links: BioLinkRow[] }>(
+          invalidate,
+          (previous) => ({
+            page: row,
+            links: previous?.links ?? [],
+          }),
+        );
+        setDraft(null);
+      },
+    },
   );
 
   const publishMut = useWorkspaceMutation(
@@ -217,6 +240,9 @@ export function useBioPage() {
   }, [page]);
 
   return {
+    access,
+    dirty,
+    statsQ,
     q,
     page,
     links,

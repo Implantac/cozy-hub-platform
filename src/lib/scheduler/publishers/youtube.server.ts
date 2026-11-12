@@ -110,7 +110,7 @@ export async function publishYouTube(input: PublishInput): Promise<PublishResult
   if (!upload.ok || !json.id) {
     throw new PublisherError(
       `Falha no upload para o YouTube (${upload.status}): ${text.slice(0, 300)}`,
-      { retryable: upload.status >= 500 },
+      { retryable: false },
     );
   }
 

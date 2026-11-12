@@ -1,3 +1,4 @@
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Link2 } from "lucide-react";
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_authenticated/app/bio")({
 });
 
 function BioPageRoute() {
+  const [workspaceId] = useCurrentWorkspaceId();
   return (
     <PageTransition>
       <div className="space-y-6">
@@ -22,7 +24,7 @@ function BioPageRoute() {
         {/* Loading and error states live inside the editor: it owns the query, and
             mounting the form before the row arrives would hydrate it with empty
             strings and swallow the first keystrokes. */}
-        <BioEditor />
+        <BioEditor key={workspaceId ?? "no-workspace"} />
       </div>
     </PageTransition>
   );

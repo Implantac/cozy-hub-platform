@@ -18,6 +18,22 @@ O estado atual e as pendências para clientes estão em [PORTFOLIO_E_CLIENTES.md
 
 A confirmação de sincronização, CI remoto e deploy pertence ao relatório operacional da entrega, não é deduzida dos testes locais. Nenhum gate de CI foi adicionado; a integração Git automática anterior foi preservada. Método, recuperação de falhas e limites estão em [QA_PORTFOLIO_RODADA_2.md](./docs/QA_PORTFOLIO_RODADA_2.md).
 
+### Terceira rodada: integridade funcional
+
+- [x] Criar/editar conteúdo real com texto e referências HTTPS de mídia, preservar formulário em falha e invalidar opções de agendamento relacionadas.
+- [x] Agendar/cancelar atomicamente, proteger conteúdo/canais com publicação ativa e aplicar escopo de workspace na execução manual da fila.
+- [x] Proteger owner, billing, relações entre workspaces e estados de entrega no Postgres/RLS; outcomes idempotentes e sem republicação automática de referência upstream conhecida.
+- [x] Fortalecer state/callback OAuth, persistência atômica de canal/token e remoção do ciphertext ao desconectar; sem conexão externa nos testes.
+- [x] Corrigir contatos/ordenação Bio e métricas pela última coleta cumulativa por conteúdo × canal, com relatórios paginados e metodologia explícita.
+- [x] Corrigir mensagens vazias/rejeições desconhecidas e erros HTTP JSON que poderiam parecer sucesso; corrigir contraste reproduzido dos rótulos de capacidade.
+- [x] Sete migrations aplicadas no Supabase exclusivo, 116 checks SQL reais com rollback aprovados e dados reais preservados.
+- [x] Typecheck/lint/build Vercel, 712 testes em 56 arquivos e auditoria de produção com zero vulnerabilidades reportadas.
+- [x] Build compilado: 22 checks HTTP autenticados e 31 de navegador; 16 análises Axe sem violações detectadas nos estados selecionados; limpeza das fixtures confirmada.
+- [ ] Homologar OAuth/publicação/visibilidade/coleta com contas externas de teste e autorização específica; não usar fixtures como substituto.
+- [ ] Implementar e homologar reconciliação durável de `processing` expirado/resultado ambíguo antes de liberação comercial.
+
+Método, escopo e limites em [QA_FUNCIONAL_RODADA_3.md](./docs/QA_FUNCIONAL_RODADA_3.md). CI permanece paralelo ao deploy, sem gate novo; SHA/CI/deploy/smoke remotos são registrados separadamente. “100% funcional” permanece requisito de aceitação, não conclusão presumida.
+
 ---
 
 **Atualizado:** 11/11/2026

@@ -16,14 +16,14 @@
  * dispatcher talks to the real APIs.
  */
 
-import { precheckMedia } from "./media";
+import { composeCaption, detectMediaKind, precheckMedia } from "./media";
 import { PublisherError, type Platform, type PublishInput, type PublishResult } from "./contracts";
 import { PLATFORM_RULES, rulesFor } from "@/lib/growth/platform-rules";
 import { publishFacebook, publishInstagram } from "./publishers/meta.server";
 import { publishYouTube } from "./publishers/youtube.server";
 import { publishLinkedIn } from "./publishers/linkedin.server";
 import { publishTikTok } from "./publishers/tiktok.server";
-import { publishGoogleBusiness } from "./publishers/google-business.server";
+import { publishGoogleBusiness, googleBusinessPostBody } from "./publishers/google-business.server";
 
 export type { Platform, PublishInput, PublishResult };
 export { PublisherError };
@@ -76,7 +76,7 @@ function simulatedMode(): boolean {
  * network round-trip. Failures here are non-retryable: retrying an oversized
  * caption or a missing video will never succeed.
  */
-function preflightOrThrow(input: PublishInput): void {
+export function preflightOrThrow(input: PublishInput): void {
   const rules = rulesFor(input.platform);
   if (!rules) {
     throw new PublisherError(`Plataforma sem regras registradas: ${input.platform}`, {
@@ -84,7 +84,41 @@ function preflightOrThrow(input: PublishInput): void {
     });
   }
 
-  const body = `${input.payload.title ?? ""}\n${input.payload.body ?? ""}`.trim();
+  if (input.platform === "google_business") googleBusinessPostBody(input);
+  if (input.platform === "tiktok" && input.channelConfig.posting_mode === "inbox")
+    throw new PublisherError(
+      "TikTok no modo caixa de entrada não é publicação. Configure Direct Post.",
+      { retryable: false },
+    );
+  const body = composeCaption(input.payload.title, input.payload.body);
+  if (!body) throw new PublisherError("Inclua texto na publicação.", { retryable: false });
+  if (
+    rules.titleLimit &&
+    (!input.payload.title?.trim() || input.payload.title.trim().length > rules.titleLimit)
+  )
+    throw new PublisherError(
+      `O título do ${rules.label} deve ter de 1 a ${rules.titleLimit} caracteres.`,
+      { retryable: false },
+    );
+  const urls = input.payload.media_urls ?? [];
+  // Saving a media library is allowed, silently dropping attachments at delivery is not.
+  if (urls.length > 1)
+    throw new PublisherError(
+      "Este fluxo publica um anexo por vez. Crie conteúdos separados; carrossel não está implementado.",
+      { retryable: false },
+    );
+  if (
+    ["youtube", "tiktok"].includes(input.platform) &&
+    urls.some((url) => detectMediaKind(url) !== "video")
+  )
+    throw new PublisherError(`${rules.label} exige um arquivo de vídeo suportado.`, {
+      retryable: false,
+    });
+  if (input.platform === "linkedin" && urls.some((url) => detectMediaKind(url) === "video"))
+    throw new PublisherError(
+      "Upload de vídeo do LinkedIn não está implementado. Use uma imagem ou texto.",
+      { retryable: false },
+    );
   if (body.length > rules.captionLimit) {
     throw new PublisherError(
       `Legenda com ${body.length} caracteres excede o limite de ${rules.captionLimit} do ${rules.label}. ` +
@@ -97,7 +131,7 @@ function preflightOrThrow(input: PublishInput): void {
   const media = precheckMedia(input.payload.media_urls ?? [], {
     requiresMedia: rules.requiresMedia,
     acceptVideo: acceptsVideo,
-    maxItems: 20,
+    maxItems: 1,
   });
 
   if (!media.ok) {
@@ -110,7 +144,13 @@ function preflightOrThrow(input: PublishInput): void {
 export async function publishToPlatform(input: PublishInput): Promise<PublishResult> {
   preflightOrThrow(input);
 
-  if (simulatedMode()) return simulatePublish(input);
+  if (simulatedMode()) {
+    if (process.env.NODE_ENV === "production")
+      throw new PublisherError("Simulação de publicação não é permitida em produção.", {
+        retryable: false,
+      });
+    return simulatePublish(input);
+  }
 
   const fn = REGISTRY[input.platform];
   if (!fn) {
@@ -123,21 +163,41 @@ export async function publishToPlatform(input: PublishInput): Promise<PublishRes
   }
 
   try {
-    return await fn(input);
+    const result = await fn(input);
+    if (
+      !result ||
+      typeof result.externalPostId !== "string" ||
+      !result.externalPostId.trim() ||
+      result.externalPostId.startsWith("sim_")
+    )
+      throw new PublisherError(
+        "O provedor não retornou um identificador de publicação confirmado. Verifique o resultado no provedor antes de tentar novamente.",
+        { retryable: false },
+      );
+    return result;
   } catch (err) {
     // Normalise provider-specific error shapes into the retry contract so the
     // dispatcher's DLQ decision stays correct across all providers.
-    if (err instanceof PublisherError) throw err;
-    const candidate = err as { retryable?: boolean; message?: string };
-    throw new PublisherError(candidate?.message ?? String(err), {
-      retryable: candidate?.retryable ?? true,
+    let message = err instanceof Error ? err.message : String(err);
+    for (const key of ["access_token", "page_access_token", "pageAccessToken"]) {
+      const secret = input.channelConfig[key];
+      if (typeof secret === "string" && secret) {
+        message = message
+          .replaceAll(secret, "[redacted]")
+          .replaceAll(encodeURIComponent(secret), "[redacted]");
+      }
+    }
+    const candidate = err as { retryable?: boolean; externalPostId?: string };
+    throw new PublisherError(message, {
+      retryable: candidate?.retryable ?? false,
+      externalPostId: candidate?.externalPostId,
     });
   }
 }
 
 /**
- * Health check used by ops: which platforms are genuinely wired end-to-end,
- * including whether their OAuth credentials are present in the environment.
+ * Configuration inventory only. This does not verify token validity,
+ * provider app approval, publication permissions or external homologation.
  */
 export function publisherCapabilities(): Array<{
   platform: Platform;
@@ -158,6 +218,8 @@ export function publisherCapabilities(): Array<{
   return (Object.keys(PLATFORM_RULES) as Platform[]).map((platform) => {
     const needed = envByPlatform[platform] ?? [];
     const missingEnv = needed.filter((k) => !process.env[k]);
+    if (platform === "tiktok" && process.env.TIKTOK_DIRECT_POST !== "true")
+      missingEnv.push("TIKTOK_DIRECT_POST=true");
     return {
       platform,
       implemented: isPublishingImplemented(platform),

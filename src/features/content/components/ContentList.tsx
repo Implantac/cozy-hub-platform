@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ContentEditorDialog } from "./ContentEditorDialog";
 import { type ManualContentStatus } from "@/lib/content/status";
 import { useTranslation } from "react-i18next";
 import { CheckSquare, Square } from "lucide-react";
@@ -10,6 +12,7 @@ type Props = {
   items: Content[];
   filtered: Content[];
   isLoading: boolean;
+  disabled?: boolean;
   selected: Set<string>;
   allVisibleSelected: boolean;
   onToggleAll: () => void;
@@ -22,6 +25,7 @@ export function ContentList({
   items,
   filtered,
   isLoading,
+  disabled = false,
   selected,
   allVisibleSelected,
   onToggleAll,
@@ -30,10 +34,15 @@ export function ContentList({
   onClearFilters,
 }: Props) {
   const { t } = useTranslation();
+  const [editing, setEditing] = useState<Content | null>(null);
   return (
     <div className="space-y-2">
+      {editing && !disabled && (
+        <ContentEditorDialog key={editing.id} item={editing} onClose={() => setEditing(null)} />
+      )}
       {filtered.length > 0 && (
         <button
+          disabled={disabled}
           onClick={onToggleAll}
           className="inline-flex items-center gap-2 px-1 text-xs text-muted-foreground hover:text-foreground"
         >
@@ -45,8 +54,10 @@ export function ContentList({
         <ContentRow
           key={c.id}
           item={c}
+          disabled={disabled}
           selected={selected.has(c.id)}
           onToggle={() => onToggleOne(c.id)}
+          onEdit={() => setEditing(c)}
           onStatusChange={(status) => onStatusChange(c.id, status)}
         />
       ))}

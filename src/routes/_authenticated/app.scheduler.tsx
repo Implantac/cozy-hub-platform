@@ -1,3 +1,8 @@
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { ScheduleComposer } from "@/features/scheduler/components/ScheduleComposer";
+import { useWorkspaceAccess } from "@/lib/workspace/use-workspace-access";
+import { WorkspaceAccessNotice } from "@/features/shell/components/WorkspaceAccessNotice";
+import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
 import { modulePageHead } from "@/lib/page-head";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -11,7 +16,7 @@ import { PageTransition } from "@/components/app/Motion";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import {
   cancelSchedulerJob,
-  listSchedulerJobs,
+  getSchedulerOverview,
   runSchedulerTickManual,
 } from "@/lib/api/scheduler.functions";
 import type { SchedulerJob } from "@/lib/api/_types";
@@ -27,27 +32,38 @@ export const Route = createFileRoute("/_authenticated/app/scheduler")({
 });
 
 function SchedulerPage() {
+  const [workspaceId] = useCurrentWorkspaceId();
+  return <SchedulerPageWorkspace key={workspaceId ?? "no-workspace"} />;
+}
+
+function SchedulerPageWorkspace() {
   const { t } = useTranslation();
-  const list = useServerFn(listSchedulerJobs);
+  const access = useWorkspaceAccess();
+  const list = useServerFn(getSchedulerOverview);
   const cancel = useServerFn(cancelSchedulerJob);
   const tick = useServerFn(runSchedulerTickManual);
 
   const [filter, setFilter] = useState<(typeof STATUSES)[number]>("all");
 
   const q = useWorkspaceQuery<SchedulerJob[]>(
-    (wsId) => ["scheduler", wsId, filter],
+    (wsId) => ["scheduler", wsId],
     async ({ workspaceId }) => {
       const rows = await list({
         data: {
           workspaceId,
-          status: filter === "all" ? undefined : filter,
-          limit: 100,
         },
       });
       return rows as unknown as SchedulerJob[];
     },
   );
-  const invalidateKey = q.wsId ? ["scheduler", q.wsId, filter] : ["scheduler"];
+  const invalidateKey = q.wsId
+    ? [
+        ["scheduler", q.wsId],
+        ["content", q.wsId],
+        ["scheduler-options", q.wsId],
+      ]
+    : ["scheduler"];
+  const visibleJobs = (q.data ?? []).filter((job) => filter === "all" || job.status === filter);
 
   const cancelMut = useWorkspaceMutation(
     (jobId: string) => cancel({ data: { workspaceId: q.wsId!, jobId } }),
@@ -57,7 +73,7 @@ function SchedulerPage() {
   const tickMut = useWorkspaceMutation(() => tick({ data: { workspaceId: q.wsId!, limit: 10 } }), {
     invalidate: invalidateKey,
     successMessage: (r) =>
-      t("scheduler.ran", { count: (r as { processed?: number }).processed ?? 0 }),
+      t("scheduler.ran", { count: r.claimed, succeeded: r.succeeded, failed: r.failed }),
   });
 
   const counts = (q.data ?? []).reduce<Record<string, number>>((acc, j) => {
@@ -75,6 +91,9 @@ function SchedulerPage() {
         />
 
         <PublishCapabilityStrip />
+        <WorkspaceAccessNotice access={access} />
+        <p className="text-xs text-muted-foreground">{t("access.queueHelp")}</p>
+        <ScheduleComposer canEdit={access.canEdit} />
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
           <div className="space-y-3">
@@ -84,16 +103,18 @@ function SchedulerPage() {
               counts={counts}
               total={q.data?.length ?? 0}
               onTick={() => tickMut.mutate()}
-              tickDisabled={!q.wsId || tickMut.isPending}
+              tickDisabled={!access.canManage || !q.wsId || tickMut.isPending}
               tickPending={tickMut.isPending}
             />
           </div>
           <BestTimeCard platform="instagram" />
         </div>
 
-        {q.isLoading ? (
+        {q.isError ? (
+          <QueryErrorState onRetry={() => void q.refetch()} pending={q.isFetching} />
+        ) : q.isLoading ? (
           <ListSkeleton rows={4} />
-        ) : q.data?.length === 0 ? (
+        ) : visibleJobs.length === 0 ? (
           <EmptyState
             variant="card"
             icon={Calendar}
@@ -110,9 +131,9 @@ function SchedulerPage() {
           />
         ) : (
           <SchedulerTable
-            jobs={q.data ?? []}
+            jobs={visibleJobs}
             onCancel={(id) => cancelMut.mutate(id)}
-            cancelPending={cancelMut.isPending}
+            cancelPending={!access.canEdit || cancelMut.isPending}
           />
         )}
       </div>

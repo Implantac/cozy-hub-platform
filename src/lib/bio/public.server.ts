@@ -13,7 +13,7 @@
  */
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { deviceFromUserAgent, referrerHostOnly } from "./validate";
+import { deviceFromUserAgent, referrerHostOnly, safeStoredBioTarget } from "./validate";
 
 /**
  * The service-role client is generated and always constructs a Realtime client,
@@ -96,7 +96,7 @@ async function readPublicPage(
 
   if (error || !page) return { page: null, error: error ? { message: error.message } : null };
 
-  const [{ data: links }, { data: workspace }] = await Promise.all([
+  const [linksResult, workspaceResult] = await Promise.all([
     supabaseAdmin
       .from("bio_links")
       .select("id, label, url, kind, icon")
@@ -106,6 +106,10 @@ async function readPublicPage(
     supabaseAdmin.from("workspaces").select("name").eq("id", page.workspace_id).maybeSingle(),
   ]);
 
+  const readError = linksResult.error ?? workspaceResult.error;
+  if (readError) return { page: null, error: { message: readError.message } };
+  const links = linksResult.data;
+  const workspace = workspaceResult.data;
   return {
     error: null,
     page: {
@@ -148,16 +152,17 @@ export async function resolveAndTrackClick(
   linkId: string,
   meta: { referrer?: string | null; userAgent?: string | null },
 ): Promise<string | null> {
-  const { data: link } = await supabaseAdmin
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(linkId)) return null;
+  const { data: link, error } = await supabaseAdmin
     .from("bio_links")
-    .select("url, is_active")
+    .select("url, kind, is_active, bio_pages!inner(is_published)")
     .eq("id", linkId)
+    .eq("bio_pages.is_published", true)
     .maybeSingle();
-
-  if (!link || !link.is_active) return null;
-  // Defence in depth: even if a bad URL reached the DB before validation was
-  // added, never redirect to a non-http protocol.
-  if (!/^https?:\/\//i.test(link.url)) return null;
+  if (error) throw new Error("Bio click target could not be loaded");
+  if (!link || !link.is_active || !link.bio_pages?.is_published) return null;
+  const target = safeStoredBioTarget(link.kind, link.url);
+  if (!target) return null;
 
   try {
     // The generated types declare these args as `string | undefined`, not
@@ -177,7 +182,7 @@ export async function resolveAndTrackClick(
     /* tracking must never break the redirect */
   }
 
-  return link.url;
+  return target;
 }
 
 /** Re-exported so server callers keep one import site; the data itself lives in

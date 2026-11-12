@@ -43,3 +43,22 @@ export function unwrap<T>(result: SupabaseLikeResult<T>): NonNullable<T> {
   if (result.data == null) throw new Error("Supabase returned no data");
   return result.data as NonNullable<T>;
 }
+
+/** Count only confirmed database rows, never the submitted list (which may be stale). */
+export function confirmMutationRows(
+  result: SupabaseLikeResult<Array<{ id: string }> | null>,
+  requestedIds: readonly string[],
+) {
+  throwIfError(result.error);
+  if (!result.data) throw new Error("Não foi possível confirmar a alteração dos conteúdos.");
+  const ids = [...new Set(result.data.map((row) => row.id))];
+  if (ids.length === 0) {
+    throw new Error("Nenhum conteúdo foi alterado. Atualize a lista e confira suas permissões.");
+  }
+  return {
+    ok: true,
+    count: ids.length,
+    ids,
+    missingCount: Math.max(0, new Set(requestedIds).size - ids.length),
+  };
+}

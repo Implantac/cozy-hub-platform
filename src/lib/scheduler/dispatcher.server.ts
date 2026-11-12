@@ -43,7 +43,7 @@ async function loadContext(job: SchedulerJobRow) {
       .single(),
     supabaseAdmin
       .from("channels")
-      .select("id, workspace_id, platform, metadata, external_id")
+      .select("id, workspace_id, platform, metadata, external_id, status")
       .eq("id", job.channel_id)
       .single(),
   ]);
@@ -58,6 +58,16 @@ async function loadContext(job: SchedulerJobRow) {
       retryable: false,
     });
   }
+  if (content.workspace_id !== job.workspace_id || channel.workspace_id !== job.workspace_id) {
+    throw new PublisherError("content/channel workspace does not match the job", {
+      retryable: false,
+    });
+  }
+  if (channel.status !== "connected") {
+    throw new PublisherError("channel is not connected; reconnect before publishing", {
+      retryable: false,
+    });
+  }
   return { content, channel };
 }
 
@@ -69,6 +79,7 @@ function extractMediaUrls(media: unknown): string[] {
 }
 
 async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"][number]> {
+  let externalPostId: string | undefined;
   try {
     const { content, channel } = await loadContext(job);
     const platform = channel.platform as Platform;
@@ -82,13 +93,9 @@ async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"]
       accessToken = fresh.accessToken;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      // Channels created manually (no OAuth) have no token; let the publisher
-      // decide whether that is fatal for its platform.
-      if (!/sem token OAuth/i.test(msg)) {
-        throw new PublisherError(`token refresh falhou: ${msg}`, {
-          retryable: !/reconecte|revogad|invalid_grant/i.test(msg),
-        });
-      }
+      throw new PublisherError(`token refresh falhou: ${msg}`, {
+        retryable: !/sem token|reconecte|revogad|invalid_grant/i.test(msg),
+      });
     }
 
     const result = await publishToPlatform({
@@ -109,20 +116,45 @@ async function processOne(job: SchedulerJobRow): Promise<DispatchSummary["jobs"]
       },
     });
 
-    const { error } = await supabaseAdmin.rpc("complete_scheduler_job", {
+    if (typeof result.externalPostId !== "string" || !result.externalPostId.trim())
+      throw new PublisherError(
+        "Resposta do provedor sem identificador confirmado. Verifique antes de republicar.",
+        { retryable: false },
+      );
+    externalPostId = result.externalPostId;
+    const { data: completed, error } = await supabaseAdmin.rpc("complete_scheduler_job", {
       _job_id: job.id,
       _external_post_id: result.externalPostId,
     });
     if (error) throw new Error(error.message);
-
-    return { id: job.id, status: "succeeded", externalPostId: result.externalPostId };
+    if (
+      !completed ||
+      completed.id !== job.id ||
+      completed.workspace_id !== job.workspace_id ||
+      completed.status !== "succeeded" ||
+      completed.external_post_id !== externalPostId
+    )
+      throw new Error("Confirmação da publicação no banco não retornou o estado esperado.");
+    return { id: job.id, status: "succeeded", externalPostId };
   } catch (err) {
+    if (err instanceof PublisherError && err.externalPostId) externalPostId = err.externalPostId;
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[scheduler] job ${job.id} failed:`, message);
-    const { error } = await supabaseAdmin.rpc("fail_scheduler_job", {
+    const { data: recorded, error } = await supabaseAdmin.rpc("fail_scheduler_job", {
       _job_id: job.id,
       _error: message.slice(0, 1000),
+      _retryable: externalPostId ? false : err instanceof PublisherError ? err.retryable : false,
+      _external_post_id: externalPostId ?? null,
     });
+    if (
+      !error &&
+      externalPostId &&
+      recorded?.id === job.id &&
+      recorded.workspace_id === job.workspace_id &&
+      recorded.status === "succeeded" &&
+      recorded.external_post_id === externalPostId
+    )
+      return { id: job.id, status: "succeeded", externalPostId };
     if (error) console.error(`[scheduler] fail_scheduler_job rpc error:`, error.message);
     return { id: job.id, status: "failed", error: message };
   }
@@ -132,18 +164,27 @@ export async function runSchedulerTick(
   opts: {
     limit?: number;
     lockSeconds?: number;
+    workspaceId?: string;
   } = {},
 ): Promise<DispatchSummary> {
   const limit = opts.limit ?? 10;
   const lockSeconds = opts.lockSeconds ?? 60;
 
-  const { data: claimed, error } = await supabaseAdmin.rpc("claim_scheduler_jobs", {
-    _limit: limit,
-    _lock_seconds: lockSeconds,
-  });
+  const args = { _limit: limit, _lock_seconds: lockSeconds };
+  const { data: claimed, error } = opts.workspaceId
+    ? await supabaseAdmin.rpc("claim_workspace_scheduler_jobs", {
+        ...args,
+        _workspace_id: opts.workspaceId,
+      })
+    : await supabaseAdmin.rpc("claim_scheduler_jobs", args);
   if (error) throw new Error(`claim_scheduler_jobs: ${error.message}`);
 
-  const jobs = (claimed ?? []) as SchedulerJobRow[];
+  if (!Array.isArray(claimed))
+    throw new Error("Scheduler claim did not return a confirmed job set");
+  const jobs = claimed as SchedulerJobRow[];
+  if (opts.workspaceId && jobs.some((job) => job.workspace_id !== opts.workspaceId)) {
+    throw new Error("Scoped scheduler claim returned a different workspace; dispatch stopped");
+  }
   if (jobs.length === 0) {
     return { claimed: 0, succeeded: 0, failed: 0, jobs: [] };
   }

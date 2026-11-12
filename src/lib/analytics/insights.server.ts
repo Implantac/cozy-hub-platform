@@ -12,6 +12,7 @@
  * which the caller turns into an actionable `last_error` on the channel.
  */
 
+import { metaGraphBase } from "@/lib/oauth/meta-version.server";
 import type { CanonicalMetrics } from "./normalize";
 import {
   fromFacebook,
@@ -50,8 +51,6 @@ export class InsightRateLimitError extends Error {
     this.name = "InsightRateLimitError";
   }
 }
-
-const GRAPH = "https://graph.facebook.com/v19.0";
 
 async function graphJson<T>(url: URL): Promise<T> {
   const res = await fetch(url);
@@ -95,12 +94,12 @@ const IG_INSIGHT_METRICS = [
 export async function collectInstagram(ctx: InsightContext): Promise<InsightResult> {
   // Bearer auth is accepted by the Graph API and is preferred over query params
   // so the token never lands in a URL that could be logged.
-  const url = new URL(`${GRAPH}/${ctx.externalPostId}/insights`);
+  const url = new URL(`${metaGraphBase()}/${ctx.externalPostId}/insights`);
   url.searchParams.set("metric", IG_INSIGHT_METRICS.join(","));
   url.searchParams.set("access_token", ctx.accessToken);
 
   // Basic counters live on the media node itself.
-  const mediaUrl = new URL(`${GRAPH}/${ctx.externalPostId}`);
+  const mediaUrl = new URL(`${metaGraphBase()}/${ctx.externalPostId}`);
   mediaUrl.searchParams.set("fields", "like_count,comments_count,media_type,timestamp");
   mediaUrl.searchParams.set("access_token", ctx.accessToken);
 
@@ -121,7 +120,7 @@ export async function collectInstagram(ctx: InsightContext): Promise<InsightResu
     (ctx.channelConfig.ig_user_id as string | undefined) ?? ctx.channelExternalId ?? undefined;
   if (igUserId) {
     try {
-      const accUrl = new URL(`${GRAPH}/${igUserId}`);
+      const accUrl = new URL(`${metaGraphBase()}/${igUserId}`);
       accUrl.searchParams.set("fields", "followers_count");
       accUrl.searchParams.set("access_token", ctx.accessToken);
       const acc = await graphJson<{ followers_count?: number }>(accUrl);
@@ -149,11 +148,11 @@ const FB_INSIGHT_METRICS = [
 ];
 
 export async function collectFacebook(ctx: InsightContext): Promise<InsightResult> {
-  const url = new URL(`${GRAPH}/${ctx.externalPostId}/insights`);
+  const url = new URL(`${metaGraphBase()}/${ctx.externalPostId}/insights`);
   url.searchParams.set("metric", FB_INSIGHT_METRICS.join(","));
   url.searchParams.set("access_token", ctx.accessToken);
 
-  const postUrl = new URL(`${GRAPH}/${ctx.externalPostId}`);
+  const postUrl = new URL(`${metaGraphBase()}/${ctx.externalPostId}`);
   postUrl.searchParams.set("fields", "likes.summary(true),comments.summary(true),shares");
   postUrl.searchParams.set("access_token", ctx.accessToken);
 

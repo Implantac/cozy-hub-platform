@@ -153,11 +153,16 @@ export async function publishLinkedIn(input: PublishInput): Promise<PublishResul
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 400);
     throw new PublisherError(`LinkedIn recusou a publicação (${res.status}): ${detail}`, {
-      retryable: res.status >= 500 || res.status === 429,
+      retryable: res.status === 429,
     });
   }
 
   // LinkedIn returns the post URN in the x-restli-id header, not the body.
-  const urn = res.headers.get("x-restli-id") ?? `urn:li:share:${Date.now()}`;
+  const urn = res.headers.get("x-restli-id");
+  if (!urn?.trim())
+    throw new PublisherError(
+      "LinkedIn não retornou o identificador da publicação. Verifique o provedor antes de tentar novamente.",
+      { retryable: false },
+    );
   return { externalPostId: urn };
 }

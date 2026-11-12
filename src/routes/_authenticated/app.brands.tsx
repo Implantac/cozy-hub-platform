@@ -1,3 +1,6 @@
+import { useWorkspaceAccess } from "@/lib/workspace/use-workspace-access";
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { WorkspaceAccessNotice } from "@/features/shell/components/WorkspaceAccessNotice";
 import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
 import { modulePageHead } from "@/lib/page-head";
 import { useTranslation } from "react-i18next";
@@ -22,7 +25,13 @@ export const Route = createFileRoute("/_authenticated/app/brands")({
 });
 
 function BrandsPage() {
+  const [workspaceId] = useCurrentWorkspaceId();
+  return <BrandsPageWorkspace key={workspaceId ?? "no-workspace"} />;
+}
+
+function BrandsPageWorkspace() {
   const { t } = useTranslation();
+  const access = useWorkspaceAccess();
   const list = useServerFn(listBrands);
   const create = useServerFn(createBrand);
   const remove = useServerFn(deleteBrand);
@@ -58,7 +67,10 @@ function BrandsPage() {
       <div className="space-y-6">
         <PageHeader icon={Palette} title={t("brands.title")} subtitle={t("brands.subtitle")} />
 
+        <WorkspaceAccessNotice access={access} />
+
         <BrandComposer
+          disabled={!access.canEdit}
           name={name}
           description={description}
           isPending={createMut.isPending}
@@ -78,21 +90,23 @@ function BrandsPage() {
             title={t("brands.emptyTitle")}
             text={t("brands.emptyText")}
             action={
-              <Button
-                size="sm"
-                onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>("#brand-name");
-                  input?.focus();
-                }}
-              >
-                <Plus aria-hidden="true" className="size-4" /> {t("brands.first")}
-              </Button>
+              access.canEdit ? (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const input = document.querySelector<HTMLInputElement>("#brand-name");
+                    input?.focus();
+                  }}
+                >
+                  <Plus aria-hidden="true" className="size-4" /> {t("brands.first")}
+                </Button>
+              ) : undefined
             }
           />
         ) : (
           <BrandGrid
             brands={q.data ?? []}
-            canDelete={!!q.wsId}
+            canDelete={access.canManage}
             isDeleting={delMut.isPending}
             onDelete={(id) => delMut.mutate(id)}
           />

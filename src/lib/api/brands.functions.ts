@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError, unwrap } from "./_supabase";
+import { requireWorkspaceRole } from "./_workspace";
+import { WORKSPACE_EDIT_ROLES, WORKSPACE_MANAGE_ROLES } from "@/lib/workspace/permissions";
 
 export const listBrands = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -23,7 +25,7 @@ export const createBrand = createServerFn({ method: "POST" })
     z
       .object({
         workspaceId: z.string().uuid(),
-        name: z.string().min(2).max(80),
+        name: z.string().trim().min(2).max(80),
         description: z.string().max(2000).optional(),
         voice: z.record(z.string(), z.unknown()).optional(),
         palette: z.record(z.string(), z.unknown()).optional(),
@@ -32,6 +34,7 @@ export const createBrand = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_EDIT_ROLES);
     const row = unwrap(
       await supabase
         .from("brands")
@@ -65,12 +68,16 @@ export const deleteBrand = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
+    const { supabase, userId } = context;
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_MANAGE_ROLES);
+    const { data: row, error } = await supabase
       .from("brands")
       .delete()
       .eq("id", data.id)
-      .eq("workspace_id", data.workspaceId);
+      .eq("workspace_id", data.workspaceId)
+      .select("id")
+      .maybeSingle();
     throwIfError(error);
-    return { ok: true };
+    if (!row) throw new Error("Marca não encontrada neste workspace ou exclusão não permitida.");
+    return { ok: true, id: row.id };
   });

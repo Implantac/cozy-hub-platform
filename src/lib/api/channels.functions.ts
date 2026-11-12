@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError, unwrap } from "./_supabase";
+import { assertBrandInWorkspace, requireWorkspaceRole } from "./_workspace";
+import { WORKSPACE_MANAGE_ROLES } from "@/lib/workspace/permissions";
 
 const PlatformSchema = z.enum(["instagram", "facebook", "youtube", "tiktok", "linkedin"]);
 
@@ -27,12 +29,14 @@ export const createChannel = createServerFn({ method: "POST" })
         workspaceId: z.string().uuid(),
         brandId: z.string().uuid().optional(),
         platform: PlatformSchema,
-        handle: z.string().min(1).max(80),
+        handle: z.string().trim().min(1).max(80),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_MANAGE_ROLES);
+    await assertBrandInWorkspace(supabase, data.workspaceId, data.brandId);
     const row = unwrap(
       await supabase
         .from("channels")
@@ -65,12 +69,16 @@ export const deleteChannel = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
+    const { supabase, userId } = context;
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_MANAGE_ROLES);
+    const { data: row, error } = await supabase
       .from("channels")
       .delete()
       .eq("id", data.id)
-      .eq("workspace_id", data.workspaceId);
+      .eq("workspace_id", data.workspaceId)
+      .select("id")
+      .maybeSingle();
     throwIfError(error);
-    return { ok: true };
+    if (!row) throw new Error("Canal não encontrado neste workspace ou exclusão não permitida.");
+    return { ok: true, id: row.id };
   });

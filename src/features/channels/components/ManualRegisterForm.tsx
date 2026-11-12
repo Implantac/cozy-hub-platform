@@ -9,6 +9,7 @@ type Props = {
   setHandle: (h: string) => void;
   onSubmit: () => void;
   isPending: boolean;
+  disabled?: boolean;
 };
 
 export function ManualRegisterForm({
@@ -18,6 +19,7 @@ export function ManualRegisterForm({
   setHandle,
   onSubmit,
   isPending,
+  disabled = false,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -34,7 +36,7 @@ export function ManualRegisterForm({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (handle.trim() && !isPending) onSubmit();
+          if (handle.trim() && !isPending && !disabled) onSubmit();
         }}
         className="grid items-end gap-3 md:grid-cols-[auto_1fr_auto]"
         aria-describedby="manual-channel-hint"
@@ -44,6 +46,7 @@ export function ManualRegisterForm({
             {t("channels.platform")}
           </label>
           <select
+            disabled={disabled || isPending}
             id="manual-channel-platform"
             value={platform}
             onChange={(event) => setPlatform(event.target.value as PlatformId)}
@@ -61,19 +64,20 @@ export function ManualRegisterForm({
             {t("channels.handle")}
           </label>
           <input
+            disabled={disabled || isPending}
             id="manual-channel-handle"
             value={handle}
             onChange={(event) => setHandle(event.target.value)}
             placeholder={t("channels.handlePlaceholder")}
             required
-            maxLength={200}
+            maxLength={80}
             autoComplete="off"
             className="min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
         <button
           type="submit"
-          disabled={isPending || !handle.trim()}
+          disabled={disabled || isPending || !handle.trim()}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
           <Plus aria-hidden="true" className="size-4" />{" "}

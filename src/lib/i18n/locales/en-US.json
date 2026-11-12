@@ -16,7 +16,9 @@
     "goHome": "Go home",
     "viewAll": "View all",
     "manage": "Manage",
-    "language": "Language"
+    "language": "Language",
+    "cancel": "Cancel",
+    "mutationError": "The change could not be confirmed. Check the current state before repeating the action."
   },
   "landing": {
     "badge": "Plan. Publish. Learn.",
@@ -167,13 +169,16 @@
     },
     "bio": "Link in bio",
     "moreTools": "More tools",
-    "openNavigation": "Open navigation"
+    "openNavigation": "Open navigation",
+    "account": "Account",
+    "profile": "Profile and account"
   },
   "palette": {
     "placeholder": "Search pages, actions...",
     "empty": "Nothing found.",
     "navigate": "Navigate",
-    "actions": "Actions"
+    "actions": "Actions",
+    "toggleSidebar": "Collapse/expand menu"
   },
   "notifications": {
     "title": "Notifications",
@@ -376,7 +381,16 @@
     "mobileNotificationsDesc": "See updates and alerts from your operation.",
     "mobileAccountTitle": "Your account",
     "mobileAccountDesc": "Open settings, help, and account options.",
-    "coreChannelsDesc": "Connect the networks you publish to and check what is currently available."
+    "coreChannelsDesc": "Connect the networks you publish to and check what is currently available.",
+    "step": "Step",
+    "close": "Close",
+    "skip": "Skip tour",
+    "prev": "Back",
+    "finish": "Finish",
+    "next": "Next",
+    "restarted": "Tour restarted",
+    "restart": "Restart product tour",
+    "start": "Start tour"
   },
   "portfolio": {
     "title": "Portfolio version",
@@ -452,7 +466,16 @@
     "short": "Short",
     "video": "Video",
     "article": "Article",
-    "carousel": "Carousel"
+    "carousel": "Carousel",
+    "partial": "{{count}} item(s) changed; {{missing}} not found or not permitted. The list was refreshed.",
+    "mediaLabel": "Media URLs (optional)",
+    "mediaHint": "One public HTTPS URL per line, up to 20 to organize a draft. Scheduling currently supports one attachment per content item; carousels are not implemented. This does not upload or verify file availability.",
+    "edit": "Edit",
+    "editItem": "Edit {{title}}",
+    "editTitle": "Edit content",
+    "editHint": "Save text and media references to the workspace. Cancel active scheduled jobs before editing.",
+    "saved": "Content saved.",
+    "saveChanges": "Save changes"
   },
   "channels": {
     "title": "Channels",
@@ -480,7 +503,17 @@
     "registered": "Profile registered; no connection has been authorized",
     "disconnectedNotice": "Channel disconnected",
     "connectedNotice": "{{platform}} connected",
-    "oauthError": "Authorization failed: {{message}}"
+    "oauthError": "Authorization failed: {{message}}",
+    "selectLocation": "OAuth authorized · choose a location",
+    "oauthErrors": {
+      "provider_denied": "Authorization was cancelled at the provider.",
+      "connection_failed": "The connection could not be confirmed. Start authorization again.",
+      "account_selection_required": "The provider returned several accounts. To avoid publishing to the wrong one, authorize only the intended account and try again.",
+      "no_eligible_account": "The provider returned no eligible publishing account. Check the account type and granted permissions.",
+      "provider_unavailable": "The provider did not allow account or location discovery. Check application APIs and permissions, then try again."
+    },
+    "confirmDisconnect": "Disconnect this channel and remove saved credentials? Pending posts cannot publish while it is disconnected.",
+    "confirmDelete": "Delete this channel and its associated history? Cancel pending schedules first. This does not remove posts already made on the provider."
   },
   "brands": {
     "title": "Brands",
@@ -507,7 +540,7 @@
     "dead_letter": "Needs attention",
     "run": "Run queue now",
     "running": "Running...",
-    "ran": "Queue checked · {{count}} processed",
+    "ran": "Queue checked · {{count}} processed, {{succeeded}} succeeded, {{failed}} failed",
     "canceled": "Schedule canceled",
     "emptyTitle": "No queued publications",
     "emptyText": "Saving a draft does not schedule it. Publishing requires an authorized channel and the conditions listed above.",
@@ -519,7 +552,36 @@
     "attempts": "Attempts",
     "actions": "Actions",
     "cancel": "Cancel",
-    "untitled": "Untitled"
+    "untitled": "Untitled",
+    "cancelled": "Canceled",
+    "composeTitle": "New scheduled post",
+    "composeHint": "Choose a draft, channels and a future time. Scheduling is confirmed only after every job is saved; it does not mean the provider has published it.",
+    "chooseContent": "Content to schedule",
+    "contentPlaceholder": "Choose a draft",
+    "chooseTime": "Date and time",
+    "localTimezone": "Local time in this browser; stored in UTC.",
+    "chooseChannels": "Channels (up to 20)",
+    "reason_oauth": "OAuth required",
+    "reason_unsupported": "Publishing not implemented",
+    "reason_environment": "Provider configuration required",
+    "noEligibleChannels": "No channels are available for scheduling.",
+    "openChannels": "View Channels",
+    "noDrafts": "No drafts available.",
+    "enqueue": "Confirm schedule",
+    "enqueueing": "Scheduling…",
+    "enqueued": "{{count}} job(s) confirmed in the queue.",
+    "scheduleInvalid": "Choose a draft, 1 to 20 available channels and a valid future time.",
+    "reason_location": "Choose a location in Channels",
+    "outcomeUnknown": "Execution has no final confirmation. Check the provider before publishing again.",
+    "providerAckPending": "An external ID exists; this job will not be automatically republished. Check the provider.",
+    "capabilityError": "Publication configuration could not be verified.",
+    "capabilityLoading": "Checking publication configuration…",
+    "capabilityLabel": "Publication configuration (does not confirm provider approval or OAuth validity):",
+    "simulatedWarning": "simulation mode — nothing is actually published",
+    "missingEnvironment": "Configuration pending: {{variables}}",
+    "configurationPending": "(configuration pending)",
+    "notImplemented": "(not implemented)",
+    "reason_direct_post": "Direct Post required; inbox delivery is not publication"
   },
   "opportunitySource": {
     "title": "Example catalog, not live market research",
@@ -568,7 +630,7 @@
     "lastRun": "Last run — posts measured: {{posts}} · records saved: {{records}}",
     "weeklyTitle": "Weekly report",
     "weeklyDescription": "Seven days compared with the previous seven.",
-    "weeklyContents": "A PDF with publications, impressions, channel engagement and the top three posts. The CSV contains the same numbers for verification.",
+    "weeklyContents": "PDF and CSV with completed posts per channel, cumulative metrics from the latest collection in the week, and a comparison with the previous week’s collection. Repeated collections are not added together or treated as interactions occurring that week.",
     "downloadPdf": "Download PDF",
     "downloadCsv": "Download CSV",
     "reportLanguage": "PDF and CSV files are generated in Portuguese in this version.",
@@ -580,14 +642,33 @@
     "impressions": "Impressions",
     "engagement": "Engagement",
     "reach": "Reach",
-    "snapshots": "Collected snapshots",
-    "snapshotCaveat": "Values add up the records collected in the selected period. The same post may appear in more than one collection; totals do not represent unique people or growth exclusive to this period.",
-    "engagementTrend": "Engagement by collection date",
+    "snapshots": "Posts measured per channel",
+    "snapshotCaveat": "Cumulative totals from the latest collection for each post and channel in the period. Repeat collections are not added together. The daily series shows observed cumulative values, not new interactions that day; aggregated reach is not unique people.",
+    "engagementTrend": "Cumulative engagement by collection date",
     "platformImpressions": "Impressions by platform",
     "dailyTableSummary": "View engagement as a table",
     "platformTableSummary": "View impressions as a table",
     "collectionDate": "Collection date (UTC)",
     "platform": "Platform",
-    "otherPlatform": "Other platforms"
+    "otherPlatform": "Other platforms",
+    "syncError": "Metrics could not be collected for {{count}} item(s). Check the details and try again."
+  },
+  "access": {
+    "checking": "Checking permissions…",
+    "readOnly": "Read-only: your role can view, but cannot change this workspace.",
+    "manageOnly": "Channel management requires the owner or administrator role.",
+    "queueHelp": "Only owners and admins can run the queue. Editors can schedule and cancel pending posts."
+  },
+  "shortcuts": {
+    "palette": "Open quick search",
+    "help": "Show shortcuts",
+    "tourNext": "Next tour step",
+    "tourPrev": "Previous tour step",
+    "close": "Close overlay or tour",
+    "title": "Keyboard shortcuts",
+    "desc": "Navigate VELT faster."
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
   }
 }

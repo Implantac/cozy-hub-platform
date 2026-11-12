@@ -46,7 +46,9 @@ export function ChannelCard({
         <button
           type="button"
           aria-label={t("channels.delete", { platform: meta?.label ?? c.platform })}
-          onClick={onDelete}
+          onClick={() => {
+            if (window.confirm(t("channels.confirmDelete"))) onDelete();
+          }}
           disabled={disabled}
           className="text-muted-foreground hover:text-destructive disabled:opacity-50"
           title={t("channels.deleteTitle")}
@@ -58,13 +60,18 @@ export function ChannelCard({
         <span
           className={`rounded-full px-2 py-0.5 ${isConnected ? "bg-success/20 text-success" : "bg-secondary text-secondary-foreground"}`}
         >
-          {t(`channels.${c.status}`, { defaultValue: c.status })}
+          {isGbp && isConnected && !locationName
+            ? t("channels.selectLocation")
+            : t(`channels.${c.status}`, { defaultValue: c.status })}
         </span>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground">{c.brand?.name ?? t("channels.noBrand")}</span>
           {isConnected ? (
             <button
-              onClick={onDisconnect}
+              disabled={disabled}
+              onClick={() => {
+                if (window.confirm(t("channels.confirmDisconnect"))) onDisconnect();
+              }}
               className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 hover:bg-secondary"
             >
               <Unlink aria-hidden="true" className="size-3" /> {t("channels.disconnect")}
@@ -72,6 +79,7 @@ export function ChannelCard({
           ) : (
             meta && (
               <button
+                disabled={disabled}
                 onClick={() => onConnect(meta.oauth)}
                 className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 hover:bg-primary/5"
               >
@@ -84,12 +92,12 @@ export function ChannelCard({
 
       {/* Google Business: an account can hold many stores. The channel is only
           usable once a location is bound — never guess on the user's behalf. */}
-      {isGbp && isConnected && workspaceId && (
+      {isGbp && isConnected && workspaceId && !disabled && (
         <div className="mt-4">
           <BusinessLocationPicker
             workspaceId={workspaceId}
             channelId={c.id}
-            currentLocationName={locationName}
+            currentLocationId={c.external_id}
           />
         </div>
       )}

@@ -26,6 +26,9 @@ import {
   type WeeklyReportData,
 } from "./weekly";
 import { renderWeeklyReportPdf } from "./render";
+import { readAllPages } from "@/lib/api/_pagination";
+import { readSnapshotWindow } from "@/lib/analytics/read.server";
+import { latestSnapshots, cleanMetrics } from "@/lib/analytics/snapshots";
 
 export interface ReportBundle {
   data: WeeklyReportData;
@@ -40,34 +43,29 @@ async function fetchPublished(
 ): Promise<PublishedPost[]> {
   // A "publication" is a scheduler job that actually succeeded against a
   // platform API — not a draft, and not a failed attempt that will be retried.
-  const { data, error } = await supabase
-    .from("scheduler_jobs")
-    .select("content_id, channel_id, scheduled_at, status, channels(platform)")
-    .eq("workspace_id", workspaceId)
-    .eq("status", "succeeded")
-    .gte("scheduled_at", window.start)
-    .lt("scheduled_at", window.end)
-    .order("scheduled_at", { ascending: true })
-    .limit(500);
-  throwIfError(error);
-
-  const contentIds = [
-    ...new Set((data ?? []).map((r) => r.content_id).filter(Boolean)),
-  ] as string[];
-  const titles = new Map<string, string | null>();
-  if (contentIds.length > 0) {
-    const { data: contents } = await supabase
-      .from("content")
-      .select("id, title")
-      .in("id", contentIds);
-    for (const c of contents ?? []) titles.set(c.id, c.title);
-  }
-
-  return (data ?? []).map((r) => ({
-    contentId: String(r.content_id ?? ""),
-    title: r.content_id ? (titles.get(r.content_id) ?? null) : null,
+  const data = await readAllPages((from, to) =>
+    supabase
+      .from("scheduler_jobs")
+      .select(
+        "id, content_id, channel_id, updated_at, status, external_post_id, channels(platform), content(title)",
+      )
+      .eq("workspace_id", workspaceId)
+      .eq("status", "succeeded")
+      .not("external_post_id", "is", null)
+      .neq("external_post_id", "")
+      .not("external_post_id", "like", "sim\\_%")
+      .gte("updated_at", window.start)
+      .lt("updated_at", window.end)
+      .order("updated_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, to),
+  );
+  return data.map((r) => ({
+    contentId: r.content_id,
+    channelId: r.channel_id,
+    title: r.content?.title ?? null,
     platform: platformOf(r),
-    publishedAt: String(r.scheduled_at),
+    publishedAt: r.updated_at,
   }));
 }
 
@@ -83,31 +81,14 @@ async function fetchMetrics(
   workspaceId: string,
   window: ReportWindow,
 ): Promise<PostMetrics[]> {
-  // Latest snapshot per content inside the window. Summing every snapshot would
-  // multiply a post's numbers by the number of times it was collected.
-  const { data, error } = await supabase
-    .from("analytics_snapshots")
-    .select("content_id, metrics, captured_at")
-    .eq("workspace_id", workspaceId)
-    .gte("captured_at", window.start)
-    .lt("captured_at", window.end)
-    .order("captured_at", { ascending: false })
-    .limit(2000);
-  throwIfError(error);
-
-  const latest = new Map<string, Record<string, number>>();
-  for (const row of data ?? []) {
-    if (!row.content_id || latest.has(row.content_id)) continue;
-    const m = (row.metrics ?? {}) as Record<string, unknown>;
-    const clean: Record<string, number> = {};
-    for (const [k, v] of Object.entries(m)) {
-      const n = Number(v);
-      if (Number.isFinite(n)) clean[k] = n;
-    }
-    latest.set(row.content_id, clean);
-  }
-
-  return [...latest.entries()].map(([contentId, metrics]) => ({ contentId, metrics }));
+  const rows = await readSnapshotWindow(supabase, workspaceId, window);
+  return latestSnapshots(rows).map((row) => ({
+    contentId: row.content_id!,
+    channelId: row.channel_id!,
+    platform: row.channel?.platform ?? "other",
+    title: row.content?.title ?? null,
+    metrics: cleanMetrics(row.metrics),
+  }));
 }
 
 /**
@@ -127,6 +108,7 @@ export async function buildWeeklyReport(
     .eq("id", workspaceId)
     .maybeSingle();
   throwIfError(wsErr);
+  if (!ws) throw new Error("Workspace não encontrado ou acesso não permitido.");
 
   const [published, metricsCurrent, metricsPrevious] = await Promise.all([
     fetchPublished(supabase, workspaceId, {
@@ -138,7 +120,7 @@ export async function buildWeeklyReport(
   ]);
 
   const data = buildReportData({
-    workspaceName: ws?.name ?? "Meu workspace",
+    workspaceName: ws.name,
     window: windows.window,
     previousWindow: windows.previousWindow,
     published,

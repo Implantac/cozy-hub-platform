@@ -1,3 +1,5 @@
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { WorkspaceAccessNotice } from "@/features/shell/components/WorkspaceAccessNotice";
 import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
 import { modulePageHead } from "@/lib/page-head";
 import { useTranslation } from "react-i18next";
@@ -17,9 +19,15 @@ export const Route = createFileRoute("/_authenticated/app/channels")({
 });
 
 function ChannelsPage() {
+  const [workspaceId] = useCurrentWorkspaceId();
+  return <ChannelsPageWorkspace key={workspaceId ?? "no-workspace"} />;
+}
+
+function ChannelsPageWorkspace() {
   const { t } = useTranslation();
   const {
     q,
+    access,
     platform,
     setPlatform,
     handle,
@@ -35,12 +43,15 @@ function ChannelsPage() {
       <div className="space-y-6">
         <PageHeader icon={Radio} title={t("channels.title")} subtitle={t("channels.subtitle")} />
 
+        <WorkspaceAccessNotice access={access} manage />
+
         <ConnectPlatformGrid
-          disabled={!q.wsId || connectMut.isPending}
+          disabled={!access.canManage || !q.wsId || connectMut.isPending}
           onConnect={(oauth) => connectMut.mutate(oauth)}
         />
 
         <ManualRegisterForm
+          disabled={!access.canManage}
           platform={platform}
           setPlatform={setPlatform}
           handle={handle}
@@ -58,7 +69,13 @@ function ChannelsPage() {
                 key={c.id}
                 channel={c}
                 workspaceId={q.wsId}
-                disabled={!q.wsId || delMut.isPending}
+                disabled={
+                  !access.canManage ||
+                  !q.wsId ||
+                  delMut.isPending ||
+                  disconnectMut.isPending ||
+                  connectMut.isPending
+                }
                 onDelete={() => delMut.mutate(c.id)}
                 onDisconnect={() => disconnectMut.mutate(c.id)}
                 onConnect={(oauth) => connectMut.mutate(oauth)}

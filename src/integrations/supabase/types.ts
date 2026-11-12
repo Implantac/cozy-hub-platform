@@ -45,24 +45,24 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "analytics_snapshots_channel_id_fkey"
-            columns: ["channel_id"]
+            columns: ["workspace_id", "channel_id"]
             isOneToOne: false
             referencedRelation: "channels"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "analytics_snapshots_channel_id_fkey"
-            columns: ["channel_id"]
+            columns: ["workspace_id", "channel_id"]
             isOneToOne: false
             referencedRelation: "v_channel_health"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "analytics_snapshots_content_id_fkey"
-            columns: ["content_id"]
+            columns: ["workspace_id", "content_id"]
             isOneToOne: false
             referencedRelation: "content"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "analytics_snapshots_workspace_id_fkey"
@@ -824,10 +824,10 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "channels_brand_id_fkey"
-            columns: ["brand_id"]
+            columns: ["workspace_id", "brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "channels_workspace_id_fkey"
@@ -999,10 +999,10 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "content_brand_id_fkey"
-            columns: ["brand_id"]
+            columns: ["workspace_id", "brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "content_workspace_id_fkey"
@@ -1761,24 +1761,24 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "scheduler_jobs_channel_id_fkey"
-            columns: ["channel_id"]
+            columns: ["workspace_id", "channel_id"]
             isOneToOne: false
             referencedRelation: "channels"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "scheduler_jobs_channel_id_fkey"
-            columns: ["channel_id"]
+            columns: ["workspace_id", "channel_id"]
             isOneToOne: false
             referencedRelation: "v_channel_health"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "scheduler_jobs_content_id_fkey"
-            columns: ["content_id"]
+            columns: ["workspace_id", "content_id"]
             isOneToOne: false
             referencedRelation: "content"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "scheduler_jobs_workspace_id_fkey"
@@ -1994,10 +1994,10 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "channels_brand_id_fkey"
-            columns: ["brand_id"]
+            columns: ["workspace_id", "brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
-            referencedColumns: ["id"]
+            referencedColumns: ["workspace_id", "id"]
           },
           {
             foreignKeyName: "channels_workspace_id_fkey"
@@ -2053,6 +2053,44 @@ export type Database = {
       }
     }
     Functions: {
+      add_bio_link: {
+        Args: { _workspace_id: string; _label: string; _url: string; _kind: string }
+        Returns: Database["public"]["Tables"]["bio_links"]["Row"]
+      }
+      bio_slug_available: { Args: { _slug: string }; Returns: boolean }
+      reorder_bio_links: {
+        Args: { _workspace_id: string; _ordered_ids: string[] }
+        Returns: number
+      }
+      cancel_publication: {
+        Args: { _workspace_id: string; _job_id: string }
+        Returns: Database["public"]["Tables"]["scheduler_jobs"]["Row"]
+      }
+      claim_workspace_scheduler_jobs: {
+        Args: { _workspace_id: string; _limit?: number; _lock_seconds?: number }
+        Returns: Database["public"]["Tables"]["scheduler_jobs"]["Row"][]
+      }
+      complete_oauth_connection: {
+        Args: {
+          _workspace_id: string
+          _actor_id: string
+          _brand_id: string | null
+          _platform: Database["public"]["Enums"]["social_platform"]
+          _external_id: string
+          _handle: string | null
+          _metadata: Json
+          _access_ciphertext: string
+          _refresh_ciphertext: string | null
+          _token_type: string | null
+          _scope: string | null
+          _expires_at: string | null
+        }
+        Returns: Database["public"]["Tables"]["channels"]["Row"]
+      }
+      disconnect_oauth_channel: {
+        Args: { _channel_id: string }
+        Returns: Database["public"]["Tables"]["channels"]["Row"]
+      }
       bio_register_click: {
         Args: {
           _country?: string
@@ -2147,7 +2185,7 @@ export type Database = {
         }
       }
       fail_scheduler_job: {
-        Args: { _error: string; _job_id: string }
+        Args: { _error: string; _job_id: string; _retryable?: boolean; _external_post_id?: string | null }
         Returns: {
           attempts: number
           channel_id: string

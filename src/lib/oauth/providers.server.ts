@@ -7,7 +7,8 @@
  * clear error only when actually invoked.
  */
 
-import type { Platform } from "@/lib/scheduler/publishers.server";
+import { metaGraphBase, metaGraphVersion } from "./meta-version.server";
+import type { Database } from "@/integrations/supabase/types";
 
 export interface ProviderTokens {
   accessToken: string;
@@ -19,10 +20,12 @@ export interface ProviderTokens {
   /** Provider-specific external account/page id to persist on channels.external_id */
   externalAccountId?: string;
   externalHandle?: string;
+  /** Safe resource identifiers only; tokens are stored separately and encrypted. */
+  metadata?: Record<string, string | boolean | null>;
 }
 
 export interface Provider {
-  platform: Platform;
+  platform: Database["public"]["Enums"]["social_platform"];
   authUrl(args: { state: string; redirectUri: string }): string;
   exchange(args: { code: string; redirectUri: string }): Promise<ProviderTokens>;
 }
@@ -38,50 +41,94 @@ function expiresInToIso(seconds: number | undefined): string | undefined {
   return new Date(Date.now() + seconds * 1000).toISOString();
 }
 
-/** Meta (Facebook + Instagram) — uses the same Facebook Login flow */
-const meta: Provider = {
-  platform: "facebook",
-  authUrl({ state, redirectUri }) {
-    const clientId = requireEnv("META_APP_ID");
-    const scopes = [
-      "public_profile",
-      "email",
-      "pages_show_list",
-      "pages_manage_posts",
-      "pages_read_engagement",
-      "instagram_basic",
-      "instagram_content_publish",
-    ].join(",");
-    const u = new URL("https://www.facebook.com/v19.0/dialog/oauth");
-    u.searchParams.set("client_id", clientId);
-    u.searchParams.set("redirect_uri", redirectUri);
-    u.searchParams.set("state", state);
-    u.searchParams.set("scope", scopes);
-    u.searchParams.set("response_type", "code");
-    return u.toString();
-  },
-  async exchange({ code, redirectUri }) {
-    const clientId = requireEnv("META_APP_ID");
-    const clientSecret = requireEnv("META_APP_SECRET");
-    const u = new URL("https://graph.facebook.com/v19.0/oauth/access_token");
-    u.searchParams.set("client_id", clientId);
-    u.searchParams.set("client_secret", clientSecret);
-    u.searchParams.set("redirect_uri", redirectUri);
-    u.searchParams.set("code", code);
-    const res = await fetch(u);
-    if (!res.ok) throw new Error(`meta exchange failed: ${res.status} ${await res.text()}`);
-    const json = (await res.json()) as {
-      access_token: string;
-      token_type?: string;
-      expires_in?: number;
-    };
-    return {
-      accessToken: json.access_token,
-      tokenType: json.token_type,
-      expiresAt: expiresInToIso(json.expires_in),
-    };
-  },
-};
+export class ProviderConnectionError extends Error {
+  constructor(
+    public readonly code:
+      "account_selection_required" | "no_eligible_account" | "provider_unavailable",
+  ) {
+    super(code);
+    this.name = "ProviderConnectionError";
+  }
+}
+async function authorizedJson<T>(url: string | URL, accessToken: string): Promise<T> {
+  if (!accessToken) throw new ProviderConnectionError("no_eligible_account");
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) throw new ProviderConnectionError("provider_unavailable");
+  return response.json() as Promise<T>;
+}
+/** Never guess between Pages. Page tokens are encrypted in oauth_tokens, never put in channel metadata. */
+function metaProvider(platform: "facebook" | "instagram"): Provider {
+  return {
+    platform,
+    authUrl({ state, redirectUri }) {
+      const url = new URL(`https://www.facebook.com/${metaGraphVersion()}/dialog/oauth`);
+      url.searchParams.set("client_id", requireEnv("META_APP_ID"));
+      url.searchParams.set("redirect_uri", redirectUri);
+      url.searchParams.set("state", state);
+      url.searchParams.set(
+        "scope",
+        "public_profile,email,pages_show_list,pages_manage_posts,pages_read_engagement,instagram_basic,instagram_content_publish",
+      );
+      url.searchParams.set("response_type", "code");
+      return url.href;
+    },
+    async exchange({ code, redirectUri }) {
+      const url = new URL(metaGraphBase() + "/oauth/access_token");
+      url.searchParams.set("client_id", requireEnv("META_APP_ID"));
+      url.searchParams.set("client_secret", requireEnv("META_APP_SECRET"));
+      url.searchParams.set("redirect_uri", redirectUri);
+      url.searchParams.set("code", code);
+      const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (!response.ok) throw new ProviderConnectionError("provider_unavailable");
+      const token = (await response.json()) as {
+        access_token?: string;
+        token_type?: string;
+        expires_in?: number;
+      };
+      const pagesUrl = new URL(metaGraphBase() + "/me/accounts");
+      pagesUrl.searchParams.set(
+        "fields",
+        "id,name,access_token,instagram_business_account{id,username}",
+      );
+      pagesUrl.searchParams.set("limit", "100");
+      const result = await authorizedJson<{
+        data?: Array<{
+          id: string;
+          name?: string;
+          access_token?: string;
+          instagram_business_account?: { id?: string; username?: string };
+        }>;
+        paging?: { next?: string };
+      }>(pagesUrl, token.access_token ?? "");
+      const eligible = (result.data ?? []).filter(
+        (page) =>
+          page.access_token &&
+          page.id &&
+          (platform === "facebook" || page.instagram_business_account?.id),
+      );
+      if (result.paging?.next || eligible.length > 1)
+        throw new ProviderConnectionError("account_selection_required");
+      const page = eligible[0];
+      if (!page) throw new ProviderConnectionError("no_eligible_account");
+      return {
+        accessToken: page.access_token!,
+        tokenType: token.token_type,
+        expiresAt: expiresInToIso(token.expires_in),
+        externalAccountId: platform === "instagram" ? page.instagram_business_account!.id : page.id,
+        externalHandle:
+          platform === "instagram" ? page.instagram_business_account?.username : page.name,
+        metadata: {
+          page_id: page.id,
+          ...(platform === "instagram" ? { ig_user_id: page.instagram_business_account!.id! } : {}),
+        },
+      };
+    },
+  };
+}
+const meta = metaProvider("facebook");
 
 /** LinkedIn */
 const linkedin: Provider = {
@@ -118,11 +165,19 @@ const linkedin: Provider = {
       refresh_token?: string;
       scope?: string;
     };
+    const profile = await authorizedJson<{ sub?: string; name?: string }>(
+      "https://api.linkedin.com/v2/userinfo",
+      json.access_token,
+    );
+    if (!profile.sub) throw new ProviderConnectionError("no_eligible_account");
     return {
       accessToken: json.access_token,
       refreshToken: json.refresh_token,
       expiresAt: expiresInToIso(json.expires_in),
       scope: json.scope,
+      externalAccountId: profile.sub,
+      externalHandle: profile.name,
+      metadata: { person_id: profile.sub },
     };
   },
 };
@@ -171,7 +226,19 @@ const google: Provider = {
       scope?: string;
       token_type?: string;
     };
+    const channels = await authorizedJson<{
+      items?: Array<{ id?: string; snippet?: { title?: string } }>;
+    }>(
+      "https://www.googleapis.com/youtube/v3/channels?part=id,snippet&mine=true",
+      json.access_token,
+    );
+    if ((channels.items?.length ?? 0) > 1)
+      throw new ProviderConnectionError("account_selection_required");
+    const channel = channels.items?.[0];
+    if (!channel?.id) throw new ProviderConnectionError("no_eligible_account");
     return {
+      externalAccountId: channel.id,
+      externalHandle: channel.snippet?.title,
       accessToken: json.access_token,
       refreshToken: json.refresh_token,
       expiresAt: expiresInToIso(json.expires_in),
@@ -234,29 +301,18 @@ const googleBusiness: Provider = {
       token_type?: string;
     };
 
-    // Discover the first verified location so the channel is usable immediately.
-    // Failure here is not fatal: the user can pick a location later from the UI.
-    let externalAccountId: string | undefined;
-    let externalHandle: string | undefined;
-    try {
-      const locs = await listBusinessLocations(json.access_token);
-      const first = locs[0];
-      if (first) {
-        externalAccountId = first.name;
-        externalHandle = first.locationName;
-      }
-    } catch {
-      /* company without a verified location, or API not yet allowlisted */
-    }
-
+    const locations = await listBusinessLocations(json.access_token);
+    if (locations.length === 0) throw new ProviderConnectionError("no_eligible_account");
+    const accountId = locations[0].accountId;
     return {
       accessToken: json.access_token,
       refreshToken: json.refresh_token,
       expiresAt: expiresInToIso(json.expires_in),
       scope: json.scope,
       tokenType: json.token_type,
-      externalAccountId,
-      externalHandle,
+      externalAccountId: `accounts/${accountId}`,
+      externalHandle: "Google Business — selecione uma unidade",
+      metadata: { requires_location_selection: true, location_confirmed: false },
     };
   },
 };
@@ -279,64 +335,63 @@ export interface BusinessLocation {
  * locations.list per account. The flat result is what the channel picker needs.
  */
 export async function listBusinessLocations(accessToken: string): Promise<BusinessLocation[]> {
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  const accountsRes = await fetch(
-    "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
-    { headers },
-  );
-
-  if (accountsRes.status === 403) {
-    throw new Error(
-      "A API do Google Business Profile não está habilitada ou o projeto não está " +
-        "aprovado para o escopo business.manage. Habilite as Business Profile APIs " +
-        "no Google Cloud e solicite acesso.",
-    );
-  }
-  if (!accountsRes.ok) {
-    throw new Error(`accounts.list falhou: ${accountsRes.status} ${await accountsRes.text()}`);
-  }
-
-  const accountsJson = (await accountsRes.json()) as {
-    accounts?: Array<{ name?: string; accountName?: string; type?: string }>;
-  };
-
+  const accounts: Array<{ name?: string }> = [];
+  let pageToken: string | undefined;
+  do {
+    const url = new URL("https://mybusinessaccountmanagement.googleapis.com/v1/accounts");
+    url.searchParams.set("pageSize", "20");
+    if (pageToken) url.searchParams.set("pageToken", pageToken);
+    const page = await authorizedJson<{
+      accounts?: Array<{ name?: string }>;
+      nextPageToken?: string;
+    }>(url, accessToken);
+    accounts.push(...(page.accounts ?? []));
+    pageToken = page.nextPageToken;
+    if (accounts.length > 2000) throw new ProviderConnectionError("account_selection_required");
+  } while (pageToken);
   const out: BusinessLocation[] = [];
-  for (const acc of accountsJson.accounts ?? []) {
-    const accountName = acc.name; // accounts/{id}
-    if (!accountName) continue;
-    const locRes = await fetch(
-      `https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations` +
-        `?readMask=name,title,storefrontAddress,metadata`,
-      { headers },
-    );
-    if (!locRes.ok) continue; // a single account failing must not void the rest
-    const locJson = (await locRes.json()) as {
-      locations?: Array<{
-        name?: string;
-        title?: string;
-        storefrontAddress?: { addressLines?: string[]; locality?: string; regionCode?: string };
-        metadata?: { canOperateLocalServices?: boolean; mapsUri?: string };
-      }>;
-    };
-
-    for (const loc of locJson.locations ?? []) {
-      // `name` comes back as "locations/{id}" in this API.
-      const locationId = loc.name?.split("/").pop() ?? "";
-      if (!locationId) continue;
-      const addr = loc.storefrontAddress;
-      out.push({
-        name: `${accountName}/locations/${locationId}`,
-        accountId: accountName.split("/").pop() ?? "",
-        locationId,
-        locationName: loc.title ?? `Location ${locationId}`,
-        address: [addr?.addressLines?.join(", "), addr?.locality, addr?.regionCode]
-          .filter(Boolean)
-          .join(" · "),
-        verified: loc.metadata?.canOperateLocalServices !== false,
-      });
-    }
+  for (const account of accounts) {
+    if (!account.name || !/^accounts\/[A-Za-z0-9_-]+$/.test(account.name)) continue;
+    pageToken = undefined;
+    do {
+      const url = new URL(
+        `https://mybusinessbusinessinformation.googleapis.com/v1/${account.name}/locations`,
+      );
+      url.searchParams.set("readMask", "name,title,storefrontAddress");
+      url.searchParams.set("pageSize", "100");
+      if (pageToken) url.searchParams.set("pageToken", pageToken);
+      const page = await authorizedJson<{
+        locations?: Array<{
+          name?: string;
+          title?: string;
+          storefrontAddress?: { addressLines?: string[]; locality?: string; regionCode?: string };
+        }>;
+        nextPageToken?: string;
+      }>(url, accessToken);
+      for (const location of page.locations ?? []) {
+        if (!location.name || !/^locations\/[A-Za-z0-9_-]+$/.test(location.name)) continue;
+        // The presence of a location is NOT proof of verification. Consult the real verification state.
+        const state = await authorizedJson<{ hasVoiceOfMerchant?: boolean }>(
+          `https://mybusinessverifications.googleapis.com/v1/${location.name}/VoiceOfMerchantState`,
+          accessToken,
+        );
+        const locationId = location.name.split("/")[1];
+        const addr = location.storefrontAddress;
+        out.push({
+          name: `${account.name}/locations/${locationId}`,
+          accountId: account.name.split("/")[1],
+          locationId,
+          locationName: location.title ?? `Location ${locationId}`,
+          verified: state.hasVoiceOfMerchant === true,
+          address: [addr?.addressLines?.join(", "), addr?.locality, addr?.regionCode]
+            .filter(Boolean)
+            .join(" · "),
+        });
+        if (out.length > 2000) throw new ProviderConnectionError("account_selection_required");
+      }
+      pageToken = page.nextPageToken;
+    } while (pageToken);
   }
-
   return out;
 }
 
@@ -399,7 +454,7 @@ export type SupportedProvider =
 const REGISTRY: Record<SupportedProvider, Provider> = {
   meta,
   facebook: meta,
-  instagram: { ...meta, platform: "instagram" },
+  instagram: metaProvider("instagram"),
   linkedin,
   google,
   youtube: google,

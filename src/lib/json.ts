@@ -114,7 +114,7 @@ export function errorMessage(
   value: unknown,
   fallback = "Algo deu errado. Tente novamente.",
 ): string {
-  if (value instanceof Error && value.message) return value.message;
+  if (value instanceof Error && value.message.trim()) return value.message;
   if (typeof value === "string" && value.trim().length > 0) return value;
   if (value && typeof value === "object") {
     const message = (value as { message?: unknown }).message;

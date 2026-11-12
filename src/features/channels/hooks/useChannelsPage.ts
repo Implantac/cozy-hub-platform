@@ -1,3 +1,4 @@
+import { useWorkspaceAccess } from "@/lib/workspace/use-workspace-access";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import type { Channel } from "@/lib/api/_types";
 
 export function useChannelsPage() {
   const { t } = useTranslation();
+  const access = useWorkspaceAccess();
   const qc = useQueryClient();
   const list = useServerFn(listChannels);
   const create = useServerFn(createChannel);
@@ -23,6 +25,12 @@ export function useChannelsPage() {
     ({ workspaceId }) => list({ data: { workspaceId } }),
   );
   const invalidateKey = q.wsId ? ["channels", q.wsId] : ["channels"];
+  const relatedKeys = [
+    invalidateKey,
+    ...["scheduler-options", "scheduler", "analytics", "metrics-readiness"].map((key) =>
+      q.wsId ? [key, q.wsId] : [key],
+    ),
+  ];
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -35,7 +43,11 @@ export function useChannelsPage() {
       qc.invalidateQueries({ queryKey: invalidateKey });
     }
     if (err) {
-      toast.error(t("channels.oauthError", { message: err }));
+      toast.error(
+        t(`channels.oauthErrors.${err}`, {
+          defaultValue: t("channels.oauthError", { message: "connection_failed" }),
+        }),
+      );
       url.searchParams.delete("oauth_error");
       window.history.replaceState({}, "", url.toString());
     }
@@ -48,7 +60,7 @@ export function useChannelsPage() {
   const createMut = useWorkspaceMutation(
     () => create({ data: { workspaceId: q.wsId!, platform, handle: handle.trim() } }),
     {
-      invalidate: invalidateKey,
+      invalidate: relatedKeys,
       successMessage: t("channels.registered"),
       onSuccess: () => setHandle(""),
     },
@@ -56,12 +68,12 @@ export function useChannelsPage() {
 
   const delMut = useWorkspaceMutation(
     (id: string) => remove({ data: { id, workspaceId: q.wsId! } }),
-    { invalidate: invalidateKey },
+    { invalidate: relatedKeys },
   );
 
   const disconnectMut = useWorkspaceMutation(
     (channelId: string) => disconnect({ data: { channelId } }),
-    { invalidate: invalidateKey, successMessage: t("channels.disconnectedNotice") },
+    { invalidate: relatedKeys, successMessage: t("channels.disconnectedNotice") },
   );
 
   const connectMut = useWorkspaceMutation(
@@ -74,6 +86,7 @@ export function useChannelsPage() {
   );
 
   return {
+    access,
     q,
     platform,
     setPlatform,

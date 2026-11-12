@@ -26,11 +26,11 @@ interface Location {
 export function BusinessLocationPicker({
   workspaceId,
   channelId,
-  currentLocationName,
+  currentLocationId,
 }: {
   workspaceId: string;
   channelId: string;
-  currentLocationName?: string | null;
+  currentLocationId?: string | null;
 }) {
   const qc = useQueryClient();
   const list = useServerFn(GbpService.listBusinessLocationsForChannel);
@@ -51,7 +51,10 @@ export function BusinessLocationPicker({
     setSaving(loc.name);
     try {
       await select({ data: { workspaceId, channelId, locationName: loc.name } });
-      await qc.invalidateQueries({ queryKey: ["channels", workspaceId] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["channels", workspaceId] }),
+        qc.invalidateQueries({ queryKey: ["scheduler-options", workspaceId] }),
+      ]);
       toast.success(`Loja vinculada: ${loc.locationName}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível vincular a loja");
@@ -75,6 +78,14 @@ export function BusinessLocationPicker({
               ? q.error.message
               : "Verifique se as Business Profile APIs estão habilitadas no projeto Google."}
           </p>
+          <button
+            type="button"
+            disabled={q.isFetching}
+            onClick={() => void q.refetch()}
+            className="mt-2 min-h-11 rounded-md border px-3 text-xs"
+          >
+            Tentar novamente
+          </button>
         </div>
       </div>
     );
@@ -97,12 +108,12 @@ export function BusinessLocationPicker({
         <span className="text-[11px] font-medium text-foreground">Unidade que recebe os posts</span>
       </div>
       {locations.map((loc) => {
-        const active = currentLocationName === loc.locationName;
+        const active = currentLocationId === loc.name;
         return (
           <button
             key={loc.name}
             onClick={() => !active && onSelect(loc)}
-            disabled={!loc.verified || saving === loc.name || active}
+            disabled={!loc.verified || saving !== null || active}
             className={`flex w-full items-start gap-2 rounded-md border px-2.5 py-2 text-left transition ${
               active
                 ? "border-primary/60 bg-primary/10"

@@ -179,7 +179,7 @@ export function validateLinkUrl(raw: string): LinkValidation {
 /** WhatsApp deep link from a raw phone number. */
 export function whatsappHref(rawPhone: string, message?: string): string {
   const digits = rawPhone.replace(/\D/g, "");
-  const withCountry = digits.startsWith("55") ? digits : `55${digits}`;
+  const withCountry = digits.length <= 11 ? `55${digits}` : digits;
   const base = `https://wa.me/${withCountry}`;
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
@@ -189,7 +189,8 @@ export function mailtoHref(email: string): string {
 }
 
 export function telHref(phone: string): string {
-  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+  const digits = phone.replace(/\D/g, "");
+  return `tel:${phone.trim().startsWith("+") ? "+" : ""}${digits}`;
 }
 
 /** Builds the destination for a link given its kind. */
@@ -201,28 +202,49 @@ export function buildHref(
   switch (kind) {
     case "whatsapp": {
       const digits = raw.replace(/\D/g, "");
-      if (digits.length < 10) {
-        return { ok: false, href: "", error: "Telefone incompleto: inclua DDD." };
+      if (digits.length < 10 || digits.length > 15) {
+        return { ok: false, href: "", error: "Informe um telefone com DDD, de 10 a 15 dígitos." };
       }
       return { ok: true, href: whatsappHref(digits, extras?.message) };
     }
     case "email": {
       const email = raw.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      if (
+        email.length > 254 ||
+        !/^[a-z0-9._+-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i.test(
+          email,
+        )
+      ) {
         return { ok: false, href: "", error: "E-mail inválido." };
       }
       return { ok: true, href: mailtoHref(email) };
     }
     case "phone": {
       const digits = raw.replace(/\D/g, "");
-      if (digits.length < 10) {
-        return { ok: false, href: "", error: "Telefone incompleto: inclua DDD." };
+      if (digits.length < 10 || digits.length > 15) {
+        return { ok: false, href: "", error: "Informe um telefone com DDD, de 10 a 15 dígitos." };
       }
-      return { ok: true, href: telHref(digits) };
+      return { ok: true, href: telHref(raw) };
     }
     default:
       return validateLinkUrl(raw);
   }
+}
+
+/** Revalidate a stored redirect, including its kind, without accepting a client target. */
+export function safeStoredBioTarget(kind: string, url: string): string | null {
+  if (kind === "email") {
+    if (!url.startsWith("mailto:")) return null;
+    const result = buildHref("email", url.slice(7));
+    return result.ok && result.href === url ? result.href : null;
+  }
+  if (kind === "phone") {
+    if (!/^tel:[+]?\d{10,15}$/.test(url)) return null;
+    return url;
+  }
+  if (!["link", "product", "whatsapp"].includes(kind) || !/^https?:\/\//i.test(url)) return null;
+  const result = validateLinkUrl(url);
+  return result.ok ? result.href : null;
 }
 
 /* ------------------------------------------------------------------ */

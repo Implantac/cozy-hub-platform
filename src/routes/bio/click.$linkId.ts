@@ -35,7 +35,7 @@ export const Route = createFileRoute("/bio/click/$linkId")({
         if (!target) {
           return new Response("Link não encontrado", {
             status: 404,
-            headers: { "content-type": "text/plain; charset=utf-8" },
+            headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
           });
         }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildHref,
+  safeStoredBioTarget,
   checkContentSafety,
   deviceFromUserAgent,
   referrerHostOnly,
@@ -188,5 +189,40 @@ describe("privacy helpers", () => {
 
   it("returns null for malformed referrers", () => {
     expect(referrerHostOnly("not a url")).toBeNull();
+  });
+});
+
+describe("safe stored destinations", () => {
+  it.each([
+    ["email", "mailto:contato+bio@example.invalid"],
+    ["phone", "tel:+5543999990000"],
+    ["link", "https://example.invalid/promo"],
+    ["product", "https://example.invalid/produto"],
+    ["whatsapp", "https://wa.me/5543999990000"],
+  ])("accepts a safe matching %s destination", (kind, url) => {
+    expect(safeStoredBioTarget(kind, url)).toBe(url);
+  });
+  it.each([
+    ["link", "mailto:qa@example.invalid"],
+    ["email", "https://example.invalid"],
+    ["phone", "tel:123"],
+    ["email", "mailto:qa@example.invalid?bcc=other@example.invalid"],
+    ["email", "mailto:qa@example.invalid%0d%0aBcc:other@example.invalid"],
+    ["link", "javascript:alert(1)"],
+    ["link", "https://banco.example@evil.invalid"],
+    ["phone", "tel:+5543999990000?x=1"],
+    ["unknown", "https://example.invalid"],
+  ])("refuses mismatched or unsafe %s/%s", (kind, url) => {
+    expect(safeStoredBioTarget(kind, url)).toBeNull();
+  });
+  it("adds the country code for a Brazilian DDD 55 rather than confusing it with the country code", () => {
+    expect(buildHref("whatsapp", "(55) 99999-0000").href).toBe("https://wa.me/5555999990000");
+  });
+  it("preserves an explicit plus sign in a dialer link", () => {
+    expect(buildHref("phone", "+55 (43) 99999-0000").href).toBe("tel:+5543999990000");
+  });
+  it.each(["email", "phone", "whatsapp"] as const)("rejects oversized %s input", (kind) => {
+    const raw = kind === "email" ? "a".repeat(255) + "@example.invalid" : "1".repeat(20);
+    expect(buildHref(kind, raw).ok).toBe(false);
   });
 });

@@ -1,3 +1,5 @@
+import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
+import { WorkspaceAccessNotice } from "@/features/shell/components/WorkspaceAccessNotice";
 import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
 import { modulePageHead } from "@/lib/page-head";
 import { useTranslation } from "react-i18next";
@@ -22,6 +24,11 @@ export const Route = createFileRoute("/_authenticated/app/content")({
 });
 
 function ContentPage() {
+  const [workspaceId] = useCurrentWorkspaceId();
+  return <ContentPageWorkspace key={workspaceId ?? "no-workspace"} />;
+}
+
+function ContentPageWorkspace() {
   const { t } = useTranslation();
   const p = useContentPage();
   const pre = usePreflight(p.body, p.title);
@@ -33,16 +40,21 @@ function ContentPage() {
       <div className="space-y-6">
         <PageHeader icon={FileText} title={t("content.title")} subtitle={t("content.subtitle")} />
 
+        <WorkspaceAccessNotice access={p.access} />
+
         {/* Composer + live preflight: the audit runs while you type, so the
             draft never reaches the queue with a limit violation. */}
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
           <ContentComposer
             title={p.title}
             body={p.body}
+            mediaInput={p.mediaInput}
+            onMediaInputChange={p.setMediaInput}
             onTitleChange={p.setTitle}
             onBodyChange={p.setBody}
             onSubmit={() => p.createMut.mutate()}
             isPending={p.createMut.isPending}
+            disabled={!p.access.canEdit}
             canPublish={pre.result?.canPublish ?? true}
           />
           <div className="space-y-4">
@@ -59,15 +71,17 @@ function ContentPage() {
           </div>
         </div>
 
-        <details className="section-card overflow-hidden">
-          <summary className="min-h-11 cursor-pointer px-5 py-4 text-sm font-semibold marker:text-primary">
-            {t("content.advanced")}{" "}
-            <span className="ml-2 text-xs font-normal text-muted-foreground">
-              {t("content.optional")}
-            </span>
-          </summary>
-          <StudioPanel key={p.q.wsId ?? "no-workspace"} workspaceId={p.q.wsId} items={p.items} />
-        </details>
+        {p.access.canEdit && (
+          <details className="section-card overflow-hidden">
+            <summary className="min-h-11 cursor-pointer px-5 py-4 text-sm font-semibold marker:text-primary">
+              {t("content.advanced")}{" "}
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {t("content.optional")}
+              </span>
+            </summary>
+            <StudioPanel key={p.q.wsId ?? "no-workspace"} workspaceId={p.q.wsId} items={p.items} />
+          </details>
+        )}
 
         <ContentFilters
           filter={p.filter}
@@ -80,6 +94,7 @@ function ContentPage() {
         {p.selected.size > 0 && (
           <BulkActionBar
             count={p.selected.size}
+            disabled={p.bulkPending || !p.access.canEdit}
             onMoveTo={p.runBulkStatus}
             onDelete={p.runBulkDelete}
             onClear={() => p.setSelected(new Set())}
@@ -90,6 +105,7 @@ function ContentPage() {
           <QueryErrorState onRetry={() => void p.q.refetch()} pending={p.q.isFetching} />
         ) : (
           <ContentList
+            disabled={!p.access.canEdit || p.bulkPending}
             items={p.items}
             filtered={p.filtered}
             isLoading={p.q.isLoading}

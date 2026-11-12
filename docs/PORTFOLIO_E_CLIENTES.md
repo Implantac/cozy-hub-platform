@@ -2,7 +2,7 @@
 
 Atualizado em 12/11/2026. Este documento descreve o código, não certifica integrações externas nem substitui uma homologação de produção.
 
-## Primeira rodada de melhorias
+## Primeira rodada de melhorias (histórico; alterações posteriores abaixo)
 
 - **Estado de workspace compartilhado:** `useSyncExternalStore`, persistência com tolerância a storage bloqueado, sincronização entre abas e validação da seleção contra memberships.
 - **Sessão e links internos:** a área privada usa `ssr: false`, pois a sessão atual vive no navegador. Páginas públicas continuam com SSR. RPCs mantêm autenticação Bearer no servidor e RLS. Login preserva somente destinos internos `/app/*`, incluindo query e fragmento.
@@ -16,7 +16,7 @@ Atualizado em 12/11/2026. Este documento descreve o código, não certifica inte
 - **Metadados:** títulos próprios por módulo usando o helper compartilhado.
 - **Configuração:** referências públicas do Supabase atualizadas, migration RLS já aplicada incorporada ao repositório, Node 22 LTS e heap de build de 4 GB.
 
-## Segunda rodada de melhorias
+## Segunda rodada de melhorias (histórico; agregação substituída na rodada 3)
 
 - **Perfil confiável:** consulta compartilhada com chave por usuário, nome carregado no formulário, validação de 1 a 80 caracteres após trim e gravação confirmada pela linha retornada. Cabeçalho e cache recebem a confirmação do servidor; falhas preservam o rascunho.
 - **Recuperação sem desmontagem:** uma falha de refresh de perfil/workspaces com dados válidos em cache não desmonta a área privada. O formulário informa a falha e permite nova tentativa sem sobrescrever a edição.
@@ -28,6 +28,19 @@ Atualizado em 12/11/2026. Este documento descreve o código, não certifica inte
 - **Relatórios:** PDF/CSV autenticados verificam status HTTP, MIME esperado, corpo não vazio e timeout de 30 segundos antes de iniciar o download. Arquivos permanecem em português; nenhum envio automático por e-mail é prometido.
 
 A validação local desta rodada passou em typecheck, lint, 444 testes/43 arquivos, auditoria de dependências de produção e build Vercel. No artefato compilado local, 19 verificações de navegador e 9 estados com Axe passaram. Foram usados usuários/workspaces descartáveis com limpeza verificada; nenhum canal foi conectado e nenhum conteúdo foi publicado. As verificações selecionadas de isolamento não equivalem à revisão completa de RBAC/RLS. Consulte [o registro de QA da rodada 2](./QA_PORTFOLIO_RODADA_2.md) para método e limitações. O sucesso local não comprova publicação remota nem aprovação do CI remoto.
+
+## Terceira rodada: integridade funcional
+
+A finalidade de portfólio não reduz o requisito de persistência, permissões e operações verdadeiras. Esta rodada corrige o fluxo editorial e o agendamento, protege estados de entrega/owner/plano também no banco e amplia a validação com Auth/RLS reais.
+
+- **Conteúdo e fila:** editor persistente de texto/mídia por URL, agendamento futuro para 1–20 canais e cancelamento atômico. Conteúdo/canal com jobs ativos protegidos. Alterações relacionadas invalidam os caches necessários; troca de workspace não carrega o rascunho nem os privilégios anteriores.
+- **Papéis:** editor pode criar marca e editar conteúdo/Bio/agendamento, mas não gerenciar canais, excluir marca nem executar a fila. Viewer só consulta. API e banco impõem os limites; a conta master continua sendo owner do workspace, não superusuário do banco.
+- **Falhas honestas:** erros HTTP não serializados não viram sucesso vazio; rejeições desconhecidas recebem mensagem legível. Formulários preservam valores para recuperação. Resultados sem confirmação/referências de tracking não são “publicado”.
+- **OAuth/Bio:** state assinado e vinculado ao navegador, callback atômico com rechecagem de permissões, desconexão removendo ciphertext; links de contato validados e ordenação atômica. Não houve conexão social real.
+- **Analytics/relatórios:** a ressalva da rodada 2 foi substituída por agregação da **última coleta por conteúdo × canal no período**. Coletas repetidas não são somadas; continuam cumulativas, não incrementos semanais/diários nem alcance de pessoas únicas.
+- **Validação:** typecheck/lint/build, 712 testes/56 arquivos, 116 checks SQL no schema instalado, 22 checks HTTP autenticados e 31 de navegador. Os 16 estados selecionados de Axe terminaram sem violações detectadas. Fixtures removidas e fingerprints do workspace/membership reais preservados. Não é declaração de “100% funcional” nem homologação de provedores.
+
+Detalhes, sete migrations já aplicadas, método de isolamento e limites em [QA_FUNCIONAL_RODADA_3.md](./QA_FUNCIONAL_RODADA_3.md). A reconciliação durável de jobs em processamento/resultado ambíguo permanece pendente; não reenvie sem verificar o provedor.
 
 ## Rótulo de portfólio não é modo de simulação
 
@@ -84,7 +97,7 @@ Na sincronização inicial, o deploy pelo SHA foi disparado explicitamente, pois
 
 ## Banco e automações existentes
 
-A migration `20261112143126_workspace_owner_returning_visibility.sql` já havia sido aplicada no Supabase exclusivo e agora está versionada. Não é necessário reaplicá-la manualmente nesse projeto. Não desative RLS para corrigir bootstrap.
+A migration `20261112143126_workspace_owner_returning_visibility.sql` já havia sido aplicada no Supabase exclusivo e está versionada. As sete migrations da rodada 3 também foram aplicadas, chegando a 27 no ambiente auditado; nomes e testes em [QA_FUNCIONAL_RODADA_3.md](./QA_FUNCIONAL_RODADA_3.md#migrations-desta-rodada). Não reaplique essas migrations manualmente nesse projeto. Não desative RLS para corrigir bootstrap.
 
 Os dois crons em operação usam um segredo do Vault chamado `velt_cron_secret`, não `ALTER DATABASE`. O segredo deve ser idêntico a `CRON_SECRET` no ambiente protegido do servidor. O comando do job consulta o Vault na execução e não contém o valor em texto.
 
@@ -101,7 +114,8 @@ Há uma limitação histórica de instalação: uma migration antiga tenta `ALTE
 - [x] Sincronizar no GitHub os dois commits da primeira rodada; `main` conferido após o push em 12/11/2026.
 - [ ] Homologar continuamente o fluxo completo de CI, instalação limpa e regressão pós-deploy para cada versão destinada a clientes.
 - [ ] Validar instalação limpa das migrations e processo de backup/restauração.
-- [ ] Completar RBAC/RLS com fixtures de dois clientes, conteúdo existente, convites e todos os papéis. Testes selecionados não são pentest.
+- [x] Validar os fluxos centrais da rodada 3 com dois workspaces, dados sintéticos e owner/admin/editor/viewer, incluindo concorrência, Auth e RLS reais.
+- [ ] Completar a revisão de todos os módulos/endpoints, revogação durante a sessão, convites e cenários comerciais multi-cliente; os testes selecionados não são pentest.
 - [ ] Configurar e testar SMTP próprio, confirmação e recuperação de senha, limites e mensagens de abuso.
 - [ ] Homologar um ciclo real em um canal de teste: autorização, expiração/refresh de token, mídia, agendamento, publicação, retentativa e coleta de métricas.
 - [ ] Validar falhas de provedores e idempotência; nenhuma simulação pode ser apresentada como publicação real.
@@ -109,6 +123,7 @@ Há uma limitação histórica de instalação: uma migration antiga tenta `ALTE
 - [ ] Revisar permissões de storage, upload e egress para redes privadas; completar proteção contra DNS rebinding.
 - [ ] Revisar LGPD, retenção/exclusão, termos, consentimentos e credenciais por ambiente/cliente.
 - [ ] Concluir tradução dos módulos avançados e auditoria manual de teclado/leitor de tela.
+- [ ] Implementar/homologar reconciliação durável de execuções sem confirmação e referências upstream; não republicar automaticamente um item possivelmente aceito.
 - [ ] Monitorar crons, filas paradas, erros, quotas e custo. Definir suporte e resposta a incidentes.
 - [ ] Desligar o rótulo de portfólio somente quando a liberação comercial estiver aprovada.
 

@@ -2,7 +2,7 @@
 
 **Um sistema operacional para a presença digital de quem está começando.**
 
-VELT conecta os canais de um pequeno negócio (Instagram, Facebook, YouTube, TikTok, LinkedIn), agenda e publica conteúdo, mede o resultado — e transforma tudo isso em decisão: _onde eu estou, onde quero chegar, o que me impede, qual a próxima ação, vale mudar de direção?_
+VELT organiza os canais e o conteúdo de um pequeno negócio, oferece agendamento e adaptadores de publicação/coleta — e transforma os dados disponíveis em decisão: _onde eu estou, onde quero chegar, o que me impede, qual a próxima ação, vale mudar de direção?_ As operações externas dependem de configuração, autorização e homologação por provedor; a finalidade de portfólio não permite sucesso simulado.
 
 O diferencial não é ser mais um agendador de posts. É ser a camada de **julgamento**: o produto audita cada publicação antes dela ir ao ar, aprende com o histórico da própria conta e mantém memória das decisões tomadas.
 
@@ -10,24 +10,25 @@ O diferencial não é ser mais um agendador de posts. É ser a camada de **julga
 
 ## Estado atual, sem marketing
 
-| Área                                | Situação neste estágio                                                                          |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Publicação web e Supabase exclusivo | Portfólio funcional, em validação; não é liberação comercial                                    |
-| Autenticação, workspace e navegação | Bootstrap e cache por usuário; regressões de login/recarga/recuperação incluídas                |
-| Perfil e equipe                     | Nome carregado/validado, save confirmado, rascunho preservado e consulta de membros sob RLS     |
-| Conteúdo                            | Rascunhos persistentes; salvar não publica; Studio opcional                                     |
-| Interface e idioma                  | Fluxo principal pt-BR/en-US; tradução avançada ainda parcial                                    |
-| USE Brain                           | Regras determinísticas por padrão; não é IA generativa nem pesquisa de mercado ao vivo          |
-| Oportunidades globais               | Catálogo demonstrativo identificado na interface                                                |
-| Publicadores sociais                | Código implementado para algumas plataformas; requer credenciais, aprovações e homologação real |
-| Métricas e cron                     | Infraestrutura configurada; coleta real depende de canais autorizados e publicações reais       |
-| RLS/RBAC                            | RLS habilitada; testes selecionados aprovados, revisão completa multi-cliente pendente          |
-| IA, Google login e SMTP             | Dependem de configuração/validação; Google login não é exibido sem opt-in                       |
-| Commerce Hub / RAG                  | Não implementados; não prometer como recursos disponíveis                                       |
+| Área                                | Situação neste estágio                                                                                   |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Publicação web e Supabase exclusivo | Portfólio funcional, em validação; não é liberação comercial                                             |
+| Autenticação, workspace e navegação | Bootstrap e cache por usuário; regressões de login/recarga/recuperação incluídas                         |
+| Perfil e equipe                     | Nome carregado/validado, save confirmado, rascunho preservado e consulta de membros sob RLS              |
+| Conteúdo                            | Criar/editar texto e URLs de mídia com persistência confirmada; salvar não publica; sem upload/carrossel |
+| Agendamento                         | Enqueue/cancelamento atômicos, horário futuro e RBAC; tratamento conservador de resultados ambíguos      |
+| Interface e idioma                  | Fluxo principal pt-BR/en-US; tradução avançada ainda parcial                                             |
+| USE Brain                           | Regras determinísticas por padrão; não é IA generativa nem pesquisa de mercado ao vivo                   |
+| Oportunidades globais               | Catálogo demonstrativo identificado na interface                                                         |
+| Publicadores sociais                | Código implementado para algumas plataformas; requer credenciais, aprovações e homologação real          |
+| Métricas e cron                     | Infraestrutura configurada; coleta real depende de canais autorizados e publicações reais                |
+| RLS/RBAC                            | 116 checks SQL reais aprovados com rollback; tenant/owner/plano/estados protegidos; não é pentest        |
+| IA, Google login e SMTP             | Dependem de configuração/validação; Google login não é exibido sem opt-in                                |
+| Commerce Hub / RAG                  | Não implementados; não prometer como recursos disponíveis                                                |
 
-Veja [portfólio e checklist para clientes](./docs/PORTFOLIO_E_CLIENTES.md) para escopo, limites e regressões.
+Veja [portfólio e checklist para clientes](./docs/PORTFOLIO_E_CLIENTES.md) para escopo e pendências. A [rodada 3 de integridade funcional](./docs/QA_FUNCIONAL_RODADA_3.md) registra 712 testes, 116 checks SQL, 22 checks HTTP autenticados e 31 checks de navegador, com 16 análises Axe sem violações detectadas. São camadas de evidência diferentes; nenhuma equivale a homologação externa.
 
-A honestidade é um requisito de produto: a tela de Agendamento mostra, canal por canal, o que realmente está habilitado naquele ambiente (`VELT_PUBLISHER_MODE`, credenciais presentes). Nenhum job entra em fila prometendo publicar o que não publica.
+A honestidade é um requisito de produto: a tela de Agendamento distingue configuração presente de conexão autorizada. A API exige pré-voo e conexão/token para enfileirar, mas isso não comprova validade atual do grant, aprovação do app ou visibilidade da publicação. Erros e resultados sem confirmação não são apresentados como sucesso.
 
 ---
 
@@ -152,10 +153,8 @@ Cada achado traz **por que** e **como corrigir**. Nada é um número solto.
 - **Facebook Page** — photo / video / feed por tipo de mídia.
 - **YouTube** — sessão de upload resumível, com baixa do asset e guarda de tamanho.
 - **LinkedIn** — Posts API versionada (`LinkedIn-Version`), upload de imagem incluso.
-- **TikTok** — Content Posting API; padrão em modo rascunho (`inbox`), direto apenas com app aprovada.
-- **Google Business Profile** — API v4 `localPosts`. Exige `languageCode` + `summary`
-  - `callToAction` (o Google não diz qual campo faltou); classifica o post em
-    `STANDARD` / `OFFER` / `EVENT` a partir da copy; imagem precisa ser ≥ 720×540.
+- **TikTok** — Content Posting API em Direct Post, somente com `TIKTOK_DIRECT_POST=true` e app autorizada. Inbox não conta como publicação; conclusão exige status e ID público confirmado. IDs int64 não perdem precisão. Upload atual de chunk único até 64 MiB, não multipart completo.
+- **Google Business Profile** — API v4 `localPosts`, com unidade explicitamente escolhida e estado atual Voice of Merchant. `summary` obrigatório, CTA opcional; `CALL` omite URL, `OFFER`/`EVENT` exigem calendário. Aceitação/processamento não equivale a publicação visível. Uma imagem HTTPS por post; as exigências adicionais do Google continuam sujeitas à homologação.
 
 Camada de suporte:
 
@@ -163,7 +162,9 @@ Camada de suporte:
 - **Pré-checagem de mídia** (`scheduler/media.ts`): HTTPS público, formato identificável, vídeo onde só cabe imagem.
 - **Erros normalizados** em `retryable` — o que não pode ser corrigido por retentativa vai direto para a dead letter queue, com motivo legível.
 
-Para desenvolvimento sem credenciais:
+O contrato de resultados não usa ID gerado localmente como prova de publicação. Referência upstream conhecida impede republicação automática; jobs `processing` expirados não são retomados sem conferência do provedor. Reconciliação durável continua pendente. Meta usa Graph `v24.0` por padrão, alterável por configuração; não é uma declaração de versão mais recente.
+
+Para desenvolvimento explicitamente simulado (nunca na produção deste portfólio):
 
 ```bash
 VELT_PUBLISHER_MODE=simulate npm run dev   # nada é publicado; logs deixam isso óbvio
@@ -260,6 +261,8 @@ lado de cada número. Semanas sem base de comparação mostram "novo" em vez de 
 porcentagem infinita, e uma semana sem atividade diz isso — não desenha um
 gráfico vazio.
 
+Os totais usam a última coleta cumulativa por conteúdo × canal na janela, sem somar coletas repetidas. A comparação semanal não mede apenas interações ocorridas naquela semana e o alcance agregado não representa pessoas únicas entre canais. A metodologia acompanha os arquivos.
+
 O PDF é gerado por `pdf-lib` com fontes padrão (Helvetica cobre todo o pt-BR em
 WinAnsi, verificado) e sem imagens externas: renderiza igual num servidor sem
 rede e sem bucket. O CSV traz os mesmos números, para quem quiser conferir a
@@ -314,7 +317,7 @@ erros de formatação que ninguém pode corrigir à mão.
 npm run test
 ```
 
-333 testes no snapshot de 2026-11-11 cobrindo limites de plataforma, análise de gancho, timezone e slots, normalização de métricas, classificação e download seguro de mídia, motores do Brain, OAuth, relatórios, contratos de publicação e exposição pública do link na bio. A suíte atual privilegia lógica isolada; ainda não substitui testes de integração com Supabase/RLS nem E2E.
+**712 testes em 56 arquivos**, verificados em 12/11/2026, cobrindo limites de plataforma, agendamento, permissões, métricas cumulativas, mídia, Brain, OAuth, relatórios, transporte HTTP e contratos de publicação. Parte usa mocks. As quatro suítes em `supabase/tests/` passaram em 116 checks reais de Postgres/RLS com rollback; a rodada autenticada no build compilado passou em 22 checks HTTP e 31 de navegador. Consulte [método, evidências e limites](./docs/QA_FUNCIONAL_RODADA_3.md); essas verificações não substituem homologação externa nem pentest.
 
 ---
 

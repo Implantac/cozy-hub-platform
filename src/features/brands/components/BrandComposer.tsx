@@ -5,6 +5,7 @@ type Props = {
   name: string;
   description: string;
   isPending: boolean;
+  disabled?: boolean;
   onNameChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
   onSubmit: () => void;
@@ -14,6 +15,7 @@ export function BrandComposer({
   name,
   description,
   isPending,
+  disabled = false,
   onNameChange,
   onDescriptionChange,
   onSubmit,
@@ -24,7 +26,7 @@ export function BrandComposer({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (name.trim().length >= 2 && !isPending) onSubmit();
+          if (name.trim().length >= 2 && !isPending && !disabled) onSubmit();
         }}
         className="grid items-end gap-3 md:grid-cols-[1fr_2fr_auto]"
       >
@@ -33,6 +35,7 @@ export function BrandComposer({
             {t("brands.name")}
           </label>
           <input
+            disabled={disabled || isPending}
             id="brand-name"
             value={name}
             onChange={(event) => onNameChange(event.target.value)}
@@ -48,6 +51,7 @@ export function BrandComposer({
             {t("brands.description")}
           </label>
           <input
+            disabled={disabled || isPending}
             id="brand-description"
             value={description}
             onChange={(event) => onDescriptionChange(event.target.value)}
@@ -58,7 +62,7 @@ export function BrandComposer({
         </div>
         <button
           type="submit"
-          disabled={isPending || name.trim().length < 2}
+          disabled={disabled || isPending || name.trim().length < 2}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
           <Plus aria-hidden="true" className="size-4" />{" "}

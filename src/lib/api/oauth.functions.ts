@@ -1,11 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
+import { getRequest, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getProvider, listProviders } from "@/lib/oauth/providers.server";
-import { signState } from "@/lib/oauth/state.server";
-import { deleteToken } from "@/lib/oauth/store.server";
+import {
+  signState,
+  stateCookieName,
+  stateCookieValue,
+  STATE_COOKIE_PATH,
+  STATE_TTL_SECONDS,
+} from "@/lib/oauth/state.server";
 import { throwIfError } from "./_supabase";
+import { requireWorkspaceRole, assertBrandInWorkspace } from "./_workspace";
+import { WORKSPACE_MANAGE_ROLES } from "@/lib/workspace/permissions";
 
 /**
  * Build the OAuth callback URL server-side. Never trust a client-supplied
@@ -59,17 +66,8 @@ export const startOAuthConnect = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Workspace membership check (RLS-backed)
-    const { data: member, error } = await supabase
-      .from("workspace_members")
-      .select("role")
-      .eq("workspace_id", data.workspaceId)
-      .eq("user_id", userId)
-      .maybeSingle();
-    throwIfError(error);
-    if (!member || !["owner", "admin", "editor"].includes(member.role)) {
-      throw new Error("forbidden: insufficient role to connect channels");
-    }
+    await requireWorkspaceRole(supabase, data.workspaceId, userId, WORKSPACE_MANAGE_ROLES);
+    await assertBrandInWorkspace(supabase, data.workspaceId, data.brandId);
 
     const provider = getProvider(data.provider);
     const redirectUri = buildCallbackUri(data.provider);
@@ -81,7 +79,14 @@ export const startOAuthConnect = createServerFn({ method: "POST" })
       redirectUri,
     });
     const url = provider.authUrl({ state, redirectUri });
-    return { url, state };
+    setCookie(stateCookieName(data.provider), stateCookieValue(state), {
+      httpOnly: true,
+      secure: new URL(redirectUri).protocol === "https:",
+      sameSite: "lax",
+      path: STATE_COOKIE_PATH,
+      maxAge: STATE_TTL_SECONDS,
+    });
+    return { url };
   });
 
 export const listOAuthProviders = createServerFn({ method: "GET" })
@@ -94,15 +99,20 @@ export const disconnectChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ channelId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    // Membership/role checked via RLS on channels.update
-    const { data: row, error } = await supabase
+    const { supabase, userId } = context;
+    const { data: channel, error: readError } = await supabase
       .from("channels")
-      .update({ status: "disconnected" })
+      .select("id,workspace_id")
       .eq("id", data.channelId)
-      .select()
-      .single();
+      .maybeSingle();
+    throwIfError(readError);
+    if (!channel) throw new Error("Canal não encontrado neste workspace.");
+    await requireWorkspaceRole(supabase, channel.workspace_id, userId, WORKSPACE_MANAGE_ROLES);
+    const { data: row, error } = await supabase.rpc("disconnect_oauth_channel", {
+      _channel_id: data.channelId,
+    });
     throwIfError(error);
-    await deleteToken(data.channelId);
+    if (!row || row.id !== data.channelId || row.status !== "disconnected")
+      throw new Error("Desconexão não confirmada.");
     return row;
   });

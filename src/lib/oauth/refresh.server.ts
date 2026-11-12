@@ -11,8 +11,7 @@
  *   - Google (YouTube)  : standard OAuth2 refresh_token grant
  *   - LinkedIn          : standard OAuth2 refresh_token grant
  *   - TikTok            : refresh_token grant, rotates the refresh token
- *   - Meta              : no refresh_token; exchange for a long-lived token,
- *                         then the long-lived token is valid ~60 days
+ *   - Meta              : stored Page grants require explicit reauthorization at expiry
  */
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -51,11 +50,14 @@ async function postForm(
     body: new URLSearchParams(params).toString(),
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`refresh failed ${res.status}: ${text.slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(
+      `refresh failed ${res.status}${res.status === 400 || res.status === 401 ? " — reconecte o canal" : ""}`,
+    );
   try {
     return JSON.parse(text) as Record<string, unknown>;
   } catch {
-    throw new Error(`refresh returned non-JSON: ${text.slice(0, 200)}`);
+    throw new Error("refresh returned invalid JSON");
   }
 }
 
@@ -111,37 +113,11 @@ async function refreshTikTok(refreshToken: string): Promise<RefreshResult> {
   };
 }
 
-/**
- * Meta has no refresh token. A short-lived user token is exchanged for a
- * long-lived one (60 days); a long-lived token is refreshed by calling the same
- * endpoint, which restarts the 60-day clock.
- */
-async function refreshMeta(accessToken: string): Promise<RefreshResult> {
-  const url = new URL("https://graph.facebook.com/v19.0/oauth/access_token");
-  url.searchParams.set("grant_type", "fb_exchange_token");
-  url.searchParams.set("client_id", process.env.META_APP_ID ?? "");
-  url.searchParams.set("client_secret", process.env.META_APP_SECRET ?? "");
-  url.searchParams.set("fb_exchange_token", accessToken);
-  const res = await fetch(url);
-  const text = await res.text();
-  if (!res.ok) throw new Error(`meta refresh failed ${res.status}: ${text.slice(0, 300)}`);
-  const json = JSON.parse(text) as { access_token?: string; expires_in?: number };
-  if (!json.access_token) throw new Error("meta refresh returned no access_token");
-  return {
-    accessToken: json.access_token,
-    refreshToken: null,
-    expiresAt:
-      isoFromSeconds(json.expires_in) ?? new Date(Date.now() + 60 * 86400_000).toISOString(),
-  };
-}
-
 const REFRESHERS: Record<string, (rt: string) => Promise<RefreshResult>> = {
   youtube: refreshGoogle,
   google_business: refreshGoogle,
   linkedin: refreshLinkedIn,
   tiktok: refreshTikTok,
-  instagram: refreshMeta,
-  facebook: refreshMeta,
 };
 
 /**
@@ -163,24 +139,31 @@ export async function getFreshToken(
     throw new Error("canal sem token OAuth — reconecte o canal antes de publicar");
   }
 
+  if (
+    !stored.accessToken?.trim() ||
+    stored.accessToken === "undefined" ||
+    (stored.expiresAt && !Number.isFinite(Date.parse(stored.expiresAt)))
+  )
+    throw new Error("Token ou validade inválida — reconecte o canal.");
   const refresher = REFRESHERS[platform];
   const expired = needsRefresh(stored.expiresAt);
   const hasRefreshToken = Boolean(stored.refreshToken);
 
-  // Meta can always extend a token; other providers need a refresh token.
-  const canRefresh =
-    Boolean(refresher) && (hasRefreshToken || platform === "instagram" || platform === "facebook");
+  // Stored Meta credentials are Page tokens, not user tokens for fb_exchange_token.
+  // Never pretend that an expired Page grant can always be extended. Reauthorization is explicit.
+  const canRefresh = Boolean(refresher) && hasRefreshToken;
 
   if (!expired && !hasExpiringSoon(stored.expiresAt)) {
     return { accessToken: stored.accessToken, refreshed: false };
   }
-  if (!canRefresh) {
-    return { accessToken: stored.accessToken, refreshed: false };
-  }
+  if (!canRefresh) throw new Error("Token expirado sem renovação disponível — reconecte o canal.");
 
   const result = await refresher(
     hasRefreshToken ? String(stored.refreshToken) : stored.accessToken,
   );
+
+  if (!result.accessToken?.trim() || result.accessToken === "undefined")
+    throw new Error("Renovação sem token válido — reconecte o canal.");
 
   await saveToken(channelId, {
     accessToken: result.accessToken,
@@ -190,10 +173,12 @@ export async function getFreshToken(
     expiresAt: result.expiresAt ?? null,
   });
 
-  await supabaseAdmin
+  const { error: statusError } = await supabaseAdmin
     .from("channels")
-    .update({ last_synced_at: new Date().toISOString(), status: "connected" })
+    .update({ status: "connected" })
     .eq("id", channelId);
+  if (statusError)
+    throw new Error("Não foi possível confirmar o estado do canal após a renovação.");
 
   return { accessToken: result.accessToken, refreshed: true };
 }

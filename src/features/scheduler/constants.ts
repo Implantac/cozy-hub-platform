@@ -1,6 +1,7 @@
-import { AlertTriangle, CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
+import { Ban, AlertTriangle, CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
 
-export type JobStatus = "pending" | "processing" | "succeeded" | "failed" | "dead_letter";
+export type JobStatus =
+  "pending" | "processing" | "succeeded" | "failed" | "dead_letter" | "cancelled";
 
 export const STATUSES: readonly (JobStatus | "all")[] = [
   "all",
@@ -9,12 +10,14 @@ export const STATUSES: readonly (JobStatus | "all")[] = [
   "succeeded",
   "failed",
   "dead_letter",
+  "cancelled",
 ] as const;
 
 export const STATUS_META: Record<
   JobStatus,
   { icon: typeof Clock; className: string; label: string }
 > = {
+  cancelled: { icon: Ban, className: "bg-secondary text-muted-foreground", label: "Canceled" },
   pending: { icon: Clock, className: "bg-secondary text-secondary-foreground", label: "Pending" },
   processing: { icon: Loader2, className: "bg-primary/15 text-primary", label: "Processing" },
   succeeded: { icon: CheckCircle2, className: "bg-success/20 text-success", label: "Succeeded" },
