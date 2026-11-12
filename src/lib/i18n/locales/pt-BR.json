@@ -166,7 +166,8 @@
       "core": "Comece por aqui"
     },
     "bio": "Link na bio",
-    "moreTools": "Mais ferramentas"
+    "moreTools": "Mais ferramentas",
+    "openNavigation": "Abrir navegação"
   },
   "palette": {
     "placeholder": "Buscar páginas, ações...",
@@ -221,13 +222,29 @@
     },
     "profile": {
       "title": "Seu perfil",
-      "displayName": "Nome de exibição"
+      "displayName": "Nome de exibição",
+      "help": "Este nome identifica você no aplicativo e na lista de membros. Não altera seu e-mail de acesso.",
+      "nameLimit": "Use de 1 a {{max}} caracteres. Espaços nas extremidades são removidos.",
+      "required": "Informe um nome; apenas espaços não são válidos.",
+      "tooLong": "Use no máximo {{max}} caracteres.",
+      "unsaved": "Alterações ainda não salvas",
+      "noChanges": "Nenhuma alteração pendente"
     },
     "team": {
-      "title": "Membros"
+      "title": "Membros",
+      "readOnly": "Consulta dos membros deste workspace. Convites e alteração de permissões não estão disponíveis nesta tela.",
+      "empty": "Nenhum membro foi retornado para este workspace.",
+      "visibilityNote": "Nomes de outros membros dependem das regras de privacidade. Quando o perfil não estiver visível, mostramos um identificador abreviado.",
+      "memberFallback": "Membro {{id}}"
     },
     "appearance": {
       "title": "Idioma da interface"
+    },
+    "roles": {
+      "owner": "Proprietário",
+      "admin": "Administrador",
+      "editor": "Editor",
+      "viewer": "Leitor"
     }
   },
   "workspace": {
@@ -270,7 +287,7 @@
     "notFoundDesc": "Esta rota não existe no seu VELT.",
     "dashboardUnavailable": "Não foi possível carregar o painel.",
     "workspaceUnavailable": "Não foi possível carregar seus espaços de trabalho. Verifique sua conexão e tente novamente.",
-    "retryHint": "Confira sua conexão e tente carregar o painel novamente.",
+    "retryHint": "Confira sua conexão e tente carregar esta seção novamente.",
     "dataUnavailable": "Não foi possível carregar os dados"
   },
   "seo": {
@@ -509,5 +526,68 @@
     "description": "Os exemplos globais ilustram ideias de negócio. Crescimento, competição e compatibilidade são valores ilustrativos e regras de pontuação, não dados atuais coletados na internet.",
     "example": "Exemplo demonstrativo",
     "rule": "Compatibilidade por regras"
+  },
+  "analytics": {
+    "title": "Métricas, tendências e canais",
+    "subtitle": "Consulte os registros coletados dos seus canais, com origem e limites claros.",
+    "period": "Período das métricas",
+    "lastDays": "Últimos {{days}} dias",
+    "emptyTitle": "Sem métricas coletadas neste período",
+    "emptyText": "As métricas dependem de publicações efetivas em canais autorizados. Consulte os requisitos acima ou amplie o período. Nenhum gráfico é preenchido com dados de demonstração.",
+    "createContent": "Criar conteúdo",
+    "overviewError": "Não foi possível carregar as métricas",
+    "readinessError": "Não foi possível verificar a coleta de métricas",
+    "collectionTitle": "Coleta de métricas",
+    "collectionCounts": "Coletas: {{snapshots}} · Publicações efetivas: {{posts}}",
+    "measureNow": "Medir agora",
+    "collecting": "Coletando…",
+    "syncHelp": "Busca dados nos provedores conectados. Exige autorização válida e pode consumir a cota das plataformas.",
+    "ownerRequired": "Somente proprietários e administradores podem iniciar uma coleta.",
+    "connectToMeasure": "Para habilitar a coleta, conecte via OAuth um canal com coletor de métricas implementado.",
+    "reason_no_channels": "Nenhum canal foi cadastrado neste workspace.",
+    "reason_oauth_required": "Há canais cadastrados, mas nenhum está autorizado via OAuth. Cadastro manual não libera coleta.",
+    "reason_unsupported": "Os canais conectados não têm coleta por publicação disponível nesta versão. Não vamos inventar métricas.",
+    "reason_no_posts": "Ainda não há publicação efetiva para medir. Rascunhos e publicações simuladas não contam.",
+    "reason_not_collected": "Há publicações efetivas, mas ainda não existem registros de coleta.",
+    "manageChannels": "Ver canais e requisitos",
+    "unsupportedChannel": "coleta por publicação indisponível",
+    "oauthRequired": "OAuth pendente",
+    "lastCollection": "última coleta",
+    "age_never": "nunca coletado",
+    "age_unknown": "data da coleta não confirmada",
+    "age_recent": "há menos de 1h",
+    "age_hours_one": "há {{count}}h",
+    "age_hours_other": "há {{count}}h",
+    "age_days_one": "há {{count}} dia",
+    "age_days_other": "há {{count}} dias",
+    "syncSuccess": "Publicações medidas: {{posts}} · Registros gravados: {{records}}",
+    "syncError_one": "A coleta falhou em {{count}} canal. Consulte os avisos.",
+    "syncError_other": "A coleta falhou em {{count}} canais. Consulte os avisos.",
+    "syncFailed": "Não foi possível concluir a coleta. Tente novamente e confira os requisitos dos canais.",
+    "noNewCollection": "Nenhum registro foi gravado nesta execução. Confira os requisitos dos canais.",
+    "lastRun": "Última execução — publicações medidas: {{posts}} · registros gravados: {{records}}",
+    "weeklyTitle": "Relatório semanal",
+    "weeklyDescription": "Sete dias comparados com os sete anteriores.",
+    "weeklyContents": "PDF com publicações, impressões, engajamento por canal e os três melhores posts. O CSV traz os mesmos números para conferência.",
+    "downloadPdf": "Baixar PDF",
+    "downloadCsv": "Baixar CSV",
+    "reportLanguage": "Os arquivos PDF e CSV são gerados em português nesta versão.",
+    "emailUnavailable": "O envio automático por e-mail depende de um provedor transacional, ainda não configurado.",
+    "reportSessionExpired": "Sessão expirada. Entre novamente para baixar o relatório.",
+    "reportFailed": "Não foi possível gerar um arquivo válido. Tente novamente.",
+    "reportGenerated": "Relatório gerado.",
+    "reportNetworkError": "Falha de rede ou tempo de espera esgotado ao gerar o relatório. Tente novamente.",
+    "impressions": "Impressões",
+    "engagement": "Engajamento",
+    "reach": "Alcance",
+    "snapshots": "Snapshots coletados",
+    "snapshotCaveat": "Os valores somam os registros coletados no período. A mesma publicação pode aparecer em mais de uma coleta; os totais não representam pessoas únicas nem crescimento exclusivo do período.",
+    "engagementTrend": "Engajamento por dia de coleta",
+    "platformImpressions": "Impressões por plataforma",
+    "dailyTableSummary": "Ver engajamento em tabela",
+    "platformTableSummary": "Ver impressões em tabela",
+    "collectionDate": "Dia da coleta (UTC)",
+    "platform": "Plataforma",
+    "otherPlatform": "Outras plataformas"
   }
 }

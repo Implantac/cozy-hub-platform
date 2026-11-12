@@ -6,6 +6,18 @@ A rodada descrita abaixo, de 11/11, é histórica. Em 12/11 foram aplicadas corr
 
 O estado atual e as pendências para clientes estão em [PORTFOLIO_E_CLIENTES.md](./docs/PORTFOLIO_E_CLIENTES.md). A migration de RLS aplicada remotamente foi incorporada ao repositório. A liberação comercial e o ciclo real de publicação/coleta continuam pendentes.
 
+### Segunda rodada: perfil, configurações e análises
+
+- [x] Unificar o cache do perfil por usuário, carregar o nome correto e confirmar a atualização no banco antes de exibir sucesso.
+- [x] Validar nomes vazios/espaços/limite de 80 caracteres; preservar rascunho em falha e recuperação.
+- [x] Corrigir a consulta de equipe sem inventar relacionamento PostgREST nem ampliar acesso a outros perfis.
+- [x] Distinguir erro de leitura de estado vazio em análises/requisitos/equipe e oferecer nova tentativa.
+- [x] Ajustar configurações para celular, traduzir os fluxos desta rodada e fornecer controles de período por teclado/tabelas acessíveis.
+- [x] Informar os limites de snapshots cumulativos, capacidade de coleta e relatórios; validar downloads sem prometer e-mail automático.
+- [x] Validar localmente typecheck/lint, 444 testes em 43 arquivos, auditoria de produção, build Vercel e 19 verificações de navegador com 9 análises Axe sem violações detectadas.
+
+A confirmação de sincronização, CI remoto e deploy pertence ao relatório operacional da entrega, não é deduzida dos testes locais. Nenhum gate de CI foi adicionado; a integração Git automática anterior foi preservada. Método, recuperação de falhas e limites estão em [QA_PORTFOLIO_RODADA_2.md](./docs/QA_PORTFOLIO_RODADA_2.md).
+
 ---
 
 **Atualizado:** 11/11/2026

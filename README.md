@@ -13,7 +13,8 @@ O diferencial não é ser mais um agendador de posts. É ser a camada de **julga
 | Área                                | Situação neste estágio                                                                          |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Publicação web e Supabase exclusivo | Portfólio funcional, em validação; não é liberação comercial                                    |
-| Autenticação, workspace e navegação | Corrigidos os dois bloqueios reproduzidos; regressão de navegador incluída                      |
+| Autenticação, workspace e navegação | Bootstrap e cache por usuário; regressões de login/recarga/recuperação incluídas                |
+| Perfil e equipe                     | Nome carregado/validado, save confirmado, rascunho preservado e consulta de membros sob RLS     |
 | Conteúdo                            | Rascunhos persistentes; salvar não publica; Studio opcional                                     |
 | Interface e idioma                  | Fluxo principal pt-BR/en-US; tradução avançada ainda parcial                                    |
 | USE Brain                           | Regras determinísticas por padrão; não é IA generativa nem pesquisa de mercado ao vivo          |

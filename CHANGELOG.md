@@ -1,5 +1,32 @@
 # Changelog
 
+## [Portfólio — segunda rodada] — 2026-11-12
+
+### Perfil e equipe
+
+- Perfil passa a usar a mesma consulta do cabeçalho, com chave por usuário, carregamento explícito e nome inicial correto.
+- Nome é aparado e validado entre 1 e 80 caracteres no cliente e no servidor; salvar exige retorno da linha atualizada. Cache e cabeçalho são atualizados com a confirmação do banco.
+- Falhas de atualização preservam o rascunho. Falhas de atualização em segundo plano não desmontam a aplicação nem apagam a edição em andamento.
+- Equipe deixa de depender de um relacionamento PostgREST inexistente: membros e perfis são lidos separadamente, sob RLS do chamador. Perfis não visíveis continuam privados e recebem um identificador abreviado traduzido.
+- Configurações têm abas com alvos de 44 px e disposição móvel; equipe informa que convites e alteração de permissões não existem nessa tela.
+
+### Análises e transparência
+
+- Falhas no resumo ou na leitura de requisitos aparecem como erros independentes com nova tentativa, não como gráficos vazios de sucesso.
+- Requisitos usam os coletores realmente implementados, verificam membership, propagam falhas de contagem e excluem publicações `sim_` da contagem de publicações efetivas. Capacidade do coletor não certifica token OAuth válido.
+- Período usa radios nativos com setas do teclado; gráficos têm tabelas equivalentes, datas estáveis em UTC e números localizados.
+- Totais identificam snapshots e avisam que somas de coletas cumulativas podem repetir valores. A agregação não foi deduplicada nesta rodada.
+- Downloads autenticados PDF/CSV validam HTTP, MIME, corpo não vazio e timeout. A tela informa que os arquivos são em português e que envio automático por e-mail não está configurado.
+- Textos de perfil, equipe e análises traduzidos em pt-BR/en-US.
+
+### Validação
+
+- Lint ignora o diretório gerado `.vercel/output`, assim como os demais outputs de build; não analisa novamente os bundles de dependências depois de compilar.
+- Typecheck, lint e 444 testes em 43 arquivos aprovados; auditoria das dependências de produção sem vulnerabilidades reportadas na execução.
+- Build Vercel compilado e testado localmente: 19 verificações de navegador, 9 estados auditados com Axe sem violações detectadas e limpeza dos usuários/workspaces temporários confirmada.
+- Leituras reais selecionadas respeitaram privacidade de perfis e recusaram outro workspace temporário; isso não substitui homologação completa de RBAC/RLS ou pentest.
+- Sem novas migrations, conexão social ou publicação real. Veja `docs/QA_PORTFOLIO_RODADA_2.md` para método, evidências e limites. Publicação remota deve ser confirmada separadamente.
+
 ## [Portfólio — primeira rodada] — 2026-11-12
 
 ### Estabilidade

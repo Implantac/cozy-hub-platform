@@ -122,9 +122,28 @@ export const getWorkspace = createServerFn({ method: "GET" })
       .maybeSingle();
     throwIfError(error);
     if (!ws) throw new Error("Workspace not found");
-    const { data: members } = await supabase
+    const { data: members, error: membersError } = await supabase
       .from("workspace_members")
-      .select("role, user_id, joined_at, profile:profiles(display_name, avatar_url)")
+      .select("role, user_id, joined_at")
       .eq("workspace_id", data.id);
-    return { workspace: ws, members: members ?? [] };
+    throwIfError(membersError);
+    const rows = members ?? [];
+    if (rows.length === 0) return { workspace: ws, members: [] };
+
+    // There is no PostgREST relationship from workspace_members to profiles.
+    // Keep both reads under the caller's RLS instead of adding an admin join or
+    // broadening profile visibility. Hidden profiles remain an explicit null.
+    const { data: profiles, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, display_name, avatar_url")
+      .in(
+        "id",
+        rows.map((member) => member.user_id),
+      );
+    throwIfError(profileError);
+    const byId = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+    return {
+      workspace: ws,
+      members: rows.map((member) => ({ ...member, profile: byId.get(member.user_id) ?? null })),
+    };
   });

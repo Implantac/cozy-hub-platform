@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { profileUpdateSchema } from "@/lib/profile/profile";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { throwIfError } from "./_supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -42,20 +43,19 @@ export const listRecentEvents = createServerFn({ method: "GET" })
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
-    z
-      .object({
-        display_name: z.string().min(1).max(80).optional(),
-        avatar_url: z.string().url().max(500).optional().nullable(),
-        locale: z.string().min(2).max(8).optional(),
-      })
-      .parse(i),
-  )
+  .inputValidator((input) => profileUpdateSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.from("profiles").update(data).eq("id", userId);
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .update(data)
+      .eq("id", userId)
+      .select("*")
+      .single();
     throwIfError(error);
-    return { ok: true };
+    // A request which changed no visible row must not be presented as "saved".
+    if (!profile) throw new Error("Profile update was not confirmed");
+    return { ok: true, profile };
   });
 
 export const completeOnboarding = createServerFn({ method: "POST" })

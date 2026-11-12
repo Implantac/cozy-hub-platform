@@ -5,10 +5,11 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import {
   createWorkspace,
-  getMyProfile,
   listMyWorkspaces,
   setDefaultWorkspace,
 } from "@/lib/api/workspaces.functions";
+import { useMyProfile } from "@/lib/profile/use-my-profile";
+import { profileQueryKey } from "@/lib/profile/profile";
 import { useCurrentWorkspaceId } from "@/lib/workspace/use-workspace";
 import { resolveWorkspaceId } from "@/lib/workspace/workspace-store";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -21,7 +22,6 @@ export function useWorkspaceBootstrap() {
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
   const attemptedUser = useRef<string | null>(null);
   const fetchWs = useServerFn(listMyWorkspaces);
-  const fetchProfile = useServerFn(getMyProfile);
   const createWs = useServerFn(createWorkspace);
   const setDefaultWs = useServerFn(setDefaultWorkspace);
 
@@ -30,11 +30,7 @@ export function useWorkspaceBootstrap() {
     queryFn: () => fetchWs(),
     enabled: !!auth.user,
   });
-  const profileQuery = useQuery({
-    queryKey: ["my-profile", auth.user?.id],
-    queryFn: () => fetchProfile(),
-    enabled: !!auth.user,
-  });
+  const profileQuery = useMyProfile(auth.user?.id);
 
   const [currentWsId, setCurrentWsId] = useCurrentWorkspaceId();
   const workspaces = useMemo(() => wsQuery.data ?? [], [wsQuery.data]);
@@ -73,7 +69,7 @@ export function useWorkspaceBootstrap() {
         // mount only after both agree, including in a completely new browser.
         qc.setQueryData(["my-workspaces", userId], [{ ...ws, role: "owner" }]);
         setCurrentWsId(ws.id);
-        await qc.invalidateQueries({ queryKey: ["my-profile", userId] });
+        await qc.invalidateQueries({ queryKey: profileQueryKey(userId) });
         toast.success(t("workspace.created"));
       })
       .catch((error) => {
@@ -104,7 +100,7 @@ export function useWorkspaceBootstrap() {
       // Do not switch the UI to a workspace that the server has rejected.
       await setDefaultWs({ data: { workspaceId: id } });
       setCurrentWsId(id);
-      await qc.invalidateQueries({ queryKey: ["my-profile", auth.user?.id] });
+      await qc.invalidateQueries({ queryKey: profileQueryKey(auth.user?.id) });
     } catch (error) {
       toast.error(errorMessage(error));
     }
@@ -113,7 +109,7 @@ export function useWorkspaceBootstrap() {
     const ws = await createWs({ data: { name: name.trim() } });
     await wsQuery.refetch();
     setCurrentWsId(ws.id);
-    await qc.invalidateQueries({ queryKey: ["my-profile", auth.user?.id] });
+    await qc.invalidateQueries({ queryKey: profileQueryKey(auth.user?.id) });
     toast.success(t("workspace.created"));
   };
 
@@ -123,9 +119,17 @@ export function useWorkspaceBootstrap() {
     profileQuery,
     workspaces,
     currentWs,
-    workspaceError: bootstrapError || wsQuery.error?.message || profileQuery.error?.message,
+    // A failed background refresh must not unmount the whole application when
+    // the user already has valid workspace/profile data (or erase an edit).
+    workspaceError:
+      bootstrapError ||
+      (wsQuery.data === undefined ? wsQuery.error?.message : null) ||
+      (profileQuery.data === undefined ? profileQuery.error?.message : null),
     isWorkspaceReady:
-      wsQuery.isSuccess && profileQuery.isSuccess && !!currentWs && currentWsId === currentWs.id,
+      wsQuery.data !== undefined &&
+      profileQuery.data !== undefined &&
+      !!currentWs &&
+      currentWsId === currentWs.id,
     retryBootstrap,
     handleSelectWs,
     handleCreateWs,

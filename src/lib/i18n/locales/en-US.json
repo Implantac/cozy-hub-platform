@@ -166,7 +166,8 @@
       "core": "Start here"
     },
     "bio": "Link in bio",
-    "moreTools": "More tools"
+    "moreTools": "More tools",
+    "openNavigation": "Open navigation"
   },
   "palette": {
     "placeholder": "Search pages, actions...",
@@ -221,13 +222,29 @@
     },
     "profile": {
       "title": "Your profile",
-      "displayName": "Display name"
+      "displayName": "Display name",
+      "help": "This name identifies you in the app and the member list. It does not change your sign-in email.",
+      "nameLimit": "Use 1 to {{max}} characters. Leading and trailing spaces are removed.",
+      "required": "Enter a name; spaces alone are not valid.",
+      "tooLong": "Use no more than {{max}} characters.",
+      "unsaved": "Changes have not been saved",
+      "noChanges": "No pending changes"
     },
     "team": {
-      "title": "Members"
+      "title": "Members",
+      "readOnly": "View the members of this workspace. Invitations and permission changes are not available on this screen.",
+      "empty": "No members were returned for this workspace.",
+      "visibilityNote": "Other member names depend on privacy rules. When a profile is not visible, a short identifier is shown.",
+      "memberFallback": "Member {{id}}"
     },
     "appearance": {
       "title": "Interface language"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Administrator",
+      "editor": "Editor",
+      "viewer": "Viewer"
     }
   },
   "workspace": {
@@ -270,7 +287,7 @@
     "notFoundDesc": "This route doesn't exist in your VELT.",
     "dashboardUnavailable": "We couldn’t load your dashboard.",
     "workspaceUnavailable": "We couldn’t load your workspaces. Check your connection and try again.",
-    "retryHint": "Check your connection and try loading the dashboard again.",
+    "retryHint": "Check your connection and try loading this section again.",
     "dataUnavailable": "Unable to load data"
   },
   "seo": {
@@ -509,5 +526,68 @@
     "description": "Global examples illustrate business ideas. Growth, competition and compatibility are illustrative values and scoring rules, not current data collected online.",
     "example": "Demonstration example",
     "rule": "Rule-based compatibility"
+  },
+  "analytics": {
+    "title": "Metrics, trends and channels",
+    "subtitle": "Review collected channel records with clear sources and limitations.",
+    "period": "Metrics period",
+    "lastDays": "Last {{days}} days",
+    "emptyTitle": "No metrics collected in this period",
+    "emptyText": "Metrics require actual published posts on authorized channels. Review the requirements above or choose a wider period. Charts are never filled with demonstration data.",
+    "createContent": "Create content",
+    "overviewError": "Unable to load metrics",
+    "readinessError": "Unable to check metric collection",
+    "collectionTitle": "Metric collection",
+    "collectionCounts": "Snapshots: {{snapshots}} · Actual publications: {{posts}}",
+    "measureNow": "Collect now",
+    "collecting": "Collecting…",
+    "syncHelp": "Requests data from connected providers. Requires valid authorization and may use platform quotas.",
+    "ownerRequired": "Only owners and administrators can start collection.",
+    "connectToMeasure": "To enable collection, authorize a channel via OAuth with an implemented metrics collector.",
+    "reason_no_channels": "No channels have been registered in this workspace.",
+    "reason_oauth_required": "Channels are registered, but none is authorized via OAuth. Manual registration does not enable collection.",
+    "reason_unsupported": "Connected channels do not support per-post collection in this version. Metrics will not be invented.",
+    "reason_no_posts": "There are no actual published posts to measure yet. Drafts and simulated publications do not count.",
+    "reason_not_collected": "There are actual published posts, but no collection records yet.",
+    "manageChannels": "View channels and requirements",
+    "unsupportedChannel": "per-post collection unavailable",
+    "oauthRequired": "OAuth pending",
+    "lastCollection": "last collected",
+    "age_never": "never collected",
+    "age_unknown": "collection date unconfirmed",
+    "age_recent": "less than 1h ago",
+    "age_hours_one": "{{count}}h ago",
+    "age_hours_other": "{{count}}h ago",
+    "age_days_one": "{{count}} day ago",
+    "age_days_other": "{{count}} days ago",
+    "syncSuccess": "Posts measured: {{posts}} · Records saved: {{records}}",
+    "syncError_one": "Collection failed on {{count}} channel. Review the warnings.",
+    "syncError_other": "Collection failed on {{count}} channels. Review the warnings.",
+    "syncFailed": "Unable to complete collection. Try again and review channel requirements.",
+    "noNewCollection": "No records were saved in this run. Review channel requirements.",
+    "lastRun": "Last run — posts measured: {{posts}} · records saved: {{records}}",
+    "weeklyTitle": "Weekly report",
+    "weeklyDescription": "Seven days compared with the previous seven.",
+    "weeklyContents": "A PDF with publications, impressions, channel engagement and the top three posts. The CSV contains the same numbers for verification.",
+    "downloadPdf": "Download PDF",
+    "downloadCsv": "Download CSV",
+    "reportLanguage": "PDF and CSV files are generated in Portuguese in this version.",
+    "emailUnavailable": "Automatic email delivery requires a transactional provider, which has not been configured.",
+    "reportSessionExpired": "Your session has expired. Sign in again to download the report.",
+    "reportFailed": "Unable to generate a valid file. Please try again.",
+    "reportGenerated": "Report generated.",
+    "reportNetworkError": "Network error or timeout while generating the report. Please try again.",
+    "impressions": "Impressions",
+    "engagement": "Engagement",
+    "reach": "Reach",
+    "snapshots": "Collected snapshots",
+    "snapshotCaveat": "Values add up the records collected in the selected period. The same post may appear in more than one collection; totals do not represent unique people or growth exclusive to this period.",
+    "engagementTrend": "Engagement by collection date",
+    "platformImpressions": "Impressions by platform",
+    "dailyTableSummary": "View engagement as a table",
+    "platformTableSummary": "View impressions as a table",
+    "collectionDate": "Collection date (UTC)",
+    "platform": "Platform",
+    "otherPlatform": "Other platforms"
   }
 }

@@ -3,15 +3,19 @@ import { useTranslation } from "react-i18next";
 export function QueryErrorState({
   onRetry,
   pending = false,
+  title,
+  description,
 }: {
   onRetry: () => void;
   pending?: boolean;
+  title?: string;
+  description?: string;
 }) {
   const { t } = useTranslation();
   return (
     <section role="alert" className="section-card space-y-3 p-6">
-      <h2 className="text-lg font-semibold">{t("errors.dataUnavailable")}</h2>
-      <p className="text-sm text-muted-foreground">{t("errors.retryHint")}</p>
+      <h2 className="text-lg font-semibold">{title ?? t("errors.dataUnavailable")}</h2>
+      <p className="text-sm text-muted-foreground">{description ?? t("errors.retryHint")}</p>
       <button
         type="button"
         onClick={onRetry}

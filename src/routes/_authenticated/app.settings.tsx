@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getWorkspace } from "@/lib/api/workspaces.functions";
 import { useWorkspaceQuery } from "@/lib/query/use-workspace-query";
+import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileTab } from "@/features/settings/components/ProfileTab";
 import { WorkspaceTab } from "@/features/settings/components/WorkspaceTab";
 import { TeamTab } from "@/features/settings/components/TeamTab";
@@ -34,20 +36,23 @@ function SettingsPage() {
       />
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="profile">
+        <TabsList
+          className="grid h-auto w-full grid-cols-2 gap-1 sm:flex sm:w-fit"
+          aria-label={t("settings.title")}
+        >
+          <TabsTrigger value="profile" className="min-h-11 min-w-0">
             <User className="mr-2 size-3.5" />
             {t("settings.tabs.profile", "Perfil")}
           </TabsTrigger>
-          <TabsTrigger value="workspace">
+          <TabsTrigger value="workspace" className="min-h-11 min-w-0">
             <Building2 className="mr-2 size-3.5" />
             {t("settings.tabs.workspace", "Workspace")}
           </TabsTrigger>
-          <TabsTrigger value="team">
+          <TabsTrigger value="team" className="min-h-11 min-w-0">
             <Users className="mr-2 size-3.5" />
             {t("settings.tabs.team", "Equipe")}
           </TabsTrigger>
-          <TabsTrigger value="appearance">
+          <TabsTrigger value="appearance" className="min-h-11 min-w-0">
             <Globe className="mr-2 size-3.5" />
             {t("settings.tabs.appearance", "Idioma")}
           </TabsTrigger>
@@ -57,9 +62,23 @@ function SettingsPage() {
           <ProfileTab />
         </TabsContent>
         <TabsContent value="workspace">
-          {q.data && <WorkspaceTab workspace={q.data.workspace} />}
+          {q.isError ? (
+            <QueryErrorState onRetry={() => void q.refetch()} pending={q.isFetching} />
+          ) : q.isPending ? (
+            <Skeleton className="h-40 w-full" />
+          ) : q.data ? (
+            <WorkspaceTab workspace={q.data.workspace} />
+          ) : null}
         </TabsContent>
-        <TabsContent value="team">{q.data && <TeamTab members={q.data.members} />}</TabsContent>
+        <TabsContent value="team">
+          {q.isError ? (
+            <QueryErrorState onRetry={() => void q.refetch()} pending={q.isFetching} />
+          ) : q.isPending ? (
+            <Skeleton className="h-40 w-full" />
+          ) : q.data ? (
+            <TeamTab members={q.data.members} />
+          ) : null}
+        </TabsContent>
         <TabsContent value="appearance">
           <AppearanceTab />
         </TabsContent>

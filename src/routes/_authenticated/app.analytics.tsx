@@ -17,6 +17,7 @@ import { EngagementTrendChart } from "@/features/analytics/components/Engagement
 import { PlatformImpressionsChart } from "@/features/analytics/components/PlatformImpressionsChart";
 import { SyncMetricsPanel } from "@/features/analytics/components/SyncMetricsPanel";
 import { WeeklyReportCard } from "@/features/analytics/components/WeeklyReportCard";
+import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
 
 export const Route = createFileRoute("/_authenticated/app/analytics")({
   head: () => modulePageHead("analytics"),
@@ -44,8 +45,8 @@ function AnalyticsPage() {
         <PageHeader
           icon={BarChart3}
           eyebrow={t("nav.analytics")}
-          title="Métricas, tendências e canais"
-          subtitle="Agregue impressões, alcance e engajamento ao longo do tempo e compare canais."
+          title={t("analytics.title")}
+          subtitle={t("analytics.subtitle")}
         />
 
         {/* Always visible: the empty state must explain itself and offer the fix. */}
@@ -57,25 +58,34 @@ function AnalyticsPage() {
 
         <PeriodTabs days={days} onChange={setDays} />
 
-        {q.isLoading ? (
+        {q.isError ? (
+          <QueryErrorState
+            title={t("analytics.overviewError")}
+            onRetry={() => void q.refetch()}
+            pending={q.isFetching}
+          />
+        ) : q.isLoading ? (
           <StatGridSkeleton count={4} />
         ) : !hasData ? (
           <EmptyState
             variant="card"
             icon={BarChart3}
-            title="Sem métricas coletadas neste período"
-            text="Os insights vêm de posts publicados com canal conectado via OAuth. Use “Medir agora” acima ou amplie o período."
+            title={t("analytics.emptyTitle")}
+            text={t("analytics.emptyText")}
             action={
               <Link
                 to="/app/content"
                 className="press inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Criar conteúdo
+                {t("analytics.createContent")}
               </Link>
             }
           />
         ) : (
           <>
+            <p className="rounded-lg border border-border/60 bg-card/40 p-4 text-sm leading-relaxed text-muted-foreground">
+              {t("analytics.snapshotCaveat")}
+            </p>
             <AnalyticsTotals totals={data!.totals} />
             <EngagementTrendChart daily={data!.daily} />
             <PlatformImpressionsChart byPlatform={data!.byPlatform} />

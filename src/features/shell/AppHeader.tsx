@@ -55,7 +55,7 @@ export function AppHeader({
           data-tour="mobile-navigation"
           onClick={onOpenMobileNav}
           className="press inline-flex size-9 items-center justify-center rounded-xl border border-border/60 bg-card/60 text-muted-foreground transition-all hover:border-primary/40 hover:bg-card hover:text-foreground lg:hidden"
-          aria-label="Open navigation"
+          aria-label={t("nav.openNavigation")}
         >
           <Menu className="size-4" />
         </button>

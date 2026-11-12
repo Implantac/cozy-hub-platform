@@ -16,6 +16,19 @@ Atualizado em 12/11/2026. Este documento descreve o código, não certifica inte
 - **Metadados:** títulos próprios por módulo usando o helper compartilhado.
 - **Configuração:** referências públicas do Supabase atualizadas, migration RLS já aplicada incorporada ao repositório, Node 22 LTS e heap de build de 4 GB.
 
+## Segunda rodada de melhorias
+
+- **Perfil confiável:** consulta compartilhada com chave por usuário, nome carregado no formulário, validação de 1 a 80 caracteres após trim e gravação confirmada pela linha retornada. Cabeçalho e cache recebem a confirmação do servidor; falhas preservam o rascunho.
+- **Recuperação sem desmontagem:** uma falha de refresh de perfil/workspaces com dados válidos em cache não desmonta a área privada. O formulário informa a falha e permite nova tentativa sem sobrescrever a edição.
+- **Equipe e privacidade:** correção do join PostgREST que não existia no schema. Membros e perfis são lidos separadamente com o cliente autenticado do chamador, sem service role, migration ou ampliação de RLS. Quando outro perfil não está visível, a interface explica a restrição e mostra um identificador abreviado; papéis são traduzidos. A tela é de consulta, não de convites ou administração de permissões.
+- **Celular e idioma:** abas de Configurações em duas colunas em telas pequenas, alvos de 44 px e traduções pt-BR/en-US de perfil/equipe/análises.
+- **Análises honestas:** erro do resumo e erro dos requisitos de coleta têm estados/retries próprios. Leituras de readiness verificam membership e propagam erros de canais, contagens e snapshots em vez de inventar zeros.
+- **Capacidade não é homologação:** a lista de coletores vem do código implementado (Instagram, Facebook, YouTube e LinkedIn). TikTok e Google Business não são marcados como capazes de insights nesta versão. Um coletor implementado não comprova credencial válida nem aprovação do provedor; publicações `sim_` não contam como efetivas nos requisitos.
+- **Snapshots e acessibilidade:** o indicador passa a se chamar coletas/snapshots, com ressalva de que somar coletas cumulativas pode repetir valores. Não houve deduplicação da agregação. Período usa radios nativos; tabelas equivalentes aos gráficos permitem leitura sem depender do desenho. Datas de coleta preservam o dia UTC e números seguem o idioma.
+- **Relatórios:** PDF/CSV autenticados verificam status HTTP, MIME esperado, corpo não vazio e timeout de 30 segundos antes de iniciar o download. Arquivos permanecem em português; nenhum envio automático por e-mail é prometido.
+
+A validação local desta rodada passou em typecheck, lint, 444 testes/43 arquivos, auditoria de dependências de produção e build Vercel. No artefato compilado local, 19 verificações de navegador e 9 estados com Axe passaram. Foram usados usuários/workspaces descartáveis com limpeza verificada; nenhum canal foi conectado e nenhum conteúdo foi publicado. As verificações selecionadas de isolamento não equivalem à revisão completa de RBAC/RLS. Consulte [o registro de QA da rodada 2](./QA_PORTFOLIO_RODADA_2.md) para método e limitações. O sucesso local não comprova publicação remota nem aprovação do CI remoto.
+
 ## Rótulo de portfólio não é modo de simulação
 
 `VITE_PORTFOLIO_MODE=true` exibe uma identificação pública e dentro do aplicativo. Não desativa autenticação, não remove RLS, não fornece credenciais públicas e não inventa métricas ou publicações.
