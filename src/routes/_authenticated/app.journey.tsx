@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -15,6 +16,7 @@ import { MentorPanel } from "@/features/journey/components/MentorPanel";
 import { PeriodsTimeline } from "@/features/journey/components/PeriodsTimeline";
 
 export const Route = createFileRoute("/_authenticated/app/journey")({
+  head: () => modulePageHead("journey"),
   component: JourneyPage,
 });
 

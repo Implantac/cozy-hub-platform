@@ -1,3 +1,5 @@
+import { modulePageHead } from "@/lib/page-head";
+import { useTranslation } from "react-i18next";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -20,10 +22,12 @@ import { BestTimeCard } from "@/features/scheduler/components/BestTimeCard";
 import { PublishCapabilityStrip } from "@/features/scheduler/components/PublishCapabilityStrip";
 
 export const Route = createFileRoute("/_authenticated/app/scheduler")({
+  head: () => modulePageHead("scheduler"),
   component: SchedulerPage,
 });
 
 function SchedulerPage() {
+  const { t } = useTranslation();
   const list = useServerFn(listSchedulerJobs);
   const cancel = useServerFn(cancelSchedulerJob);
   const tick = useServerFn(runSchedulerTickManual);
@@ -47,13 +51,13 @@ function SchedulerPage() {
 
   const cancelMut = useWorkspaceMutation(
     (jobId: string) => cancel({ data: { workspaceId: q.wsId!, jobId } }),
-    { invalidate: invalidateKey, successMessage: "Job canceled" },
+    { invalidate: invalidateKey, successMessage: t("scheduler.canceled") },
   );
 
   const tickMut = useWorkspaceMutation(() => tick({ data: { workspaceId: q.wsId!, limit: 10 } }), {
     invalidate: invalidateKey,
     successMessage: (r) =>
-      `Dispatcher ran · ${(r as { processed?: number }).processed ?? 0} processed`,
+      t("scheduler.ran", { count: (r as { processed?: number }).processed ?? 0 }),
   });
 
   const counts = (q.data ?? []).reduce<Record<string, number>>((acc, j) => {
@@ -66,8 +70,8 @@ function SchedulerPage() {
       <div className="space-y-6">
         <PageHeader
           icon={Calendar}
-          title="Scheduler"
-          subtitle="Multi-channel publishing queue with retry & DLQ."
+          title={t("scheduler.title")}
+          subtitle={t("scheduler.subtitle")}
         />
 
         <PublishCapabilityStrip />
@@ -93,14 +97,14 @@ function SchedulerPage() {
           <EmptyState
             variant="card"
             icon={Calendar}
-            title="Nenhuma publicação na fila"
-            text="Quando você agendar conteúdos no módulo Content, eles aparecem aqui aguardando o tick do scheduler."
+            title={t("scheduler.emptyTitle")}
+            text={t("scheduler.emptyText")}
             action={
               <Link
                 to="/app/content"
                 className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Ir para Content
+                {t("scheduler.contentLink")}
               </Link>
             }
           />

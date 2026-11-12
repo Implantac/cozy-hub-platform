@@ -159,7 +159,7 @@ export function SyncMetricsPanel() {
               {c.status === "connected" && c.insightCapable ? (
                 <CheckCircle2 className="size-3 text-emerald-500" />
               ) : (
-                <AlertCircle className="size-3 text-muted-foreground/60" />
+                <AlertCircle className="size-3 text-muted-foreground" />
               )}
               {PLATFORM_RULES[c.platform as PlatformId]?.label ?? c.platform}
               <span className="opacity-60">· {relative(c.lastSyncedAt)}</span>

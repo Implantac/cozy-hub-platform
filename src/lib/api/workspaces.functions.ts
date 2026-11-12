@@ -57,10 +57,12 @@ export const createWorkspace = createServerFn({ method: "POST" })
         .single(),
     );
 
-    await supabase
+    const { error: profileError } = await supabase
       .from("profiles")
-      .update({ default_workspace_id: ws.id, onboarding_completed: true })
+      .update({ default_workspace_id: ws.id })
       .eq("id", userId);
+    throwIfError(profileError);
+    // Creating a workspace does not mean the user has finished the wizard.
     await supabase.from("audit_logs").insert({
       workspace_id: ws.id,
       actor_id: userId,

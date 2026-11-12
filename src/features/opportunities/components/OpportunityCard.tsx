@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { Row } from "@/lib/brain/types";
 import { readLabels } from "@/lib/json";
 
@@ -37,6 +38,7 @@ import { MotionCard } from "@/components/app/Motion";
 import { STATUS_META } from "../constants";
 
 export function OpportunityCard({ o }: { o: OpportunityWithScore }) {
+  const { t } = useTranslation();
   // `actions` is a JSON column; narrowing once keeps the cast out of the JSX.
   const actions = readLabels(o.actions);
   const meta = STATUS_META[o.status];
@@ -45,6 +47,9 @@ export function OpportunityCard({ o }: { o: OpportunityWithScore }) {
     <MotionCard className="section-card hover-lift group relative overflow-hidden p-5">
       <div className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-2xl opacity-0 transition group-hover:opacity-100" />
       <div className="relative space-y-3">
+        {!o.workspace_id && (
+          <p className="text-xs font-semibold text-warning">{t("opportunitySource.example")}</p>
+        )}
         <div className="flex items-start justify-between gap-2">
           <div
             className={`inline-flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-0.5 text-xs ${meta.color}`}
@@ -60,7 +65,7 @@ export function OpportunityCard({ o }: { o: OpportunityWithScore }) {
                     ? "border-primary/40 bg-primary/10 text-primary"
                     : "border-border bg-background/40 text-muted-foreground"
               }`}
-              title="Compatibilidade com seu perfil"
+              title={t("opportunitySource.rule")}
             >
               <Brain className="size-3" /> {o._compatibility}% match
             </div>

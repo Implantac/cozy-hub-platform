@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
@@ -14,6 +15,7 @@ import { ScoreGaps } from "@/features/score/components/ScoreGaps";
 import { readGaps } from "@/lib/json";
 
 export const Route = createFileRoute("/_authenticated/app/score")({
+  head: () => modulePageHead("score"),
   component: ScorePage,
 });
 

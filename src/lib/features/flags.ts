@@ -28,6 +28,10 @@ function readFlag(value: string | undefined): boolean {
 }
 
 export const FEATURES = {
+  /** Presentation label only; never changes auth, RLS or publisher behavior. */
+  portfolio: readFlag(import.meta.env.VITE_PORTFOLIO_MODE),
+  /** Enable only after configuring and validating Google sign-in. */
+  googleAuth: readFlag(import.meta.env.VITE_GOOGLE_AUTH_ENABLED),
   /**
    * Commerce Hub: suppliers, dropshipping, marketplaces, product validation.
    *

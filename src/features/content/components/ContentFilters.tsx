@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 import { FILTERS, type FilterValue } from "../constants";
 
@@ -16,6 +17,7 @@ export function ContentFilters({
   onSearchChange,
   counts,
 }: ContentFiltersProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap items-center gap-1.5">
@@ -23,13 +25,14 @@ export function ContentFilters({
           <button
             key={f}
             onClick={() => onFilterChange(f)}
+            aria-pressed={filter === f}
             className={`rounded-md border px-3 py-1.5 text-xs font-medium capitalize transition ${
               filter === f
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-card/40 text-muted-foreground hover:text-foreground"
             }`}
           >
-            {f} <span className="ml-1 opacity-60">{counts[f] ?? 0}</span>
+            {t(`content.${f}`)} <span className="ml-1 text-muted-foreground">{counts[f] ?? 0}</span>
           </button>
         ))}
       </div>
@@ -38,7 +41,8 @@ export function ContentFilters({
         <input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search content..."
+          aria-label={t("content.search")}
+          placeholder={t("content.searchPlaceholder")}
           className="w-full rounded-md border border-input bg-background py-2 pl-8 pr-3 text-sm"
         />
       </div>

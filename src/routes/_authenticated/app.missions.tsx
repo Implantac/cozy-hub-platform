@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -16,6 +17,7 @@ import { MissionComposer } from "@/features/missions/components/MissionComposer"
 import { MissionBoard } from "@/features/missions/components/MissionBoard";
 
 export const Route = createFileRoute("/_authenticated/app/missions")({
+  head: () => modulePageHead("missions"),
   component: MissionsPage,
 });
 

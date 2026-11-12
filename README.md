@@ -10,23 +10,21 @@ O diferencial não é ser mais um agendador de posts. É ser a camada de **julga
 
 ## Estado atual, sem marketing
 
-| Área                                                   | Situação                                   |
-| ------------------------------------------------------ | ------------------------------------------ |
-| Multi-tenant com RLS por workspace                     | ✅ Produção                                |
-| UI completa — 23 telas, i18n pt-BR/en-US               | ✅ Produção                                |
-| USE Brain (6 engines, 5 perguntas, memória)            | ✅ Nível 1 — regras determinísticas        |
-| Motor de crescimento (pré-voo, gancho, melhor horário) | ✅ Produção                                |
-| Publicação Instagram / Facebook / YouTube              | ✅ Implementada (requer credenciais OAuth) |
-| Publicação LinkedIn / TikTok                           | ✅ Implementada (vídeo LinkedIn ainda não) |
-| Publicação Google Business Profile                     | ✅ Implementada + seletor de loja          |
-| Link na bio + página pública                           | ✅ Produção — `/bio/{slug}`, SSR + SEO     |
-| X, Threads, Pinterest                                  | ⛔ Sem publisher — falha explícita         |
-| Commerce Hub                                           | ⛔ Casca — "em breve"                      |
-| IA generativa no Brain                                 | ⚠️ Opcional, requer `LOVABLE_API_KEY`      |
-| Coach de reescrita com IA verificada                   | ✅ Com IA ou fallback determinístico       |
-| Trust OS com fonte externa (CNPJ + domínio)            | ✅ BrasilAPI + RDAP, sem chave             |
-| Relatório semanal em PDF + CSV                         | ✅ Sob demanda, autenticado                |
-| Busca vetorial / RAG                                   | ⛔ Não implementado (removido da landing)  |
+| Área                                | Situação neste estágio                                                                          |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Publicação web e Supabase exclusivo | Portfólio funcional, em validação; não é liberação comercial                                    |
+| Autenticação, workspace e navegação | Corrigidos os dois bloqueios reproduzidos; regressão de navegador incluída                      |
+| Conteúdo                            | Rascunhos persistentes; salvar não publica; Studio opcional                                     |
+| Interface e idioma                  | Fluxo principal pt-BR/en-US; tradução avançada ainda parcial                                    |
+| USE Brain                           | Regras determinísticas por padrão; não é IA generativa nem pesquisa de mercado ao vivo          |
+| Oportunidades globais               | Catálogo demonstrativo identificado na interface                                                |
+| Publicadores sociais                | Código implementado para algumas plataformas; requer credenciais, aprovações e homologação real |
+| Métricas e cron                     | Infraestrutura configurada; coleta real depende de canais autorizados e publicações reais       |
+| RLS/RBAC                            | RLS habilitada; testes selecionados aprovados, revisão completa multi-cliente pendente          |
+| IA, Google login e SMTP             | Dependem de configuração/validação; Google login não é exibido sem opt-in                       |
+| Commerce Hub / RAG                  | Não implementados; não prometer como recursos disponíveis                                       |
+
+Veja [portfólio e checklist para clientes](./docs/PORTFOLIO_E_CLIENTES.md) para escopo, limites e regressões.
 
 A honestidade é um requisito de produto: a tela de Agendamento mostra, canal por canal, o que realmente está habilitado naquele ambiente (`VELT_PUBLISHER_MODE`, credenciais presentes). Nenhum job entra em fila prometendo publicar o que não publica.
 
@@ -35,10 +33,10 @@ A honestidade é um requisito de produto: a tela de Agendamento mostra, canal po
 ## Começando
 
 ```bash
-git clone https://github.com/Implantac/cozy-hub-platform.git
-cd cozy-hub-platform
-cp .env.example .env      # preencha as chaves
-npm install
+git clone https://github.com/Implantac/velt-hub-platform.git
+cd velt-hub-platform
+cp .env.example .env.local # preencha localmente; nunca versione segredos
+npm ci
 npm run dev               # http://localhost:8080
 ```
 
@@ -58,17 +56,22 @@ Esse guard é limitado a credenciais e nomes conhecidos; ainda recomendamos adic
 aceitam **somente** `x-cron-secret`; uma chave publishable/anon nunca autentica
 cron. Gere um valor aleatório com pelo menos 32 caracteres (por exemplo,
 `openssl rand -hex 32`) e configure o mesmo valor como `CRON_SECRET` no ambiente
-do servidor e como `app.settings.cron_secret` no banco. A migration
-`20261111090000_cron_secret_only.sql` remove o agendamento de analytics se o
-segredo não estiver configurado; após configurar, reaplique essa migration. Não
-inclua o valor em SQL versionado, no `.env` ou em `VITE_*`.
+protegido do servidor e como segredo `velt_cron_secret` no Supabase Vault. Os dois
+jobs em operação consultam o Vault pelo nome ao executar. Não inclua o valor em
+SQL versionado, `.env`, `VITE_*` ou comandos compartilhados.
+
+O projeto atual não usa `ALTER DATABASE` para configurar cron: essa operação foi
+recusada no plano/conexão disponíveis. A migration antiga com `app.settings` é
+histórica; não a reaplique sobre o agendamento do Vault. Consulte
+[as notas de operação](./docs/PORTFOLIO_E_CLIENTES.md#banco-e-automações-existentes)
+antes de instalar um ambiente novo.
 
 Idiomas: **pt-BR** (padrão e língua de autoria) e **en-US**. O seletor mostra
 apenas os que têm tradução — listar um idioma sem arquivo de tradução faz a
 interface cair no inglês sem avisar. Para adicionar outro: um JSON em
 `src/lib/i18n/locales/` e uma linha em `SUPPORTED_LANGUAGES`.
 
-Requisitos: **Node 22.13+**. A versão do projeto e as dependências TanStack são verificadas nessa faixa; Node 20 pode emitir avisos `EBADENGINE` mesmo quando certas tarefas ainda funcionam.
+Requisitos: **Node 22 LTS, >=22.13 e <23**, alinhado com `.nvmrc`. O build usa heap de até 4 GB; prefira uma máquina com memória suficiente. Outras majors não foram homologadas nesta rodada.
 
 ### Scripts
 
@@ -77,7 +80,8 @@ npm run dev         # servidor de desenvolvimento
 npm run build       # build de produção
 npm run typecheck   # tsc --noEmit
 npm run lint        # eslint
-npm run test        # vitest (339 testes no snapshot de 2026-11-11)
+npm run test        # vitest
+npm run test:e2e    # login real + links/refresh/axe; exige VELT_QA_* no ambiente
 npm run verify      # typecheck + lint + test + build
 ```
 

@@ -1,3 +1,4 @@
+import { manualContentStatusSchema } from "@/lib/content/status";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -83,7 +84,7 @@ export const updateContentStatus = createServerFn({ method: "POST" })
       .object({
         workspaceId: z.string().uuid(),
         id: z.string().uuid(),
-        status: z.enum(["draft", "scheduled", "published", "archived"]),
+        status: manualContentStatusSchema,
       })
       .parse(input),
   )
@@ -106,7 +107,7 @@ export const bulkUpdateContentStatus = createServerFn({ method: "POST" })
       .object({
         workspaceId: z.string().uuid(),
         ids: z.array(z.string().uuid()).min(1).max(200),
-        status: z.enum(["draft", "scheduled", "published", "archived"]),
+        status: manualContentStatusSchema,
       })
       .parse(input),
   )

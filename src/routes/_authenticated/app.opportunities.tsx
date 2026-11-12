@@ -1,3 +1,5 @@
+import { modulePageHead } from "@/lib/page-head";
+import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -15,10 +17,12 @@ import { OpportunityStatusFilters } from "@/features/opportunities/components/Op
 import type { OpportunityStatusFilter } from "@/features/opportunities/constants";
 
 export const Route = createFileRoute("/_authenticated/app/opportunities")({
+  head: () => modulePageHead("opportunities"),
   component: OpportunitiesPage,
 });
 
 function OpportunitiesPage() {
+  const { t } = useTranslation();
   const [wsId] = useCurrentWorkspaceId();
   const [status, setStatus] = useState<OpportunityStatusFilter>(undefined);
   const listGeneric = useServerFn(OpportunitiesService.listOpportunities);
@@ -40,6 +44,14 @@ function OpportunitiesPage() {
           title="Oportunidades de mercado"
           subtitle="Nichos emergentes e tendências, ordenados pela compatibilidade com o seu perfil, canais e objetivos."
         />
+
+        <aside
+          className="rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm"
+          aria-label={t("opportunitySource.title")}
+        >
+          <p className="font-semibold">{t("opportunitySource.title")}</p>
+          <p className="mt-1 text-muted-foreground">{t("opportunitySource.description")}</p>
+        </aside>
 
         <OpportunityStatusFilters value={status} onChange={setStatus} />
 

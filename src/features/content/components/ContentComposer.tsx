@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ContentComposerProps {
   title: string;
@@ -7,7 +8,6 @@ interface ContentComposerProps {
   onBodyChange: (v: string) => void;
   onSubmit: () => void;
   isPending: boolean;
-  /** False when the live preflight found a blocker for at least one channel. */
   canPublish?: boolean;
 }
 
@@ -20,42 +20,65 @@ export function ContentComposer({
   isPending,
   canPublish = true,
 }: ContentComposerProps) {
+  const { t } = useTranslation();
   return (
-    <div className="section-card p-5">
+    <section
+      id="draft-composer"
+      aria-labelledby="draft-composer-heading"
+      className="section-card p-5"
+    >
+      <h2 id="draft-composer-heading" className="mb-4 text-lg font-semibold">
+        {t("content.composerTitle")}
+      </h2>
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (title.length >= 1) onSubmit();
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (title.trim() && !isPending) onSubmit();
         }}
-        className="space-y-3"
+        className="space-y-4"
       >
-        <input
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="Gancho do post (primeira linha)"
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        />
-        <textarea
-          value={body}
-          onChange={(e) => onBodyChange(e.target.value)}
-          placeholder="Escreva o post. A primeira linha é o que 90% das pessoas vão ler."
-          rows={4}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        />
-        <div className="flex items-center gap-3">
-          <button
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            <Plus className="size-4" /> Salvar rascunho
-          </button>
-          {!canPublish && (
-            <span className="text-xs text-amber-500">
-              Impedimento detectado no pré-voo — dá para salvar, mas não para agendar.
-            </span>
-          )}
+        <div className="space-y-1.5">
+          <label htmlFor="draft-title" className="text-sm font-medium">
+            {t("content.titleLabel")}
+          </label>
+          <input
+            id="draft-title"
+            value={title}
+            onChange={(event) => onTitleChange(event.target.value)}
+            placeholder={t("content.titlePlaceholder")}
+            required
+            maxLength={200}
+            className="min-h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
         </div>
+        <div className="space-y-1.5">
+          <label htmlFor="draft-body" className="text-sm font-medium">
+            {t("content.bodyLabel")}
+          </label>
+          <textarea
+            id="draft-body"
+            value={body}
+            onChange={(event) => onBodyChange(event.target.value)}
+            placeholder={t("content.bodyPlaceholder")}
+            rows={5}
+            maxLength={20000}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <p id="draft-save-hint" className="text-xs leading-relaxed text-muted-foreground">
+          {t("content.saveHint")}
+        </p>
+        <button
+          type="submit"
+          disabled={isPending || !title.trim()}
+          aria-describedby="draft-save-hint"
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 sm:w-auto"
+        >
+          <Plus aria-hidden="true" className="size-4" />{" "}
+          {t(isPending ? "content.saving" : "content.save")}
+        </button>
+        {!canPublish && <p className="text-xs text-warning">{t("content.blocked")}</p>}
       </form>
-    </div>
+    </section>
   );
 }

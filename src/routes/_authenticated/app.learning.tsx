@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { readMilestones } from "@/lib/json";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/app/learning")({
+  head: () => modulePageHead("learning"),
   component: LearningPage,
 });
 

@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -22,6 +23,7 @@ import { TwinPanel } from "@/features/brain-lab/panels/TwinPanel";
 import type { BrainLabTab } from "@/features/brain-lab/constants";
 
 export const Route = createFileRoute("/_authenticated/app/brain-lab")({
+  head: () => modulePageHead("brain_lab"),
   component: BrainLabPage,
 });
 

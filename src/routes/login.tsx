@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features/flags";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,8 +9,10 @@ import { lovable } from "@/integrations/lovable";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { requestLang, translateServer } from "@/lib/i18n/translate";
 import { authErrorTranslationKey } from "@/lib/auth/auth-error-message";
+import { loginSearch, safeAppReturnTo } from "@/lib/auth/return-to";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: loginSearch,
   head: async () => {
     const lang = await requestLang();
     return {
@@ -21,6 +24,8 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const returnTo = safeAppReturnTo(search.redirect ?? "/app");
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +48,7 @@ function LoginPage() {
 
     supabase.auth.getSession().then(({ data }) => {
       if (!active || recoveryFlow.current) return;
-      if (data.session?.user) navigate({ to: "/app", replace: true });
+      if (data.session?.user) navigate({ to: returnTo, replace: true });
     });
 
     const {
@@ -55,14 +60,14 @@ function LoginPage() {
         return;
       }
       if (event === "SIGNED_IN" && session?.user && !recoveryFlow.current) {
-        navigate({ to: "/app", replace: true });
+        navigate({ to: returnTo, replace: true });
       }
     });
     return () => {
       active = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
@@ -112,7 +117,7 @@ function LoginPage() {
       }
       recoveryFlow.current = false;
       toast.success(t("auth.passwordUpdated"));
-      navigate({ to: "/app", replace: true });
+      navigate({ to: returnTo, replace: true });
     } catch (error) {
       toast.error(t(authErrorTranslationKey(error)));
     } finally {
@@ -163,7 +168,7 @@ function LoginPage() {
           </p>
         </div>
 
-        {resetMode === "login" && (
+        {resetMode === "login" && FEATURES.googleAuth && (
           <>
             <button
               type="button"

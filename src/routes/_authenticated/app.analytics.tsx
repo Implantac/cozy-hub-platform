@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -17,12 +19,14 @@ import { SyncMetricsPanel } from "@/features/analytics/components/SyncMetricsPan
 import { WeeklyReportCard } from "@/features/analytics/components/WeeklyReportCard";
 
 export const Route = createFileRoute("/_authenticated/app/analytics")({
+  head: () => modulePageHead("analytics"),
   component: AnalyticsPage,
 });
 
 type Overview = Awaited<ReturnType<typeof getAnalyticsOverview>>;
 
 function AnalyticsPage() {
+  const { t } = useTranslation();
   const fetchOverview = useServerFn(getAnalyticsOverview);
   const [days, setDays] = useState<DaysOption>(30);
 
@@ -39,7 +43,7 @@ function AnalyticsPage() {
       <div className="space-y-6">
         <PageHeader
           icon={BarChart3}
-          eyebrow="Analytics"
+          eyebrow={t("nav.analytics")}
           title="Métricas, tendências e canais"
           subtitle="Agregue impressões, alcance e engajamento ao longo do tempo e compare canais."
         />

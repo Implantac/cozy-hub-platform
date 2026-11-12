@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { throwIfError } from "./_supabase";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getDashboard = createServerFn({ method: "GET" })
@@ -43,6 +44,10 @@ export const getDashboard = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false })
         .limit(8),
     ]);
+
+    for (const result of [brands, channels, content, jobs, recs, missions, events]) {
+      throwIfError(result.error);
+    }
 
     const contentByStatus = (content.data ?? []).reduce<Record<string, number>>((acc, r) => {
       acc[r.status] = (acc[r.status] ?? 0) + 1;

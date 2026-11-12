@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   name: string;
@@ -17,32 +18,51 @@ export function BrandComposer({
   onDescriptionChange,
   onSubmit,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="section-card p-5 sm:p-6">
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (name.length >= 2) onSubmit();
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (name.trim().length >= 2 && !isPending) onSubmit();
         }}
-        className="grid gap-3 md:grid-cols-[1fr_2fr_auto] items-end"
+        className="grid items-end gap-3 md:grid-cols-[1fr_2fr_auto]"
       >
-        <input
-          value={name}
-          onChange={(e) => onNameChange(e.target.value)}
-          placeholder="Brand name"
-          className="h-10 w-full rounded-xl border border-input bg-background/50 px-3 py-2 text-sm transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-        />
-        <input
-          value={description}
-          onChange={(e) => onDescriptionChange(e.target.value)}
-          placeholder="Description (optional)"
-          className="h-10 w-full rounded-xl border border-input bg-background/50 px-3 py-2 text-sm transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-        />
+        <div className="space-y-1.5">
+          <label htmlFor="brand-name" className="text-sm font-medium">
+            {t("brands.name")}
+          </label>
+          <input
+            id="brand-name"
+            value={name}
+            onChange={(event) => onNameChange(event.target.value)}
+            placeholder={t("brands.name")}
+            required
+            minLength={2}
+            maxLength={80}
+            className="min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="brand-description" className="text-sm font-medium">
+            {t("brands.description")}
+          </label>
+          <input
+            id="brand-description"
+            value={description}
+            onChange={(event) => onDescriptionChange(event.target.value)}
+            placeholder={t("brands.description")}
+            maxLength={2000}
+            className="min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
         <button
-          disabled={isPending}
-          className="h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow-sm hover:bg-primary/90 hover:shadow-glow hover:-translate-y-0.5 active:scale-[0.96] transition-all disabled:opacity-50"
+          type="submit"
+          disabled={isPending || name.trim().length < 2}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
-          <Plus className="size-4" /> Criar
+          <Plus aria-hidden="true" className="size-4" />{" "}
+          {t(isPending ? "brands.creating" : "brands.create")}
         </button>
       </form>
     </div>

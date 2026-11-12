@@ -1,3 +1,4 @@
+export { MANUAL_CONTENT_STATUSES } from "@/lib/content/status";
 export type ContentStatus = "draft" | "scheduled" | "published" | "archived";
 
 export const STATUSES: readonly ContentStatus[] = [

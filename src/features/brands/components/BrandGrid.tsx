@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import type { Brand } from "@/lib/api/_types";
 
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function BrandGrid({ brands, canDelete, isDeleting, onDelete }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       {brands.map((b) => (
@@ -19,7 +21,7 @@ export function BrandGrid({ brands, canDelete, isDeleting, onDelete }: Props) {
             </h3>
             <button
               type="button"
-              aria-label={`Delete brand ${b.name}`}
+              aria-label={t("brands.delete", { name: b.name })}
               onClick={() => onDelete(b.id)}
               disabled={!canDelete || isDeleting}
               className="text-muted-foreground hover:text-destructive disabled:opacity-50"

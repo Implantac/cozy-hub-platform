@@ -12,6 +12,8 @@ import { AppShellLayout } from "@/features/shell/AppShellLayout";
 import { useSidebarCollapse } from "@/features/shell/hooks/useSidebarCollapse";
 import { useShortcutsHotkey } from "@/features/shell/hooks/useShortcutsHotkey";
 import { useWorkspaceBootstrap } from "@/features/shell/hooks/useWorkspaceBootstrap";
+import { toast } from "sonner";
+import { errorMessage } from "@/lib/json";
 import { findBreadcrumb } from "@/features/shell/nav-groups";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -26,9 +28,17 @@ function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const [onboardingRequested, setOnboardingRequested] = useState(false);
 
   const { collapsed, toggleCollapsed } = useSidebarCollapse();
   useShortcutsHotkey(() => setShortcutsOpen((v) => !v));
+
+  useEffect(() => {
+    const onSetupStart = () => setOnboardingRequested(true);
+    window.addEventListener("digitalos:onboarding-start", onSetupStart);
+    return () => window.removeEventListener("digitalos:onboarding-start", onSetupStart);
+  }, []);
 
   useEffect(() => {
     const onTourStart = () => setTourOpen(true);
@@ -40,10 +50,20 @@ function AppShell() {
     setMobileOpen(false);
   }, [path]);
 
-  const { auth, wsQuery, profileQuery, workspaces, currentWs, handleSelectWs, handleCreateWs } =
-    useWorkspaceBootstrap();
+  const {
+    auth,
+    wsQuery,
+    profileQuery,
+    workspaces,
+    currentWs,
+    workspaceError,
+    isWorkspaceReady,
+    retryBootstrap,
+    handleSelectWs,
+    handleCreateWs,
+  } = useWorkspaceBootstrap();
 
-  if (auth.loading || wsQuery.isLoading) {
+  if (!workspaceError && (auth.loading || !isWorkspaceReady)) {
     return (
       <div className="grid min-h-dvh place-items-center bg-background">
         <div className="flex flex-col items-center gap-3">
@@ -56,14 +76,14 @@ function AppShell() {
     );
   }
 
-  if (wsQuery.isError) {
+  if (workspaceError) {
     return (
       <div className="grid min-h-dvh place-items-center bg-background px-4">
         <section role="alert" aria-live="polite" className="w-full max-w-md space-y-4 text-center">
           <h1 className="text-xl font-semibold">{t("errors.workspaceUnavailable")}</h1>
           <button
             type="button"
-            onClick={() => void wsQuery.refetch()}
+            onClick={retryBootstrap}
             disabled={wsQuery.isFetching}
             className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
@@ -76,15 +96,21 @@ function AppShell() {
 
   const crumb = findBreadcrumb(path, t);
   const needsOnboarding =
-    profileQuery.data && !profileQuery.data.onboarding_completed && !!currentWs;
+    !!currentWs &&
+    (onboardingRequested ||
+      (profileQuery.data && !profileQuery.data.onboarding_completed && !onboardingDismissed));
   const displayName = profileQuery.data?.display_name ?? auth.user?.email ?? "—";
   const userInitial = (profileQuery.data?.display_name ?? auth.user?.email ?? "U")
     .slice(0, 1)
     .toUpperCase();
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate({ to: "/login" });
+    try {
+      await signOut();
+      await navigate({ to: "/login", replace: true });
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   };
 
   return (
@@ -124,7 +150,11 @@ function AppShell() {
       {needsOnboarding && currentWs && (
         <OnboardingWizard
           open
-          onClose={() => profileQuery.refetch()}
+          onClose={() => {
+            setOnboardingRequested(false);
+            setOnboardingDismissed(true);
+            void profileQuery.refetch();
+          }}
           workspaceId={currentWs.id}
           workspaceName={currentWs.name}
           userName={auth.user?.user_metadata?.full_name as string | undefined}

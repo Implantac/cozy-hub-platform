@@ -1,5 +1,13 @@
 # Plano de melhorias e correções — VELT
 
+## Rodada de portfólio — 12/11/2026
+
+A rodada descrita abaixo, de 11/11, é histórica. Em 12/11 foram aplicadas correções de primeiro acesso/navegação, melhorias de primeiro uso, conteúdo móvel e acessibilidade. O segredo de cron já foi configurado via Vault no Supabase exclusivo; as instruções antigas de `ALTER DATABASE` não são o caminho operacional desse ambiente.
+
+O estado atual e as pendências para clientes estão em [PORTFOLIO_E_CLIENTES.md](./docs/PORTFOLIO_E_CLIENTES.md). A migration de RLS aplicada remotamente foi incorporada ao repositório. A liberação comercial e o ciclo real de publicação/coleta continuam pendentes.
+
+---
+
 **Atualizado:** 11/11/2026
 **Base:** branch `main`, commit `9c1225f`
 **Objetivo:** reduzir risco de publicação não autorizada e de abuso de rede, tornar as verificações repetíveis e fechar lacunas de operação sem ampliar o escopo funcional.

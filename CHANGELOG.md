@@ -1,5 +1,29 @@
 # Changelog
 
+## [Portfólio — primeira rodada] — 2026-11-12
+
+### Estabilidade
+
+- Estado de workspace único e sincronizado na mesma aba e entre abas; seleção validada contra memberships e limpeza de cache no logout.
+- Área privada renderizada no cliente, compatível com a sessão no navegador; links internos e query/fragmento preservados no login, com destino interno validado.
+- Onboarding não é concluído por criação de workspace ou fechamento; progresso atualizado após salvar a marca.
+- Erros de consulta não aparecem como estados vazios de sucesso nos módulos centrais.
+
+### Experiência e transparência
+
+- Primeiro painel orientado a tarefas, com visão avançada recolhida.
+- Formulário de rascunho priorizado no celular; Studio opcional, campos rotulados e indicação de que salvar não publica.
+- Edição manual no aplicativo/API limitada a rascunho/arquivado. Estados de entrega ficam no fluxo do scheduler.
+- Traduções do fluxo central, nomes acessíveis, correções de contraste reproduzidas e títulos próprios em cada módulo.
+- Rótulo de portfólio independente do modo de publicação; catálogo global identificado como exemplo e login Google oculto sem habilitação explícita.
+
+### Reprodutibilidade
+
+- Migration remota de visibilidade do owner incorporada; referências públicas do Supabase e repositório atualizadas.
+- Node 22 LTS e build com heap de 4 GB; guard de ambiente também verifica pacotes sem `.git`.
+- Regressões unitárias e script `npm run test:e2e` com autenticação real e contextos novos, sem injeção de storage.
+- Consulte `docs/PORTFOLIO_E_CLIENTES.md` para limites e checklist antes de distribuir a clientes. Integrações sociais, IA e SMTP não são certificadas por esta entrega.
+
 ## [Unreleased] — 2026-11-11
 
 ### Segurança e operação

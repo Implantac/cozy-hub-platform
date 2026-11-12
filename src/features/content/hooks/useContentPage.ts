@@ -1,3 +1,5 @@
+import { type ManualContentStatus } from "@/lib/content/status";
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -11,9 +13,10 @@ import {
 } from "@/lib/api/content.functions";
 import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspace-query";
 import type { Content } from "@/lib/api/_types";
-import { STATUSES, type ContentStatus, type FilterValue } from "../constants";
+import { STATUSES, type FilterValue } from "../constants";
 
 export function useContentPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const list = useServerFn(listContent);
   const create = useServerFn(createContent);
@@ -74,10 +77,10 @@ export function useContentPage() {
     });
 
   const createMut = useWorkspaceMutation(
-    () => create({ data: { workspaceId: q.wsId!, title, body, type: "post" } }),
+    () => create({ data: { workspaceId: q.wsId!, title: title.trim(), body, type: "post" } }),
     {
       invalidate: invalidateKey,
-      successMessage: "Draft created",
+      successMessage: t("content.created"),
       onSuccess: () => {
         setTitle("");
         setBody("");
@@ -85,18 +88,18 @@ export function useContentPage() {
     },
   );
 
-  const changeStatus = (id: string, status: ContentStatus) => {
+  const changeStatus = (id: string, status: ManualContentStatus) => {
     if (!q.wsId) return;
     updateStatus({ data: { id, status, workspaceId: q.wsId } })
       .then(() => qc.invalidateQueries({ queryKey: invalidateKey }))
       .catch((e: Error) => toast.error(e.message));
   };
 
-  const runBulkStatus = (status: ContentStatus) => {
+  const runBulkStatus = (status: ManualContentStatus) => {
     if (!q.wsId || selected.size === 0) return;
     bulkStatus({ data: { workspaceId: q.wsId, ids: [...selected], status } })
       .then((r) => {
-        toast.success(`${r.count} moved to ${status}`);
+        toast.success(t("content.moved", { count: r.count, status: t(`content.${status}`) }));
         setSelected(new Set());
         qc.invalidateQueries({ queryKey: invalidateKey });
       })
@@ -105,10 +108,10 @@ export function useContentPage() {
 
   const runBulkDelete = () => {
     if (!q.wsId || selected.size === 0) return;
-    if (!confirm(`Delete ${selected.size} item(s)? This cannot be undone.`)) return;
+    if (!confirm(t("content.confirmDelete", { count: selected.size }))) return;
     bulkDelete({ data: { workspaceId: q.wsId, ids: [...selected] } })
       .then((r) => {
-        toast.success(`${r.count} deleted`);
+        toast.success(t("content.deleted", { count: r.count }));
         setSelected(new Set());
         qc.invalidateQueries({ queryKey: invalidateKey });
       })

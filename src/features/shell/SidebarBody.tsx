@@ -65,7 +65,7 @@ export function SidebarBody({
   const renderGroup = (group: (typeof NAV_GROUPS)[number]) => (
     <div key={group.labelKey}>
       {!collapsed && (
-        <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/60">
+        <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {t(group.labelKey)}
         </div>
       )}

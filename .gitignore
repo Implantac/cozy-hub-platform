@@ -54,3 +54,9 @@ coverage
 # Python runtime artifacts
 __pycache__/
 *.py[cod]
+
+# Vercel local build and project-link artifacts
+.vercel/
+
+# Browser test reports may contain private account/workspace data
+.qa-artifacts/

@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
@@ -12,6 +13,7 @@ import { TeamTab } from "@/features/settings/components/TeamTab";
 import { AppearanceTab } from "@/features/settings/components/AppearanceTab";
 
 export const Route = createFileRoute("/_authenticated/app/settings")({
+  head: () => modulePageHead("settings"),
   component: SettingsPage,
 });
 

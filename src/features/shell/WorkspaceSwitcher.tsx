@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+import { errorMessage } from "@/lib/json";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, Check, Plus } from "lucide-react";
@@ -77,7 +79,11 @@ export function WorkspaceSwitcher({
                 const name = window.prompt(t("workspace.newName"));
                 if (name && name.trim()) {
                   setOpen(false);
-                  await onCreate(name.trim());
+                  try {
+                    await onCreate(name.trim());
+                  } catch (error) {
+                    toast.error(errorMessage(error));
+                  }
                 }
               }}
               className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-primary hover:bg-sidebar-accent"

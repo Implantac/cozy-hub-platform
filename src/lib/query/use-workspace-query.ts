@@ -72,6 +72,8 @@ export function useWorkspaceMutation<TVars, TData>(
       const raw = opts.invalidate;
       const keys: QueryKey[] = !raw ? [] : isQueryKeyArray(raw) ? raw : [raw];
       keys.forEach((key) => qc.invalidateQueries({ queryKey: key }));
+      // First-use progress must reflect saved brands/content immediately.
+      void qc.invalidateQueries({ queryKey: ["dashboard"] });
 
       if (opts.successMessage) {
         const msg =

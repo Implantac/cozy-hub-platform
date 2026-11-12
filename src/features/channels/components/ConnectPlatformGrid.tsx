@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link2 } from "lucide-react";
 import { PLATFORMS } from "@/components/app/platform-meta";
 
@@ -7,10 +8,11 @@ type Props = {
 };
 
 export function ConnectPlatformGrid({ disabled, onConnect }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="section-card p-5 sm:p-6">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-        Connect a platform
+        {t("channels.connectTitle")}
       </h3>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {PLATFORMS.map((p) => (
@@ -26,7 +28,7 @@ export function ConnectPlatformGrid({ disabled, onConnect }: Props) {
             <div className="flex-1">
               <div className="text-sm font-medium">{p.label}</div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Link2 className="size-3" /> Connect
+                <Link2 aria-hidden="true" className="size-3" /> {t("channels.connect")}
               </div>
             </div>
           </button>

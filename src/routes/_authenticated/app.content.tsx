@@ -1,3 +1,6 @@
+import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
+import { modulePageHead } from "@/lib/page-head";
+import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
@@ -14,10 +17,12 @@ import { useCoach } from "@/features/content/hooks/useCoach";
 import { StudioPanel } from "@/features/content/components/StudioPanel";
 
 export const Route = createFileRoute("/_authenticated/app/content")({
+  head: () => modulePageHead("content"),
   component: ContentPage,
 });
 
 function ContentPage() {
+  const { t } = useTranslation();
   const p = useContentPage();
   const pre = usePreflight(p.body, p.title);
   // Explicit-trigger AI: never runs on its own, because each call is billed.
@@ -26,13 +31,7 @@ function ContentPage() {
   return (
     <PageTransition>
       <div className="space-y-6">
-        <PageHeader
-          icon={FileText}
-          title="Content"
-          subtitle="Drafts, templates and AI-assisted creation."
-        />
-
-        <StudioPanel key={p.q.wsId ?? "no-workspace"} workspaceId={p.q.wsId} items={p.items} />
+        <PageHeader icon={FileText} title={t("content.title")} subtitle={t("content.subtitle")} />
 
         {/* Composer + live preflight: the audit runs while you type, so the
             draft never reaches the queue with a limit violation. */}
@@ -60,6 +59,16 @@ function ContentPage() {
           </div>
         </div>
 
+        <details className="section-card overflow-hidden">
+          <summary className="min-h-11 cursor-pointer px-5 py-4 text-sm font-semibold marker:text-primary">
+            {t("content.advanced")}{" "}
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
+              {t("content.optional")}
+            </span>
+          </summary>
+          <StudioPanel key={p.q.wsId ?? "no-workspace"} workspaceId={p.q.wsId} items={p.items} />
+        </details>
+
         <ContentFilters
           filter={p.filter}
           onFilterChange={p.setFilter}
@@ -77,17 +86,21 @@ function ContentPage() {
           />
         )}
 
-        <ContentList
-          items={p.items}
-          filtered={p.filtered}
-          isLoading={p.q.isLoading}
-          selected={p.selected}
-          allVisibleSelected={p.allVisibleSelected}
-          onToggleAll={p.toggleAll}
-          onToggleOne={p.toggleOne}
-          onStatusChange={p.changeStatus}
-          onClearFilters={p.clearFilters}
-        />
+        {p.q.isError ? (
+          <QueryErrorState onRetry={() => void p.q.refetch()} pending={p.q.isFetching} />
+        ) : (
+          <ContentList
+            items={p.items}
+            filtered={p.filtered}
+            isLoading={p.q.isLoading}
+            selected={p.selected}
+            allVisibleSelected={p.allVisibleSelected}
+            onToggleAll={p.toggleAll}
+            onToggleOne={p.toggleOne}
+            onStatusChange={p.changeStatus}
+            onClearFilters={p.clearFilters}
+          />
+        )}
       </div>
     </PageTransition>
   );

@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,9 +26,11 @@ import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader
 import { TopRowSection } from "@/features/dashboard/sections/TopRowSection";
 import { CoachMissionsSection } from "@/features/dashboard/sections/CoachMissionsSection";
 import { ActivityPipelineSection } from "@/features/dashboard/sections/ActivityPipelineSection";
+import { GettingStartedSection } from "@/features/dashboard/sections/GettingStartedSection";
 import { KpiFooterSection } from "@/features/dashboard/sections/KpiFooterSection";
 
 export const Route = createFileRoute("/_authenticated/app/")({
+  head: () => modulePageHead("dashboard"),
   component: GPSDashboard,
 });
 
@@ -150,43 +153,75 @@ function GPSDashboard() {
       : null;
   const priorityMissions = (d.missions ?? []).filter((m) => m.status !== "done").slice(0, 4);
 
+  const isGettingStarted =
+    d.counts.brands === 0 || d.counts.content === 0 || d.counts.channelsConnected === 0;
+  const panels = (
+    <>
+      <FiveQuestionsSection answers={brain.data?.answers ?? []} loading={brain.isLoading} />
+
+      <TopRowSection
+        scoreOverall={s?.overall ?? 0}
+        healthAvg={healthAvg}
+        health={healthList}
+        trending={trending}
+      />
+
+      <CoachMissionsSection topRecs={topRecs} priorityMissions={priorityMissions} />
+
+      <ActivityPipelineSection events={d.events} contentByStatus={d.contentByStatus} />
+
+      <OsLayersSection
+        blueprint={blueprint.data}
+        competitors={competitors.data}
+        skills={skills.data}
+        journey={journey.data}
+      />
+
+      <KpiFooterSection
+        brands={d.counts.brands}
+        channelsConnected={d.counts.channelsConnected}
+        channels={d.counts.channels}
+        content={d.counts.content}
+        scheduled={d.upcomingJobs.length}
+      />
+
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Activity className="size-3 text-success" /> {t("dashboard.dataHint")}
+      </div>
+    </>
+  );
+
   return (
     <PageTransition>
       <motion.div variants={stagger} initial="initial" animate="animate" className="space-y-6">
-        <DashboardHeader onRefresh={() => refreshAll.mutate()} isPending={refreshAll.isPending} />
+        {!isGettingStarted && (
+          <DashboardHeader onRefresh={() => refreshAll.mutate()} isPending={refreshAll.isPending} />
+        )}
 
-        <FiveQuestionsSection answers={brain.data?.answers ?? []} loading={brain.isLoading} />
+        {isGettingStarted && (
+          <GettingStartedSection
+            counts={d.counts}
+            onResume={
+              d.counts.brands === 0
+                ? () => window.dispatchEvent(new Event("digitalos:onboarding-start"))
+                : undefined
+            }
+          />
+        )}
 
-        <TopRowSection
-          scoreOverall={s?.overall ?? 0}
-          healthAvg={healthAvg}
-          health={healthList}
-          trending={trending}
-        />
-
-        <CoachMissionsSection topRecs={topRecs} priorityMissions={priorityMissions} />
-
-        <ActivityPipelineSection events={d.events} contentByStatus={d.contentByStatus} />
-
-        <OsLayersSection
-          blueprint={blueprint.data}
-          competitors={competitors.data}
-          skills={skills.data}
-          journey={journey.data}
-        />
-
-        <KpiFooterSection
-          brands={d.counts.brands}
-          channelsConnected={d.counts.channelsConnected}
-          channels={d.counts.channels}
-          content={d.counts.content}
-          scheduled={d.upcomingJobs.length}
-        />
-
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Activity className="size-3 text-success" /> Sistema operacional · atualização em tempo
-          real ativa
-        </div>
+        {isGettingStarted ? (
+          <details className="section-card p-5">
+            <summary className="min-h-11 cursor-pointer text-sm font-semibold">
+              {t("gettingStarted.advanced")}
+            </summary>
+            <p className="mb-6 mt-2 text-sm text-muted-foreground">
+              {t("gettingStarted.advancedHint")}
+            </p>
+            <div className="space-y-6">{panels}</div>
+          </details>
+        ) : (
+          panels
+        )}
       </motion.div>
     </PageTransition>
   );

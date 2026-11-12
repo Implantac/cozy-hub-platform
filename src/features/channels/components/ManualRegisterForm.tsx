@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PLATFORMS, type PlatformId } from "@/components/app/platform-meta";
 
 type Props = {
@@ -18,42 +19,67 @@ export function ManualRegisterForm({
   onSubmit,
   isPending,
 }: Props) {
+  const { t } = useTranslation();
   return (
-    <div className="section-card p-5 sm:p-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-        Or register a handle manually
-      </h3>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (handle.length > 0) onSubmit();
-        }}
-        className="grid gap-3 md:grid-cols-[auto_1fr_auto]"
+    <section className="section-card p-5 sm:p-6" aria-labelledby="manual-channel-heading">
+      <h2 id="manual-channel-heading" className="text-base font-semibold">
+        {t("channels.manualTitle")}
+      </h2>
+      <p
+        id="manual-channel-hint"
+        className="mb-4 mt-2 text-sm leading-relaxed text-muted-foreground"
       >
-        <select
-          value={platform}
-          onChange={(e) => setPlatform(e.target.value as PlatformId)}
-          className="h-10 rounded-xl border border-input bg-background/50 px-3 py-2 text-sm transition-all focus:border-primary/50"
-        >
-          {PLATFORMS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-        <input
-          value={handle}
-          onChange={(e) => setHandle(e.target.value)}
-          placeholder="@handle"
-          className="h-10 rounded-xl border border-input bg-background/50 px-3 py-2 text-sm transition-all focus:border-primary/50"
-        />
+        {t("channels.manualHint")}
+      </p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (handle.trim() && !isPending) onSubmit();
+        }}
+        className="grid items-end gap-3 md:grid-cols-[auto_1fr_auto]"
+        aria-describedby="manual-channel-hint"
+      >
+        <div className="space-y-1.5">
+          <label htmlFor="manual-channel-platform" className="text-sm font-medium">
+            {t("channels.platform")}
+          </label>
+          <select
+            id="manual-channel-platform"
+            value={platform}
+            onChange={(event) => setPlatform(event.target.value as PlatformId)}
+            className="min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+          >
+            {PLATFORMS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="manual-channel-handle" className="text-sm font-medium">
+            {t("channels.handle")}
+          </label>
+          <input
+            id="manual-channel-handle"
+            value={handle}
+            onChange={(event) => setHandle(event.target.value)}
+            placeholder={t("channels.handlePlaceholder")}
+            required
+            maxLength={200}
+            autoComplete="off"
+            className="min-h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
         <button
-          disabled={isPending}
-          className="h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow-sm hover:bg-primary/90 transition-all disabled:opacity-50"
+          type="submit"
+          disabled={isPending || !handle.trim()}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
-          <Plus className="size-4" /> Register
+          <Plus aria-hidden="true" className="size-4" />{" "}
+          {t(isPending ? "channels.registering" : "channels.register")}
         </button>
       </form>
-    </div>
+    </section>
   );
 }

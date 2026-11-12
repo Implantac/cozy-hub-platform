@@ -1,7 +1,8 @@
+import { type ManualContentStatus } from "@/lib/content/status";
+import { useTranslation } from "react-i18next";
 import { CheckSquare, Square } from "lucide-react";
 import { ListSkeleton } from "@/components/app/Skeletons";
 import type { Content } from "@/lib/api/_types";
-import type { ContentStatus } from "../constants";
 import { ContentRow } from "./ContentRow";
 import { ContentEmptyAll, ContentEmptyFiltered } from "./ContentEmpty";
 
@@ -13,7 +14,7 @@ type Props = {
   allVisibleSelected: boolean;
   onToggleAll: () => void;
   onToggleOne: (id: string) => void;
-  onStatusChange: (id: string, status: ContentStatus) => void;
+  onStatusChange: (id: string, status: ManualContentStatus) => void;
   onClearFilters: () => void;
 };
 
@@ -28,6 +29,7 @@ export function ContentList({
   onStatusChange,
   onClearFilters,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
       {filtered.length > 0 && (
@@ -36,7 +38,7 @@ export function ContentList({
           className="inline-flex items-center gap-2 px-1 text-xs text-muted-foreground hover:text-foreground"
         >
           {allVisibleSelected ? <CheckSquare className="size-4" /> : <Square className="size-4" />}
-          {allVisibleSelected ? "Unselect all" : "Select all"}
+          {t(allVisibleSelected ? "content.unselectAll" : "content.selectAll")}
         </button>
       )}
       {filtered.map((c) => (

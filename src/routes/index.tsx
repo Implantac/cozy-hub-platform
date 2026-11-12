@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { PortfolioNotice } from "@/features/portfolio/components/PortfolioNotice";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ogLocale, requestLang, translateServer } from "@/lib/i18n/translate";
 
@@ -145,6 +146,7 @@ function Landing() {
       </header>
 
       <main className="mx-auto max-w-6xl px-6">
+        <PortfolioNotice compact />
         {/* Hero */}
         <section className="py-24 text-center">
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur">
@@ -205,7 +207,7 @@ function Landing() {
                 key={s.title}
                 className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-6 backdrop-blur transition hover:border-primary/40 hover:shadow-elevated"
               >
-                <div className="absolute right-4 top-4 text-[11px] font-mono text-muted-foreground/60">
+                <div className="absolute right-4 top-4 text-[11px] font-mono text-muted-foreground">
                   0{i + 1}
                 </div>
                 <div className="grid size-11 place-items-center rounded-xl bg-gradient-brand shadow-glow-sm">

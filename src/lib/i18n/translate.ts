@@ -24,7 +24,7 @@ const DICTIONARIES: Record<LanguageCode, unknown> = {
 };
 
 /** Keys this module will look up. Keeping the list closed catches typos at compile time. */
-type Sections = "seo" | "root" | "routes";
+type Sections = "seo" | "root" | "routes" | "nav";
 
 export function translateServer(
   lang: LanguageCode,

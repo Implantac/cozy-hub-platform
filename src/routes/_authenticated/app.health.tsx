@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { HealthCategoryCard } from "@/features/health/components/HealthCategoryCard";
 
 export const Route = createFileRoute("/_authenticated/app/health")({
+  head: () => modulePageHead("health"),
   component: HealthPage,
 });
 

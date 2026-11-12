@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Flame, Heart } from "lucide-react";
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Props) {
+  const { t } = useTranslation();
   return (
     <section className="grid gap-4 lg:grid-cols-[auto,1fr,1fr]">
       <motion.div
@@ -95,6 +97,9 @@ export function TopRowSection({ scoreOverall, healthAvg, health, trending }: Pro
                 key={o.id}
                 className="rounded-lg border border-border/70 bg-background/40 p-3 transition hover:border-primary/30"
               >
+                {!o.workspace_id && (
+                  <p className="mb-1 text-xs text-warning">{t("opportunitySource.example")}</p>
+                )}
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm font-medium">{o.title}</span>
                   <span

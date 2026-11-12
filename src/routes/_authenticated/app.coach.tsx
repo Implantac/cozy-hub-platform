@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Brain, Sparkles } from "lucide-react";
@@ -13,6 +14,7 @@ import { RecommendationsList } from "@/features/coach/components/Recommendations
 import { JourneyTimeline } from "@/features/coach/components/JourneyTimeline";
 
 export const Route = createFileRoute("/_authenticated/app/coach")({
+  head: () => modulePageHead("coach"),
   component: CoachPage,
 });
 

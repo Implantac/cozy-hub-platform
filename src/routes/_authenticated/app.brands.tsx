@@ -1,3 +1,6 @@
+import { QueryErrorState } from "@/features/shell/components/QueryErrorState";
+import { modulePageHead } from "@/lib/page-head";
+import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -14,10 +17,12 @@ import { BrandComposer } from "@/features/brands/components/BrandComposer";
 import { BrandGrid } from "@/features/brands/components/BrandGrid";
 
 export const Route = createFileRoute("/_authenticated/app/brands")({
+  head: () => modulePageHead("brands"),
   component: BrandsPage,
 });
 
 function BrandsPage() {
+  const { t } = useTranslation();
   const list = useServerFn(listBrands);
   const create = useServerFn(createBrand);
   const remove = useServerFn(deleteBrand);
@@ -32,10 +37,10 @@ function BrandsPage() {
   const [description, setDescription] = useState("");
 
   const createMut = useWorkspaceMutation(
-    () => create({ data: { workspaceId: q.wsId!, name, description } }),
+    () => create({ data: { workspaceId: q.wsId!, name: name.trim(), description } }),
     {
       invalidate: invalidateKey,
-      successMessage: "Brand created",
+      successMessage: t("brands.created"),
       onSuccess: () => {
         setName("");
         setDescription("");
@@ -45,17 +50,13 @@ function BrandsPage() {
 
   const delMut = useWorkspaceMutation(
     (id: string) => remove({ data: { id, workspaceId: q.wsId! } }),
-    { invalidate: invalidateKey, successMessage: "Brand removed" },
+    { invalidate: invalidateKey, successMessage: t("brands.removed") },
   );
 
   return (
     <PageTransition>
       <div className="space-y-6">
-        <PageHeader
-          icon={Palette}
-          title="Brands"
-          subtitle="Voice, palette and identity per project."
-        />
+        <PageHeader icon={Palette} title={t("brands.title")} subtitle={t("brands.subtitle")} />
 
         <BrandComposer
           name={name}
@@ -66,29 +67,27 @@ function BrandsPage() {
           onSubmit={() => createMut.mutate()}
         />
 
-        {q.isLoading ? (
+        {q.isError ? (
+          <QueryErrorState onRetry={() => void q.refetch()} pending={q.isFetching} />
+        ) : q.isLoading ? (
           <ListSkeleton rows={3} />
         ) : q.data && q.data.length === 0 ? (
           <EmptyState
             variant="card"
             icon={Palette}
-            title="Nenhuma marca ainda"
-            text="Crie sua primeira marca para definir voz, paleta e canais. É a base da operação no VELT."
+            title={t("brands.emptyTitle")}
+            text={t("brands.emptyText")}
             action={
               <Button
                 size="sm"
                 onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>(
-                    'input[placeholder="Brand name"]',
-                  );
+                  const input = document.querySelector<HTMLInputElement>("#brand-name");
                   input?.focus();
                 }}
               >
-                <Plus className="size-4" /> Criar primeira marca
+                <Plus aria-hidden="true" className="size-4" /> {t("brands.first")}
               </Button>
             }
-            helpHref="https://docs.lovable.dev"
-            helpLabel="Como estruturar uma marca"
           />
         ) : (
           <BrandGrid

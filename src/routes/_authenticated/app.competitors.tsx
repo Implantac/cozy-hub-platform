@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ import { NewCompetitorDialog } from "@/features/competitors/components/NewCompet
 import type { Competitor, CompetitorInput } from "@/features/competitors/types";
 
 export const Route = createFileRoute("/_authenticated/app/competitors")({
+  head: () => modulePageHead("competitors"),
   component: CompetitorRadarPage,
 });
 

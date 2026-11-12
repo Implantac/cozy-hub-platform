@@ -14,7 +14,7 @@ export function BlockList({ data, active, setActive }: Props) {
     <motion.section variants={stagger} className="space-y-5">
       {CATEGORIES.map((cat) => (
         <motion.div key={cat} variants={fadeUp}>
-          <div className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <div className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
             {cat}
           </div>
           <div className="space-y-1.5">

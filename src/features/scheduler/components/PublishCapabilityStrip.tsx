@@ -68,10 +68,7 @@ export function PublishCapabilityStrip() {
       ))}
 
       {notImplemented.map((p) => (
-        <span
-          key={p.platform}
-          className="inline-flex items-center gap-1.5 text-muted-foreground/70"
-        >
+        <span key={p.platform} className="inline-flex items-center gap-1.5 text-muted-foreground">
           <XCircle className="size-3" />
           {PLATFORM_RULES[p.platform as PlatformId]?.label ?? p.platform}
         </span>

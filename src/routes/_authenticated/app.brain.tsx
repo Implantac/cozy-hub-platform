@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -21,6 +22,7 @@ import { RecommendationsPanel } from "@/features/brain/components/Recommendation
 import type { MemoryKind, RecStatus } from "@/features/brain/constants";
 
 export const Route = createFileRoute("/_authenticated/app/brain")({
+  head: () => modulePageHead("brain"),
   component: BrainPage,
 });
 

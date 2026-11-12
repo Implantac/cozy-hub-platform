@@ -1,23 +1,27 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { WORKSPACE_STORAGE_KEY, workspaceStore } from "./workspace-store";
 
-const KEY = "digitalos.current_workspace_id";
-
+/** All callers observe one snapshot, including updates made elsewhere in this tab. */
 export function useCurrentWorkspaceId(fallback?: string | null) {
-  const [id, setId] = useState<string | null>(null);
+  const id = useSyncExternalStore(
+    workspaceStore.subscribe,
+    workspaceStore.getSnapshot,
+    workspaceStore.getServerSnapshot,
+  );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = localStorage.getItem(KEY);
-    setId(stored || fallback || null);
+    workspaceStore.initialize(fallback);
   }, [fallback]);
 
-  const update = useCallback((next: string | null) => {
-    if (typeof window !== "undefined") {
-      if (next) localStorage.setItem(KEY, next);
-      else localStorage.removeItem(KEY);
-    }
-    setId(next);
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === WORKSPACE_STORAGE_KEY || event.key === null) {
+        workspaceStore.syncFromStorage();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  return [id, update] as const;
+  return [id, workspaceStore.set] as const;
 }

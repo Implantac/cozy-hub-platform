@@ -1,5 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { Play } from "lucide-react";
-import { STATUSES, STATUS_META } from "../constants";
+import { STATUSES } from "../constants";
 
 type Filter = (typeof STATUSES)[number];
 
@@ -22,17 +23,19 @@ export function SchedulerFilters({
   tickDisabled,
   tickPending,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-2">
         {STATUSES.map((s) => {
           const active = s === filter;
-          const label = s === "all" ? "All" : STATUS_META[s].label;
+          const label = t(`scheduler.${s}`);
           const count = s === "all" ? total : (counts[s] ?? 0);
           return (
             <button
               key={s}
               onClick={() => setFilter(s)}
+              aria-pressed={active}
               className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium transition ${
                 active
                   ? "border-primary bg-primary/10 text-primary"
@@ -54,7 +57,7 @@ export function SchedulerFilters({
         className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
         <Play className="size-3.5" />
-        {tickPending ? "Dispatching..." : "Run dispatcher"}
+        {t(tickPending ? "scheduler.running" : "scheduler.run")}
       </button>
     </div>
   );

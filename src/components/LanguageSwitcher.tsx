@@ -1,3 +1,4 @@
+import { useRouter } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Languages } from "lucide-react";
 import { SUPPORTED_LANGUAGES, persistLanguagePreference, type LanguageCode } from "@/lib/i18n";
@@ -9,6 +10,7 @@ import { SUPPORTED_LANGUAGES, persistLanguagePreference, type LanguageCode } fro
  */
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { i18n, t } = useTranslation();
+  const router = useRouter();
   const current = (i18n.resolvedLanguage ?? i18n.language) as LanguageCode;
 
   return (
@@ -20,10 +22,11 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       {!compact && <span className="sr-only">{t("common.language")}</span>}
       <select
         value={current}
-        onChange={(e) => {
+        onChange={async (e) => {
           const language = e.target.value as LanguageCode;
-          void i18n.changeLanguage(language);
           persistLanguagePreference(language);
+          await i18n.changeLanguage(language);
+          await router.invalidate();
         }}
         className="flex-1 cursor-pointer bg-transparent text-sm outline-none"
         aria-label={t("common.language")}

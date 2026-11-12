@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link2, Trash2, Unlink } from "lucide-react";
 import { PLATFORMS, getPlatformIcon } from "@/components/app/platform-meta";
 import type { Channel } from "@/lib/api/_types";
@@ -20,6 +21,7 @@ export function ChannelCard({
   onDisconnect,
   onConnect,
 }: Props) {
+  const { t } = useTranslation();
   const isGbp = c.platform === "google_business";
   const locationName =
     (c as { metadata?: { location_name?: string } }).metadata?.location_name ?? null;
@@ -36,18 +38,18 @@ export function ChannelCard({
           </div>
           <div>
             <div className="font-bold capitalize text-foreground group-hover:text-primary transition-colors">
-              {c.platform}
+              {meta?.label ?? c.platform}
             </div>
             <div className="text-sm text-muted-foreground">{c.handle ?? c.external_id ?? "—"}</div>
           </div>
         </div>
         <button
           type="button"
-          aria-label={`Delete ${c.platform} channel`}
+          aria-label={t("channels.delete", { platform: meta?.label ?? c.platform })}
           onClick={onDelete}
           disabled={disabled}
           className="text-muted-foreground hover:text-destructive disabled:opacity-50"
-          title="Delete channel"
+          title={t("channels.deleteTitle")}
         >
           <Trash2 className="size-4" />
         </button>
@@ -56,16 +58,16 @@ export function ChannelCard({
         <span
           className={`rounded-full px-2 py-0.5 ${isConnected ? "bg-success/20 text-success" : "bg-secondary text-secondary-foreground"}`}
         >
-          {c.status}
+          {t(`channels.${c.status}`, { defaultValue: c.status })}
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">{c.brand?.name ?? "no brand"}</span>
+          <span className="text-muted-foreground">{c.brand?.name ?? t("channels.noBrand")}</span>
           {isConnected ? (
             <button
               onClick={onDisconnect}
               className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 hover:bg-secondary"
             >
-              <Unlink className="size-3" /> Disconnect
+              <Unlink aria-hidden="true" className="size-3" /> {t("channels.disconnect")}
             </button>
           ) : (
             meta && (
@@ -73,7 +75,7 @@ export function ChannelCard({
                 onClick={() => onConnect(meta.oauth)}
                 className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 hover:bg-primary/5"
               >
-                <Link2 className="size-3" /> Connect
+                <Link2 aria-hidden="true" className="size-3" /> {t("channels.connect")}
               </button>
             )
           )}

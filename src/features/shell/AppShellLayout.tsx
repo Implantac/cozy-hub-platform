@@ -1,3 +1,4 @@
+import { PortfolioNotice } from "@/features/portfolio/components/PortfolioNotice";
 import { Outlet } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -97,7 +98,10 @@ export function AppShellLayout({
         <main id="main-content" className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-7xl px-4 py-8 lg:px-10 lg:py-10 animate-rise-in">
             {currentWs ? (
-              <Outlet />
+              <div key={currentWs.id} className="space-y-6">
+                <PortfolioNotice />
+                <Outlet />
+              </div>
             ) : (
               <div className="text-muted-foreground">{t("common.noWorkspace")}</div>
             )}

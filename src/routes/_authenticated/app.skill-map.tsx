@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,6 +15,7 @@ import { SkillStat } from "@/features/skill-map/components/SkillStat";
 import { SkillCard } from "@/features/skill-map/components/SkillCard";
 
 export const Route = createFileRoute("/_authenticated/app/skill-map")({
+  head: () => modulePageHead("skill_map"),
   component: SkillMapPage,
 });
 

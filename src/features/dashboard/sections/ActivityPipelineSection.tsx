@@ -32,7 +32,7 @@ export function ActivityPipelineSection({ events, contentByStatus }: Props) {
                   <div className="size-1.5 rounded-full bg-accent animate-soft-pulse" />
                   <span className="font-mono text-xs font-medium text-accent">{e.event_type}</span>
                 </div>
-                <span className="text-[11px] font-medium text-muted-foreground/70">
+                <span className="text-[11px] font-medium text-muted-foreground">
                   {new Date(e.created_at).toLocaleString([], {
                     hour: "2-digit",
                     minute: "2-digit",

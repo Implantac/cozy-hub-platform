@@ -66,7 +66,9 @@ function isTracked(file) {
     });
     return true;
   } catch {
-    return false;
+    // Release/source archives have no .git directory. Inspect their env files
+    // instead of silently skipping the entire guard for file-based deployments.
+    return !existsSync(".git");
   }
 }
 

@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -13,6 +14,7 @@ import { DiagnosticSteps } from "@/features/navigator/components/DiagnosticSteps
 import type { NavigatorForm } from "@/features/navigator/constants";
 
 export const Route = createFileRoute("/_authenticated/app/navigator")({
+  head: () => modulePageHead("navigator"),
   component: NavigatorPage,
 });
 

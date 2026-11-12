@@ -74,7 +74,10 @@ export function OnboardingWizard({
       }
       if (step === 2 && brandName.trim()) {
         await createBrandFn({ data: { workspaceId, name: brandName.trim() } });
-        qc.invalidateQueries({ queryKey: ["brands"] });
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ["brands", workspaceId] }),
+          qc.invalidateQueries({ queryKey: ["dashboard", workspaceId] }),
+        ]);
       }
       if (step === steps.length - 1) {
         await finishOnboarding({});
@@ -91,10 +94,9 @@ export function OnboardingWizard({
     }
   };
 
-  const skip = async () => {
-    await finishOnboarding({});
-    qc.invalidateQueries({ queryKey: ["my-profile"] });
-    onClose();
+  // Dismissing is not completion. The dashboard can reopen the setup later.
+  const skip = () => {
+    if (!loading) onClose();
   };
 
   const Current = steps[step];
@@ -143,6 +145,7 @@ export function OnboardingWizard({
                 <Label htmlFor="dn">{t("onboarding.s2.label", "Nome de exibição")}</Label>
                 <Input
                   id="dn"
+                  maxLength={80}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Ex: Maria Silva"
@@ -154,6 +157,7 @@ export function OnboardingWizard({
                 <Label htmlFor="bn">{t("onboarding.s3.label", "Nome da marca")}</Label>
                 <Input
                   id="bn"
+                  maxLength={80}
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   placeholder="Ex: Minha Marca"
@@ -162,7 +166,7 @@ export function OnboardingWizard({
             )}
             {step === 3 && (
               <div className="rounded-lg border border-success/30 bg-success/10 p-4 text-sm">
-                <p className="text-success-foreground">
+                <p className="text-success">
                   {t(
                     "onboarding.s4.body",
                     "Você está pronto para conectar canais, criar conteúdo e deixar o Brain trabalhar pra você.",
@@ -184,11 +188,14 @@ export function OnboardingWizard({
           </div>
           <div className="flex gap-2">
             {step < steps.length - 1 && (
-              <Button variant="ghost" size="sm" onClick={skip}>
+              <Button variant="ghost" size="sm" onClick={skip} disabled={loading}>
                 {t("onboarding.skip", "Pular")}
               </Button>
             )}
-            <Button onClick={next} disabled={loading || (step === 2 && !brandName.trim())}>
+            <Button
+              onClick={next}
+              disabled={loading || (step === 2 && brandName.trim().length < 2)}
+            >
               {step === steps.length - 1
                 ? t("onboarding.finish", "Concluir")
                 : t("onboarding.next", "Continuar")}

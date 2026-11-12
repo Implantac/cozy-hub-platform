@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,6 +10,7 @@ import { useWorkspaceMutation, useWorkspaceQuery } from "@/lib/query/use-workspa
 import type { Channel } from "@/lib/api/_types";
 
 export function useChannelsPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const list = useServerFn(listChannels);
   const create = useServerFn(createChannel);
@@ -27,13 +29,13 @@ export function useChannelsPage() {
     const ok = url.searchParams.get("oauth_connected");
     const err = url.searchParams.get("oauth_error");
     if (ok) {
-      toast.success(`${ok} connected`);
+      toast.success(t("channels.connectedNotice", { platform: ok }));
       url.searchParams.delete("oauth_connected");
       window.history.replaceState({}, "", url.toString());
       qc.invalidateQueries({ queryKey: invalidateKey });
     }
     if (err) {
-      toast.error(`OAuth error: ${err}`);
+      toast.error(t("channels.oauthError", { message: err }));
       url.searchParams.delete("oauth_error");
       window.history.replaceState({}, "", url.toString());
     }
@@ -44,10 +46,10 @@ export function useChannelsPage() {
   const [handle, setHandle] = useState("");
 
   const createMut = useWorkspaceMutation(
-    () => create({ data: { workspaceId: q.wsId!, platform, handle } }),
+    () => create({ data: { workspaceId: q.wsId!, platform, handle: handle.trim() } }),
     {
       invalidate: invalidateKey,
-      successMessage: "Channel registered",
+      successMessage: t("channels.registered"),
       onSuccess: () => setHandle(""),
     },
   );
@@ -59,7 +61,7 @@ export function useChannelsPage() {
 
   const disconnectMut = useWorkspaceMutation(
     (channelId: string) => disconnect({ data: { channelId } }),
-    { invalidate: invalidateKey, successMessage: "Channel disconnected" },
+    { invalidate: invalidateKey, successMessage: t("channels.disconnectedNotice") },
   );
 
   const connectMut = useWorkspaceMutation(

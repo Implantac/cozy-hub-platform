@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ShoppingBag, Package, Globe, Truck, CheckCircle, Lock } from "lucide-react";
 import { PageTransition } from "@/components/app/Motion";
@@ -7,6 +8,7 @@ import { motion } from "framer-motion";
 import { isFeatureEnabled } from "@/lib/features/flags";
 
 export const Route = createFileRoute("/_authenticated/app/commerce")({
+  head: () => modulePageHead("commerce"),
   /**
    * The flag has to be enforced here too, not only in the navigation.
    *

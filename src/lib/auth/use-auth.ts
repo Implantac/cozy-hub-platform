@@ -7,7 +7,7 @@ export type AuthState = {
   loading: boolean;
 };
 
-const WORKSPACE_STORAGE_KEY = "digitalos.current_workspace_id";
+import { workspaceStore } from "@/lib/workspace/workspace-store";
 
 export function useAuth(): AuthState {
   const [state, setState] = useState<AuthState>({ user: null, loading: true });
@@ -31,14 +31,7 @@ export function useAuth(): AuthState {
 }
 
 export async function signOut() {
-  // Clear any per-user UI state held in localStorage to avoid leaking
-  // workspace context to the next user that signs in on the same browser.
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem(WORKSPACE_STORAGE_KEY);
-    } catch {
-      /* ignore quota / privacy mode errors */
-    }
-  }
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+  workspaceStore.reset();
 }

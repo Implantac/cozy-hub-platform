@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Building2, History, Shield, ShieldAlert, ShoppingCart } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
@@ -8,6 +9,7 @@ import { TrustAnalyzerTab } from "@/features/trust/components/TrustAnalyzerTab";
 import { RegistryDossierTab } from "@/features/trust/components/RegistryDossierTab";
 
 export const Route = createFileRoute("/_authenticated/app/trust")({
+  head: () => modulePageHead("trust"),
   component: TrustOSPage,
 });
 

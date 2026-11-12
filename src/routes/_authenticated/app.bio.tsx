@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { Link2 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
@@ -5,6 +6,7 @@ import { PageTransition } from "@/components/app/Motion";
 import { BioEditor } from "@/features/bio/components/BioEditor";
 
 export const Route = createFileRoute("/_authenticated/app/bio")({
+  head: () => modulePageHead("bio"),
   component: BioPageRoute,
 });
 

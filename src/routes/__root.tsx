@@ -17,6 +17,7 @@ import { supabase } from "../integrations/supabase/client";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { createI18nInstance, type LanguageCode } from "@/lib/i18n";
 import { ogLocale, requestLang, translateServer } from "@/lib/i18n/translate";
+import { workspaceStore } from "@/lib/workspace/workspace-store";
 
 /** Last-resort copy when neither dictionary has the key. */
 const ROOT_SEO_FALLBACK = {
@@ -177,9 +178,18 @@ function AuthInvalidator() {
     } = supabase.auth.onAuthStateChange((event) => {
       // Only react to actual auth transitions — ignore INITIAL_SESSION and
       // TOKEN_REFRESHED to avoid an invalidate ↔ getUser() refresh loop.
+      if (event === "SIGNED_OUT") {
+        workspaceStore.reset();
+        // Drop cached private data before another account can use this browser.
+        void queryClient.cancelQueries();
+        queryClient.clear();
+      }
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-        router.invalidate();
-        queryClient.invalidateQueries();
+        // Leave the Supabase auth callback before guards request the SDK again.
+        queueMicrotask(() => {
+          void router.invalidate();
+          void queryClient.invalidateQueries();
+        });
       }
     });
     return () => subscription.unsubscribe();

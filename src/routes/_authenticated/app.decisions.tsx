@@ -1,3 +1,4 @@
+import { modulePageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, Lightbulb, Target } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
@@ -7,6 +8,7 @@ import { BusinessValidatorTab } from "@/features/decisions/tabs/BusinessValidato
 import { RealityCheckTab } from "@/features/decisions/tabs/RealityCheckTab";
 
 export const Route = createFileRoute("/_authenticated/app/decisions")({
+  head: () => modulePageHead("decisions"),
   component: DecisionOSPage,
 });
 

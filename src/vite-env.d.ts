@@ -13,6 +13,9 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   /** Off by default. See `src/lib/features/flags.ts`. */
   readonly VITE_FLAG_COMMERCE?: string;
+  /** Display a portfolio disclaimer; never enable simulated publishing. */
+  readonly VITE_PORTFOLIO_MODE?: string;
+  readonly VITE_GOOGLE_AUTH_ENABLED?: string;
 }
 
 interface ImportMeta {
