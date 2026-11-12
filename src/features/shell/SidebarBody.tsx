@@ -86,6 +86,7 @@ export function SidebarBody({
                   : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground hover:translate-x-1",
               )}
               aria-current={active ? "page" : undefined}
+              aria-label={collapsed ? t(item.labelKey) : undefined}
             >
               {active && !collapsed && (
                 <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-gradient-brand shadow-glow-sm" />
@@ -215,6 +216,7 @@ export function SidebarBody({
             <TooltipTrigger asChild>
               <Link
                 to="/app/settings"
+                aria-label={t("nav.settings")}
                 className="flex items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
               >
                 <Settings className="size-4" />
@@ -236,6 +238,7 @@ export function SidebarBody({
             <TooltipTrigger asChild>
               <button
                 onClick={onSignOut}
+                aria-label={t("common.signOut")}
                 className="flex w-full items-center justify-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
               >
                 <LogOut className="size-4" />

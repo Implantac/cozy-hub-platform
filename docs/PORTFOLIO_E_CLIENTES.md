@@ -40,6 +40,18 @@ Use conta de teste com onboarding concluído. `VELT_QA_DEVICE=desktop` ou `mobil
 
 A suíte cobre contexto novo, retorno de login, acesso direto, recarga de cinco módulos, títulos, largura e axe em desktop/mobile. A auditoria de um estado vazio não cobre formulários preenchidos, todos os diálogos nem certifica WCAG. Uma jornada adicional de QA com usuário temporário foi usada para testar onboarding, CRUD, troca em duas abas e troca de conta; os recursos temporários foram removidos.
 
+## Publicação desta rodada
+
+O acesso GitHub disponível na sessão não permitiu enviar commits. Para não afirmar uma sincronização inexistente, a entrega inclui um ZIP do código e um patch a partir do commit-base do repositório. Os commits locais e o estado de push são registrados separadamente no arquivo de proveniência da entrega.
+
+A publicação por arquivos na Vercel usa um bootstrap mínimo: ele restaura um arquivo de fontes em um bucket **privado** do Supabase exclusivo e confere seu SHA-256 antes de instalar o lockfile. O instalador recebe as credenciais somente do ambiente protegido existente; o pacote de código não contém credenciais de servidor. A URL de storage é fixa no projeto VELT.
+
+O bucket `velt-deploy-sources` guarda os pacotes imutáveis necessários a um novo build dessa publicação. Não o remova enquanto houver dependência de rebuild/rollback desse caminho. Ele não é uma biblioteca pública de mídia nem um recurso do produto.
+
+O comando de instalação é condicional: se houver `restore-velt-source.mjs`, o bootstrap precisa concluir com sucesso; em um checkout normal do repositório, sem esse arquivo, executa apenas `npm ci`. Assim, a configuração não exige o bootstrap depois que o código estiver sincronizado no GitHub.
+
+Não religue automações Git antes de sincronizar a versão entregue: o `main` remoto ainda pode conter a versão anterior. O smoke público pós-build é registrado no relatório da entrega, não presumido pelo sucesso dos testes unitários.
+
 ## Banco e automações existentes
 
 A migration `20261112143126_workspace_owner_returning_visibility.sql` já havia sido aplicada no Supabase exclusivo e agora está versionada. Não é necessário reaplicá-la manualmente nesse projeto. Não desative RLS para corrigir bootstrap.
